@@ -1,0 +1,20 @@
+name: Strict FP64 physical-geometry host audit repair
+on:
+  push:
+    branches: [research/nanbeige-bpd-gym-suite-towers]
+    paths: ['experiments/nan_xref25/**', '.github/workflows/nan-xref25-cpu.yml']
+  pull_request:
+    paths: ['experiments/nan_xref25/**', '.github/workflows/nan-xref25-cpu.yml']
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -S -m unittest discover -s experiments/nan_xref25/tests -v
+      - run: python -B -S -c "from experiments.nan_xref25.common import verify; verify('git')"

@@ -1,0 +1,59 @@
+{
+  "observed_UTC": "2026-11-21T22:03:21.5467761Z",
+  "condition": "NAN-RAM-28",
+  "model_private_bytes": 5869961216,
+  "model_working_set_bytes": 1104633856,
+  "available_physical_bytes": 3977306112,
+  "sampled_process_GPU_dedicated_bytes": 3857412096.0,
+  "sampled_process_GPU_shared_bytes": 81788928.0,
+  "GPU_samples": [
+    {
+      "timestamp": "2026/11/22 06:03:16.374",
+      "utilization_percent": 100,
+      "allocated_MiB": 3679,
+      "total_MiB": 4096
+    },
+    {
+      "timestamp": "2026/11/22 06:03:17.904",
+      "utilization_percent": 100,
+      "allocated_MiB": 3679,
+      "total_MiB": 4096
+    },
+    {
+      "timestamp": "2026/11/22 06:03:19.110",
+      "utilization_percent": 100,
+      "allocated_MiB": 3679,
+      "total_MiB": 4096
+    },
+    {
+      "timestamp": "2026/11/22 06:03:20.314",
+      "utilization_percent": 100,
+      "allocated_MiB": 3679,
+      "total_MiB": 4096
+    },
+    {
+      "timestamp": "2026/11/22 06:03:21.504",
+      "utilization_percent": 100,
+      "allocated_MiB": 3679,
+      "total_MiB": 4096
+    }
+  ],
+  "model_modified": false,
+  "math_process_modified": false,
+  "Torch_imported": false,
+  "qualification": "Read-only point samples; allocations are not physical residency or continuous peaks. No task scores inspected.",
+  "private_observation_sha256": "1829ec33adda3047fb1eaeb958015fd125f783c375f59def965e2f8943188d49",
+  "verified_after_load_layout": {
+    "decoder_GPU_layers": 22,
+    "head_device": "cuda:0",
+    "embedding_device": "cpu",
+    "private_receipt_sha256": "d6fd73a161cb2fe93f330874095952a4569974a973f84590242c57071cf20392"
+  },
+  "latest_closed_prefix_observation": {
+    "cuda_elapsed_ms": 23538.068359375,
+    "wall_seconds": 23.54700000002049
+  },
+  "limitations": "Five samples and one closed prefix timing; no continuous utilization, physical-residency, memory reduction or throughput gain claim.",
+  "formal_comparisons": 0,
+  "sealed_test_accessed": false
+}

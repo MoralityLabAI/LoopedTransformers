@@ -1,0 +1,910 @@
+{
+  "experiment": "NAN-FRONTIER-55",
+  "fit_selection_sha256": "45589d676592de905f2917b86d2ddb20686aef675a697d4c522e58d9b3c7b9fa",
+  "formal_comparisons": 0,
+  "new_pretrained_forwards": 0,
+  "panels": {
+    "check": {
+      "custody": {
+        "clean_max_log_normalizer_delta": 9.354502772396245e-08,
+        "clean_max_top_logit_delta": 0.0,
+        "unique_head_states": 152,
+        "vocabulary_rows_per_state": 166144
+      },
+      "exact_necessary_nominal_dose": {
+        "bf16": {
+          "max": 0.0072900765240497285,
+          "median": 4.251009526833916e-05,
+          "min": 7.013936285951504e-06,
+          "signed_targets": 16
+        },
+        "nf4": {
+          "max": 0.006876790851160852,
+          "median": 0.006757586161694674,
+          "min": 0.006594713341802271,
+          "signed_targets": 16
+        }
+      },
+      "private_sha256": "fcd03af8f26cd4f8a01ba7382c2c6f0b2e1f42742b31740abf74e26bef1dffdc",
+      "recipes": {
+        "0.0025/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.0025,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 6,
+              "dose_matched": 1,
+              "exact_support_floor_excludes": 2,
+              "full_pass": 1,
+              "physical_gate": 1,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 1,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.0625
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 0,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 8,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 1
+        },
+        "0.0025/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.0025,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 1,
+              "contrast_retained": 3,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 2,
+              "full_pass": 3,
+              "physical_gate": 3,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.0625
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 0,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 8,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 3
+        },
+        "0.0050/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.005,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 1,
+              "exact_support_floor_excludes": 2,
+              "full_pass": 1,
+              "physical_gate": 1,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 1,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.125
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 8,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 1
+        },
+        "0.0050/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.005,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 2,
+              "contrast_retained": 6,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 2,
+              "full_pass": 5,
+              "physical_gate": 6,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 1,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.11328125
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 0,
+              "dose_matched": 7,
+              "exact_support_floor_excludes": 8,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 5
+        },
+        "0.0075/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.0075,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 1,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 1,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 1,
+              "sham_specific": 1,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.1796875
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 4,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0075/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.0075,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 6,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 6,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 6,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.16796875
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 0,
+              "dose_matched": 6,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0100/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.01,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 1,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 1,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 1,
+              "sham_specific": 1,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.234375
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0100/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.01,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 6,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 6,
+              "physical_worlds_greedy_changed": 1,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 6,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.22265625
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0150/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.015,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 1,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 1,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 1,
+              "sham_specific": 3,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.359375
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 4,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0150/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.015,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 1,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 1,
+              "physical_worlds_greedy_changed": 1,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 1,
+              "sham_specific": 3,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.359375
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 4,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0200/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.02,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 4,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 4,
+              "physical_worlds_greedy_changed": 2,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 4,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.38525390625
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 2,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0200/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.02,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 3,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 3,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 3,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.37890625
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 3,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        }
+      },
+      "round54_gate_fields_reproduced": 192
+    },
+    "fit": {
+      "custody": {
+        "clean_max_log_normalizer_delta": 4.0409948098840687e-07,
+        "clean_max_top_logit_delta": 0.0,
+        "unique_head_states": 152,
+        "vocabulary_rows_per_state": 166144
+      },
+      "exact_necessary_nominal_dose": {
+        "bf16": {
+          "max": 0.0072917699210132345,
+          "median": 1.4294117641920273e-05,
+          "min": 1.4028814906396975e-05,
+          "signed_targets": 16
+        },
+        "nf4": {
+          "max": 0.006973764446932638,
+          "median": 0.006878289951825826,
+          "min": 0.006641304026595139,
+          "signed_targets": 16
+        }
+      },
+      "private_sha256": "c5efe3259aaa50231086f3c7e3b9abeff3a21f9afa6915aa01a44b0f5300569c",
+      "recipes": {
+        "0.0025/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.0025,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 6,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 2,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 0,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 8,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0025/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.0025,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 1,
+              "contrast_retained": 6,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 2,
+              "full_pass": 5,
+              "physical_gate": 6,
+              "physical_worlds_greedy_changed": 1,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.05859375
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 0,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 8,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 5
+        },
+        "0.0050/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.005,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 2,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 8,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0050/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.005,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 1,
+              "contrast_retained": 6,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 2,
+              "full_pass": 4,
+              "physical_gate": 6,
+              "physical_worlds_greedy_changed": 2,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 1,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.1171875
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 0,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 8,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 4
+        },
+        "0.0075/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.0075,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 2,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0075/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.0075,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 6,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 6,
+              "physical_worlds_greedy_changed": 1,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 6,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.16796875
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 0,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0100/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.01,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0100/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.01,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 6,
+              "dose_matched": 8,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 6,
+              "physical_worlds_greedy_changed": 3,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 6,
+              "sham_specific": 8,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.22265625
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0150/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.015,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 3,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 4,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0150/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.015,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 1,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 4,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 0,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0200/dense": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.02,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 5,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 5,
+              "physical_worlds_greedy_changed": 3,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 5,
+              "sham_specific": 7,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.3671875
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 4,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        },
+        "0.0200/step_ratio_0.8": {
+          "both_worlds_roots_in_both_precisions": 0,
+          "dose_fraction": 0.02,
+          "per_backend": {
+            "bf16": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 5,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 5,
+              "physical_worlds_greedy_changed": 2,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 5,
+              "sham_specific": 7,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": 0.349609375
+            },
+            "nf4": {
+              "both_worlds_roots": 0,
+              "contrast_retained": 8,
+              "dose_matched": 0,
+              "exact_support_floor_excludes": 0,
+              "full_pass": 0,
+              "physical_gate": 0,
+              "physical_worlds_greedy_changed": 0,
+              "physical_worlds_margin_failed": 0,
+              "physical_worlds_peak_failed": 0,
+              "sham_specific": 4,
+              "worlds": 8,
+              "worst_logit_delta_median_across_physical_worlds": null
+            }
+          },
+          "total_world_precision_passes": 0
+        }
+      },
+      "round54_gate_fields_reproduced": 192
+    }
+  },
+  "parent_aggregate_sha256": "728b44a360500b11162519650719c46b117f0613a5ac547c12eadecc3164600f",
+  "resource": {
+    "max_sampled_private_bytes": 150765568,
+    "max_sampled_working_set_bytes": 130248704,
+    "min_sampled_available_RAM_bytes": 7302418432
+  },
+  "sealed_test_accessed": false,
+  "selected": "0.0025/step_ratio_0.8",
+  "source_manifest_sha256": "c46b24dba29748066540a0726044323afc318f708c167e73331de5f588422723",
+  "status": "completed"
+}

@@ -1,0 +1,22 @@
+{
+  "experiment": "NAN-ROUTE-58",
+  "source_seed": 2026112258,
+  "source_roots": 12,
+  "arms": [
+    "focused",
+    "copy",
+    "focused_erased"
+  ],
+  "backend": "nf4",
+  "layer_zero_based": 21,
+  "phase1_dose_fraction": 0.0075,
+  "sham_policy": [
+    "ambient_peak_minimax",
+    0.25
+  ],
+  "minimum_clean_both_world_roots": 9,
+  "minimum_literal_copy_both_world_roots": 12,
+  "minimum_meaningful_delayed_margin_logit": 0.125,
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "formal_comparisons": 0
+}

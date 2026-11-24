@@ -1,0 +1,23 @@
+{
+  "experiment": "NAN-XREF-22",
+  "FIT16_seal": "7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830",
+  "CTX21_seal": "d3d0587416d0bf92e7b5d044f527d1fc6bbb630c6d3f074e5fcf0d1e03b6f4bc",
+  "backends": ["nf4", "bf16"],
+  "passes": [1, 2],
+  "layers_zero_based": [5, 11, 17, 21],
+  "learned_site": "model.layers.21.mlp.down_proj",
+  "rank": 8,
+  "datasets": {"ctx21": 1248},
+  "source_seed": 2026112122,
+  "SAE_features": 128,
+  "SAE_top_k": 4,
+  "minimum_defined_correlation_roots": 3,
+  "maximum_host_seconds_per_backend": 3600,
+  "CPU_threads": 1,
+  "CPU_priority": "BelowNormal",
+  "formal_inferential_comparisons": 0,
+  "new_model_calls": 0,
+  "optimizer_steps": 0,
+  "BPD_donor_transfer_enabled": false,
+  "sealed_test_accessed": false
+}

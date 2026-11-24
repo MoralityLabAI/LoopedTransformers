@@ -1,0 +1,565 @@
+{
+  "experiment": "NAN-ROUTE-50",
+  "formal_comparisons": 0,
+  "new_pretrained_forwards": 0,
+  "per_backend": {
+    "bf16": {
+      "native_CI_max_abs_error": 9.244039389511016e-08,
+      "passes": {
+        "1": {
+          "arms": {
+            "calibration/copy": {
+              "learned_minus_CAL_best_static": 0.0033513354277857144,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.815925109920623,
+              "mean_twin_max_mask_delta": 0.009359953771893859,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.040250315018038274,
+                "cal_best_static": 0.0364841977449225,
+                "cal_last_token_mean": 0.04005447267750926,
+                "initial_controller": 0.03917407980475778,
+                "learned": 0.039835533172708215,
+                "twin_swap": 0.039831177032680964
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 16
+            },
+            "calibration/focused": {
+              "learned_minus_CAL_best_static": 0.0029949546936115573,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.8667939333109755,
+              "mean_twin_max_mask_delta": 0.001273453393206822,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.04320956407881914,
+                "cal_best_static": 0.039865338601394,
+                "cal_last_token_mean": 0.0428610063504393,
+                "initial_controller": 0.04256115966384555,
+                "learned": 0.042860293295005555,
+                "twin_swap": 0.04286047463804031
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 16
+            },
+            "calibration/focused_erased": {
+              "learned_minus_CAL_best_static": 0.0077237001627248475,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.858343503038829,
+              "mean_twin_max_mask_delta": 0.0,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.05668878649504776,
+                "cal_best_static": 0.04778818927228726,
+                "cal_last_token_mean": 0.05552693417514101,
+                "initial_controller": 0.05453535477108117,
+                "learned": 0.055511889435012104,
+                "twin_swap": 0.055511889435012104
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 16,
+              "worlds": 16
+            },
+            "development/copy": {
+              "learned_minus_CAL_best_static": 0.0033513354277857144,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.815925109920623,
+              "mean_twin_max_mask_delta": 0.009359953771893859,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.040250315018038274,
+                "cal_best_static": 0.0364841977449225,
+                "cal_last_token_mean": 0.04005447267750926,
+                "initial_controller": 0.03917407980475778,
+                "learned": 0.039835533172708215,
+                "twin_swap": 0.039831177032680964
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 32
+            },
+            "development/focused": {
+              "learned_minus_CAL_best_static": 0.002870616106941612,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.866533882183619,
+              "mean_twin_max_mask_delta": 0.0009352117821574135,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.0424049675688236,
+                "cal_best_static": 0.039475347886945046,
+                "cal_last_token_mean": 0.04234294662033655,
+                "initial_controller": 0.04176934431584926,
+                "learned": 0.042345963993886654,
+                "twin_swap": 0.04243391770293885
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 32
+            },
+            "development/focused_erased": {
+              "learned_minus_CAL_best_static": 0.007467922499472087,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.858658247776513,
+              "mean_twin_max_mask_delta": 0.0,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.052631102585671996,
+                "cal_best_static": 0.0447507455188892,
+                "cal_last_token_mean": 0.0522239782810978,
+                "initial_controller": 0.050467311269877704,
+                "learned": 0.05221866801836128,
+                "twin_swap": 0.05221866801836128
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 32,
+              "worlds": 32
+            }
+          },
+          "static_prefit": {
+            "archived_mean_CAL_error": 0.04320956407881914,
+            "candidate_count": 258,
+            "last_token_mean_CAL_error": 0.04286100635043931,
+            "max_abs_budget_error_all_rows": 7.105427357601002e-15,
+            "selected_CAL_mean_error": 0.039865338601394,
+            "selected_anchor": "binary:11001111"
+          }
+        },
+        "2": {
+          "arms": {
+            "calibration/copy": {
+              "learned_minus_CAL_best_static": 0.042316221394425146,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 0.75,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 6.810228453771458,
+              "mean_twin_max_mask_delta": 0.02503484576808379,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.3094853346288848,
+                "cal_best_static": 0.27099124083203663,
+                "cal_last_token_mean": 0.3129759271196168,
+                "initial_controller": 0.2985332446901972,
+                "learned": 0.3133074622264618,
+                "twin_swap": 0.3133755609458939
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 16
+            },
+            "calibration/focused": {
+              "learned_minus_CAL_best_static": 0.014880081902359767,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 2.1875,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 6.862166402452898,
+              "mean_twin_max_mask_delta": 0.018562735096251073,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.3104728982542463,
+                "cal_best_static": 0.29534252047587606,
+                "cal_last_token_mean": 0.3101128400360761,
+                "initial_controller": 0.30933629956789166,
+                "learned": 0.31022260237823585,
+                "twin_swap": 0.31014818132082395
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 16
+            },
+            "calibration/focused_erased": {
+              "learned_minus_CAL_best_static": 0.018357045430967785,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.875,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 6.837623364582716,
+              "mean_twin_max_mask_delta": 0.0,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.30394187988153976,
+                "cal_best_static": 0.2869830001472267,
+                "cal_last_token_mean": 0.3047670092112192,
+                "initial_controller": 0.3013030760479359,
+                "learned": 0.3053400455781945,
+                "twin_swap": 0.3053400455781945
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 16,
+              "worlds": 16
+            },
+            "development/copy": {
+              "learned_minus_CAL_best_static": 0.042316221394425146,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 0.75,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 6.810228453771458,
+              "mean_twin_max_mask_delta": 0.02503484576808379,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.3094853346288848,
+                "cal_best_static": 0.27099124083203663,
+                "cal_last_token_mean": 0.3129759271196168,
+                "initial_controller": 0.2985332446901972,
+                "learned": 0.3133074622264618,
+                "twin_swap": 0.3133755609458939
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 32
+            },
+            "development/focused": {
+              "learned_minus_CAL_best_static": 0.015168377825242677,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 2.40625,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 6.866342995205866,
+              "mean_twin_max_mask_delta": 0.023988674774898758,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.30667293347233276,
+                "cal_best_static": 0.29144198315345493,
+                "cal_last_token_mean": 0.30642223162177035,
+                "initial_controller": 0.30523344793793006,
+                "learned": 0.3066103609786976,
+                "twin_swap": 0.3065288113476177
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 32
+            },
+            "development/focused_erased": {
+              "learned_minus_CAL_best_static": 0.01717550151160577,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.875,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 6.849304504989242,
+              "mean_twin_max_mask_delta": 0.0,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.30841199469648084,
+                "cal_best_static": 0.29231900698075786,
+                "cal_last_token_mean": 0.30881500324501493,
+                "initial_controller": 0.30675426169207426,
+                "learned": 0.30949450849236365,
+                "twin_swap": 0.30949450849236365
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 32,
+              "worlds": 32
+            }
+          },
+          "static_prefit": {
+            "archived_mean_CAL_error": 0.3104728982542463,
+            "candidate_count": 258,
+            "last_token_mean_CAL_error": 0.3101128400360761,
+            "max_abs_budget_error_all_rows": 7.105427357601002e-15,
+            "selected_CAL_mean_error": 0.29534252047587606,
+            "selected_anchor": "binary:11101110"
+          }
+        }
+      },
+      "phase1_native_write_max_abs_errors": {
+        "clean_informed": 1.1780138893524583e-07,
+        "static_CAL_mean": 9.10856577038266e-08
+      }
+    },
+    "nf4": {
+      "native_CI_max_abs_error": 8.176445476237859e-08,
+      "passes": {
+        "1": {
+          "arms": {
+            "calibration/copy": {
+              "learned_minus_CAL_best_static": 0.02388734042993252,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 0.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.585774598785359,
+              "mean_twin_max_mask_delta": 0.006555996713357493,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.07831586225595603,
+                "cal_best_static": 0.056151202276728936,
+                "cal_last_token_mean": 0.07928603952049047,
+                "initial_controller": 0.07977281464110826,
+                "learned": 0.08003854270666146,
+                "twin_swap": 0.07979013445328358
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 16
+            },
+            "calibration/focused": {
+              "learned_minus_CAL_best_static": 0.011077745299535703,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 0.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.596918055953282,
+              "mean_twin_max_mask_delta": 0.0008182864860563077,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.054548243927236846,
+                "cal_best_static": 0.04409741174549449,
+                "cal_last_token_mean": 0.05564661111398801,
+                "initial_controller": 0.054787082152474825,
+                "learned": 0.05517515704503019,
+                "twin_swap": 0.05519031638679646
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 16
+            },
+            "calibration/focused_erased": {
+              "learned_minus_CAL_best_static": 0.007957532274596535,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 0.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.587626078310281,
+              "mean_twin_max_mask_delta": 0.0,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.04979408681653186,
+                "cal_best_static": 0.04225652711536345,
+                "cal_last_token_mean": 0.0502140118849562,
+                "initial_controller": 0.0502019978611662,
+                "learned": 0.050214059389959986,
+                "twin_swap": 0.050214059389959986
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 16,
+              "worlds": 16
+            },
+            "development/copy": {
+              "learned_minus_CAL_best_static": 0.02388734042993252,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 0.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.585774598785359,
+              "mean_twin_max_mask_delta": 0.006555996713357493,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.07831586225595603,
+                "cal_best_static": 0.056151202276728936,
+                "cal_last_token_mean": 0.07928603952049047,
+                "initial_controller": 0.07977281464110826,
+                "learned": 0.08003854270666146,
+                "twin_swap": 0.07979013445328358
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 32
+            },
+            "development/focused": {
+              "learned_minus_CAL_best_static": 0.010420020182990809,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 0.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.597670934537729,
+              "mean_twin_max_mask_delta": 0.0010195971365204656,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.05304762421343811,
+                "cal_best_static": 0.04340894417129612,
+                "cal_last_token_mean": 0.05393272877104866,
+                "initial_controller": 0.05369747359904056,
+                "learned": 0.05382896435428693,
+                "twin_swap": 0.05382888631030692
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 32
+            },
+            "development/focused_erased": {
+              "learned_minus_CAL_best_static": 0.00601479881939511,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 0.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 5.588564093769697,
+              "mean_twin_max_mask_delta": 0.0,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.04710585474093458,
+                "cal_best_static": 0.041243295328777255,
+                "cal_last_token_mean": 0.047256674535542026,
+                "initial_controller": 0.04724132828608581,
+                "learned": 0.047258094148172364,
+                "twin_swap": 0.047258094148172364
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 32,
+              "worlds": 32
+            }
+          },
+          "static_prefit": {
+            "archived_mean_CAL_error": 0.054548243927236846,
+            "candidate_count": 258,
+            "last_token_mean_CAL_error": 0.05564661111398801,
+            "max_abs_budget_error_all_rows": 7.105427357601002e-15,
+            "selected_CAL_mean_error": 0.04409741174549449,
+            "selected_anchor": "binary:11110100"
+          }
+        },
+        "2": {
+          "arms": {
+            "calibration/copy": {
+              "learned_minus_CAL_best_static": 0.013417773816424762,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 6.99589731850236,
+              "mean_twin_max_mask_delta": 0.022167459573002368,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.27902726493387425,
+                "cal_best_static": 0.26223875041863765,
+                "cal_last_token_mean": 0.28075634028254404,
+                "initial_controller": 0.2690901568347872,
+                "learned": 0.2756565242350624,
+                "twin_swap": 0.27576067473534205
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 16
+            },
+            "calibration/focused": {
+              "learned_minus_CAL_best_static": 0.00639057183468094,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 2.5,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 7.093755176782277,
+              "mean_twin_max_mask_delta": 0.011806962506083346,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.2922618539339959,
+                "cal_best_static": 0.28647601830381586,
+                "cal_last_token_mean": 0.2929603550598669,
+                "initial_controller": 0.29267106002151855,
+                "learned": 0.2928665901384968,
+                "twin_swap": 0.2929618986003669
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 16
+            },
+            "calibration/focused_erased": {
+              "learned_minus_CAL_best_static": 0.007576008634379815,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.75,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 7.0583333271113045,
+              "mean_twin_max_mask_delta": 0.0,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.2848119532585228,
+                "cal_best_static": 0.2780091959497489,
+                "cal_last_token_mean": 0.2853684817748344,
+                "initial_controller": 0.2839944670334933,
+                "learned": 0.28558520458412867,
+                "twin_swap": 0.28558520458412867
+              },
+              "roots": 8,
+              "static_wins_vs_learned_roots": 8,
+              "twin_swap_exact_mask_worlds": 16,
+              "worlds": 16
+            },
+            "development/copy": {
+              "learned_minus_CAL_best_static": 0.013417773816424762,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 1.0,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 6.99589731850236,
+              "mean_twin_max_mask_delta": 0.022167459573002368,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.27902726493387425,
+                "cal_best_static": 0.26223875041863765,
+                "cal_last_token_mean": 0.28075634028254404,
+                "initial_controller": 0.2690901568347872,
+                "learned": 0.2756565242350624,
+                "twin_swap": 0.27576067473534205
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 32
+            },
+            "development/focused": {
+              "learned_minus_CAL_best_static": 0.00629162536745775,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 2.21875,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 7.091492651035323,
+              "mean_twin_max_mask_delta": 0.012010320519043743,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.2888679743083672,
+                "cal_best_static": 0.28307922336507524,
+                "cal_last_token_mean": 0.28947318741598504,
+                "initial_controller": 0.2893277250255098,
+                "learned": 0.289370848732533,
+                "twin_swap": 0.28944539543681724
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 0,
+              "worlds": 32
+            },
+            "development/focused_erased": {
+              "learned_minus_CAL_best_static": 0.007128222091192737,
+              "learned_wins_vs_CAL_best_static_roots": 0,
+              "mean_near_one_slots": 2.3125,
+              "mean_near_zero_slots": 0.0,
+              "mean_soft_budget": 7.0686248491620365,
+              "mean_twin_max_mask_delta": 0.0,
+              "relative_write_error": {
+                "archived_CAL_all_token_mean": 0.2856490514168179,
+                "cal_best_static": 0.2791565746623791,
+                "cal_last_token_mean": 0.28640217677965923,
+                "initial_controller": 0.28537315862410284,
+                "learned": 0.2862847967535718,
+                "twin_swap": 0.2862847967535718
+              },
+              "roots": 16,
+              "static_wins_vs_learned_roots": 16,
+              "twin_swap_exact_mask_worlds": 32,
+              "worlds": 32
+            }
+          },
+          "static_prefit": {
+            "archived_mean_CAL_error": 0.2922618539339959,
+            "candidate_count": 258,
+            "last_token_mean_CAL_error": 0.2929603550598669,
+            "max_abs_budget_error_all_rows": 7.105427357601002e-15,
+            "selected_CAL_mean_error": 0.28647601830381586,
+            "selected_anchor": "binary:11100111"
+          }
+        }
+      },
+      "phase1_native_write_max_abs_errors": {
+        "clean_informed": 1.6026773293209562e-07,
+        "static_CAL_mean": 1.0694264264421438e-07
+      }
+    }
+  },
+  "private_receipt_sha256": "f24791ba48cf7079b575c6f2fd5d4dff7fae00fa90105b86218ee68521ba7001",
+  "resource": {
+    "max_sampled_private_bytes": 131280896,
+    "max_sampled_working_set_bytes": 92508160,
+    "min_sampled_available_RAM_bytes": 7670321152
+  },
+  "sealed_test_accessed": false,
+  "source_manifest_sha256": "4116c476c2d78d8f67050772e069937bf4d876a702e82539525dc62d69d7bbcb",
+  "status": "complete",
+  "verification": {
+    "capped_simplex_mass_and_box_verified": true
+  }
+}

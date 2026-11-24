@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "evidence_class": "random 22-layer width-64 residency engineering; not pretrained inference",
+  "pretrained_weights_loaded": false,
+  "decoder_resident_prefix_before": 1,
+  "decoder_resident_prefix_after": 4,
+  "boundary_states_bit_exact": true,
+  "physical_state_vectors_bit_exact": 40,
+  "head_checks": [
+    {
+      "full_vocabulary_logits_checked": 166144,
+      "vocabulary_logits_bit_exact": true,
+      "all_scorer_fields_exact": true,
+      "head_dtype": "BF16",
+      "head_quantized": false,
+      "scorer_chunk_rows": 8192
+    },
+    {
+      "full_vocabulary_logits_checked": 166144,
+      "vocabulary_logits_bit_exact": true,
+      "all_scorer_fields_exact": true,
+      "head_dtype": "BF16",
+      "head_quantized": false,
+      "scorer_chunk_rows": 8192
+    }
+  ],
+  "resident_source_sha256": "d19e56df10da0fd56d77ee3120e67334ae9de0d006d0e307eba645c446c8d720",
+  "validation_source_sha256": "33a3550b840d54277f7f8412331fc6464a5e3516fb3f7a303e50e5d9ea46e8e5",
+  "peak_cuda_allocated_bytes": 31326208,
+  "elapsed_seconds": 28.92099999997299,
+  "sealed_test_accessed": false
+}

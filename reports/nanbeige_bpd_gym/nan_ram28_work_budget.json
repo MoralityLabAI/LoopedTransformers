@@ -1,0 +1,207 @@
+{
+  "experiment": "NAN-RAM-28",
+  "evidence_class": "Source-only accounting and closed engineering preflight; no generated text/state/grade read",
+  "source_manifest_sha256": "4707092d066ed51ad2d8bf427c4cdc71791a2a18f38e23a176a1a2330ab22afd",
+  "preflight_sha256": "515a43a7b5b678b4d0a1bc8c0491bb1ea2f9b00afd7ed2dcd0bafe8ef7ee1201",
+  "token_bindings_sha256": "6ccadba88cd24cfbe801a15bf914c1314be1baca548662c66fee168086887362",
+  "source_roots": 150,
+  "source_roots_are_identifiers_not_independent_checkpoint_replications": true,
+  "baseline_trajectories": 1549,
+  "baseline_initial_batches": 931,
+  "baseline_initial_batch_sizes": {
+    "2": 618,
+    "1": 313
+  },
+  "AB_pairs": 216,
+  "total_trajectory_slots": 1981,
+  "immediate_EOS_scenario_capture_batches": 1147,
+  "full_token_cap_scenario_capture_batches": 141056,
+  "full_token_cap_scenario_row_prefixes": 242048,
+  "full_token_cap_scenario_physical_vectors": 9681920,
+  "physical_vector_site_widths": {
+    "5": {
+      "residual_after_layer": 3072,
+      "down_proj_input": 10752,
+      "down_proj_output": 3072,
+      "o_proj_input": 6144,
+      "o_proj_output": 3072
+    },
+    "11": {
+      "residual_after_layer": 3072,
+      "down_proj_input": 10752,
+      "down_proj_output": 3072,
+      "o_proj_input": 6144,
+      "o_proj_output": 3072
+    },
+    "17": {
+      "residual_after_layer": 3072,
+      "down_proj_input": 10752,
+      "down_proj_output": 3072,
+      "o_proj_input": 6144,
+      "o_proj_output": 3072
+    },
+    "21": {
+      "residual_after_layer": 3072,
+      "down_proj_input": 10752,
+      "down_proj_output": 3072,
+      "o_proj_input": 6144,
+      "o_proj_output": 3072
+    }
+  },
+  "checkpoint_shape_headers_sha256": {
+    "model-00001-of-00002.safetensors": "4d87d6c315f568da456add1743e55666b9404523138f41a3bff9c079e78938a7",
+    "model-00002-of-00002.safetensors": "90a1ee24d2a5cf355c387df5b361fa74858984fbb4ddc3262fcc68d14fedbe53"
+  },
+  "checkpoint_config_sha256": "f6cb15b22847664f3a6049dc4b58fdd10f1650d112ac99a1da3d051f17c2ca19",
+  "checkpoint_index_sha256": "30d8da0fa8b97abc6d9eddfd017a0cb7a649bcbd58caa57804c56c767db5c0f1",
+  "shape_metadata_only_no_pretrained_tensor_materialized": true,
+  "physical_vector_payload_bytes_per_row_prefix": 417792,
+  "full_token_cap_scenario_physical_vector_payload_bytes": 101125718016,
+  "payload_scope": "Only forty BF16 vectors per row/prefix; excludes boundary/native/mask arrays, zip/JSON/filesystem overhead and other artifacts. Not a total storage guarantee.",
+  "fixed_artifact_budget_bytes": 171798691840,
+  "fixed_loaded_model_seconds": 604800,
+  "scenario_probe_equivalent_seconds": 3959959.8183750003,
+  "scenario_scope": "Conditional arithmetic: each full-cap prefix is charged the measured enclosing B1/B2 reached-state capacity probe time. This is neither a runtime prediction nor a bound; native vs edited/padded kernels, EOS/packet stops, GPU clocks, I/O, allocation and thermal changes differ.",
+  "probe_buckets": [
+    {
+      "batch": 1,
+      "enclosing_probe_tokens": 4608,
+      "capture_batches_at_full_cap": 128,
+      "full_cap_probe_equivalent_seconds": 1381.752375
+    },
+    {
+      "batch": 1,
+      "enclosing_probe_tokens": 9216,
+      "capture_batches_at_full_cap": 39936,
+      "full_cap_probe_equivalent_seconds": 1094728.986
+    },
+    {
+      "batch": 2,
+      "enclosing_probe_tokens": 4608,
+      "capture_batches_at_full_cap": 100992,
+      "full_cap_probe_equivalent_seconds": 2863849.08
+    }
+  ],
+  "passed_capacity_probes": [
+    {
+      "batch": 1,
+      "tokens": 4608,
+      "right_padding": 0,
+      "cuda_elapsed_ms": 10794.9404296875
+    },
+    {
+      "batch": 1,
+      "tokens": 9216,
+      "right_padding": 0,
+      "cuda_elapsed_ms": 27412.083984375
+    },
+    {
+      "batch": 2,
+      "tokens": 4608,
+      "right_padding": 1,
+      "cuda_elapsed_ms": 28357.1875
+    }
+  ],
+  "groups": [
+    {
+      "lane": "AB",
+      "route": "component_only",
+      "stage": "nan_comp14",
+      "trajectory_slots": 96,
+      "row_prefixes_at_full_cap": 12288
+    },
+    {
+      "lane": "AB",
+      "route": "component_only",
+      "stage": "nan_story23",
+      "trajectory_slots": 48,
+      "row_prefixes_at_full_cap": 3072
+    },
+    {
+      "lane": "AB",
+      "route": "reached_state",
+      "stage": "nan_comp14",
+      "trajectory_slots": 96,
+      "row_prefixes_at_full_cap": 12288
+    },
+    {
+      "lane": "AB",
+      "route": "reached_state",
+      "stage": "nan_story23",
+      "trajectory_slots": 48,
+      "row_prefixes_at_full_cap": 3072
+    },
+    {
+      "lane": "AB",
+      "route": "static_CAL_mean",
+      "stage": "nan_comp14",
+      "trajectory_slots": 96,
+      "row_prefixes_at_full_cap": 12288
+    },
+    {
+      "lane": "AB",
+      "route": "static_CAL_mean",
+      "stage": "nan_story23",
+      "trajectory_slots": 48,
+      "row_prefixes_at_full_cap": 3072
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_comp14",
+      "trajectory_slots": 240,
+      "row_prefixes_at_full_cap": 30720
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_ctx08",
+      "trajectory_slots": 291,
+      "row_prefixes_at_full_cap": 37248
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_ctx21",
+      "trajectory_slots": 624,
+      "row_prefixes_at_full_cap": 79872
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_gym05",
+      "trajectory_slots": 322,
+      "row_prefixes_at_full_cap": 43520
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_story23",
+      "trajectory_slots": 72,
+      "row_prefixes_at_full_cap": 4608
+    }
+  ],
+  "execution_order": "All 1549 baselines first, then all 216 A/B pairs; a fixed-budget stop leaves later work unknown, without reordering or retry.",
+  "criteria_or_worker_changed": false,
+  "pretrained_forwards": 0,
+  "Torch_imported": false,
+  "sealed_test_accessed": false,
+  "formal_comparisons": 0,
+  "resources": {
+    "samples": 4,
+    "maximum_sampled_private_bytes": 18911232,
+    "minimum_sampled_available_physical_bytes": 5547388928
+  },
+  "tool_source_sha256": "de5025edb134b5e9a9c9d2f3d5a1ef21c19b3fe9f99792b6b392192681946978",
+  "private_receipt_sha256": "59c5ece2b05508bc17349f00da762fb44836c4522d7184b57efa874a3005dd1f",
+  "metadata_regression_contracts_passed": 4,
+  "superseded_payload_accounting": {
+    "source_commit": "dfec731b292cb16ef745c8ecbf3b7c949d2de7d9",
+    "status": "incorrect_uniform_residual_width_assumption",
+    "old_bytes_per_row_prefix": 245760,
+    "old_full_cap_bytes": 59485716480,
+    "correction": "Physical down_proj inputs have width10752 and o_proj inputs6144; other captured sites3072. Actual tensor metadata and frozen audit WIDTHS agree.",
+    "prior_local_receipts_preserved": true,
+    "inference_or_frozen_criteria_changed": false
+  }
+}

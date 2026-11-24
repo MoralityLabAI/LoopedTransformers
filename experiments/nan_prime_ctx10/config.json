@@ -1,0 +1,23 @@
+{
+  "experiment": "NAN-PRIME-CTX-10",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "verifiers_commit": "ed70053b6a7a4079d6976e03bdcd7d420356d594",
+  "request_max_tokens": 1,
+  "contexts_per_backend": 288,
+  "backends": ["nf4", "bf16"],
+  "native_loops": 2,
+  "maximum_prompt_tokens": 4096,
+  "maximum_backend_seconds": 7200,
+  "maximum_rollout_seconds": 300,
+  "source_seed": 2026112008,
+  "layers_zero_based": [5, 11, 17, 21],
+  "vocabulary_chunk_rows": 8192,
+  "cuda_memory_fraction": 0.85,
+  "BF16_resident_decoder_layers": 4,
+  "CPU_threads": 1,
+  "CPU_priority": "BelowNormal",
+  "head": "unchanged BF16, resident CUDA",
+  "hosted_API_calls": 0,
+  "formal_inferential_comparisons": 0,
+  "automatic_retries": 0
+}

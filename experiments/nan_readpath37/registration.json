@@ -1,0 +1,59 @@
+{
+  "experiment": "NAN-READPATH-37",
+  "revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "arms": [
+    "focused",
+    "copy",
+    "focused_erased"
+  ],
+  "site": "model.layers.21.mlp.down_proj",
+  "source_unit": "COMP14 pointer root",
+  "roots": {
+    "calibration": 8,
+    "development": 16
+  },
+  "dose_fractions": [
+    0.01,
+    0.02
+  ],
+  "dose_relative_tolerance": 0.03,
+  "native_logit_abs_tol": 0.125,
+  "random_seed": 37035,
+  "rank": 8,
+  "width": 3072,
+  "input_width": 10752,
+  "maximum_seconds": 600,
+  "minimum_start_available_RAM_bytes": 5368709120,
+  "minimum_available_RAM_bytes": 4294967296,
+  "maximum_private_bytes": 805306368,
+  "common_pins": {
+    "experiments/nan_comp14/SOURCE_MANIFEST.json": "b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f",
+    "experiments/nan_comp14/fixtures/public.jsonl": "f6e714cb36b8cdc433eb75ff2bcbde8c1c1f7ebb4d5e6573ea1fdf97f43e5504",
+    "experiments/nan_comp14/fixtures/host_labels.jsonl": "890ef0882d6835b2aaada7af306065100e94e8a123193a30e84651a15bb8066d"
+  },
+  "snapshot_pins": {
+    "model-00001-of-00002.safetensors": "09d265d5ec837bc64462796b7f8c110be9a135a55ed7a6eb5d07e0e90c976a94",
+    "tokenizer.json": "1d858a0fc007f22af6ae18bfa1ae52d30e398aa9cd1ea06e7777176869346a3f",
+    "config.json": "f6cb15b22847664f3a6049dc4b58fdd10f1650d112ac99a1da3d051f17c2ca19",
+    "model.safetensors.index.json": "30d8da0fa8b97abc6d9eddfd017a0cb7a649bcbd58caa57804c56c767db5c0f1",
+    "modeling_nanbeige.py": "547737f989f5cb741c1a568acaf85f83521fa67a8f7268e19f9a37e60127c0d5"
+  },
+  "backends": {
+    "nf4": {
+      "target": "8e80e7d748d5daf858a0b37dd7843d38952554ce3aabea1104e52cf1ef7663b3",
+      "audit": "5c579d64d88f18c3feccb58f0e910b6a5022c5ae55693e4f1036cd29aa57b981",
+      "manifest": "b7548c9a600feed607cfa59cdd3d611f473e6bb056f3f26734232f9957ca6c85",
+      "factor_receipt": "46a4deb27434c06efa2e7b50daf48c27e5afff83475764b015918cbd4699a19f",
+      "factor_bank": "31746c9c77a219ef1c03ccdfe6faa1d224f70b3a0cbc2708e7984dc1f82fe897"
+    },
+    "bf16": {
+      "target": "cf3db880c052137e7ff7a0dac1e498174f78e32fd3ae9a384aca341fb1d09186",
+      "audit": "75718b1d3764883f5960794587c0ecf3c6ca3d39a858246812cf971967d3f207",
+      "manifest": "9f75078798d12449777733a4d7fbb93ba232f04e858253e7b8f5180334b3006b",
+      "factor_receipt": "8976e3142bf54b0b4258c3c5447843fe944e389a9c41859e901f6a852fa253b0",
+      "factor_bank": "daa8e628b79ddebb75b79325c562e60aa51274a9bfcf2b02856add9278c53f55"
+    }
+  },
+  "formal_comparisons": 0,
+  "sealed_test_accessed": false
+}

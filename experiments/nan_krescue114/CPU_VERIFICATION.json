@@ -1,0 +1,106 @@
+{
+  "evalmath_sham_coverage_check": {
+    "n16_rank": null,
+    "n59_rank": 59,
+    "script_sha256": "38cfcfd2757749cedf9838949c03aac7171c28e7a41d6ec5f11f57715d7778a9"
+  },
+  "experiment": "NAN-KRESCUE114",
+  "frozen_source": {
+    "manifest_sha256": "f3395390691f4504478f3b28d8e5d37bbd6607d96dbb558f06a9b1b218b32a81",
+    "max_position": 391,
+    "payload_sha256": {
+      "gold": "ce7dadc60e47046a0d203a575542e7d55b752aa2d58e9ab689af27d59874e992",
+      "public": "e402b2bf5571aa16a21abbbed9f3ab5130c251ff3a25bb4e7b7b03770821121c",
+      "tokens": "e3ea66e259abff6a61423a1502afe5ddabfc00b909a9b03edf1d3756ca236a5a"
+    },
+    "previously_exposed_graphs_excluded": 640,
+    "previously_exposed_prompts_excluded": 1300,
+    "prompts": 96,
+    "registered_payloads_reproduced_by_digest": true,
+    "source_roots": 16
+  },
+  "gpu_initialized": false,
+  "host_fixture_recomputed": {
+    "audited_terminal_sha256": "d7a9a36f80cafdee4b93dd985fec64b5dd26e0d345ee305b55211eb8f2899c8e",
+    "backend": "bf16",
+    "decision": {
+      "decision": "CPU_FIXTURE_ONLY",
+      "gate_mean_intact_logits": -0.0078125,
+      "gate_mean_removed_logits": -0.0078125,
+      "max_observed_abs_sham_only_removal_logits": 0.0,
+      "measured_only_mean_removed_logits": -0.125,
+      "measured_roots": 1,
+      "positive_measured_roots": 0,
+      "reasons": [
+        "too_few_physically_closed_roots",
+        "too_few_positive_root_effects",
+        "intact_donor_advantage_below_minimum",
+        "removed_advantage_below_minimum",
+        "removal_does_not_exceed_observed_sham_maximum"
+      ],
+      "registered_roots": 16,
+      "sham_tolerance_bound": null,
+      "unmeasured_roots": 15
+    },
+    "endpoint": "sign-aligned sham-adjusted loss of donor-minus-recipient logit margin under clean-K restoration",
+    "evidence": "cpu_fixture",
+    "experiment": "NAN-KRESCUE114",
+    "formal_comparisons": 0,
+    "registration_sha256": "6301b2bb423ac9dbcd8969d5a69252e657c47eaf78e3e5118231cff8f380277c",
+    "runtime_sha256": "0948efca3dd87a2b8c30eaa955a827259641fd50137cbc75c358ed38f14af383",
+    "sealed_test_accessed": false,
+    "source_split": "fresh_development",
+    "status_counts": {
+      "closed": 1,
+      "geometry_unqualified": 14,
+      "native_root_unqualified": 1
+    }
+  },
+  "host_original_custody_checks": {
+    "fixture_closed_roots": 1,
+    "fixture_grouped_endpoint_pairs": 16,
+    "fixture_signed_macro": {
+      "delayed": 0.125,
+      "delayed_with_clean_k": 0.0,
+      "first_pass": 0.0,
+      "k_rescue_removed": 0.125,
+      "second_pass": 0.125
+    },
+    "max_sampled_private_bytes": 100773888,
+    "min_sampled_available_RAM_bytes": 7186993152,
+    "pretrained_forwards": 0,
+    "runtime_sha256": "0948efca3dd87a2b8c30eaa955a827259641fd50137cbc75c358ed38f14af383",
+    "status": "passed",
+    "synthetic_refused_as_pretrained": true,
+    "tampered_capacity_refused": true,
+    "tampered_grouped_count_refused": true
+  },
+  "host_original_proof_sha256": "21a2ae7a3ad2b9330ab41dff4f2910e31bebf4810744af55a6dac3b50fa60d66",
+  "max_sampled_private_bytes": 99442688,
+  "max_sampled_working_set_bytes": 107315200,
+  "min_sampled_available_RAM_bytes": 7191351296,
+  "pretrained_forwards": 0,
+  "registration_sha256": "6301b2bb423ac9dbcd8969d5a69252e657c47eaf78e3e5118231cff8f380277c",
+  "reproduced_staged_proof_sha256": "c24b04cdee8aa990156aa3f1891404fd1735e694b73a16ed20532aaf94275932",
+  "runtime_sha256": "0948efca3dd87a2b8c30eaa955a827259641fd50137cbc75c358ed38f14af383",
+  "sealed_test_accessed": false,
+  "staged_execution_resources": {
+    "max_sampled_private_bytes": 746467328,
+    "max_sampled_working_set_bytes": 473534464,
+    "min_sampled_available_RAM_bytes": 6960259072
+  },
+  "staged_physical": {
+    "blocked_root_zero_edits": true,
+    "cuda_initialized": false,
+    "full_B2_edited_heads_exact": 32,
+    "full_root_exact": true,
+    "independent_exact_k_rescues": 16,
+    "native_physical_vectors_exact": 224,
+    "partial_group_guard_recovery": true,
+    "pretrained_forwards": 0,
+    "source_manifest_sha256": "5e8b3ada34e14747319ddf6294663c272de3161b6d70c6f0f6ed196abefb3f93",
+    "stale_plan_before_staging": true,
+    "unexpected_rescue_refused": true
+  },
+  "status": "cpu_verified"
+}

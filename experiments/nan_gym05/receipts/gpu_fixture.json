@@ -1,0 +1,64 @@
+{
+  "status": "passed",
+  "pretrained_weights_loaded": false,
+  "sealed_test_accessed": false,
+  "observer_vs_uninstrumented": {
+    "bf16": {
+      "B1_contexts": 8,
+      "growing_prefix_steps": 3,
+      "hook_observations_per_step": [
+        160,
+        160,
+        160
+      ],
+      "hidden_max_error": 0.0,
+      "selected_logit_max_error": 0.0,
+      "full_vocab_argmax_exact": true
+    },
+    "nf4": {
+      "B1_contexts": 8,
+      "growing_prefix_steps": 3,
+      "hook_observations_per_step": [
+        160,
+        160,
+        160
+      ],
+      "hidden_max_error": 0.0,
+      "selected_logit_max_error": 0.0,
+      "full_vocab_argmax_exact": true
+    }
+  },
+  "small_effective_operator_closure": {
+    "effective_float32_operator_sha256": "8cdd8dffc2177709b611e4d9209e011e14008fa0b4164da807382ba36b34a3ec",
+    "shape": [
+      64,
+      96
+    ],
+    "ranks": {
+      "8": {
+        "closure_max_abs": 4.76837158203125e-06,
+        "closure_relative_l2": 1.279473025306288e-07,
+        "factor_relative_frobenius_error": 0.8277300596237183,
+        "scope": "float32 effective operator plus residual, not native BF16/NF4 kernel parity"
+      },
+      "16": {
+        "closure_max_abs": 5.7220458984375e-06,
+        "closure_relative_l2": 1.4469414111317747e-07,
+        "factor_relative_frobenius_error": 0.7007765173912048,
+        "scope": "float32 effective operator plus residual, not native BF16/NF4 kernel parity"
+      }
+    },
+    "factorization": "randomized rank-16 SVD baseline; rank-8 nested prefix",
+    "trained_VPD": false,
+    "trained_BPD": false
+  },
+  "reused_full_head_fixture_sha256": "97bd9dea459b578b71bcd741b886239e281e414d0f96a904c53a985ab1a663bd",
+  "source_sha256": {
+    "observe.py": "440a1ee9c09830ee9e72bb0cd1516658c8151207aa331714ddd76c998542d88a",
+    "linear.py": "3069857abd9c74af96c3ab4a9b8bf27960eea1fa8118834756d09db68b87e390",
+    "validate_gpu.py": "deb36aa91dc8c598aab0a625b3aeac9f1c34b80eb8f9fd0e6a1374c1d7a2aaa7"
+  },
+  "peak_cuda_allocated_bytes": 9935872,
+  "peak_cuda_reserved_bytes": 23068672,
+  "elapsed_seconds": 30.074
+}

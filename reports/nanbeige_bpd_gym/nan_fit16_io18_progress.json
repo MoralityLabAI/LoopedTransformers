@@ -1,0 +1,4466 @@
+{
+  "experiment": "NAN-FIT-16-IO18",
+  "updated_UTC": "2026-11-21T08:25:07.573569+00:00",
+  "source_manifest_sha256": "7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830",
+  "superseded_attempt": {
+    "NF4_status": "completed_with_failed_conditions",
+    "BF16_status": "unrun_registered_supervision_amendment",
+    "XREF17_status": "unrun_registered_supervision_amendment",
+    "supervision_commit": "9689206dc4c9c390e189cdd7ffd19bc735ceb9a2",
+    "NF4_cells": [
+      {
+        "passes": 1,
+        "status": "failed",
+        "optimizer_steps_completed": 2
+      },
+      {
+        "passes": 2,
+        "status": "failed",
+        "optimizer_steps_completed": 2
+      }
+    ],
+    "NF4_receipt_sha256": "09f2a0ac974d5274b87f6e191c52b826ae5a244fa5c44b5f0e9c88bee65b5b88",
+    "partial_update_audit_sha256": "f256a6f8b35d7ae3a6c7a526743131bbb1213f4fa4c111a1f31fc52d8e8c48e6",
+    "partial_update_audit": {
+      "status": "passed",
+      "original_source_seal": "35371bbb5323be88ae4eca4cb43677c2f583494b8a46a5f7b7aa89c2fc710139",
+      "receipt_sha256": "09f2a0ac974d5274b87f6e191c52b826ae5a244fa5c44b5f0e9c88bee65b5b88",
+      "NF4_cells": [
+        {
+          "passes": 1,
+          "status": "failed",
+          "optimizer_steps_completed": 2,
+          "receipt_sha256": "f3ded178d2d5678fb9623c9d38473540bd75e46ef688d10f18ccb9584cf04cfa",
+          "partial_checkpoint_sha256": "28b92da290d381b0a41a397af14f4a84cfe6631981f5c5f356595181eaf3e993",
+          "optimizer_counters_verified": true,
+          "logged_step_records": 1,
+          "missing_logged_losses": 1,
+          "failure_type": "FileExistsError",
+          "no_missing_loss_or_response_rescued": true
+        },
+        {
+          "passes": 2,
+          "status": "failed",
+          "optimizer_steps_completed": 2,
+          "receipt_sha256": "7174300a96149843db12c6b474cc1cf83aef79fef4a8bb1d006c5feecd1f811b",
+          "partial_checkpoint_sha256": "9eac53b90698eaad6e24fe00ec0407b3e98222b9287ce7036b53a43f2afd0b08",
+          "optimizer_counters_verified": true,
+          "logged_step_records": 1,
+          "missing_logged_losses": 1,
+          "failure_type": "FileExistsError",
+          "no_missing_loss_or_response_rescued": true
+        }
+      ],
+      "original_BF16": "unrun_registered_supervision_amendment",
+      "XREF17": "unrun_registered_supervision_amendment",
+      "neural_replay": false,
+      "sealed_test_accessed": false
+    }
+  },
+  "backends": {
+    "nf4": {
+      "status": "completed_audited",
+      "cells": [
+        {
+          "status": "passed",
+          "passes": 1,
+          "receipt_sha256": "457bffbf0ff0328bab2ad61a6c8f47be333c156fc4cbff82a816e69208aab945",
+          "checkpoint_sha256": "4560a14b18ead9296887f691dc91436ab76cc2214c840ec50aca1da7191d71d5",
+          "training": {
+            "optimizer_steps": 16,
+            "CAL_roots": 8,
+            "CAL_worlds": 16,
+            "DEV_or_control_training_uses": 0,
+            "four_term_loss_accounting_checked": true,
+            "first_step_losses": {
+              "total_loss": 57.5786018371582,
+              "faith_loss": 0.0005756922182627022,
+              "min_loss": 0.00021027021284680814,
+              "stoch_loss": 0.0,
+              "adv_loss": 0.018342670053243637
+            },
+            "final_step_losses": {
+              "total_loss": 57.570701599121094,
+              "faith_loss": 0.0005755981546826661,
+              "min_loss": 0.0004370530368760228,
+              "stoch_loss": 0.0,
+              "adv_loss": 0.02089334838092327
+            }
+          },
+          "factor_update_l2": 0.26161908985152227,
+          "controller_update_l2": 0.37792415363941395,
+          "initial_groups": [
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 14,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.11475131521001458,
+                "minimum_root_mean": 0.11179283261299133,
+                "maximum_root_mean": 0.11970674991607666,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.1372093604877591,
+                "minimum_root_mean": 0.13645484298467636,
+                "maximum_root_mean": 0.13795966655015945,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 232.39030838012695,
+                "minimum_root_mean": 224.78388214111328,
+                "maximum_root_mean": 241.18280029296875,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.1372093604877591,
+                "minimum_root_mean": 0.13645484298467636,
+                "maximum_root_mean": 0.13795966655015945,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 2,
+              "format_valid": 26,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.11443802248686552,
+                "minimum_root_mean": 0.11192864924669266,
+                "maximum_root_mean": 0.11974382400512695,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.1373635814525187,
+                "minimum_root_mean": 0.13695638626813889,
+                "maximum_root_mean": 0.13804011791944504,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 231.50227880477905,
+                "minimum_root_mean": 224.6035614013672,
+                "maximum_root_mean": 239.79322814941406,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.1373635814525187,
+                "minimum_root_mean": 0.13695638626813889,
+                "maximum_root_mean": 0.13804011791944504,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            }
+          ],
+          "final_groups": [
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 14,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.07130099926143885,
+                "minimum_root_mean": 0.06870454177260399,
+                "maximum_root_mean": 0.07377646118402481,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.291804414242506,
+                "minimum_root_mean": 0.2881522625684738,
+                "maximum_root_mean": 0.2953560948371887,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 494.21500968933105,
+                "minimum_root_mean": 475.6180419921875,
+                "maximum_root_mean": 512.6969299316406,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.291804414242506,
+                "minimum_root_mean": 0.2881522625684738,
+                "maximum_root_mean": 0.2953560948371887,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 14,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.06957388808950782,
+                "minimum_root_mean": 0.06799022853374481,
+                "maximum_root_mean": 0.07150747254490852,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.13262983039021492,
+                "minimum_root_mean": 0.1317906454205513,
+                "maximum_root_mean": 0.13363739103078842,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 224.63672637939453,
+                "minimum_root_mean": 217.60406494140625,
+                "maximum_root_mean": 233.3130340576172,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.13262983039021492,
+                "minimum_root_mean": 0.1317906454205513,
+                "maximum_root_mean": 0.13363739103078842,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 14,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.07130099926143885,
+                "minimum_root_mean": 0.06870454177260399,
+                "maximum_root_mean": 0.07377646118402481,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.291804414242506,
+                "minimum_root_mean": 0.2881522625684738,
+                "maximum_root_mean": 0.2953560948371887,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 494.21500968933105,
+                "minimum_root_mean": 475.6180419921875,
+                "maximum_root_mean": 512.6969299316406,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.291804414242506,
+                "minimum_root_mean": 0.2881522625684738,
+                "maximum_root_mean": 0.2953560948371887,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 14,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.07369367638602853,
+                "minimum_root_mean": 0.07187319546937943,
+                "maximum_root_mean": 0.07607956230640411,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.309383150190115,
+                "minimum_root_mean": 0.30642230808734894,
+                "maximum_root_mean": 0.31226488947868347,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 524.0103664398193,
+                "minimum_root_mean": 508.6480255126953,
+                "maximum_root_mean": 542.7691650390625,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.309383150190115,
+                "minimum_root_mean": 0.30642230808734894,
+                "maximum_root_mean": 0.31226488947868347,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 28,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.07069144956767559,
+                "minimum_root_mean": 0.06818746030330658,
+                "maximum_root_mean": 0.0738241896033287,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.2923712469637394,
+                "minimum_root_mean": 0.28882573544979095,
+                "maximum_root_mean": 0.29440559446811676,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 492.744176864624,
+                "minimum_root_mean": 475.7330017089844,
+                "maximum_root_mean": 509.1710510253906,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.2923712469637394,
+                "minimum_root_mean": 0.28882573544979095,
+                "maximum_root_mean": 0.29440559446811676,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 2,
+              "format_valid": 30,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.06937332940287888,
+                "minimum_root_mean": 0.06817972287535667,
+                "maximum_root_mean": 0.0710386149585247,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.13270080368965864,
+                "minimum_root_mean": 0.13209209591150284,
+                "maximum_root_mean": 0.13322298228740692,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 223.64574003219604,
+                "minimum_root_mean": 217.4913558959961,
+                "maximum_root_mean": 232.12493133544922,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.13270080368965864,
+                "minimum_root_mean": 0.13209209591150284,
+                "maximum_root_mean": 0.13322298228740692,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 28,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.07069144956767559,
+                "minimum_root_mean": 0.06818746030330658,
+                "maximum_root_mean": 0.0738241896033287,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.2923712469637394,
+                "minimum_root_mean": 0.28882573544979095,
+                "maximum_root_mean": 0.29440559446811676,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 492.744176864624,
+                "minimum_root_mean": 475.7330017089844,
+                "maximum_root_mean": 509.1710510253906,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.2923712469637394,
+                "minimum_root_mean": 0.28882573544979095,
+                "maximum_root_mean": 0.29440559446811676,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 2,
+              "format_valid": 27,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.07272277935408056,
+                "minimum_root_mean": 0.07040595263242722,
+                "maximum_root_mean": 0.07607540488243103,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.3099081665277481,
+                "minimum_root_mean": 0.3082179129123688,
+                "maximum_root_mean": 0.31118299067020416,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 522.2978811264038,
+                "minimum_root_mean": 508.4956817626953,
+                "maximum_root_mean": 542.1952514648438,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.3099081665277481,
+                "minimum_root_mean": 0.3082179129123688,
+                "maximum_root_mean": 0.31118299067020416,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            }
+          ],
+          "saved_tensor_statistics": {
+            "maximum_added_cpu_bytes": 2147483648,
+            "live_added_cpu_bytes": 0,
+            "peak_added_cpu_bytes": 226571313,
+            "total_copied_bytes": 4453890060,
+            "staged_weight_aliases": 0,
+            "verified_staged_bindings": 0,
+            "resident_cache_hits": 0,
+            "activation_snapshots": 1333,
+            "scope": "immutable GPU weights referenced in place; staged CPU source weights aliased; independent activation snapshots charged to unchanged CPU cap",
+            "resident_GPU_weight_references": 66,
+            "checkpointed_frozen_blocks": 0,
+            "recomputed_frozen_blocks": 0,
+            "failed_reservation_bytes": null,
+            "largest_activation_snapshot_bytes": 132120576
+          },
+          "CUDA_peak_allocated_bytes": 3315835904,
+          "CUDA_peak_reserved_bytes": 3525312512,
+          "gauge_diagnostic": {
+            "positive_diagonal_and_permutation_physical_write_relative_l2": 6.508224714707467e-08,
+            "coordinated_controller_mask_max_abs": 0.0,
+            "controlled_write_relative_l2": 4.562572541999543e-08,
+            "stable_at_1e_minus5": true,
+            "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+          },
+          "training_tolerances": {
+            "0": 1.0
+          }
+        },
+        {
+          "status": "passed",
+          "passes": 2,
+          "receipt_sha256": "46a4deb27434c06efa2e7b50daf48c27e5afff83475764b015918cbd4699a19f",
+          "checkpoint_sha256": "31746c9c77a219ef1c03ccdfe6faa1d224f70b3a0cbc2708e7984dc1f82fe897",
+          "training": {
+            "optimizer_steps": 16,
+            "CAL_roots": 8,
+            "CAL_worlds": 16,
+            "DEV_or_control_training_uses": 0,
+            "four_term_loss_accounting_checked": true,
+            "first_step_losses": {
+              "total_loss": 57.62619400024414,
+              "faith_loss": 0.0005756922182627022,
+              "min_loss": 0.0005264767678454518,
+              "stoch_loss": 0.0021623987704515457,
+              "adv_loss": 0.11073587834835052
+            },
+            "final_step_losses": {
+              "total_loss": 57.627777099609375,
+              "faith_loss": 0.0005756377940997481,
+              "min_loss": 0.0007814194541424513,
+              "stoch_loss": 0.0015183462528511882,
+              "adv_loss": 0.12491435557603836
+            }
+          },
+          "factor_update_l2": 0.15781058514490853,
+          "controller_update_l2": 0.24150051682958631,
+          "initial_groups": [
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005467234557727352,
+                "minimum_root_mean": 0.005116933723911643,
+                "maximum_root_mean": 0.006228165235370398,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0364955507684499,
+                "minimum_root_mean": 0.03535441309213638,
+                "maximum_root_mean": 0.037589672952890396,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 61.82520818710327,
+                "minimum_root_mean": 59.23405838012695,
+                "maximum_root_mean": 66.02085876464844,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0364955507684499,
+                "minimum_root_mean": 0.03535441309213638,
+                "maximum_root_mean": 0.037589672952890396,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 15,
+              "format_valid": 16,
+              "both_world_roots_correct": 7,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.45023495121859014,
+                "minimum_root_mean": 0.039938874542713165,
+                "maximum_root_mean": 1.4693164825439453,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.2785619180649519,
+                "minimum_root_mean": 0.2673656791448593,
+                "maximum_root_mean": 0.2903865873813629,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 265.09961795806885,
+                "minimum_root_mean": 243.99629974365234,
+                "maximum_root_mean": 287.2299041748047,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.2929691970348358,
+                "minimum_root_mean": 0.28102704882621765,
+                "maximum_root_mean": 0.3047686964273453,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.12100791744887829,
+                "minimum_root_mean": 0.10667513683438301,
+                "maximum_root_mean": 0.15261350572109222,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 2,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005299027558066882,
+                "minimum_root_mean": 0.004482598742470145,
+                "maximum_root_mean": 0.0061289104633033276,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.036295619094744325,
+                "minimum_root_mean": 0.033766817301511765,
+                "maximum_root_mean": 0.03729013539850712,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 61.180370926856995,
+                "minimum_root_mean": 56.69894981384277,
+                "maximum_root_mean": 64.75794219970703,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.036295619094744325,
+                "minimum_root_mean": 0.033766817301511765,
+                "maximum_root_mean": 0.03729013539850712,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 26,
+              "format_valid": 32,
+              "both_world_roots_correct": 12,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.47354587889276445,
+                "minimum_root_mean": 0.08715703710913658,
+                "maximum_root_mean": 1.1607762277126312,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.27590756630524993,
+                "minimum_root_mean": 0.25093431025743484,
+                "maximum_root_mean": 0.2893034517765045,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 256.61169147491455,
+                "minimum_root_mean": 225.99388122558594,
+                "maximum_root_mean": 287.52076721191406,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.2888457076624036,
+                "minimum_root_mean": 0.2717779725790024,
+                "maximum_root_mean": 0.30098743736743927,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.12008316558785737,
+                "minimum_root_mean": 0.09179123863577843,
+                "maximum_root_mean": 0.14828220754861832,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            }
+          ],
+          "final_groups": [
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 15,
+              "format_valid": 16,
+              "both_world_roots_correct": 7,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005532997951377183,
+                "minimum_root_mean": 0.005132352001965046,
+                "maximum_root_mean": 0.006204708246514201,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.05517516168765724,
+                "minimum_root_mean": 0.04571765288710594,
+                "maximum_root_mean": 0.06660445407032967,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 93.71071910858154,
+                "minimum_root_mean": 75.32110595703125,
+                "maximum_root_mean": 117.02381134033203,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.05517516168765724,
+                "minimum_root_mean": 0.04571765288710594,
+                "maximum_root_mean": 0.06660445407032967,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 15,
+              "format_valid": 16,
+              "both_world_roots_correct": 7,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.309316438913811,
+                "minimum_root_mean": 0.02811930561438203,
+                "maximum_root_mean": 1.002817451953888,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.28786034137010574,
+                "minimum_root_mean": 0.27786482870578766,
+                "maximum_root_mean": 0.3019898533821106,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 291.125337600708,
+                "minimum_root_mean": 264.9858703613281,
+                "maximum_root_mean": 308.58070373535156,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.304834870621562,
+                "minimum_root_mean": 0.29176299273967743,
+                "maximum_root_mean": 0.31349658966064453,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.14715025946497917,
+                "minimum_root_mean": 0.13612140715122223,
+                "maximum_root_mean": 0.16312329471111298,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005474354024045169,
+                "minimum_root_mean": 0.00512676197104156,
+                "maximum_root_mean": 0.006235336884856224,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0365204771514982,
+                "minimum_root_mean": 0.0353647917509079,
+                "maximum_root_mean": 0.03761637397110462,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 61.86737108230591,
+                "minimum_root_mean": 59.251441955566406,
+                "maximum_root_mean": 66.06787109375,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0365204771514982,
+                "minimum_root_mean": 0.0353647917509079,
+                "maximum_root_mean": 0.03761637397110462,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 15,
+              "format_valid": 16,
+              "both_world_roots_correct": 7,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.35589365870691836,
+                "minimum_root_mean": 0.0326318833976984,
+                "maximum_root_mean": 1.1666941195726395,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.2783232480287552,
+                "minimum_root_mean": 0.2661459296941757,
+                "maximum_root_mean": 0.29037030041217804,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 262.2598695755005,
+                "minimum_root_mean": 244.78846740722656,
+                "maximum_root_mean": 279.83618927001953,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.29057348519563675,
+                "minimum_root_mean": 0.27989761531352997,
+                "maximum_root_mean": 0.29877033829689026,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.1308466363698244,
+                "minimum_root_mean": 0.11329054832458496,
+                "maximum_root_mean": 0.16346125304698944,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005532997951377183,
+                "minimum_root_mean": 0.005132352001965046,
+                "maximum_root_mean": 0.006204708246514201,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.05517516168765724,
+                "minimum_root_mean": 0.04571765288710594,
+                "maximum_root_mean": 0.06660445407032967,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 93.71071910858154,
+                "minimum_root_mean": 75.32110595703125,
+                "maximum_root_mean": 117.02381134033203,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.05517516168765724,
+                "minimum_root_mean": 0.04571765288710594,
+                "maximum_root_mean": 0.06660445407032967,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 15,
+              "format_valid": 16,
+              "both_world_roots_correct": 7,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.3122762603452429,
+                "minimum_root_mean": 0.0288563696667552,
+                "maximum_root_mean": 1.0165307074785233,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.2878602705895901,
+                "minimum_root_mean": 0.277895525097847,
+                "maximum_root_mean": 0.3020823001861572,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 291.1131896972656,
+                "minimum_root_mean": 265.0131530761719,
+                "maximum_root_mean": 308.6609191894531,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.3048225697129965,
+                "minimum_root_mean": 0.29179808497428894,
+                "maximum_root_mean": 0.31368133425712585,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.14715025946497917,
+                "minimum_root_mean": 0.13612140715122223,
+                "maximum_root_mean": 0.16312329471111298,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.1369251273572445,
+                "minimum_root_mean": 0.1124357283115387,
+                "maximum_root_mean": 0.15882664918899536,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005526913359062746,
+                "minimum_root_mean": 0.005126953125,
+                "maximum_root_mean": 0.006229159189388156,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.05455627688206732,
+                "minimum_root_mean": 0.0457144845277071,
+                "maximum_root_mean": 0.06661775708198547,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 92.67055034637451,
+                "minimum_root_mean": 75.31585693359375,
+                "maximum_root_mean": 117.04718017578125,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.05455627688206732,
+                "minimum_root_mean": 0.0457144845277071,
+                "maximum_root_mean": 0.06661775708198547,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 15,
+              "format_valid": 16,
+              "both_world_roots_correct": 7,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.35582757857628167,
+                "minimum_root_mean": 0.034397561103105545,
+                "maximum_root_mean": 1.155314862728119,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.29300042800605297,
+                "minimum_root_mean": 0.2840992957353592,
+                "maximum_root_mean": 0.3081206977367401,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 296.97937393188477,
+                "minimum_root_mean": 267.52210998535156,
+                "maximum_root_mean": 318.68394470214844,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.3118227645754814,
+                "minimum_root_mean": 0.29678645730018616,
+                "maximum_root_mean": 0.3195479214191437,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.13578239176422358,
+                "minimum_root_mean": 0.12073837965726852,
+                "maximum_root_mean": 0.1509942263364792,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 29,
+              "format_valid": 32,
+              "both_world_roots_correct": 13,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 2,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005355456305551343,
+                "minimum_root_mean": 0.0045159568544477224,
+                "maximum_root_mean": 0.006194525398313999,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.05382895958609879,
+                "minimum_root_mean": 0.04232863709330559,
+                "maximum_root_mean": 0.068460363894701,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 90.91953635215759,
+                "minimum_root_mean": 69.21172332763672,
+                "maximum_root_mean": 119.68490982055664,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.05382895958609879,
+                "minimum_root_mean": 0.04232863709330559,
+                "maximum_root_mean": 0.068460363894701,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 25,
+              "format_valid": 32,
+              "both_world_roots_correct": 12,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.3416260522790253,
+                "minimum_root_mean": 0.04925636015832424,
+                "maximum_root_mean": 1.0102760195732117,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.28391882218420506,
+                "minimum_root_mean": 0.2576969712972641,
+                "maximum_root_mean": 0.29863542318344116,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 284.5919337272644,
+                "minimum_root_mean": 256.92859649658203,
+                "maximum_root_mean": 314.2626495361328,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.3020678572356701,
+                "minimum_root_mean": 0.28918059170246124,
+                "maximum_root_mean": 0.311473086476326,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.15601779846474528,
+                "minimum_root_mean": 0.1272193379700184,
+                "maximum_root_mean": 0.18367832154035568,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 2,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005304488644469529,
+                "minimum_root_mean": 0.004488780861720443,
+                "maximum_root_mean": 0.006123708328232169,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.03629296203143895,
+                "minimum_root_mean": 0.03377912752330303,
+                "maximum_root_mean": 0.03724643774330616,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 61.176162004470825,
+                "minimum_root_mean": 56.71961975097656,
+                "maximum_root_mean": 64.80433654785156,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.03629296203143895,
+                "minimum_root_mean": 0.03377912752330303,
+                "maximum_root_mean": 0.03724643774330616,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 26,
+              "format_valid": 32,
+              "both_world_roots_correct": 12,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.39565312513150275,
+                "minimum_root_mean": 0.058036720380187035,
+                "maximum_root_mean": 1.1379063129425049,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.2751898062415421,
+                "minimum_root_mean": 0.24984679371118546,
+                "maximum_root_mean": 0.2896016389131546,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 254.6234474182129,
+                "minimum_root_mean": 227.52852630615234,
+                "maximum_root_mean": 287.5320739746094,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.2859434401616454,
+                "minimum_root_mean": 0.27187031507492065,
+                "maximum_root_mean": 0.297792911529541,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.1320320749655366,
+                "minimum_root_mean": 0.09483985975384712,
+                "maximum_root_mean": 0.16236497461795807,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 2,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005355456305551343,
+                "minimum_root_mean": 0.0045159568544477224,
+                "maximum_root_mean": 0.006194525398313999,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.05382895958609879,
+                "minimum_root_mean": 0.04232863709330559,
+                "maximum_root_mean": 0.068460363894701,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 90.91953635215759,
+                "minimum_root_mean": 69.21172332763672,
+                "maximum_root_mean": 119.68490982055664,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.05382895958609879,
+                "minimum_root_mean": 0.04232863709330559,
+                "maximum_root_mean": 0.068460363894701,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 25,
+              "format_valid": 32,
+              "both_world_roots_correct": 12,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.34927265788428485,
+                "minimum_root_mean": 0.05253334902226925,
+                "maximum_root_mean": 1.03794464468956,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.28398421313613653,
+                "minimum_root_mean": 0.2578369528055191,
+                "maximum_root_mean": 0.2984777241945267,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 284.61203241348267,
+                "minimum_root_mean": 257.04915618896484,
+                "maximum_root_mean": 314.12152099609375,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.30208953842520714,
+                "minimum_root_mean": 0.2893192321062088,
+                "maximum_root_mean": 0.3114197701215744,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.15601779846474528,
+                "minimum_root_mean": 0.1272193379700184,
+                "maximum_root_mean": 0.18367832154035568,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.13014654256403446,
+                "minimum_root_mean": 0.11654764413833618,
+                "maximum_root_mean": 0.14632952213287354,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 2,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005350678067770787,
+                "minimum_root_mean": 0.004482982447370887,
+                "maximum_root_mean": 0.006117956712841988,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.053034462849609554,
+                "minimum_root_mean": 0.042332395911216736,
+                "maximum_root_mean": 0.06652703136205673,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 89.56423616409302,
+                "minimum_root_mean": 69.21786117553711,
+                "maximum_root_mean": 116.29732894897461,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.053034462849609554,
+                "minimum_root_mean": 0.042332395911216736,
+                "maximum_root_mean": 0.06652703136205673,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 26,
+              "format_valid": 32,
+              "both_world_roots_correct": 12,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.357623916817829,
+                "minimum_root_mean": 0.05880485847592354,
+                "maximum_root_mean": 0.9073499143123627,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.28871041256934404,
+                "minimum_root_mean": 0.26127174496650696,
+                "maximum_root_mean": 0.304266020655632,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 290.1011962890625,
+                "minimum_root_mean": 262.59925842285156,
+                "maximum_root_mean": 322.9728088378906,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.3093368774279952,
+                "minimum_root_mean": 0.2956152558326721,
+                "maximum_root_mean": 0.31736429035663605,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.14287915104068816,
+                "minimum_root_mean": 0.11938558891415596,
+                "maximum_root_mean": 0.16748232394456863,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            }
+          ],
+          "saved_tensor_statistics": {
+            "maximum_added_cpu_bytes": 2147483648,
+            "live_added_cpu_bytes": 0,
+            "peak_added_cpu_bytes": 570958962,
+            "total_copied_bytes": 16174516896,
+            "staged_weight_aliases": 0,
+            "verified_staged_bindings": 0,
+            "resident_cache_hits": 0,
+            "activation_snapshots": 6879,
+            "scope": "immutable GPU weights referenced in place; staged CPU source weights aliased; independent activation snapshots charged to unchanged CPU cap",
+            "resident_GPU_weight_references": 264,
+            "checkpointed_frozen_blocks": 1386,
+            "recomputed_frozen_blocks": 1701,
+            "failed_reservation_bytes": null,
+            "largest_activation_snapshot_bytes": 132120576
+          },
+          "CUDA_peak_allocated_bytes": 3344799744,
+          "CUDA_peak_reserved_bytes": 3596615680,
+          "gauge_diagnostic": {
+            "positive_diagonal_and_permutation_physical_write_relative_l2": 5.8319415074947756e-08,
+            "coordinated_controller_mask_max_abs": 0.0,
+            "controlled_write_relative_l2": 5.0483837554793354e-08,
+            "stable_at_1e_minus5": true,
+            "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+          },
+          "training_tolerances": {
+            "0": 0.02586783907202314,
+            "1": 0.0035292831977410113
+          }
+        }
+      ],
+      "baseline_groups": [
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 2,
+          "format_valid": 2,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 16,
+          "format_valid": 16,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 1,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 15,
+          "format_valid": 16,
+          "both_world_roots_correct": 7
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 1,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 2,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 4,
+          "format_valid": 4,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 32,
+          "format_valid": 32,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 3,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 29,
+          "format_valid": 32,
+          "both_world_roots_correct": 13
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 2,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 2,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        }
+      ],
+      "audit_sha256": "d9885205c28fe5fa1ecf6b727ef8ca8580f963ee0b8a909c7eeb4f0f92d17536",
+      "receipt_sha256": "94a3c4d0773c52ddc401332263cdd47143c2fef54bb946985b0abbb39fe26848",
+      "failure": null,
+      "elapsed_seconds": 4130.891000000003,
+      "CUDA_peak_allocated_bytes": 3344799744,
+      "CUDA_peak_reserved_bytes": 3596615680
+    },
+    "bf16": {
+      "status": "completed_audited",
+      "cells": [
+        {
+          "status": "passed",
+          "passes": 1,
+          "receipt_sha256": "65ca847fc5b7d4a742bde0772fc442f409b9b708b7e0df3e36c3d0b8346ec58a",
+          "checkpoint_sha256": "3e6b097940dcd94f2e2eb650ee8354b3e1f9cf20c7719dc42e439284f2a4a976",
+          "training": {
+            "optimizer_steps": 16,
+            "CAL_roots": 8,
+            "CAL_worlds": 16,
+            "DEV_or_control_training_uses": 0,
+            "four_term_loss_accounting_checked": true,
+            "first_step_losses": {
+              "total_loss": 57.578617095947266,
+              "faith_loss": 0.0005754177109338343,
+              "min_loss": 0.00022860504395794123,
+              "stoch_loss": 0.0,
+              "adv_loss": 0.0732358992099762
+            },
+            "final_step_losses": {
+              "total_loss": 57.56667709350586,
+              "faith_loss": 0.0005753295845352113,
+              "min_loss": 0.0004324199981056154,
+              "stoch_loss": 0.0,
+              "adv_loss": 0.06657515466213226
+            }
+          },
+          "factor_update_l2": 0.270390643555454,
+          "controller_update_l2": 0.3015730107896937,
+          "initial_groups": [
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.11323672020807862,
+                "minimum_root_mean": 0.10893812030553818,
+                "maximum_root_mean": 0.11631844937801361,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.13811982050538063,
+                "minimum_root_mean": 0.13766948133707047,
+                "maximum_root_mean": 0.1385030373930931,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 211.7816343307495,
+                "minimum_root_mean": 206.63134002685547,
+                "maximum_root_mean": 214.95264434814453,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.13811982050538063,
+                "minimum_root_mean": 0.13766948133707047,
+                "maximum_root_mean": 0.1385030373930931,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 1,
+              "format_valid": 23,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.11204402963630855,
+                "minimum_root_mean": 0.10761292651295662,
+                "maximum_root_mean": 0.11600684002041817,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.13795920833945274,
+                "minimum_root_mean": 0.13726065307855606,
+                "maximum_root_mean": 0.138482466340065,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 211.85095357894897,
+                "minimum_root_mean": 207.7324447631836,
+                "maximum_root_mean": 219.39525604248047,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.13795920833945274,
+                "minimum_root_mean": 0.13726065307855606,
+                "maximum_root_mean": 0.138482466340065,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            }
+          ],
+          "final_groups": [
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 0,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.10965780774131417,
+                "minimum_root_mean": 0.10574013367295265,
+                "maximum_root_mean": 0.11566773429512978,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.4529626816511154,
+                "minimum_root_mean": 0.4467569440603256,
+                "maximum_root_mean": 0.4560573101043701,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 694.5465469360352,
+                "minimum_root_mean": 670.5479125976562,
+                "maximum_root_mean": 704.8069152832031,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.4529626816511154,
+                "minimum_root_mean": 0.4467569440603256,
+                "maximum_root_mean": 0.4560573101043701,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.06383607280440629,
+                "minimum_root_mean": 0.06244123913347721,
+                "maximum_root_mean": 0.0646076649427414,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.1328286062926054,
+                "minimum_root_mean": 0.13232425600290298,
+                "maximum_root_mean": 0.13331224769353867,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 203.66684246063232,
+                "minimum_root_mean": 199.49942016601562,
+                "maximum_root_mean": 206.82345581054688,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.1328286062926054,
+                "minimum_root_mean": 0.13232425600290298,
+                "maximum_root_mean": 0.13331224769353867,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.10965780774131417,
+                "minimum_root_mean": 0.10574013367295265,
+                "maximum_root_mean": 0.11566773429512978,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.4529626816511154,
+                "minimum_root_mean": 0.4467569440603256,
+                "maximum_root_mean": 0.4560573101043701,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 694.5465469360352,
+                "minimum_root_mean": 670.5479125976562,
+                "maximum_root_mean": 704.8069152832031,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.4529626816511154,
+                "minimum_root_mean": 0.4467569440603256,
+                "maximum_root_mean": 0.4560573101043701,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.10176061559468508,
+                "minimum_root_mean": 0.09914698451757431,
+                "maximum_root_mean": 0.1057974137365818,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.4479203224182129,
+                "minimum_root_mean": 0.44620300829410553,
+                "maximum_root_mean": 0.4493911564350128,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 686.8014297485352,
+                "minimum_root_mean": 669.7165222167969,
+                "maximum_root_mean": 696.3939208984375,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.4479203224182129,
+                "minimum_root_mean": 0.44620300829410553,
+                "maximum_root_mean": 0.4493911564350128,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 0,
+              "format_valid": 21,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.10946587077341974,
+                "minimum_root_mean": 0.10436694324016571,
+                "maximum_root_mean": 0.1170247383415699,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.4534800359979272,
+                "minimum_root_mean": 0.44851671159267426,
+                "maximum_root_mean": 0.4573836624622345,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 696.3872890472412,
+                "minimum_root_mean": 678.4054565429688,
+                "maximum_root_mean": 727.1154174804688,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.4534800359979272,
+                "minimum_root_mean": 0.44851671159267426,
+                "maximum_root_mean": 0.4573836624622345,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 1,
+              "format_valid": 24,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.06403996213339269,
+                "minimum_root_mean": 0.06300036609172821,
+                "maximum_root_mean": 0.06578972563147545,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.1330734728835523,
+                "minimum_root_mean": 0.1325780749320984,
+                "maximum_root_mean": 0.1339256688952446,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 204.35116386413574,
+                "minimum_root_mean": 199.20166778564453,
+                "maximum_root_mean": 212.11622619628906,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.1330734728835523,
+                "minimum_root_mean": 0.1325780749320984,
+                "maximum_root_mean": 0.1339256688952446,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 0,
+              "format_valid": 21,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.10946587077341974,
+                "minimum_root_mean": 0.10436694324016571,
+                "maximum_root_mean": 0.1170247383415699,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.4534800359979272,
+                "minimum_root_mean": 0.44851671159267426,
+                "maximum_root_mean": 0.4573836624622345,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 696.3872890472412,
+                "minimum_root_mean": 678.4054565429688,
+                "maximum_root_mean": 727.1154174804688,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.4534800359979272,
+                "minimum_root_mean": 0.44851671159267426,
+                "maximum_root_mean": 0.4573836624622345,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 0,
+              "format_valid": 21,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.10098315216600895,
+                "minimum_root_mean": 0.09421340003609657,
+                "maximum_root_mean": 0.10676009207963943,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.4488614974543452,
+                "minimum_root_mean": 0.44756488502025604,
+                "maximum_root_mean": 0.4505777060985565,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 689.2741966247559,
+                "minimum_root_mean": 673.6383666992188,
+                "maximum_root_mean": 714.4220275878906,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.4488614974543452,
+                "minimum_root_mean": 0.44756488502025604,
+                "maximum_root_mean": 0.4505777060985565,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            }
+          ],
+          "saved_tensor_statistics": {
+            "maximum_added_cpu_bytes": 2147483648,
+            "live_added_cpu_bytes": 0,
+            "peak_added_cpu_bytes": 226571313,
+            "total_copied_bytes": 4453890060,
+            "staged_weight_aliases": 0,
+            "verified_staged_bindings": 0,
+            "resident_cache_hits": 0,
+            "activation_snapshots": 1333,
+            "scope": "immutable GPU weights referenced in place; staged CPU source weights aliased; independent activation snapshots charged to unchanged CPU cap",
+            "resident_GPU_weight_references": 66,
+            "checkpointed_frozen_blocks": 0,
+            "recomputed_frozen_blocks": 0,
+            "failed_reservation_bytes": null,
+            "largest_activation_snapshot_bytes": 132120576
+          },
+          "CUDA_peak_allocated_bytes": 3121935872,
+          "CUDA_peak_reserved_bytes": 3248488448,
+          "gauge_diagnostic": {
+            "positive_diagonal_and_permutation_physical_write_relative_l2": 5.81511017117009e-08,
+            "coordinated_controller_mask_max_abs": 0.0,
+            "controlled_write_relative_l2": 6.550796882720533e-08,
+            "stable_at_1e_minus5": true,
+            "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+          },
+          "training_tolerances": {
+            "0": 1.0
+          }
+        },
+        {
+          "status": "passed",
+          "passes": 2,
+          "receipt_sha256": "8976e3142bf54b0b4258c3c5447843fe944e389a9c41859e901f6a852fa253b0",
+          "checkpoint_sha256": "daa8e628b79ddebb75b79325c562e60aa51274a9bfcf2b02856add9278c53f55",
+          "training": {
+            "optimizer_steps": 16,
+            "CAL_roots": 8,
+            "CAL_worlds": 16,
+            "DEV_or_control_training_uses": 0,
+            "four_term_loss_accounting_checked": true,
+            "first_step_losses": {
+              "total_loss": 57.57309341430664,
+              "faith_loss": 0.0005754177109338343,
+              "min_loss": 0.0004105722764506936,
+              "stoch_loss": 0.0005017570219933987,
+              "adv_loss": 0.061320215463638306
+            },
+            "final_step_losses": {
+              "total_loss": 57.559112548828125,
+              "faith_loss": 0.0005753465811721981,
+              "min_loss": 0.0006651037838310003,
+              "stoch_loss": 0.0017440450610592961,
+              "adv_loss": 0.04583872854709625
+            }
+          },
+          "factor_update_l2": 0.19075377957955783,
+          "controller_update_l2": 0.2523808212363468,
+          "initial_groups": [
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005328153056325391,
+                "minimum_root_mean": 0.004975616233423352,
+                "maximum_root_mean": 0.005787364207208157,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.03767234040424228,
+                "minimum_root_mean": 0.036194005981087685,
+                "maximum_root_mean": 0.03925829008221626,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 57.74950075149536,
+                "minimum_root_mean": 55.926374435424805,
+                "maximum_root_mean": 59.72157859802246,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.03767234040424228,
+                "minimum_root_mean": 0.036194005981087685,
+                "maximum_root_mean": 0.03925829008221626,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 16,
+              "format_valid": 16,
+              "both_world_roots_correct": 8,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.16408591635990888,
+                "minimum_root_mean": 0.0347070237621665,
+                "maximum_root_mean": 0.3229251205921173,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.28666308149695396,
+                "minimum_root_mean": 0.27466875314712524,
+                "maximum_root_mean": 0.29435895383358,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 249.75318431854248,
+                "minimum_root_mean": 211.74883270263672,
+                "maximum_root_mean": 271.37945556640625,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.2895170245319605,
+                "minimum_root_mean": 0.2696327418088913,
+                "maximum_root_mean": 0.3003309667110443,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.1028115414083004,
+                "minimum_root_mean": 0.09370532259345055,
+                "maximum_root_mean": 0.11217497289180756,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0052519816235871986,
+                "minimum_root_mean": 0.004741632845252752,
+                "maximum_root_mean": 0.005711407400667667,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.037462298409081995,
+                "minimum_root_mean": 0.03552269749343395,
+                "maximum_root_mean": 0.03906596638262272,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 57.514691948890686,
+                "minimum_root_mean": 54.4515438079834,
+                "maximum_root_mean": 59.11842346191406,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.037462298409081995,
+                "minimum_root_mean": 0.03552269749343395,
+                "maximum_root_mean": 0.03906596638262272,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 32,
+              "format_valid": 32,
+              "both_world_roots_correct": 16,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.2922140769660473,
+                "minimum_root_mean": 0.07843372039496899,
+                "maximum_root_mean": 1.5501198768615723,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.2829979807138443,
+                "minimum_root_mean": 0.26930123567581177,
+                "maximum_root_mean": 0.29360391199588776,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 242.62356567382812,
+                "minimum_root_mean": 223.99209594726562,
+                "maximum_root_mean": 292.09507751464844,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.2866256842389703,
+                "minimum_root_mean": 0.27120573818683624,
+                "maximum_root_mean": 0.3033798635005951,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.10695367027074099,
+                "minimum_root_mean": 0.08355995267629623,
+                "maximum_root_mean": 0.143568716943264,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            }
+          ],
+          "final_groups": [
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 0,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 16,
+              "format_valid": 16,
+              "both_world_roots_correct": 8,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005262558814138174,
+                "minimum_root_mean": 0.004927992355078459,
+                "maximum_root_mean": 0.005642845295369625,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.04286029073409736,
+                "minimum_root_mean": 0.038743339478969574,
+                "maximum_root_mean": 0.0488141942769289,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 65.6493239402771,
+                "minimum_root_mean": 60.076114654541016,
+                "maximum_root_mean": 73.26636505126953,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.04286029073409736,
+                "minimum_root_mean": 0.038743339478969574,
+                "maximum_root_mean": 0.0488141942769289,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 16,
+              "format_valid": 16,
+              "both_world_roots_correct": 8,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.16649561852682382,
+                "minimum_root_mean": 0.04041749332100153,
+                "maximum_root_mean": 0.34588204324245453,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.30791604332625866,
+                "minimum_root_mean": 0.29658858478069305,
+                "maximum_root_mean": 0.3177146166563034,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 288.28523540496826,
+                "minimum_root_mean": 238.16497039794922,
+                "maximum_root_mean": 318.7136688232422,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.32065092772245407,
+                "minimum_root_mean": 0.2918959856033325,
+                "maximum_root_mean": 0.32825011014938354,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0816938120406121,
+                "minimum_root_mean": 0.0668238028883934,
+                "maximum_root_mean": 0.10033764317631721,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005340225325198844,
+                "minimum_root_mean": 0.004978749668225646,
+                "maximum_root_mean": 0.005791618023067713,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.03767308662645519,
+                "minimum_root_mean": 0.03619255684316158,
+                "maximum_root_mean": 0.03926542401313782,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 57.75048899650574,
+                "minimum_root_mean": 55.92416000366211,
+                "maximum_root_mean": 59.732425689697266,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.03767308662645519,
+                "minimum_root_mean": 0.03619255684316158,
+                "maximum_root_mean": 0.03926542401313782,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 16,
+              "format_valid": 16,
+              "both_world_roots_correct": 8,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.14297594025265425,
+                "minimum_root_mean": 0.02912482712417841,
+                "maximum_root_mean": 0.28975963592529297,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.28850412368774414,
+                "minimum_root_mean": 0.2779301404953003,
+                "maximum_root_mean": 0.2977895438671112,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 240.8276882171631,
+                "minimum_root_mean": 204.6591339111328,
+                "maximum_root_mean": 258.38343811035156,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.28412540070712566,
+                "minimum_root_mean": 0.2647809088230133,
+                "maximum_root_mean": 0.2966819107532501,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.10262840799987316,
+                "minimum_root_mean": 0.09338471665978432,
+                "maximum_root_mean": 0.11889971420168877,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005262558814138174,
+                "minimum_root_mean": 0.004927992355078459,
+                "maximum_root_mean": 0.005642845295369625,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.04286029073409736,
+                "minimum_root_mean": 0.038743339478969574,
+                "maximum_root_mean": 0.0488141942769289,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 65.6493239402771,
+                "minimum_root_mean": 60.076114654541016,
+                "maximum_root_mean": 73.26636505126953,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.04286029073409736,
+                "minimum_root_mean": 0.038743339478969574,
+                "maximum_root_mean": 0.0488141942769289,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 16,
+              "format_valid": 16,
+              "both_world_roots_correct": 8,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.1686372843105346,
+                "minimum_root_mean": 0.039822639897465706,
+                "maximum_root_mean": 0.34604594111442566,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.30802086368203163,
+                "minimum_root_mean": 0.2967459410429001,
+                "maximum_root_mean": 0.3177572786808014,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 288.440878868103,
+                "minimum_root_mean": 238.27716827392578,
+                "maximum_root_mean": 318.7821502685547,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.32082149758934975,
+                "minimum_root_mean": 0.2920365333557129,
+                "maximum_root_mean": 0.32909102737903595,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0816938120406121,
+                "minimum_root_mean": 0.0668238028883934,
+                "maximum_root_mean": 0.10033764317631721,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.2244703695178032,
+                "minimum_root_mean": 0.18522414565086365,
+                "maximum_root_mean": 0.26497602462768555,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 1,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 16,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005246474291197956,
+                "minimum_root_mean": 0.0049463247414678335,
+                "maximum_root_mean": 0.0056168383453041315,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.043426917400211096,
+                "minimum_root_mean": 0.03873233310878277,
+                "maximum_root_mean": 0.052414897829294205,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 66.50472807884216,
+                "minimum_root_mean": 60.33205223083496,
+                "maximum_root_mean": 78.67074584960938,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.043426917400211096,
+                "minimum_root_mean": 0.03873233310878277,
+                "maximum_root_mean": 0.052414897829294205,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "calibration",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 2,
+              "contexts": 16,
+              "source_roots": 8,
+              "correct": 16,
+              "format_valid": 16,
+              "both_world_roots_correct": 8,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.18704425636678934,
+                "minimum_root_mean": 0.04742327332496643,
+                "maximum_root_mean": 0.37090858817100525,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.3161494806408882,
+                "minimum_root_mean": 0.3048747628927231,
+                "maximum_root_mean": 0.3280606120824814,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 290.66022205352783,
+                "minimum_root_mean": 241.72209930419922,
+                "maximum_root_mean": 324.40281677246094,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.32566046714782715,
+                "minimum_root_mean": 0.29772816598415375,
+                "maximum_root_mean": 0.33415302634239197,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0744203960057348,
+                "minimum_root_mean": 0.06327363103628159,
+                "maximum_root_mean": 0.0853407010436058,
+                "defined_roots": 8,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 16
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "all_one",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 32,
+              "format_valid": 32,
+              "both_world_roots_correct": 16,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005185383473872207,
+                "minimum_root_mean": 0.004700604593381286,
+                "maximum_root_mean": 0.005516422213986516,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.04234595235902816,
+                "minimum_root_mean": 0.03602508455514908,
+                "maximum_root_mean": 0.04860372096300125,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 64.95720779895782,
+                "minimum_root_mean": 57.27006912231445,
+                "maximum_root_mean": 72.95244979858398,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.04234595235902816,
+                "minimum_root_mean": 0.03602508455514908,
+                "maximum_root_mean": 0.04860372096300125,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "clean_informed",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 32,
+              "format_valid": 32,
+              "both_world_roots_correct": 16,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.2715554159367457,
+                "minimum_root_mean": 0.06337941437959671,
+                "maximum_root_mean": 1.2728921473026276,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.3047189973294735,
+                "minimum_root_mean": 0.29222308099269867,
+                "maximum_root_mean": 0.313855305314064,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 278.4456424713135,
+                "minimum_root_mean": 251.10556030273438,
+                "maximum_root_mean": 328.02398681640625,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.31665517669171095,
+                "minimum_root_mean": 0.30691179633140564,
+                "maximum_root_mean": 0.3311946839094162,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.08232238376513124,
+                "minimum_root_mean": 0.06689805164933205,
+                "maximum_root_mean": 0.10402289032936096,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.00526601672754623,
+                "minimum_root_mean": 0.004750068066641688,
+                "maximum_root_mean": 0.005730587523430586,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.03745873214211315,
+                "minimum_root_mean": 0.03547334671020508,
+                "maximum_root_mean": 0.039079368114471436,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 57.509220361709595,
+                "minimum_root_mean": 54.37637710571289,
+                "maximum_root_mean": 59.138710021972656,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.03745873214211315,
+                "minimum_root_mean": 0.03547334671020508,
+                "maximum_root_mean": 0.039079368114471436,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "component_only",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 32,
+              "format_valid": 32,
+              "both_world_roots_correct": 16,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.25852569757262245,
+                "minimum_root_mean": 0.06955856643617153,
+                "maximum_root_mean": 1.445524901151657,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.28431967459619045,
+                "minimum_root_mean": 0.2713799774646759,
+                "maximum_root_mean": 0.29475973546504974,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 234.8817915916443,
+                "minimum_root_mean": 214.42507934570312,
+                "maximum_root_mean": 281.4477081298828,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.2812537318095565,
+                "minimum_root_mean": 0.26519474387168884,
+                "maximum_root_mean": 0.2979976236820221,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.10729599185287952,
+                "minimum_root_mean": 0.08050936087965965,
+                "maximum_root_mean": 0.1519968956708908,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.005185383473872207,
+                "minimum_root_mean": 0.004700604593381286,
+                "maximum_root_mean": 0.005516422213986516,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.04234595235902816,
+                "minimum_root_mean": 0.03602508455514908,
+                "maximum_root_mean": 0.04860372096300125,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 64.95720779895782,
+                "minimum_root_mean": 57.27006912231445,
+                "maximum_root_mean": 72.95244979858398,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.04234595235902816,
+                "minimum_root_mean": 0.03602508455514908,
+                "maximum_root_mean": 0.04860372096300125,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "reached_state",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 32,
+              "format_valid": 32,
+              "both_world_roots_correct": 16,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.2705504131736234,
+                "minimum_root_mean": 0.06604901514947414,
+                "maximum_root_mean": 1.272995412349701,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.30477123335003853,
+                "minimum_root_mean": 0.29219308495521545,
+                "maximum_root_mean": 0.3138173371553421,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 278.50747442245483,
+                "minimum_root_mean": 251.07799530029297,
+                "maximum_root_mean": 328.29835510253906,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.31672399397939444,
+                "minimum_root_mean": 0.3069727271795273,
+                "maximum_root_mean": 0.33147597312927246,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.08232238376513124,
+                "minimum_root_mean": 0.06689805164933205,
+                "maximum_root_mean": 0.10402289032936096,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": 0.22214647009968758,
+                "minimum_root_mean": 0.1900075078010559,
+                "maximum_root_mean": 0.26404595375061035,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 1,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 3,
+              "format_valid": 32,
+              "both_world_roots_correct": 0,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.00517074040544685,
+                "minimum_root_mean": 0.0046899395529180765,
+                "maximum_root_mean": 0.0054810321889817715,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.04269984655547887,
+                "minimum_root_mean": 0.03608660027384758,
+                "maximum_root_mean": 0.04855585843324661,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 65.49999558925629,
+                "minimum_root_mean": 57.367862701416016,
+                "maximum_root_mean": 72.88061141967773,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.04269984655547887,
+                "minimum_root_mean": 0.03608660027384758,
+                "maximum_root_mean": 0.04855585843324661,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.0,
+                "minimum_root_mean": 0.0,
+                "maximum_root_mean": 0.0,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            },
+            {
+              "split": "development",
+              "arm": "focused",
+              "mode": "static_CAL_mean",
+              "loop": 2,
+              "contexts": 32,
+              "source_roots": 16,
+              "correct": 32,
+              "format_valid": 32,
+              "both_world_roots_correct": 16,
+              "full_vocabulary_KL": {
+                "equal_root_mean": 0.30939686752390116,
+                "minimum_root_mean": 0.0758823063224554,
+                "maximum_root_mean": 1.4044595658779144,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "actual_last_token_module_write_relative_l2": {
+                "equal_root_mean": 0.3141187708824873,
+                "minimum_root_mean": 0.2991240918636322,
+                "maximum_root_mean": 0.3242620527744293,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_l2_at_actual_reached_input": {
+                "equal_root_mean": 279.3679151535034,
+                "minimum_root_mean": 249.9136505126953,
+                "maximum_root_mean": 330.0778503417969,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "local_intervention_relative_l2_at_actual_reached_input": {
+                "equal_root_mean": 0.3211569571867585,
+                "minimum_root_mean": 0.31066758930683136,
+                "maximum_root_mean": 0.3373763710260391,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_input_relative_l2": {
+                "equal_root_mean": 0.07369281642604619,
+                "minimum_root_mean": 0.06066786125302315,
+                "maximum_root_mean": 0.09655214101076126,
+                "defined_roots": 16,
+                "undefined_contexts": 0
+              },
+              "reached_vs_clean_mask_max_abs": {
+                "equal_root_mean": null,
+                "minimum_root_mean": null,
+                "maximum_root_mean": null,
+                "defined_roots": 0,
+                "undefined_contexts": 32
+              }
+            }
+          ],
+          "saved_tensor_statistics": {
+            "maximum_added_cpu_bytes": 2147483648,
+            "live_added_cpu_bytes": 0,
+            "peak_added_cpu_bytes": 570958962,
+            "total_copied_bytes": 16174516896,
+            "staged_weight_aliases": 594,
+            "verified_staged_bindings": 9,
+            "resident_cache_hits": 0,
+            "activation_snapshots": 6879,
+            "scope": "immutable GPU weights referenced in place; staged CPU source weights aliased; independent activation snapshots charged to unchanged CPU cap",
+            "resident_GPU_weight_references": 132,
+            "checkpointed_frozen_blocks": 1386,
+            "recomputed_frozen_blocks": 1701,
+            "failed_reservation_bytes": null,
+            "largest_activation_snapshot_bytes": 132120576
+          },
+          "CUDA_peak_allocated_bytes": 3148556800,
+          "CUDA_peak_reserved_bytes": 3372220416,
+          "gauge_diagnostic": {
+            "positive_diagonal_and_permutation_physical_write_relative_l2": 6.227966053984346e-08,
+            "coordinated_controller_mask_max_abs": 0.0,
+            "controlled_write_relative_l2": 6.473837288467621e-08,
+            "stable_at_1e_minus5": true,
+            "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+          },
+          "training_tolerances": {
+            "0": 0.024847612599503716,
+            "1": 0.0026709758242290096
+          }
+        }
+      ],
+      "baseline_groups": [
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 1,
+          "format_valid": 1,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 16,
+          "format_valid": 16,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 0,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 16,
+          "format_valid": 16,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 1,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 0,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 2,
+          "format_valid": 2,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 32,
+          "format_valid": 32,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 3,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 32,
+          "format_valid": 32,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 1,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 2,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        }
+      ],
+      "audit_sha256": "539a74689a1942173fbad6ce55f53cac08133149167ba48f8a4af222e63ff93e",
+      "receipt_sha256": "3f321f95e42c724defa0fc942bf13333e759a488ae87cab550d85e2c699214eb",
+      "failure": null,
+      "elapsed_seconds": 9237.483999999997,
+      "CUDA_peak_allocated_bytes": 3148556800,
+      "CUDA_peak_reserved_bytes": 3372220416
+    }
+  },
+  "physical_operator_comparison": {
+    "status": "completed",
+    "pairs": [
+      {
+        "reference_backend": "nf4",
+        "reference_depth": 1,
+        "compared_backend": "nf4",
+        "compared_depth": 2,
+        "relative_l2": 0.024378770092136442,
+        "cosine": 0.9997042244255238
+      },
+      {
+        "reference_backend": "bf16",
+        "reference_depth": 1,
+        "compared_backend": "bf16",
+        "compared_depth": 2,
+        "relative_l2": 0.02392500585228066,
+        "cosine": 0.9997151841401429
+      },
+      {
+        "reference_backend": "bf16",
+        "reference_depth": 1,
+        "compared_backend": "nf4",
+        "compared_depth": 1,
+        "relative_l2": 0.14208889100095926,
+        "cosine": 0.9899103893535487
+      },
+      {
+        "reference_backend": "bf16",
+        "reference_depth": 2,
+        "compared_backend": "nf4",
+        "compared_depth": 2,
+        "relative_l2": 0.14189103323938368,
+        "cosine": 0.9899383711589631
+      }
+    ],
+    "coordinate": "V @ U, physical input-to-output map; float64 row chunks, reference Frobenius denominator.",
+    "limitation": "Within-backend shared initialization and small updates; cross-backend target quantization and stochastic trajectories differ. Depth recipes jointly change losses/masks. No mechanism equivalence or isolated BPD advantage."
+  },
+  "unit": "8 reused CAL roots/16 world training prefixes;16 reused DEV roots/32 worlds. Depths, loops, routes and tokens correlated;one pinned checkpoint.",
+  "primary_contrast": "Matched NF4/BF16 genuine factor/controller fitting and exposed fidelity diagnostics; no outcome-selected prefixes.",
+  "readout_selection_exposure": "COMP14/GRAD15 exposed development condition; focused recipe qualified on loop2 only. T1 is a depth control, not independently established task competence.",
+  "scientific_causal_floor": null,
+  "matched_sham_floor": null,
+  "estimated_causal_power": "Not calibrated; zero formal comparisons.",
+  "physical_dose": "Unmatched routing changes, not a matched-dose donor intervention.",
+  "planned_formal_comparisons": 0,
+  "actual_formal_comparisons": 0,
+  "SAE_cross_reference_status": "Separate subsequent registered analysis required.",
+  "BPD_donor_transfer_attempted": false,
+  "changes_old_competence_gates": false,
+  "sealed_test_accessed": false
+}

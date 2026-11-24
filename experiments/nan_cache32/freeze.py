@@ -1,0 +1,75 @@
+"""Freeze the complete full-scope condition before its first pretrained forward."""
+import ast
+from datetime import datetime,timezone
+from pathlib import Path
+from unittest.mock import patch
+from .common import ROOT,RUNS,read,write,sha,load_sources,assert_no_torch
+from .plan import build,digest
+
+
+def main():
+    assert_no_torch();assert not RUNS.exists() and not (ROOT/'SOURCE_MANIFEST.json').exists()
+    proof=read(ROOT/'ENGINEERING.json');assert proof['status']=='passed' and proof['MOCK_ONLY'] and proof['pretrained_forwards']==0
+    historical={}
+    if (ROOT/'INVENTORY_AMENDMENT.json').exists():
+        from .inventory_amendment import verify as verify_amendment
+        historical=verify_amendment()
+    for name,value in proof['source_sha256'].items():assert sha(historical.get(name,ROOT/name))==value,name
+    source,pins=load_sources();tokens=read('experiments/nan_full26/tokenizer_receipt.json');plan=build(source,tokens['contexts'])
+    assert source[0]['stage']=='nan_story23' and source[0]['split']=='calibration','Only the fixed first calibration source may drive preflight'
+    assert len({r['root'] for r in source})==150 and plan['full_cap_row_prefixes']==242048
+    assert plan['baseline_initial_batches']==931
+    if (ROOT/'PLAN.json').exists():assert digest(read(ROOT/'PLAN.json'))==digest(plan),'The complete original canonical plan must stay exact'
+    else:write(ROOT/'PLAN.json',plan)
+    cfg=read(ROOT/'config.json')
+    assert cfg['baseline_contexts_per_backend']==1549 and cfg['AB_pairs_per_backend']==216
+    assert cfg['backends']==['nf4','bf16'] and cfg['formal_inferential_comparisons']==0
+    old=read('experiments/nan_mlp27/SOURCE_MANIFEST.json');bf=read('experiments/nan_bf31/SOURCE_MANIFEST.json')
+    model={};host={}
+    for path,value in old['files'].items():
+        (host if 'host_labels' in path or path.endswith('/oracle.py') else model)[path]=value
+    model.update(bf['additional_dependencies_sha256'])
+    for name,value in bf['critical_files_sha256'].items():model['experiments/nan_bf31/'+name]=value
+    model['experiments/nan_bf31/SOURCE_MANIFEST.json']=sha('experiments/nan_bf31/SOURCE_MANIFEST.json')
+    adapter=Path('../Compactification-Theory-arg02/research/algernon/algebraic_reasoning_gym/arg02')
+    for name in ('__init__.py','settings.py','nanbeige.py','runner.py'):
+        path=adapter/name;assert path.is_file();model[path.as_posix()]=sha(path)
+    model.update(pins);model['experiments/nan_full26/tokenizer_receipt.json']=sha('experiments/nan_full26/tokenizer_receipt.json')
+    for path in Path('mechinterp/nanbeige_bpd_gym').glob('chunked_*.py'):model[path.as_posix()]=sha(path)
+    for name in ('streamed_vocab_head.py','lazy_bf16_storage.py','lazy_bf16_loop.py','lazy_bf16_backend.py'):
+        path=Path('mechinterp/nanbeige_bpd_gym')/name;model[path.as_posix()]=sha(path)
+    import experiments.nan_story23.common as story
+    inventory=read('experiments/nan_xref19/CACHE_INVENTORY.json')['backends']
+    model['experiments/nan_xref19/CACHE_INVENTORY.json']=sha('experiments/nan_xref19/CACHE_INVENTORY.json')
+    # Same qualification equations/hashes; stream file bytes to bound freeze RAM.
+    with patch.object(story,'sha',sha):
+        for backend in cfg['backends']:
+            asset=story.fit_asset(backend,2);assert asset
+            folder=Path(asset['folder'])
+            for path in (Path(asset['checkpoint']),folder/'receipt.json',folder/'diagnostic_local.json',Path('runs/nan_fit16_io18/audits')/(backend+'.json')):
+                model[path.as_posix()]=sha(path)
+            for layer in (5,11,17,21):
+                for name in (f'layer{layer}.npz',f'layer{layer}_random_initial.npz'):
+                    pin=inventory[backend]['dictionaries'][str(layer)][name];assert sha(pin['path'])==pin['sha256']
+                    host[pin['path']]=pin['sha256']
+    for path,value in model.items():assert sha(path)==value,path
+    for path,value in host.items():assert sha(path)==value,path
+    for path in ROOT.glob('*.py'):ast.parse(path.read_text())
+    critical={p.name:sha(p) for p in ROOT.iterdir() if p.is_file() and p.name!='SOURCE_MANIFEST.json'}
+    write(ROOT/'SOURCE_MANIFEST.json',dict(experiment='NAN-CACHE-32',frozen_UTC=datetime.now(timezone.utc).isoformat(),
+        complete_source_freeze_before_inference=True,critical_files_sha256=critical,model_dependencies_sha256=model,host_dependencies_sha256=host,
+        public_source_pins=pins,plan_sha256=digest(plan),baseline_contexts_per_backend=1549,AB_pairs_per_backend=216,registered_rows_both_backends=3962,
+        distinct_root_identifiers=150,checkpoint_revision=cfg['checkpoint_revision'],adapter_commit=old['adapter_commit'],BPD_commit=old['BPD_commit'],EvalMath_commit=old['EvalMath_commit'],
+        predecessor_BF31_source_manifest_sha256=sha('experiments/nan_bf31/SOURCE_MANIFEST.json'),pretrained_forwards_before_registration=0,
+        inventory_source_revision=2 if historical else 1,
+        original_source_manifest_sha256=sha(ROOT/'SOURCE_MANIFEST_before_inventory.json') if historical else None,
+        engineering_only_before_registration=True,task_score_selection=False,original_failures_preserved=True,
+        exposure='Earlier development studies exposed. Current NF4/legacy BF16 condition not changed; only closed coverage/resource metadata inspected during registration.',
+        new_cached_quantization_capacity_correctness_and_throughput_unmeasured=True,formal_comparisons=0,sealed_test_accessed=False))
+    from .common import verify
+    verify('host');assert_no_torch()
+    print(dict(status='full_condition_frozen_before_inference',source_manifest_sha256=sha(ROOT/'SOURCE_MANIFEST.json'),
+        critical_files=len(critical),model_bindings=len(model),host_bindings=len(host),plan_jobs=len(plan['jobs']),trajectory_slots_per_backend=1981))
+
+
+if __name__=='__main__':main()

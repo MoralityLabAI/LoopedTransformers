@@ -1,0 +1,137 @@
+{
+  "experiment": "NAN-GRAD-15",
+  "updated_UTC": "2026-11-21T04:04:19.139859+00:00",
+  "source_manifest_sha256": "61f37ab12d17ab1d3569b9a6ebeff59e25deac1cc9c8f00e6240e43d4cfe23c5",
+  "backends": {
+    "nf4": {
+      "status": "completed_audited",
+      "conditions": [
+        {
+          "passes": 1,
+          "condition_status": "passed",
+          "archived_cases": 4,
+          "successful_gradient_cases": 4,
+          "missing_registered_cases": 0
+        },
+        {
+          "passes": 2,
+          "condition_status": "passed",
+          "archived_cases": 4,
+          "successful_gradient_cases": 4,
+          "missing_registered_cases": 0
+        }
+      ],
+      "audit_sha256": "b1ccc7ccec67c360436d961f632bdb8873648882a861eccde9f90635bb03d5d0",
+      "CUDA_peak_allocated_bytes": 2961796608,
+      "CUDA_peak_reserved_bytes": 3193962496,
+      "failure": null,
+      "elapsed_seconds": 534.9839999999967,
+      "peak_added_saved_tensor_CPU_bytes": 169850212
+    },
+    "bf16": {
+      "status": "completed_audited",
+      "conditions": [
+        {
+          "passes": 1,
+          "condition_status": "passed",
+          "archived_cases": 4,
+          "successful_gradient_cases": 4,
+          "missing_registered_cases": 0
+        },
+        {
+          "passes": 2,
+          "condition_status": "passed",
+          "archived_cases": 4,
+          "successful_gradient_cases": 4,
+          "missing_registered_cases": 0
+        }
+      ],
+      "audit_sha256": "d6268835e7b6f306b1d61accab036c2a9278c971b901f4942dc915bccdffd9e5",
+      "CUDA_peak_allocated_bytes": 2765420544,
+      "CUDA_peak_reserved_bytes": 2889875456,
+      "failure": null,
+      "elapsed_seconds": 609.0469999999623,
+      "peak_added_saved_tensor_CPU_bytes": 169850212
+    }
+  },
+  "eligibility": {
+    "passed": true,
+    "screens": {
+      "nf4": {
+        "template": "focused",
+        "endpoint": "first_token_loop2",
+        "checks": [
+          {
+            "split": "calibration",
+            "main_both_correct": 7,
+            "main_required": 6,
+            "roots": 8,
+            "copy_both_correct": 8,
+            "erased_both_correct": 0,
+            "erased_repeats_byte_identical": true,
+            "passed": true
+          },
+          {
+            "split": "development",
+            "main_both_correct": 13,
+            "main_required": 12,
+            "roots": 16,
+            "copy_both_correct": 16,
+            "erased_both_correct": 0,
+            "erased_repeats_byte_identical": true,
+            "passed": true
+          }
+        ],
+        "passed": true,
+        "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+      },
+      "bf16": {
+        "template": "focused",
+        "endpoint": "first_token_loop2",
+        "checks": [
+          {
+            "split": "calibration",
+            "main_both_correct": 8,
+            "main_required": 6,
+            "roots": 8,
+            "copy_both_correct": 8,
+            "erased_both_correct": 0,
+            "erased_repeats_byte_identical": true,
+            "passed": true
+          },
+          {
+            "split": "development",
+            "main_both_correct": 16,
+            "main_required": 12,
+            "roots": 16,
+            "copy_both_correct": 16,
+            "erased_both_correct": 0,
+            "erased_repeats_byte_identical": true,
+            "passed": true
+          }
+        ],
+        "passed": true,
+        "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+      }
+    },
+    "rule": "Both backends must pass the original COMP14 focused first-token screen; no substitutions or changed thresholds.",
+    "upstream_comp14_seal": "b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f",
+    "audit_sha256": {
+      "nf4": "5c579d64d88f18c3feccb58f0e910b6a5022c5ae55693e4f1036cd29aa57b981",
+      "bf16": "75718b1d3764883f5960794587c0ecf3c6ca3d39a858246812cf971967d3f207"
+    }
+  },
+  "unit": "Two reused CAL roots/four fixed counterfactual prefixes; depths and gradients are correlated engineering measurements.",
+  "primary_contrast": "Native real-checkpoint NF4/BF16 gradient and memory feasibility before optimizer fitting.",
+  "physical_dose": "Unmatched fixed component=.35/residual=.7 masks; no donor intervention.",
+  "scientific_causal_floor": null,
+  "matched_sham_floor": null,
+  "estimated_causal_power": "Not a causal test.",
+  "readout_selection_exposure": "COMP14 NF4 aggregates already observed; focused recipe fixed before GRAD15. No success-based prefix selection.",
+  "planned_formal_comparisons": 0,
+  "actual_formal_comparisons": 0,
+  "optimizer_steps": 0,
+  "factors_trained": false,
+  "BPD_donor_transfer_attempted": false,
+  "sealed_test_accessed": false
+}

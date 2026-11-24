@@ -1,0 +1,146 @@
+{
+  "cuda_initialized": false,
+  "experiment": "NAN-WINDOW-66",
+  "fixture": {
+    "checked_signed_site_records": 16,
+    "final_layer_max_selected_logit_error": 0.0,
+    "finite_coalitions_per_site_record": 32,
+    "malformed_receipts_refused": 3,
+    "matched_shapes": [
+      [
+        7,
+        3
+      ],
+      [
+        7,
+        7
+      ]
+    ],
+    "resident_and_reused_stage": true,
+    "signed_pass2_runs": 4,
+    "window_layers": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "fixture_signed_effects": {
+    "active_positive_bare_donor_flip": false,
+    "delayed_window_effects": {
+      "1": {
+        "continuous_attribution": {
+          "attention_add_rounding": 0.0020454589110609107,
+          "attention_input": 6.145477937849475e-05,
+          "attention_write": -4.2104452113694575e-05,
+          "head_rounding": -0.020479582791710527,
+          "mlp_add_rounding": -0.001845257330699377,
+          "mlp_write": 0.00023298679321331385,
+          "rms_scale": 0.002820342106309848
+        },
+        "restricted_head_effect": -0.017206701984561104,
+        "rounded_head_allocation": {
+          "attention_add_rounding": 0.0018085039959849925,
+          "attention_input": -0.013976864627867163,
+          "attention_write": -0.00076432164324928,
+          "mlp_add_rounding": -0.004737802982883987,
+          "mlp_write": 0.00046378327345433285
+        }
+      },
+      "2": {
+        "continuous_attribution": {
+          "attention_add_rounding": -0.0009207900520761501,
+          "attention_input": 0.00044186394958212194,
+          "attention_write": -0.0001416702220620693,
+          "head_rounding": -0.006584055928171128,
+          "mlp_add_rounding": 0.0005607337287058582,
+          "mlp_write": -0.00035979500090502675,
+          "rms_scale": 0.005539047500523726
+        },
+        "restricted_head_effect": -0.0014646660244033273,
+        "rounded_head_allocation": {
+          "attention_add_rounding": -0.005172768489978514,
+          "attention_input": 0.0010693455101702678,
+          "attention_write": -6.10176206641813e-06,
+          "mlp_add_rounding": 0.0026407908760937232,
+          "mlp_write": 4.067841377612087e-06
+        }
+      },
+      "3": {
+        "continuous_attribution": {
+          "attention_add_rounding": 0.001099219421083597,
+          "attention_input": -0.00040905963060306177,
+          "attention_write": 0.00027540318802195935,
+          "head_rounding": -0.0069642543779258135,
+          "mlp_add_rounding": 0.0017222345995814914,
+          "mlp_write": -0.0002742474556213593,
+          "rms_scale": 0.002994510803635546
+        },
+        "restricted_head_effect": -0.0015561934518277263,
+        "rounded_head_allocation": {
+          "attention_add_rounding": -1.4745576243999383e-05,
+          "attention_input": -0.0015277176321848544,
+          "attention_write": 5.086628506914519e-07,
+          "mlp_add_rounding": -1.4747236957544303e-05,
+          "mlp_write": 5.083307079824684e-07
+        }
+      },
+      "4": {
+        "continuous_attribution": {
+          "attention_add_rounding": 0.0003143270200577606,
+          "attention_input": 0.002416447126057598,
+          "attention_write": -0.0005557213954929707,
+          "head_rounding": -0.003167662205806921,
+          "mlp_add_rounding": 0.001111264440528012,
+          "mlp_write": 0.00039068723705664647,
+          "rms_scale": -0.002065531688515516
+        },
+        "restricted_head_effect": -0.0015561894661152184,
+        "rounded_head_allocation": {
+          "attention_add_rounding": -0.0020905653422939865,
+          "attention_input": 0.002854798170582886,
+          "attention_write": -0.002070226799691344,
+          "mlp_add_rounding": 0.000533449092579854,
+          "mlp_write": -0.0007836445872926263
+        }
+      }
+    },
+    "max_signed_rms_gap": 0.00040807672386558493,
+    "sham_positive_bare_donor_flip": false,
+    "signed_pass1_margin_contrast_minus_sham": -0.0014646620386908195,
+    "signed_pass2_margin_contrast_minus_sham": -0.0015561894661152184
+  },
+  "formal_comparisons": 0,
+  "max_sampled_private_bytes": 774533120,
+  "min_sampled_available_RAM_bytes": 6043439104,
+  "pretrained_forwards": 0,
+  "random_seed": 64017,
+  "source_sha256": {
+    "experiments/nan_delay39/instrument.py": "211c1448882d89bf34fe4922bcc96279eb88ec2d92d83a6751ee824e6b134c91",
+    "experiments/nan_dose51/native.py": "d39bc1d2e607ebfebf35073f9becff4ac3f6497b40bf16f4511fc7ac904dbdf0",
+    "experiments/nan_dose51/route.py": "95b7a6103a0f1caab5e363b8af1f71a790cbbb23d5b3d5a6548a4ae0cc7a0e0e",
+    "experiments/nan_gated46/gated.py": "755b58c3b9f8c9851c57e13ae260723a7377f66dcfccf65f9d1cfab8da61581c",
+    "experiments/nan_phase35/run.py": "c058948acbb92936d9bfcd742a09bbf639134cc57db39fe3e5e7a752fd58bf68",
+    "experiments/nan_premlp64/account.py": "ba3c8e75618d020530a98e553b6a6734a7d7453dc44905eb215143013e8fab65",
+    "experiments/nan_premlp64/capture.py": "e5c65f1850466575038265214dcc986b6e51e3db0728c9c0a56a1988ff027a10",
+    "experiments/nan_premlp64/verify.py": "87dbb862b2dd2147ae797bc9b61f82a0d9488b2d7572a521279ee1d1a74cd6a7",
+    "experiments/nan_readpath37/registration.json": "45f0f8f145ad28ea9334f27a96825b362238e4bea7aa3650f3f6d33e067cd09a",
+    "experiments/nan_recomp09/common.py": "91102a7d444a5c0086b324a374fd41bf65067dbb1095f7e7dca448265687fa19",
+    "experiments/nan_round54/geometry.py": "b34c536537d40fb254585873590832c486fd0708ca93ea28dcf82f6e0f04726c",
+    "experiments/nan_route58/RUNTIME_MANIFEST.json": "1ad4e4e82eb7e3f977ca9e9190faa0f32973bf2a5cd04b03267b52a0b626d267",
+    "experiments/nan_route58/capture.py": "889c402387d75dd8798211dd0dc65da04d6cf1b361503d13dc582f4f3714d053",
+    "experiments/nan_route58/host.py": "c157aed11f6e51476f9b52a260ab6472b01314e63be4570f8489a5fe45a0e8dc",
+    "experiments/nan_sham56/live_minimax.py": "1dac7b53a7537c13415d5a9b52900a335214c87b247c51fb5feaff67e58b9c82",
+    "experiments/nan_sham56/minimax.py": "7ed1a8346955d8593a21ebe06064786d212aac2b8a7cf03e37a1e1fda6fbf46b",
+    "experiments/nan_sham56/native.py": "e6a6dcf7fc60b8cd702651aed4ba783505739db4f3dbe42b1bc1f37b0abd168b",
+    "experiments/nan_window66/.gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "experiments/nan_window66/PROTOCOL.md": "10ef1f1af87c83a60679131a4f655dc156ca64fc0eb98143b5a6f24d94621f88",
+    "experiments/nan_window66/__init__.py": "06b5ef47ba98b59536df1159e2fd22dd41849f4a7ca727d1c24624ed4fd14b98",
+    "experiments/nan_window66/capture.py": "214d8abb838d261b496977b5cc33c02ba24fd1fed43e58a33f1ff91d2b4dbc0b",
+    "experiments/nan_window66/telemetry.py": "2b281a1ce278b94dc6887fd6567f9192eb654310a4eb33684849d82c1925093e",
+    "experiments/nan_window66/verify.py": "d59c891fd6c2c0f4319adaec54f2161d990a152eae9e2af6abed0521c0647eba",
+    "mechinterp/dark_fiber_gyms/arg03_nanbeige.py": "f5d5f5ff3edb12d5da94578b2a1e8ee59401d783321e2b9510982789660f6591",
+    "mechinterp/nanbeige_bpd_gym/chunked_cache.py": "860b32dcb102852a5f7014f0a73c09b02f31b79e520922291336ebfc27980675"
+  },
+  "status": "passed"
+}

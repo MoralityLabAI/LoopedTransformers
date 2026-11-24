@@ -1,0 +1,41 @@
+{
+  "experiment": "NAN-ATTAIN-101-CURRENT-HEAD",
+  "fixture": {
+    "cross_tile_lowest_token_tie": true,
+    "dense_tile_crosscheck": true,
+    "off_label_drift_recovered": true
+  },
+  "formal_comparisons": 0,
+  "full_head_rows": 264,
+  "geometry_lock_sha256": "b3c9b8277a7a0ffabcc6896db1f4b272b897b920ff7b824b31d5dcdf289de046",
+  "head_source_sha256": "5999d2a57cd7382bd000581ba9d6f80d0efb5c24d4c32f5919129fa191e5e3f1",
+  "max_sampled_private_bytes": 188702720,
+  "max_sampled_working_set_bytes": 166182912,
+  "per_backend": {
+    "bf16": {
+      "both_world_current_head_roots": 0,
+      "clean_native_heads_exact": 32,
+      "geometry_qualified_roots": 14,
+      "max_vocab_drift_pass": 29,
+      "median_root_max_drift": 0.15625,
+      "paired_margin_pass": 112,
+      "signed_heads": 112,
+      "winner_preserved": 105
+    },
+    "nf4": {
+      "both_world_current_head_roots": 0,
+      "clean_native_heads_exact": 32,
+      "geometry_qualified_roots": 11,
+      "max_vocab_drift_pass": 6,
+      "median_root_max_drift": 0.171875,
+      "paired_margin_pass": 88,
+      "signed_heads": 88,
+      "winner_preserved": 88
+    }
+  },
+  "pretrained_decoder_forwards": 0,
+  "private_head_sha256": "26661fc44740aff1b2f5982e209974c3800f2e07b6b09ca34b42307e30c8c557",
+  "sealed_test_accessed": false,
+  "status": "head_archive_complete",
+  "vocabulary_tokens": 166144
+}

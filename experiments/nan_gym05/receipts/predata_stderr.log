@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "C:\Users\patri\Documents\Codex\2026-11-17\yes-nanbeige4-2-3b-at-4\work\nan-bpd01\EvalMath\skills\evalmath-mechinterp-power\scripts\preflight.py", line 103, in <module>
+    if __name__=='__main__':raise SystemExit(main())
+                                             ^^^^^^
+  File "C:\Users\patri\Documents\Codex\2026-11-17\yes-nanbeige4-2-3b-at-4\work\nan-bpd01\EvalMath\skills\evalmath-mechinterp-power\scripts\preflight.py", line 97, in main
+    a=p.parse_args();result=preflight(json.loads(a.pilot.read_text()))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\patri\Documents\Codex\2026-11-17\yes-nanbeige4-2-3b-at-4\work\nan-bpd01\EvalMath\skills\evalmath-mechinterp-power\scripts\preflight.py", line 49, in preflight
+    if not isinstance(rows,list) or not rows:raise ValueError('pilot worlds required')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: pilot worlds required

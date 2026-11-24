@@ -1,0 +1,46 @@
+"""Explicit software-only startup fixture; ALWAYS exit before the host module."""
+import os
+status=2
+try:
+    import json
+    from pathlib import Path
+    import sys
+    import traceback
+    from unittest.mock import patch
+    assert os.environ['NAN_CACHE32_INVENTORY_FIXTURE']=='MOCK_ONLY_STOP_BEFORE_HOST'
+    root=Path(__file__).parent;sys.path.insert(0,os.environ['NAN_CACHE32_FIXTURE_REPO'])
+    out=root/'runtime';out.mkdir(exist_ok=False)
+    from experiments.nan_storyaudit30 import common as bounded
+    from experiments.nan_ram28.common import write,sha
+    from experiments.nan_cache32 import inventory
+    model=bounded.Handle(28152,134397440962966790)
+    with patch.object(bounded,'ROOT',root),patch.object(bounded,'RUNS',out),bounded.Guard(model):
+        import ntpath
+        records=inventory.collect();own=next(r for r in records if r['pid']==os.getpid())
+        parent=next(r for r in records if r['pid']==own['parent_pid'])
+        launcher=ntpath.join(sys.prefix,'Scripts','python.exe')
+        assert inventory.owned_host_launcher(own,parent,launcher)
+        blocked=inventory.blockers(records,os.getpid(),launcher)
+        assert 28152 in [r['pid'] for r in blocked],'Real active GPU worker must stay blocked'
+        assert all(r['pid'] not in (own['pid'],parent['pid']) for r in blocked)
+        assert inventory.KNOWN.search(parent['command']),'Old inventory would count own launcher'
+        try:inventory.ensure_clear()
+        except AssertionError as error:assert '28152' in str(error)
+        else:raise AssertionError('Foreign active model was incorrectly admitted')
+        bounded.no_torch();assert 'numpy' not in sys.modules
+        write(out/'receipt.json',dict(status='passed_actual_Windows_venv_launcher_fixture',MOCK_ONLY=True,
+            inventory_source_sha256=sha(Path(inventory.__file__)),fixture_source_sha256=sha(Path(__file__)),
+            own_actual_PID=own['pid'],parent_launcher_PID=parent['pid'],parent_older_than_actual=parent['creation']<own['creation'],
+            actual_command_suffixes_identical=inventory.arguments(own['command'])==inventory.arguments(parent['command']),
+            old_inventory_would_block_owned_launcher=True,new_inventory_excludes_only_owned_launcher=True,
+            active_foreign_GPU_worker_still_blocked=True,parent_executable_matches_current_venv=True,
+            pretrained_forwards=0,host_module_executed=False,Torch_imported=False,NumPy_imported=False,sealed_test_accessed=False))
+    print('Actual Windows owned-launcher fixture passed; real active GPU worker still blocked; host module never executed',flush=True)
+    status=0
+except BaseException:
+    try:
+        import traceback
+        traceback.print_exc()
+    except BaseException:pass
+finally:
+    os._exit(status)

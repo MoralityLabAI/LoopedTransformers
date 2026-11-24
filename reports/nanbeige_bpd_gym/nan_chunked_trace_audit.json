@@ -1,0 +1,136 @@
+{
+  "status": "synthetic_and_header_engineering_only",
+  "source_sha256": {
+    "chunked_gym.py": "f335c4a552347f92e8cd4a6129de2510efe16960663b932e126ad191ff2a82a8",
+    "chunked_audit.py": "5f4996103a31b6601946139ed1e393f135d59f15c844dedaea0b5acb936ef580",
+    "tests/test_chunked_gym.py": "afe6c4adb102ac4a0d041d88955c0e3446f8e36002f38a407eee29e79af1c83e",
+    "tests/test_chunked_audit.py": "6b1eeb31e7d13e9843499f7c279a0fd60635b81d11dd233f591a1dc1367de24b",
+    "chunked_probes.py": "9b4f0d98acac085eb027bd2f9462899d4b71b1f46fda59c032fdfb82b5726f10",
+    "tests/test_chunked_probes.py": "2512acab50995dd17b2dae94ae0fefe963bbf7883a30b89cebe7ceecb444f012"
+  },
+  "local_byte_contracts": {
+    "status": "passed",
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "maximum_sampled_private_bytes": 15339520,
+    "minimum_sampled_available_bytes": 4917563392,
+    "registration_sha256": "fcfe2d8ddd768d3f945f291786ddeaf44a77145e1a5e898587cd7bece47a162a",
+    "closed_receipt_sha256": "a483a684265bb711e05461845e1b7883452c898e21707e1d5d84043a02dc16f7"
+  },
+  "metadata": {
+    "status": "passed_metadata_only",
+    "layout": {
+      "widths": {
+        "5": {
+          "residual_after_layer": 3072,
+          "down_proj_input": 10752,
+          "down_proj_output": 3072,
+          "o_proj_input": 6144,
+          "o_proj_output": 3072
+        },
+        "11": {
+          "residual_after_layer": 3072,
+          "down_proj_input": 10752,
+          "down_proj_output": 3072,
+          "o_proj_input": 6144,
+          "o_proj_output": 3072
+        },
+        "17": {
+          "residual_after_layer": 3072,
+          "down_proj_input": 10752,
+          "down_proj_output": 3072,
+          "o_proj_input": 6144,
+          "o_proj_output": 3072
+        },
+        "21": {
+          "residual_after_layer": 3072,
+          "down_proj_input": 10752,
+          "down_proj_output": 3072,
+          "o_proj_input": 6144,
+          "o_proj_output": 3072
+        }
+      },
+      "hidden": 3072,
+      "vocabulary": 166144,
+      "cache_bytes_per_row_token": 180224,
+      "components": 8
+    },
+    "cases": [
+      {
+        "case": "B1_9216",
+        "full_mask_context_bytes": 83655,
+        "lossless_ranges_context_bytes": 807,
+        "every_bit_preserved": true,
+        "cache_bytes": 1660944384
+      },
+      {
+        "case": "padded_B2_4608",
+        "full_mask_context_bytes": 83883,
+        "lossless_ranges_context_bytes": 1076,
+        "every_bit_preserved": true,
+        "cache_bytes": 1660944384
+      },
+      {
+        "case": "pruned_B1",
+        "full_mask_context_bytes": 42192,
+        "lossless_ranges_context_bytes": 851,
+        "every_bit_preserved": true,
+        "cache_bytes": 830652416
+      }
+    ],
+    "per_row_prefix_raw_physical_vector_bytes": 417792,
+    "per_row_prefix_boundary_native_and_input_bytes": 67584,
+    "full_cap_scenario_row_prefixes": 242048,
+    "full_cap_scenario_raw_vectors_boundaries_native_input_bytes": 117484290048,
+    "scenario_excludes_masks_NPY_ZIP_JSON_closed_records_and_filesystem_overhead": true,
+    "scenario_is_not_collected_coverage_or_capacity_admission": true,
+    "samples": [
+      {
+        "available_physical_bytes": 4913172480,
+        "private_bytes": 12636160,
+        "working_set_bytes": 20348928
+      },
+      {
+        "available_physical_bytes": 4895420416,
+        "private_bytes": 15294464,
+        "working_set_bytes": 23379968
+      }
+    ],
+    "Torch_imported": false,
+    "NumPy_imported": false,
+    "pretrained_parameters_materialized": 0,
+    "pretrained_forwards": 0,
+    "sealed_test_accessed": false
+  },
+  "cached_pretrained_condition_registered": false,
+  "pretrained_forwards": 0,
+  "real_episodes_or_gold_read": 0,
+  "full_scope_baselines_per_precision": 1549,
+  "full_scope_AB_pairs_per_precision": 216,
+  "formal_comparisons": 0,
+  "scientific_status": "REDESIGN_OR_PILOT_ONLY",
+  "sealed_test_accessed": false,
+  "continuous_goal_active": true,
+  "NumPy_projection_fixture": {
+    "status": "passed",
+    "MOCK_ONLY": true,
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "episodes_compared_to_actual_frozen_inner_processor": 8,
+    "row_prefixes": 16,
+    "physical_vectors": 640,
+    "edited_phase_mask_and_write_replays": 18,
+    "exact_original_summary_and_code_array_equality": true,
+    "maximum_mask_absolute_error": 0,
+    "maximum_local_write_relative_L2_error": 0,
+    "maximum_sampled_private_bytes": 27205632,
+    "minimum_sampled_available_bytes": 4836904960,
+    "NumPy_version": "2.5.3",
+    "Torch_imported": false,
+    "real_episodes_or_gold_or_fixed_weights_read": 0,
+    "registration_sha256": "80f1e915f930c334693e00235d3e22f4c2c6fcc15b0cd73336799107e3a83a11",
+    "closed_receipt_sha256": "004edeb3a263abad77731a98d0ced2918206897dbcdeeba3bf7655273f9d5c64"
+  }
+}

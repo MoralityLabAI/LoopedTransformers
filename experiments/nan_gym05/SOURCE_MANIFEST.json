@@ -1,0 +1,56 @@
+{
+  "experiment": "NAN-GYM-05",
+  "parent_commit": "5d547a62d23e77d57dab3f11c5f9b657c8d17220",
+  "EvalMath_commit": "accf4d9040bee8daeabc6b07003bb484708996c0",
+  "ARG02_adapter_commit": "1ac36353b36581b6a634626bcd55542e53dae456",
+  "BPD_source_reference_commit": "8f658b789138d73f497b1a2a05f5783745147d40",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "critical_files_sha256": {
+    "common.py": "8215f8f36c111031513cf8b3128059d338abe8bb7fb274606d9d1660050625c2",
+    "decode.py": "04bf6542ea8f217ac0e858037210475a2acb17ac379b445a96ecbea7abf48540",
+    "grade.py": "f7bb5bcbeadc913bbe41fe784275700d5aa051c77791634ded5273162dfc1507",
+    "linear.py": "3069857abd9c74af96c3ab4a9b8bf27960eea1fa8118834756d09db68b87e390",
+    "observe.py": "440a1ee9c09830ee9e72bb0cd1516658c8151207aa331714ddd76c998542d88a",
+    "parser.py": "c58c17b1ce00887f0fc58a02cc476d81dec8655a14a5545b0c3b0271a6fe2d75",
+    "run.py": "8ece01adcfcc463adf82811cf2d8a01f17c818c5079b698d35937c03d4d01597",
+    "sae.py": "9b45d913218ade89294f46af46706504a35154db0636a4c1efeb5364c02d3fb3",
+    "sources.py": "b7f7158068328809b5c422d7efbb1b76ed48e29529e76b2edcd272818d8e9cc9",
+    "validate_gpu.py": "deb36aa91dc8c598aab0a625b3aeac9f1c34b80eb8f9fd0e6a1374c1d7a2aaa7",
+    "__init__.py": "5afc3304754c52bba06ddc6817368a55c81ed11dcac7b2ec52c57580d3f089c6",
+    "tests/test_contracts.py": "5adccc7f2d79eecc0e7845827971bc294ef4997fb0feecc30e4ae278dfd3e558",
+    "config.json": "9ae7770aac976a2d3cf4306ee2c5f2c3f6c0b8f643f18c1a86a04050e193a343",
+    "PROTOCOL.md": "003bad8209280dc91b0e70c1d0416e6c4f8f09e368250883f5593f333d423444",
+    ".gitattributes": "e0322ff2a34887030d0a6f991c7f3bd39a4479eeced4ea64a0b322ed30e22e3d"
+  },
+  "model_dependencies_sha256": {
+    "experiments/nan_bpd01/backend.py": "7546f8fcbc36fd9b76ecf49c49d50a234f6494f058ae31bd5fea6fcd4bc8db7e",
+    "experiments/nan_bpd01/head.py": "eb930070270e4a26c5f6a7e46fe3286bd3c51547885a012173a32fd525527286",
+    "experiments/nan_comp02/head.py": "0b796e119f965df64d44ee758db5ec3ba90269bd87777e64a2b0186582da79e5",
+    "experiments/nan_comp03/prompt.py": "f373668151f2f86f8f5a717055fefacad6685b702296b873454904bb9dba9be9",
+    "experiments/nan_diag04/telemetry.py": "48642b1591e956028b2116c17f2fffad8ac5fbb1bedc83fc5416836f328cad18",
+    "mechinterp/dark_fiber_gyms/arg03_nanbeige.py": "f5d5f5ff3edb12d5da94578b2a1e8ee59401d783321e2b9510982789660f6591",
+    "mechinterp/dark_fiber_gyms/q4_3050.py": "af75735af37488851452d37210ecd1724008e3dab33d03a2fa338d33c876ff1c"
+  },
+  "grading_dependencies_sha256": {
+    "research_gym/envs/arc_tasks.py": "2e0f5fae2bef6f82a1ba3acc70b9778312a7c939dd4ba0f522eda64b82edbfe6",
+    "research_gym/envs/sudoku.py": "88ff72c2bb325cd494512626db1857a68fe1b34b1c08b547db2bf93bc45f9eac",
+    "research_gym/envs/coupled_storyworld.py": "54eee44d716be51e6ff9bd54ad63060ef53345c67e0fd015ec2cf4b6b77d39da",
+    "research_gym/benchmarks/storyworld_bench.py": "a0a5f4571129cd276279eed5231701a43f3eac562245396fa0a4ec16b52fc171"
+  },
+  "observational_bridge_sha256": {
+    "mechinterp/nanbeige_bpd_gym/crossref.py": "f4fd77e70d05119a06bc89637b06f5fad1bb08c130da2c14edf50ad4b5a430d9",
+    "mechinterp/sae_causal_transfer/adapter.py": "d06ac4d5aac5f68a09cbf7cf4affad9adfacaa3379875c78fdfebc6126fb54fc"
+  },
+  "combined_public_sha256": "99a0da4bab700cce009f6ace12c2bb9c1c2e965893309f44c0fb4c9a8cdf13e5",
+  "combined_host_sha256": "8aec8df7d3ba255a7e5c69549bd0e17326b148b9f34ca4eaf34de953c365a51b",
+  "public_repo_fixture_sha256": "c060a943f07ea2d67788e99ed660d3e8dfb4cd9e29bddc6e1f5e2f31111a5656",
+  "public_repo_gold_sha256": "8df85c7f272f83ee868dbc6949915b39368fba99db3d321e32b671ddda6a0e2a",
+  "source_receipt_sha256": "8fcfc4e34ecb1468d2b45254abc61f8d06296c3a7b94ab64c6d66c157841037b",
+  "gpu_fixture_sha256": "1c880f016be5b0c77426dd0bafa6538bb79e05f4388559fceb4deb4574becdf6",
+  "tokenizer_config_sha256": "82316b70213c65e5f820c03d5a11561ccda4055bda984cb770ed0d51fe497c56",
+  "pretrained_inference_started_at_freeze": false,
+  "SAE_fitting_started_at_freeze": false,
+  "BPD_transfer_enabled": false,
+  "sealed_168_case_test_accessed": false,
+  "local_routing_data_policy": "Do not publish corpus prompts, token IDs, raw tapes, hidden arrays or trajectories. Source SHA/indices and aggregate reports only."
+}

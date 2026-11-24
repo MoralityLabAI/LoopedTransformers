@@ -1,0 +1,160 @@
+{
+  "checkpoint_unchanged": true,
+  "diagnostics": [
+    {
+      "class_observations": 8,
+      "matched_shell": {
+        "dose_gap_fraction": 0.0004489388124060403,
+        "eligible_candidates": {
+          "cal_static": 684,
+          "learned": 1,
+          "seeded": 4641
+        },
+        "measured": {
+          "cal_static": {
+            "natural_direction_cosine": 0.9970016747102739,
+            "original_direction_cosine": 0.9970085716194566,
+            "planned_direction_cosine": 0.9970085716194566,
+            "radial_l2": -9.968722849691518e-08,
+            "realized_l2": 0.0069743254655061865,
+            "relative_reached_norm": 1.000200423768175
+          },
+          "learned": {
+            "natural_direction_cosine": 0.9953836908586031,
+            "original_direction_cosine": 0.9965103425984048,
+            "planned_direction_cosine": 0.9965103425984048,
+            "radial_l2": 6.429153094998229e-07,
+            "realized_l2": 0.006971200120573458,
+            "relative_reached_norm": 1.0002023769284223
+          },
+          "seeded": {
+            "original_direction_cosine": null,
+            "planned_direction_cosine": 0.9963700443404435,
+            "radial_l2": -5.950538908943955e-07,
+            "realized_l2": 0.006974014700806088,
+            "relative_reached_norm": 1.0001989830332891
+          }
+        },
+        "nominal_l2": 0.006961627835158158,
+        "radial_gap_fraction": 0.00017782754690535589,
+        "realized_sham_remainder_cosines": [
+          0.00915718442965181,
+          -0.0037319281834369278
+        ],
+        "relative_norm_gap": 3.393895133159432e-06,
+        "same_learned_and_static_bytes": false,
+        "status": "matched",
+        "target_radial_share": 9.222448048829446e-05
+      },
+      "reader_l2": {
+        "cal_static": {
+          "k": 0.011827480979263783,
+          "q": 0.01739722117781639,
+          "v": 0.015569589100778103
+        },
+        "learned": {
+          "k": 0.016720736399292946,
+          "q": 0.01843256689608097,
+          "v": 0.011742250062525272
+        },
+        "seeded": {
+          "k": 0.014565806835889816,
+          "q": 0.015750885009765625,
+          "v": 0.01362383458763361
+        }
+      },
+      "two_head_calls_per_prefill": true,
+      "writer_site": "mlp.down_proj"
+    },
+    {
+      "class_observations": 8,
+      "matched_shell": {
+        "dose_gap_fraction": 0.00036699521537635066,
+        "eligible_candidates": {
+          "cal_static": 465,
+          "learned": 1,
+          "seeded": 3120
+        },
+        "measured": {
+          "cal_static": {
+            "natural_direction_cosine": 0.9802955534827125,
+            "original_direction_cosine": 0.981798816290012,
+            "planned_direction_cosine": 0.981798816290012,
+            "radial_l2": 2.8002992494676322e-05,
+            "realized_l2": 0.008332910311490993,
+            "relative_reached_norm": 1.000267082619635
+          },
+          "learned": {
+            "natural_direction_cosine": 0.9955549475610681,
+            "original_direction_cosine": 0.9963046553221664,
+            "planned_direction_cosine": 0.9963046553221664,
+            "radial_l2": 2.1639469349937524e-05,
+            "realized_l2": 0.008335248962035526,
+            "relative_reached_norm": 1.0002519285714646
+          },
+          "seeded": {
+            "original_direction_cosine": null,
+            "planned_direction_cosine": 0.9972674394093659,
+            "radial_l2": 2.59112858136426e-05,
+            "realized_l2": 0.008335969054077458,
+            "relative_reached_norm": 1.0002622113459028
+          }
+        },
+        "nominal_l2": 0.008334557123116858,
+        "radial_gap_fraction": 0.0007635106521843651,
+        "realized_sham_remainder_cosines": [
+          -0.008421331858804143,
+          0.008825440763390152
+        ],
+        "relative_norm_gap": 1.5154048170227617e-05,
+        "same_learned_and_static_bytes": false,
+        "status": "matched",
+        "target_radial_share": 0.0025961395332639247
+      },
+      "reader_l2": {
+        "cal_static": {
+          "k": 0.013323570601642132,
+          "q": 0.01974370703101158,
+          "v": 0.01218507718294859
+        },
+        "learned": {
+          "k": 0.014727221801877022,
+          "q": 0.018231263384222984,
+          "v": 0.01541388500481844
+        },
+        "seeded": {
+          "k": 0.014323541894555092,
+          "q": 0.017031151801347733,
+          "v": 0.012649492360651493
+        }
+      },
+      "two_head_calls_per_prefill": true,
+      "writer_site": "mlp.down_proj"
+    }
+  ],
+  "exact_native_clean_heads": true,
+  "files_sha256": {
+    "experiments/nan_phase35/run.py": "c058948acbb92936d9bfcd742a09bbf639134cc57db39fe3e5e7a752fd58bf68",
+    "experiments/nan_premlp64/verify.py": "87dbb862b2dd2147ae797bc9b61f82a0d9488b2d7572a521279ee1d1a74cd6a7",
+    "experiments/nan_radial76/native.py": "c9219137bd223b88d8e5de7b0e4365ca54dd84e1b2e511fdce64a38c7d71295e",
+    "experiments/nan_reader71/native.py": "b1d32acfdbab56cc456e24c1b9871d1dff1188eb379e656762e951c0e29205b9",
+    "experiments/nan_routematch86/SOURCE_MANIFEST.json": "23bd4858dea2f3932304806f850c069290c25708751bb1d447bda99f88dbd6a5",
+    "experiments/nan_routematch86/geometry.py": "696c0cfaac0f069bfa610bd03a33d6c493d12e3e54f4c9914a36bdb02f7ecc3a",
+    "experiments/nan_routematch86/native.py": "3ecc077f32d0865e5ea46a70f2e2c718617239a7aee37020460ea69cfc191dfc",
+    "experiments/nan_routematch86/native_check.py": "3e45777f26a65fc904421fb2e981f99eebf590a2b912d4f6c02a3700b353d38a",
+    "experiments/nan_stream36/batch_engine.py": "1c0c498698e16b099b73bbfc7786b81cf21b368dfd2c1d1273b0080fde2b76e4",
+    "experiments/nan_vocab82/capture.py": "1edfb1d43317da10a1aacd2f0b74fad6659e2f2adea006e8e8d9a9967eca0e15",
+    "experiments/nan_vocab82/heads.py": "420af8c2778c33e6d6cae31ce790e6ae20093291a618e9f6f852c0f63af7b124",
+    "experiments/nan_writer77/pipeline.py": "3120a2b151db938bfb83dd1c17ef38655ec9b2cdd3f6324fcc6ab8d4e04ffd19",
+    "mechinterp/nanbeige_bpd_gym/chunked_cache.py": "860b32dcb102852a5f7014f0a73c09b02f31b79e520922291336ebfc27980675",
+    "mechinterp/nanbeige_bpd_gym/streamed_vocab_head.py": "5d3d587b0aa3b425fc02fa251f57f7c7826f32a98dbed6126d4faa09fe373c98"
+  },
+  "max_sampled_private_bytes": 791547904,
+  "max_sampled_working_set_bytes": 483893248,
+  "minimum_available_RAM_bytes": 8523264000,
+  "mode": "random_staged_cpu_bf16",
+  "pretrained_decoder_forwards": 0,
+  "scoped_worlds": 2,
+  "sealed_test_accessed": false,
+  "status": "passed"
+}

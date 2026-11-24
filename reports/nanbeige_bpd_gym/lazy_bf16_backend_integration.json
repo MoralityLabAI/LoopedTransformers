@@ -1,0 +1,86 @@
+{
+  "MOCK_ONLY": true,
+  "status": "passed_random_pinned_class_CPU_integration",
+  "architecture": "Actual pinned decoder class with random small config:22 layers, width64, intermediate128, vocab256, four resident CPU layers plus a reusable CPU stage.",
+  "synthetic_factor_bank": true,
+  "synthetic_CI_weights": true,
+  "training_updates": 0,
+  "qualified_real_factors_used": false,
+  "source_reference_weights_pretrained": false,
+  "pretrained_forwards": 0,
+  "CUDA_initialized": false,
+  "CPU_capture_calls": 22,
+  "meta_parameters_retained": 161,
+  "logical_target_before_after": "e881e2c3007945e2797ae5f699ab810147a2ff9ac71088cc073ea55103e32730",
+  "production_storage_builder_exercised": true,
+  "source_layout": {
+    "resident_decoder_layers": 4,
+    "meta_parameters": 161,
+    "total_parameters": 201,
+    "readonly_CPU_parameter_names": [
+      "model.embed_tokens.weight",
+      "lm_head.weight",
+      "model.layers.21.mlp.down_proj.weight"
+    ],
+    "stage_source": "one read-only tensor per synchronous copy",
+    "no_complete_CPU_decoder_materialized": true
+  },
+  "uninitialized_resident_RoPE_buffers_rejected_before_forward": true,
+  "native_B1_and_batched_B1_B2_bytes_exact": true,
+  "all40_vectors_per_row_per_capture_checked": true,
+  "routes": [
+    {
+      "route": "all_one",
+      "dense_lazy_bytes_exact": true,
+      "clean_row_unchanged": true,
+      "duplicate_observer_retained": 0
+    },
+    {
+      "route": "component_only",
+      "dense_lazy_bytes_exact": true,
+      "clean_row_unchanged": true,
+      "duplicate_observer_retained": 0
+    },
+    {
+      "route": "static_CAL_mean",
+      "dense_lazy_bytes_exact": true,
+      "clean_row_unchanged": true,
+      "duplicate_observer_retained": 0
+    },
+    {
+      "route": "reached_state",
+      "dense_lazy_bytes_exact": true,
+      "clean_row_unchanged": true,
+      "duplicate_observer_retained": 0
+    }
+  ],
+  "legacy_unused_observer_growth_per_native_capture": [
+    2,
+    4,
+    6
+  ],
+  "clearing_duplicate_observer_changes_no_exported_states_logits_or_native_tensors": true,
+  "pinned_width_duplicate_observer_bytes_per_native_prefix": 24576,
+  "duplicate_observer_byte_scope": "Source-derived estimate for unused float32 vectors only, not a measured full-model heap-growth rate.",
+  "original_frozen_live_worker_modified": false,
+  "real_generated_text_or_states_read": false,
+  "sealed_test_accessed": false,
+  "BF16_inference_status": "deferred_host_RAM_policy",
+  "full_new_condition_registered": false,
+  "candidate_stage_copies": 396,
+  "largest_synthetic_source_tensor_bytes": 16384,
+  "resources": {
+    "resources_sha256": "f756f152bfddaf259dd8695f3844e0a7c9b7b32f2119a38ca189ceb4f56e90e3",
+    "samples": 98,
+    "maximum_sampled_private_bytes": 747319296,
+    "minimum_sampled_available_physical_bytes": 6262730752
+  },
+  "source_files_sha256": {
+    "bounded_cpu_engineering.py": "9765610f2faa8ddca124c378ffdacd76aca26f5c835c01f2d3c4874493e2a8df",
+    "lazy_bf16_loop.py": "c163204ed3e50deab03a2f855c62d1543233ffdd6515633f1e02391f99f9b4b9",
+    "lazy_bf16_backend.py": "ce6f6066f1fa56292d4b880d91a66b9b84e4069e9ba01c6684505b8522df87c1",
+    "lazy_bf16_integration.py": "c0b5fcf425d69f60b880c328f6bcf3449c226ff4f9a49538197afa53903cb012"
+  },
+  "private_receipt_sha256": "b3672f9b597a2b34d424ddbf099578a21198824f2237aa70924993d3692b636d",
+  "unfrozen_loader_refused_before_Torch_import": true
+}

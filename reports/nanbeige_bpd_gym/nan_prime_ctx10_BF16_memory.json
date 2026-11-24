@@ -1,0 +1,40 @@
+{
+  "status": "completed",
+  "sample_period_seconds": 30,
+  "samples": 33,
+  "elapsed_seconds": 1051.4839999999967,
+  "sample_error_count": 0,
+  "sampled_worker_dedicated_bytes": {
+    "minimum": 3333120000,
+    "maximum": 3333120000,
+    "samples": 33
+  },
+  "sampled_worker_shared_bytes": {
+    "minimum": 81788928,
+    "maximum": 81788928,
+    "samples": 33
+  },
+  "sampled_whole_device_used_MiB": {
+    "minimum": 3179,
+    "maximum": 3179,
+    "samples": 33
+  },
+  "scope": "one verified BF16 model process; intermittent driver counters, not exact peaks or per-tensor residency. Shared usage may include runtime/transfer memory.",
+  "CUDA_peaks": "separate authoritative frozen worker receipt",
+  "model_modified": false,
+  "sealed_test_accessed": false,
+  "experiment": "NAN-PRIME-CTX-10",
+  "backend": "bf16",
+  "worker_receipt_sha256": "c681a9e520610ad81fc6042ec550ce0cf79c99f526283bff50a1e6d26fba0cd4",
+  "sampler_receipt_sha256": "fd8537c7463802503b3ee19d74ba0d93fd17690079c700afd7e031187fb590c3",
+  "sampler_source_sha256": "74b65a7a65c5111eb005cd6ff8ced1537aed7cc17ad1eb68623fd53c7b2559f1",
+  "raw_samples_sha256": "aca6ea02309f264b756023124c2f1023ee4e44958a6df8e744f5840680757d4b",
+  "first_sample_UTC": "2026-11-20T12:40:52.805117+00:00",
+  "last_sample_UTC": "2026-11-20T12:58:11.863543+00:00",
+  "CUDA_peak_allocated_bytes": 2900804096,
+  "CUDA_peak_reserved_bytes": 3231711232,
+  "sample_window_limitation": "33 intermittent samples from part of the worker lifetime; not a full-lifetime dedicated/shared peak measurement",
+  "physical_interpretation": "WDDM dedicated/shared counters are distinct from CUDA allocated/reserved bytes. Shared counters can include runtime/transfer memory and do not establish which tensors reside there.",
+  "NF4_driver_counter_comparison": "not measured in this condition; prior partial NF4 CUDA peaks remain in its original receipt",
+  "privacy": "aggregates/timestamps/hashes only; process IDs and raw adapter rows remain local"
+}

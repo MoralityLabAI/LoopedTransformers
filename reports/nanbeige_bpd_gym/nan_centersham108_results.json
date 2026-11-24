@@ -1,0 +1,79 @@
+{
+  "design_rows": 512,
+  "experiment": "NAN-CENTERSHAM-108",
+  "fixture": {
+    "active_chord_identity": true,
+    "mirrored_BF16_endpoints": true,
+    "radius_split_projection": true,
+    "redistributed_coordinate_magnitude": true
+  },
+  "formal_comparisons": 0,
+  "full_head_states": 664,
+  "heldout_rows": 165632,
+  "max_sampled_private_bytes": 215019520,
+  "max_sampled_working_set_bytes": 192688128,
+  "min_sampled_available_RAM_bytes": 6511513600,
+  "per_backend": {
+    "bf16": {
+      "active_head_roots": 13,
+      "both_head_roots": 11,
+      "design_both_RMS_gates": 56,
+      "design_half_RMS_matched_signed_pairs": 56,
+      "full_half_RMS_matched_signed_pairs": 56,
+      "geometry_by_status": {
+        "matched": 56
+      },
+      "geometry_roots": 14,
+      "headswap107_median_half_RMS_gap": 0.013921264922861705,
+      "heldout_and_full_joint_roots": 11,
+      "heldout_and_full_joint_signed_pairs": 52,
+      "heldout_half_RMS_matched_signed_pairs": 56,
+      "joint_roots": 11,
+      "joint_signed_pairs": 52,
+      "matched_full_head_signed_pairs": 52,
+      "median_abs_chord_cosine": 0.004525122067686335,
+      "median_abs_paired_label_signed_half_gap": 0.0078125,
+      "median_common_shift_RMS_gap": 4.6338129708108555e-05,
+      "median_half_difference_RMS_gap": 0.0013859425843255509,
+      "median_heldout_half_RMS_gap": 0.0013907750066760524,
+      "median_parent_half_RMS_gap": 0.016779793160667217,
+      "parent_roots": 14,
+      "parent_signed_pairs": 56
+    },
+    "nf4": {
+      "active_head_roots": 11,
+      "both_head_roots": 11,
+      "design_both_RMS_gates": 44,
+      "design_half_RMS_matched_signed_pairs": 44,
+      "full_half_RMS_matched_signed_pairs": 44,
+      "geometry_by_status": {
+        "matched": 44
+      },
+      "geometry_roots": 11,
+      "headswap107_median_half_RMS_gap": 0.008481959995501451,
+      "heldout_and_full_joint_roots": 11,
+      "heldout_and_full_joint_signed_pairs": 44,
+      "heldout_half_RMS_matched_signed_pairs": 44,
+      "joint_roots": 11,
+      "joint_signed_pairs": 44,
+      "matched_full_head_signed_pairs": 44,
+      "median_abs_chord_cosine": 0.006259134751675046,
+      "median_abs_paired_label_signed_half_gap": 0.005859375,
+      "median_common_shift_RMS_gap": 2.3200163256655287e-05,
+      "median_half_difference_RMS_gap": 0.0004093834209855313,
+      "median_heldout_half_RMS_gap": 0.0004124422256238146,
+      "median_parent_half_RMS_gap": 0.010328967672494263,
+      "parent_roots": 11,
+      "parent_signed_pairs": 44
+    }
+  },
+  "pretrained_decoder_forwards": 0,
+  "private_pairs_sha256": "f98b7c44226ef19dd0280e12a5805fae22afd2ae49db8c7a00c3ea6e9434a1f7",
+  "sealed_test_accessed": false,
+  "selection_lock_sha256": "c5e105208a35b119e911b544e499f07839df6e5b129caa44faf20cbb7bc1c4e1",
+  "source_manifest_sha256": "560f5ca4119a9dbe849bf3305a94f7d2a91e76768966f8d26e913937f7ea9dd8",
+  "status": "archive_head_complete",
+  "validation_manifest_sha256": "dbcdbd4b3329247d2efe8d780bb90bfb9a3c1ea071ce197fd30e6c9ec202bd76",
+  "verification": "reconstructed_sealed_selection_after_resource_stop",
+  "vocabulary_rows": 166144
+}

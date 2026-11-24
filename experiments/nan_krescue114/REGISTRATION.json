@@ -1,0 +1,81 @@
+{
+  "schema": "nanbeige-k-rescue-114/v1",
+  "parent_commit": "7c7fcb9ad487b3e25de7608a93acb6f4597c1aaf",
+  "source": {
+    "roster": "NAN-BOUNDRESCUE-109",
+    "split": "fresh_development",
+    "seed": 20261123109,
+    "roots": 16,
+    "worlds": [
+      "A",
+      "B"
+    ],
+    "signs": [
+      1,
+      -1
+    ],
+    "focused_prompts": 32,
+    "total_prompts": 96,
+    "run_variant": "grouped BF16 RESCUEGPU111",
+    "checkpoint": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+    "maximum_native_position": 391,
+    "evalmath_commit": "accf4d9040bee8daeabc6b07003bb484708996c0"
+  },
+  "writer": {
+    "pass": 1,
+    "site": "raw residual after model.layers.21",
+    "token": "last semantic prompt token",
+    "active": "centered signed T2-minus-T1 chord from peer-minus-own down-projection input",
+    "sham": "one frozen CENTERSHAM108 chord matched against attained BF16 endpoints",
+    "maximum_relative_chord_gap": 0.03,
+    "maximum_relative_endpoint_radius_gap": 0.03,
+    "maximum_absolute_chord_cosine": 0.1,
+    "clean_head_peak_and_paired_label_cap": 0.125,
+    "full_and_excluded_rms_tolerance": 0.005
+  },
+  "reader": {
+    "pass": 2,
+    "site": "model.layers.0.self_attn.k_proj at the same token before RoPE",
+    "restore": "exact clean K in every active and sham endpoint",
+    "invariants": [
+      "pass-1 full head",
+      "pass-2 pre-reader residual",
+      "edited writer residual",
+      "raw Q",
+      "raw K before replacement",
+      "raw V",
+      "clean companion"
+    ]
+  },
+  "outcome": {
+    "unit": "whole independent graph-pair root",
+    "primary": "sign-aligned sham-adjusted loss of donor-minus-recipient logit margin under clean-K restoration",
+    "endpoint": "full-head pass-2 bare donor label logit minus the recipient label logit",
+    "minimum_mean_removed_logits": 0.125,
+    "minimum_mean_intact_advantage_logits": 0.125,
+    "minimum_complete_roots": 12,
+    "minimum_positive_roots": 12,
+    "min_copy_roots": 16,
+    "compare_mean_to_max_absolute_observed_sham_removal": true,
+    "failed_roots_gate_credit": 0,
+    "positive_planning_verdict": "GO_TO_LARGER_SHAM_CALIBRATION",
+    "otherwise": "NO_GO",
+    "formal_comparisons": 0,
+    "minimum_95_95_sham_calibration_roots": 59,
+    "required_native_preexposure": "recorded before any native phase-2 head is opened",
+    "native_release_authorized": false
+  },
+  "parent_sha256": {
+    "experiments/nan_boundrescue109/ROSTER_MANIFEST.json": "f3395390691f4504478f3b28d8e5d37bbd6607d96dbb558f06a9b1b218b32a81",
+    "experiments/nan_boundrescue109/ROSTER_VERIFICATION.json": "a1d7cd4aa61c6c65dafafcaf4ef4e0ee88cf6da5488b90ab02e777f2f958267f",
+    "experiments/nan_boundrescue109/host.py": "2644c951b6665a89506e7a6bcf7d3fa26aa99c9b8a47a54ef62333e75470074b",
+    "experiments/nan_boundrescue109/core.py": "6dc5315d8385f5770aefefa3b94ca062497abb94e59888d98417492538004d47",
+    "experiments/nan_boundrescue109/native.py": "86dbcf1376907c2cac980bd2081e6cdfb9a4282d6d9a18ccf323eb8634122008",
+    "experiments/nan_rescuegroup110/group.py": "137955cb33d586b080bb6c82cb4e95aacd57a3b855d632ba97f71a0b6bccb485",
+    "experiments/nan_rescuegroup110/CPU_VERIFICATION.json": "4ae26b70c784cdc44ab1fc8c3e7b0049f0f57206d82a45a0a9e184203498eb6c",
+    "experiments/nan_rescuegpu111/host.py": "bcd811d08fb12c6d40d0d77a0abda551dd30102c457b8fc67864f22ea9d60ca9",
+    "experiments/nan_rescuegpu111/RUNTIME_MANIFEST.json": "0948efca3dd87a2b8c30eaa955a827259641fd50137cbc75c358ed38f14af383",
+    "experiments/nan_rescuegpu111/RUNTIME_VERIFICATION.json": "eaa1dc65d5680332203466788674abd64038276036b289b9dfcf2e3317a23ee4",
+    "experiments/nan_centersham108/search.py": "58248312cbeb297d3db9639b4b38899f5e3c0c2f77ccd73a7eab50714e98e310"
+  }
+}

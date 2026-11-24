@@ -1,0 +1,106 @@
+{
+  "files": [
+    {
+      "parent": "experiments/nan_xref19/worker.py",
+      "parent_sha256": "bcf809f0c49ed1a264a59f792f6f46dce37c277f88a2a1e5adbc43e44c4ebcef",
+      "derived": "worker.py",
+      "derived_sha256": "dd7dd3abe0c61d481eaa21e271c672d403cfc80a5f774e7e674888fecdd76315",
+      "explicit_substitutions": [
+        {
+          "old": "from .common import ROOT, RUNS, qualified, read, sha, verify, write",
+          "new": "from .common import ROOT, RUNS, qualified, read, rows, sha, verify, write",
+          "occurrences": 1
+        },
+        {
+          "old": "from .cache import correlations, groups, load, nullable, root_mean",
+          "new": "from .cache import correlations, coverage, groups, load, nullable, root_mean",
+          "occurrences": 1
+        },
+        {
+          "old": "read(ROOT / 'CACHE_INVENTORY.json')",
+          "new": "read(ROOT / 'DICTIONARY_INVENTORY.json')",
+          "occurrences": 1
+        },
+        {
+          "old": "inventory = read(ROOT / 'DICTIONARY_INVENTORY.json')['backends'][a.backend]",
+          "new": "inventory = read(ROOT / 'DICTIONARY_INVENTORY.json')['backends'][a.backend]\n    admission = read(RUNS / 'admission' / (a.backend + '.json'))",
+          "occurrences": 1
+        },
+        {
+          "old": "        folder = Path('runs/nan_fit16_io18')",
+          "new": "        if admission['status'] != 'admitted':\n            cells.append(dict(passes=passes, status='unrun_no_passed_terminal_context_audit')); continue\n        if admission['available_contexts'] == 0:\n            cells.append(dict(passes=passes, status='unrun_no_audited_vectors')); continue\n        folder = Path('runs/nan_fit16_io18')",
+          "occurrences": 1
+        },
+        {
+          "old": "assert len(meta) == expected",
+          "new": "assert len(meta) == 2 * admission['available_contexts'] <= expected",
+          "occurrences": 1
+        },
+        {
+          "old": "r.get('arm', 'focused') == 'focused'",
+          "new": "r.get('arm') == 'main'",
+          "occurrences": 1
+        },
+        {
+          "old": "results.append(dict(dataset=dataset, vectors=len(meta),",
+          "new": "results.append(dict(dataset=dataset, coverage=coverage(rows('experiments/nan_ctx21/fixtures/public.jsonl'), meta), vectors=len(meta),",
+          "occurrences": 1
+        },
+        {
+          "old": "elapsed_seconds=time.monotonic()-started, pretrained_model_loaded=False",
+          "new": "admission_sha256=sha(RUNS / 'admission' / (a.backend + '.json')), elapsed_seconds=time.monotonic()-started, pretrained_model_loaded=False",
+          "occurrences": 1
+        }
+      ],
+      "independent_coverage_function_added": false
+    },
+    {
+      "parent": "experiments/nan_xref19/audit.py",
+      "parent_sha256": "ace1f4b38d49ec5778ba5d7ace50f407648b1bdbb7c1576f8e723ea1f11a231e",
+      "derived": "audit.py",
+      "derived_sha256": "a861d4737b3208eec9702a409c1f698b1c0a69183f18ed052477729894e16739",
+      "explicit_substitutions": [
+        {
+          "old": "from .common import ROOT, RUNS, read, sha, verify, write",
+          "new": "from .common import ROOT, RUNS, read, rows, sha, verify, write",
+          "occurrences": 1
+        },
+        {
+          "old": "read(ROOT / 'CACHE_INVENTORY.json')",
+          "new": "read(ROOT / 'DICTIONARY_INVENTORY.json')",
+          "occurrences": 1
+        },
+        {
+          "old": "    results = []\n",
+          "new": "    admission = read(RUNS / 'admission' / (backend + '.json'))\n    assert receipt['admission_sha256'] == sha(RUNS / 'admission' / (backend + '.json'))\n    results = []\n",
+          "occurrences": 1
+        },
+        {
+          "old": "haar = load_npz(haarfile)\n",
+          "new": "haar = load_npz(haarfile)\n        np.testing.assert_allclose(np.linalg.norm(haar['V'], axis=0), np.linalg.norm(final['V'], axis=0), rtol=1e-10, atol=1e-10)\n        np.testing.assert_allclose(np.linalg.norm(haar['U'], axis=1), np.linalg.norm(final['U'], axis=1), rtol=1e-10, atol=1e-10)\n",
+          "occurrences": 1
+        },
+        {
+          "old": "            keys = STRATA[dataset]\n",
+          "new": "            keys = STRATA[dataset]\n            check_coverage(data, meta, rows('experiments/nan_ctx21/fixtures/public.jsonl'), keys)\n",
+          "occurrences": 1
+        },
+        {
+          "old": "assert checked_vectors == 1706 and len(cell['geometry']) == 18",
+          "new": "assert checked_vectors == 2 * admission['available_contexts'] and len(cell['geometry']) == 6",
+          "occurrences": 1
+        },
+        {
+          "old": "physical_geometry_cells=18",
+          "new": "physical_geometry_cells=6",
+          "occurrences": 1
+        }
+      ],
+      "independent_coverage_function_added": true
+    }
+  ],
+  "source_only": true,
+  "numerical_cache_analysis_started": false,
+  "new_model_calls": 0,
+  "sealed_test_accessed": false
+}

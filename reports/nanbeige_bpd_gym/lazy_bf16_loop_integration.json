@@ -1,0 +1,111 @@
+{
+  "MOCK_ONLY": true,
+  "status": "passed_random_pinned_class_CPU_integration",
+  "architecture": "Actual pinned decoder class with random small config:22 layers, width64, intermediate128, vocab256, four resident CPU layers plus a reusable CPU stage.",
+  "synthetic_factor_bank": true,
+  "synthetic_CI_weights": true,
+  "training_updates": 0,
+  "qualified_real_factors_used": false,
+  "source_reference_weights_pretrained": false,
+  "pretrained_forwards": 0,
+  "CUDA_initialized": false,
+  "CPU_capture_calls": 22,
+  "meta_parameters_retained": 161,
+  "logical_target_before_after": "e881e2c3007945e2797ae5f699ab810147a2ff9ac71088cc073ea55103e32730",
+  "uninitialized_resident_RoPE_buffers_rejected_before_forward": true,
+  "native_B1_and_batched_B1_B2_bytes_exact": true,
+  "all40_vectors_per_row_per_capture_checked": true,
+  "routes": [
+    {
+      "route": "all_one",
+      "dense_lazy_bytes_exact": true,
+      "clean_row_unchanged": true,
+      "duplicate_observer_retained": 0
+    },
+    {
+      "route": "component_only",
+      "dense_lazy_bytes_exact": true,
+      "clean_row_unchanged": true,
+      "duplicate_observer_retained": 0
+    },
+    {
+      "route": "static_CAL_mean",
+      "dense_lazy_bytes_exact": true,
+      "clean_row_unchanged": true,
+      "duplicate_observer_retained": 0
+    },
+    {
+      "route": "reached_state",
+      "dense_lazy_bytes_exact": true,
+      "clean_row_unchanged": true,
+      "duplicate_observer_retained": 0
+    }
+  ],
+  "legacy_unused_observer_growth_per_native_capture": [
+    2,
+    4,
+    6
+  ],
+  "clearing_duplicate_observer_changes_no_exported_states_logits_or_native_tensors": true,
+  "pinned_width_duplicate_observer_bytes_per_native_prefix": 24576,
+  "duplicate_observer_byte_scope": "Source-derived estimate for unused float32 vectors only, not a measured full-model heap-growth rate.",
+  "original_frozen_live_worker_modified": false,
+  "real_generated_text_or_states_read": false,
+  "sealed_test_accessed": false,
+  "BF16_inference_status": "deferred_host_RAM_policy",
+  "full_new_condition_registered": false,
+  "candidate_stage_copies": 396,
+  "largest_synthetic_source_tensor_bytes": 16384,
+  "resources": {
+    "resources_sha256": "f7e4486ff44caba9f14402d5db09a8404fa4cd3d8e0d70c6906c5eafc5635a40",
+    "samples": 8,
+    "maximum_sampled_private_bytes": 746385408,
+    "minimum_sampled_available_physical_bytes": 9512230912
+  },
+  "source_files_sha256": {
+    "bounded_cpu_engineering.py": "9765610f2faa8ddca124c378ffdacd76aca26f5c835c01f2d3c4874493e2a8df",
+    "lazy_bf16_loop.py": "c163204ed3e50deab03a2f855c62d1543233ffdd6515633f1e02391f99f9b4b9",
+    "lazy_bf16_integration.py": "06dce7289839832d6bbb18118f90123bfeeb13ab11c51db29b92c1f8f1f0d7c6"
+  },
+  "prior_failed_attempt": {
+    "status": "failed",
+    "reason": "Native B1 byte mismatch: synthetic resident RoPE buffers remained meta.",
+    "original_source_files_sha256": {
+      "bounded_cpu_engineering.py": "9765610f2faa8ddca124c378ffdacd76aca26f5c835c01f2d3c4874493e2a8df",
+      "lazy_bf16_loop.py": "e2f1e705a43dd4a72232a9f665d2ce5013e7cf7fdcc89b28081d959e01348401",
+      "lazy_bf16_integration.py": "895fea9986677ea43225d6a8d85bf613d8232777e5e4c4b49b332a47f542941a"
+    },
+    "original_source_bytes_preserved": true,
+    "resources_sha256": "098935be5b67ccc240be806514158abaa9af77cb19de3c6cdf233b563440bbf5",
+    "source_archive_attestation_sha256": "69cc5e9ded67f89a2cdfbf584c186a9a5e63e7eb120fb45c7ff29ee746f31556",
+    "pretrained_forwards": 0
+  },
+  "validation_kind": "MOCK_ONLY_random_small_pinned_class_CPU_integration",
+  "missing_resident_buffers": [
+    {
+      "layer": 0,
+      "buffer": "self_attn.rotary_emb.inv_freq",
+      "device": "meta"
+    },
+    {
+      "layer": 1,
+      "buffer": "self_attn.rotary_emb.inv_freq",
+      "device": "meta"
+    },
+    {
+      "layer": 2,
+      "buffer": "self_attn.rotary_emb.inv_freq",
+      "device": "meta"
+    },
+    {
+      "layer": 3,
+      "buffer": "self_attn.rotary_emb.inv_freq",
+      "device": "meta"
+    }
+  ],
+  "four_additional_regression_tests_passed": true,
+  "loop_regression_test_source_sha256": "eedfcf9f341a682fcfaf0f5064a4c1f7914753dd38527542ab585639eecb9f9c",
+  "extra_tests_resources_sha256": "2413ce5e3ab4d69b854962e4028bbcbb774d61b3f0010c4f1b98b354cc473ddf",
+  "actual_BF16_CUDA_or_full_model_RAM_admission_proven": false,
+  "private_passed_receipt_sha256": "4c34f545135b66264843e13b73815d0ee02b9273efd8eaf317a170aba6e2fe1c"
+}

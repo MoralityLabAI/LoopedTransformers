@@ -1,0 +1,25 @@
+name: BF31 pre-inference runtime admission amendment
+on:
+  push:
+    branches: [research/nanbeige-bpd-gym-suite-towers]
+    paths: ['experiments/nan_bf31/**', '.github/workflows/bf31-runtime-admission-cpu.yml']
+  pull_request:
+    paths: ['experiments/nan_bf31/**', '.github/workflows/bf31-runtime-admission-cpu.yml']
+permissions:
+  contents: read
+jobs:
+  actual-entry-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -S -m unittest experiments.nan_bf31.admission_amendment_tests -v

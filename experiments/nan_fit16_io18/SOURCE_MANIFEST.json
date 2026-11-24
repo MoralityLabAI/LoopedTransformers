@@ -1,0 +1,222 @@
+{
+  "experiment": "NAN-FIT16-IO18",
+  "frozen_UTC": "2026-11-21T04:30:27.961992+00:00",
+  "critical_files_sha256": {
+    "__init__.py": "420effbb0519308b7293e67e48e7d705e2f8fcbcc8761c394dd18204492347ab",
+    "audit.py": "570b6b027b7087909a3d1859e4b1a70e8012ed1ce317b573d0a2380d16a609e0",
+    "audit_original.py": "e04302d8d52df4a8060efbcb37b522dc5cf2cdbccc4d294885151fc6fbb56e27",
+    "common.py": "4c8c6ac8696e2bfcda3493cd6af085fcfeb2473475f0332c67757f6f794931fb",
+    "config.json": "d4c9ccdf45bdea772a6dc441a954901ca269ef3d01522f0e0f5afff1b2c85731",
+    "derivation_receipt.json": "7d8b849b612e3b186188cfdb436470df8f82f90a41ff276b6424bc957790b37a",
+    "fit.py": "9696235a530d339edae190f3aeb9bab1093eaf537270a291fc96c4b97fdff245",
+    "fixtures/host_labels.jsonl": "a52676d3800d31038f1087dd71ae9229a4b7f3d6d01f0fffdcf19b908c49c62f",
+    "fixtures/public.jsonl": "87335bcce6fbf522a7f9bde233a9b70e3a0831157db82513f1a17ed24652f392",
+    "fixtures/source_receipt.json": "0355c2a86456d0395e0a05b940f14bc83f17a1c947b75f4a28829a9c61ad8c75",
+    "freeze.py": "0a74e37325b8a0a12fe4a31163ffd130d645e9b5998f2b003f55030ab3ca0ffb",
+    "PROTOCOL.md": "1735a49a8599996c6a901faf4fc5f2c29a935c98adcb9053b988d8d2bd11fd53",
+    "queue.py": "80ea2969dfa40939e77baf959cd982a89a801b6478e5086c44f851fb46b80b76",
+    "README.md": "a6cf8e13fbf211482d13d7b8f203f0e4bf01ab2fe384f69d85bb5c8efa77b35b",
+    "report.py": "29db37609b51009d1ef696a1062e81f71b214f300172b12876084f10233266c5",
+    "SUPERVISION.md": "268f1153650f5c36f79d4b1d357b82da99971cc69e662ba93adc9ae677f47ed9",
+    "tests/test_writer.py": "3d434375267aafdc2e57625a96a4e4cb3bba1ebc1c1ddcae364dd9d833764e77",
+    "worker.py": "2219d4808fb0bcf65deac7da52b3394c68f3a945904e4b0557548100ae04518e",
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+  },
+  "dependencies": {
+    "experiments/nan_bpd01/backend.py": {
+      "runtime_sha256": "7546f8fcbc36fd9b76ecf49c49d50a234f6494f058ae31bd5fea6fcd4bc8db7e",
+      "git_sha256": "7546f8fcbc36fd9b76ecf49c49d50a234f6494f058ae31bd5fea6fcd4bc8db7e"
+    },
+    "experiments/nan_bpd01/head.py": {
+      "runtime_sha256": "eb930070270e4a26c5f6a7e46fe3286bd3c51547885a012173a32fd525527286",
+      "git_sha256": "eb930070270e4a26c5f6a7e46fe3286bd3c51547885a012173a32fd525527286"
+    },
+    "experiments/nan_comp02/head.py": {
+      "runtime_sha256": "0b796e119f965df64d44ee758db5ec3ba90269bd87777e64a2b0186582da79e5",
+      "git_sha256": "0b796e119f965df64d44ee758db5ec3ba90269bd87777e64a2b0186582da79e5"
+    },
+    "experiments/nan_comp03/prompt.py": {
+      "runtime_sha256": "f373668151f2f86f8f5a717055fefacad6685b702296b873454904bb9dba9be9",
+      "git_sha256": "f373668151f2f86f8f5a717055fefacad6685b702296b873454904bb9dba9be9"
+    },
+    "experiments/nan_comp14/SOURCE_MANIFEST.json": {
+      "runtime_sha256": "b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f",
+      "git_sha256": "b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f"
+    },
+    "experiments/nan_comp14/audit.py": {
+      "runtime_sha256": "383ad21a1b03b531f2d72585aa23d8ddbecc781dbd6533dbf414e3a049a57c82",
+      "git_sha256": "383ad21a1b03b531f2d72585aa23d8ddbecc781dbd6533dbf414e3a049a57c82"
+    },
+    "experiments/nan_comp14/common.py": {
+      "runtime_sha256": "8f464cbf6c99e9b4e787cbda954cd1b12f7ac97b4cfd398c3eee0aaef82b95c8",
+      "git_sha256": "8f464cbf6c99e9b4e787cbda954cd1b12f7ac97b4cfd398c3eee0aaef82b95c8"
+    },
+    "experiments/nan_comp14/config.json": {
+      "runtime_sha256": "3e7be296099a6d37758674ec2431b4673c903f7f2b3a5078e673606e8b06270a",
+      "git_sha256": "3e7be296099a6d37758674ec2431b4673c903f7f2b3a5078e673606e8b06270a"
+    },
+    "experiments/nan_comp14/report.py": {
+      "runtime_sha256": "32b136a5edbf984d61a3dfeceb5604ff7ca9317256199daf21be00a15042359b",
+      "git_sha256": "32b136a5edbf984d61a3dfeceb5604ff7ca9317256199daf21be00a15042359b"
+    },
+    "experiments/nan_diag04/telemetry.py": {
+      "runtime_sha256": "48642b1591e956028b2116c17f2fffad8ac5fbb1bedc83fc5416836f328cad18",
+      "git_sha256": "48642b1591e956028b2116c17f2fffad8ac5fbb1bedc83fc5416836f328cad18"
+    },
+    "experiments/nan_fit07/io.py": {
+      "runtime_sha256": "615d1e78c7a1f27081d2f5f19a121fca5f6db2d7b131bc4ddb17c644c11f6357",
+      "git_sha256": "615d1e78c7a1f27081d2f5f19a121fca5f6db2d7b131bc4ddb17c644c11f6357"
+    },
+    "experiments/nan_fit07/pointwise.py": {
+      "runtime_sha256": "c2f781033f62d9db09248aa9ff2eb072b0888608d87e63e88667747e784132f6",
+      "git_sha256": "c2f781033f62d9db09248aa9ff2eb072b0888608d87e63e88667747e784132f6"
+    },
+    "experiments/nan_fit07/worker.py": {
+      "runtime_sha256": "61bff09a8d7b5d61732613d4133340c3c41114104f27f80db3eead4ab140a303",
+      "git_sha256": "61bff09a8d7b5d61732613d4133340c3c41114104f27f80db3eead4ab140a303"
+    },
+    "experiments/nan_fit16/SOURCE_MANIFEST.json": {
+      "runtime_sha256": "35371bbb5323be88ae4eca4cb43677c2f583494b8a46a5f7b7aa89c2fc710139",
+      "git_sha256": "35371bbb5323be88ae4eca4cb43677c2f583494b8a46a5f7b7aa89c2fc710139"
+    },
+    "experiments/nan_fit16/audit.py": {
+      "runtime_sha256": "570b6b027b7087909a3d1859e4b1a70e8012ed1ce317b573d0a2380d16a609e0",
+      "git_sha256": "570b6b027b7087909a3d1859e4b1a70e8012ed1ce317b573d0a2380d16a609e0"
+    },
+    "experiments/nan_fit16/common.py": {
+      "runtime_sha256": "2aba96b68b3f169079072680cce9eadf7e37dd9b4d649af7c61a1ba538cbe6a0",
+      "git_sha256": "2aba96b68b3f169079072680cce9eadf7e37dd9b4d649af7c61a1ba538cbe6a0"
+    },
+    "experiments/nan_fit16/config.json": {
+      "runtime_sha256": "dc03357e347cedf8e8fa4c55b1b06f88058baad5cc05c1a6c50632f2a62130a8",
+      "git_sha256": "dc03357e347cedf8e8fa4c55b1b06f88058baad5cc05c1a6c50632f2a62130a8"
+    },
+    "experiments/nan_fit16/fit.py": {
+      "runtime_sha256": "e83ef4654b7f62b33bfce16253e2451841a2c0398600f8de453d558f5cb468da",
+      "git_sha256": "e83ef4654b7f62b33bfce16253e2451841a2c0398600f8de453d558f5cb468da"
+    },
+    "experiments/nan_fit16/report.py": {
+      "runtime_sha256": "a24459aca0b23144a8ba6c1295e31fb320db62c5e403142369a09b6562809d84",
+      "git_sha256": "a24459aca0b23144a8ba6c1295e31fb320db62c5e403142369a09b6562809d84"
+    },
+    "experiments/nan_fit16/worker.py": {
+      "runtime_sha256": "2219d4808fb0bcf65deac7da52b3394c68f3a945904e4b0557548100ae04518e",
+      "git_sha256": "2219d4808fb0bcf65deac7da52b3394c68f3a945904e4b0557548100ae04518e"
+    },
+    "experiments/nan_grad15/SOURCE_MANIFEST.json": {
+      "runtime_sha256": "61f37ab12d17ab1d3569b9a6ebeff59e25deac1cc9c8f00e6240e43d4cfe23c5",
+      "git_sha256": "61f37ab12d17ab1d3569b9a6ebeff59e25deac1cc9c8f00e6240e43d4cfe23c5"
+    },
+    "experiments/nan_grad15/common.py": {
+      "runtime_sha256": "f8bbe02080e7704aa84a65e3e3dea247a875de246a46553841ee3f25a5114e32",
+      "git_sha256": "f8bbe02080e7704aa84a65e3e3dea247a875de246a46553841ee3f25a5114e32"
+    },
+    "experiments/nan_grad15/config.json": {
+      "runtime_sha256": "7fb361b77f51bd4ca6054fefca7f70c477a8717977041f882cf96b53fecbb452",
+      "git_sha256": "7fb361b77f51bd4ca6054fefca7f70c477a8717977041f882cf96b53fecbb452"
+    },
+    "experiments/nan_gym05/common.py": {
+      "runtime_sha256": "8215f8f36c111031513cf8b3128059d338abe8bb7fb274606d9d1660050625c2",
+      "git_sha256": "8215f8f36c111031513cf8b3128059d338abe8bb7fb274606d9d1660050625c2"
+    },
+    "experiments/nan_gym05/grade.py": {
+      "runtime_sha256": "f7bb5bcbeadc913bbe41fe784275700d5aa051c77791634ded5273162dfc1507",
+      "git_sha256": "f7bb5bcbeadc913bbe41fe784275700d5aa051c77791634ded5273162dfc1507"
+    },
+    "experiments/nan_gym05/observe.py": {
+      "runtime_sha256": "440a1ee9c09830ee9e72bb0cd1516658c8151207aa331714ddd76c998542d88a",
+      "git_sha256": "440a1ee9c09830ee9e72bb0cd1516658c8151207aa331714ddd76c998542d88a"
+    },
+    "experiments/nan_gym05/parser.py": {
+      "runtime_sha256": "c58c17b1ce00887f0fc58a02cc476d81dec8655a14a5545b0c3b0271a6fe2d75",
+      "git_sha256": "c58c17b1ce00887f0fc58a02cc476d81dec8655a14a5545b0c3b0271a6fe2d75"
+    },
+    "experiments/nan_gym05/sources.py": {
+      "runtime_sha256": "b7f7158068328809b5c422d7efbb1b76ed48e29529e76b2edcd272818d8e9cc9",
+      "git_sha256": "b7f7158068328809b5c422d7efbb1b76ed48e29529e76b2edcd272818d8e9cc9"
+    },
+    "experiments/nan_ranksite13/resources.py": {
+      "runtime_sha256": "e3ece880a839753c552273294888ed493849f0f787ca96d9d2032968f795980d",
+      "git_sha256": "e3ece880a839753c552273294888ed493849f0f787ca96d9d2032968f795980d"
+    },
+    "experiments/nan_recomp09/common.py": {
+      "runtime_sha256": "91102a7d444a5c0086b324a374fd41bf65067dbb1095f7e7dca448265687fa19",
+      "git_sha256": "91102a7d444a5c0086b324a374fd41bf65067dbb1095f7e7dca448265687fa19"
+    },
+    "experiments/nan_recomp09/fit.py": {
+      "runtime_sha256": "cfd54e1a4282b0cfff542faad9d527974c8bec2ccacb5b10fd91ffbcaf70d47d",
+      "git_sha256": "cfd54e1a4282b0cfff542faad9d527974c8bec2ccacb5b10fd91ffbcaf70d47d"
+    },
+    "mechinterp/dark_fiber_gyms/arg03_nanbeige.py": {
+      "runtime_sha256": "f5d5f5ff3edb12d5da94578b2a1e8ee59401d783321e2b9510982789660f6591",
+      "git_sha256": "b1de797bb7ca285db682f34409844ec55ae899963a8ea9ab89c69c19c1e9547f"
+    },
+    "mechinterp/dark_fiber_gyms/q4_3050.py": {
+      "runtime_sha256": "af75735af37488851452d37210ecd1724008e3dab33d03a2fa338d33c876ff1c",
+      "git_sha256": "e80d27d5440d9b546498b919d8808a0e595ef0cf8bfe2fbc13852a31ad329507"
+    },
+    "mechinterp/nanbeige_bpd_gym/BPD_FRAMEWORK_LOCK.json": {
+      "runtime_sha256": "70ece2f82767a19fc48b10357e8e942d5058e70c21ad050d4424e6e36d624a6f",
+      "git_sha256": "70ece2f82767a19fc48b10357e8e942d5058e70c21ad050d4424e6e36d624a6f"
+    },
+    "mechinterp/nanbeige_bpd_gym/audit_fit.py": {
+      "runtime_sha256": "e17e9fefa57062e02c384531d830bf56c552997290a7423999435c5c0fb93394",
+      "git_sha256": "e17e9fefa57062e02c384531d830bf56c552997290a7423999435c5c0fb93394"
+    },
+    "mechinterp/nanbeige_bpd_gym/audit_native.py": {
+      "runtime_sha256": "81bf4ad5fd1b75c1b572a87677375e0d9d3589d97ff22cfd807948612a08e4ef",
+      "git_sha256": "81bf4ad5fd1b75c1b572a87677375e0d9d3589d97ff22cfd807948612a08e4ef"
+    },
+    "mechinterp/nanbeige_bpd_gym/audit_suite_sources.py": {
+      "runtime_sha256": "4500425fd99497e0aa0a246f94f905ea5dcd3747029fe350d6786e30b2cb5e38",
+      "git_sha256": "4500425fd99497e0aa0a246f94f905ea5dcd3747029fe350d6786e30b2cb5e38"
+    },
+    "mechinterp/nanbeige_bpd_gym/crossref.py": {
+      "runtime_sha256": "f4fd77e70d05119a06bc89637b06f5fad1bb08c130da2c14edf50ad4b5a430d9",
+      "git_sha256": "f4fd77e70d05119a06bc89637b06f5fad1bb08c130da2c14edf50ad4b5a430d9"
+    },
+    "mechinterp/nanbeige_bpd_gym/native_components.py": {
+      "runtime_sha256": "157d2dc8a4ec22cef56cc04d485d955eaff57298a1d328279bc64ae92d78437c",
+      "git_sha256": "157d2dc8a4ec22cef56cc04d485d955eaff57298a1d328279bc64ae92d78437c"
+    },
+    "mechinterp/nanbeige_bpd_gym/native_saved_tensors.py": {
+      "runtime_sha256": "84e3b2a80a42898315d0e9e3016b21d152d4b9c7a5a1fcc46045bf631aa9330c",
+      "git_sha256": "84e3b2a80a42898315d0e9e3016b21d152d4b9c7a5a1fcc46045bf631aa9330c"
+    },
+    "mechinterp/nanbeige_bpd_gym/probe_towers.py": {
+      "runtime_sha256": "00bdba4b380edda72005a78d4cf2e89af201a81558fd35ac0f7a8fce3066592c",
+      "git_sha256": "00bdba4b380edda72005a78d4cf2e89af201a81558fd35ac0f7a8fce3066592c"
+    },
+    "mechinterp/nanbeige_bpd_gym/recomputed_native.py": {
+      "runtime_sha256": "094c013f1fe815287981bb535cdb743f5858466d027e12b64dea37562d5cedd2",
+      "git_sha256": "094c013f1fe815287981bb535cdb743f5858466d027e12b64dea37562d5cedd2"
+    },
+    "mechinterp/nanbeige_bpd_gym/resident_head.py": {
+      "runtime_sha256": "d19e56df10da0fd56d77ee3120e67334ae9de0d006d0e307eba645c446c8d720",
+      "git_sha256": "d19e56df10da0fd56d77ee3120e67334ae9de0d006d0e307eba645c446c8d720"
+    },
+    "mechinterp/sae_causal_transfer/adapter.py": {
+      "runtime_sha256": "d06ac4d5aac5f68a09cbf7cf4affad9adfacaa3379875c78fdfebc6126fb54fc",
+      "git_sha256": "ee558c62aae2fe317988d25de9d5dd15a179580acbfc5071f07585ebd40de2af"
+    }
+  },
+  "initialization": {
+    "bf16": {
+      "file_sha256": "0e372bf19ddbbd29aa57cea5ffa0de649139398993222a04cad8f0ba4ac4624c",
+      "effective_operator_sha256": "c38c1d9a90c8fc707cb8a55eb2090106b070fde135b3b814245a15d3fa367640"
+    },
+    "nf4": {
+      "file_sha256": "df4d9d4fe54493e676ef3a68941cc3f5954fdcb7473e419987e674783f4f7617",
+      "effective_operator_sha256": "aac780d34499bfa924d1839865a6d57703bfd9e5a2388bf9ec903f9db1528505"
+    }
+  },
+  "adapter_commit": "1ac36353b36581b6a634626bcd55542e53dae456",
+  "BPD_commit": "8f658b789138d73f497b1a2a05f5783745147d40",
+  "parent_source_seal": "35371bbb5323be88ae4eca4cb43677c2f583494b8a46a5f7b7aa89c2fc710139",
+  "supervision_commit": "9689206dc4c9c390e189cdd7ffd19bc735ceb9a2",
+  "supervision_action_sha256": "f4a647e92a2fbcb97339e24954b40f58a96c7de7e0751e11149577e7a3f3bb0f",
+  "exposure": "Original NF4 T1 partial failure exposed, T2 naturally running. Only repeated step writer repaired; no numerical/criterion changes or warm starts.",
+  "pretrained_IO18_started": false,
+  "formal_inferential_comparisons": 0,
+  "sealed_test_accessed": false
+}

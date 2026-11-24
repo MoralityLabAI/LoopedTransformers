@@ -1,0 +1,94 @@
+{
+  "experiment": "NAN-DEGREE-48",
+  "inferential_tests": 0,
+  "integer_count_checks": {
+    "balanced_matching_null_has_both_path_and_no_path": true,
+    "enumerated_binary_graphs": 64,
+    "exact_conditioned_distribution_checks": 1728,
+    "transpose_symmetry": true
+  },
+  "new_pretrained_forwards": 0,
+  "observable_DEV_roots_per_backend": 16,
+  "per_backend": {
+    "bf16": {
+      "cutoffs": {
+        "0.25": {
+          "largest_exact_null_support_size": "8",
+          "mean_conditional_spanning_probability": 0.375,
+          "mean_null_expected_backbone_nodes": 1.09375,
+          "mean_observed_backbone_nodes": 1.1875,
+          "median_conditional_tail_descriptive_only": 1.0,
+          "observed_equals_local_degree_roots": 1,
+          "observed_spanning_roots": 6,
+          "registered_roots": 16,
+          "roots_observed_above_exact_null_mean": 3,
+          "roots_observed_below_exact_null_mean": 0,
+          "roots_observed_equal_exact_null_mean": 13,
+          "smallest_exact_null_support_size": "8",
+          "tail_at_most_0_05_descriptive_count": 0
+        },
+        "0.5": {
+          "largest_exact_null_support_size": "7058",
+          "mean_conditional_spanning_probability": 1.0,
+          "mean_null_expected_backbone_nodes": 7.037280391045622,
+          "mean_observed_backbone_nodes": 7.375,
+          "median_conditional_tail_descriptive_only": 0.8253046188722017,
+          "observed_equals_local_degree_roots": 6,
+          "observed_spanning_roots": 16,
+          "registered_roots": 16,
+          "roots_observed_above_exact_null_mean": 15,
+          "roots_observed_below_exact_null_mean": 1,
+          "roots_observed_equal_exact_null_mean": 0,
+          "smallest_exact_null_support_size": "7058",
+          "tail_at_most_0_05_descriptive_count": 0
+        }
+      },
+      "native_replay_max_logit_error": 0.0
+    },
+    "nf4": {
+      "cutoffs": {
+        "0.25": {
+          "largest_exact_null_support_size": "17",
+          "mean_conditional_spanning_probability": 0.8014705882352942,
+          "mean_null_expected_backbone_nodes": 2.0036764705882355,
+          "mean_observed_backbone_nodes": 2.125,
+          "median_conditional_tail_descriptive_only": 0.8235294117647058,
+          "observed_equals_local_degree_roots": 10,
+          "observed_spanning_roots": 13,
+          "registered_roots": 16,
+          "roots_observed_above_exact_null_mean": 11,
+          "roots_observed_below_exact_null_mean": 2,
+          "roots_observed_equal_exact_null_mean": 3,
+          "smallest_exact_null_support_size": "17",
+          "tail_at_most_0_05_descriptive_count": 0
+        },
+        "0.5": {
+          "largest_exact_null_support_size": "10071",
+          "mean_conditional_spanning_probability": 1.0,
+          "mean_null_expected_backbone_nodes": 7.462137573230066,
+          "mean_observed_backbone_nodes": 7.375,
+          "median_conditional_tail_descriptive_only": 1.0,
+          "observed_equals_local_degree_roots": 9,
+          "observed_spanning_roots": 16,
+          "registered_roots": 16,
+          "roots_observed_above_exact_null_mean": 5,
+          "roots_observed_below_exact_null_mean": 7,
+          "roots_observed_equal_exact_null_mean": 4,
+          "smallest_exact_null_support_size": "10071",
+          "tail_at_most_0_05_descriptive_count": 0
+        }
+      },
+      "native_replay_max_logit_error": 0.0
+    }
+  },
+  "private_audit_sha256": "c49b34cdd18a2f163445dc034827b234b42b8a48f1d206d6e412df10a18d7d16",
+  "resource": {
+    "max_sampled_private_bytes": 111296512,
+    "max_sampled_working_set_bytes": 92078080,
+    "min_sampled_available_RAM_bytes": 6593101824
+  },
+  "sealed_test_accessed": false,
+  "source_manifest_sha256": "7c818b4fb7aed936f2c608eaba61b1068ca648aa3069eefa0556fbe3facc61bb",
+  "status": "complete",
+  "surrogate_calibration_roots": 8
+}

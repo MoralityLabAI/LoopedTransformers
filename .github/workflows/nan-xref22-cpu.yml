@@ -1,0 +1,32 @@
+name: Prospective long-context SAE and fiber contracts
+on:
+  pull_request:
+    paths:
+      - 'experiments/nan_xref22/**'
+      - '.github/workflows/nan-xref22-cpu.yml'
+      - 'reports/nanbeige_bpd_gym/**'
+  push:
+    branches: ['research/nanbeige-bpd-gym-suite-towers']
+    paths:
+      - 'experiments/nan_xref22/**'
+      - '.github/workflows/nan-xref22-cpu.yml'
+      - 'reports/nanbeige_bpd_gym/**'
+permissions:
+  contents: read
+jobs:
+  arithmetic-and-admission:
+    runs-on: ubuntu-latest
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.2.6
+      - run: python -B -S -c "from experiments.nan_xref22.common import verify; verify('git')"
+      - run: python -B -m unittest discover -s experiments/nan_xref22/tests -v
+      - run: python -B -S -m compileall -q experiments/nan_xref22

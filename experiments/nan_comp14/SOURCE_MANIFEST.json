@@ -1,0 +1,53 @@
+{
+  "experiment": "NAN-COMP-14",
+  "frozen_UTC": "2026-11-21T02:55:58.667797+00:00",
+  "critical_files_sha256": {
+    "__init__.py": "e8bfebd422935f0cb9daf87b556c908f683e28d9a1615cd383572b4e18427880",
+    "audit.py": "383ad21a1b03b531f2d72585aa23d8ddbecc781dbd6533dbf414e3a049a57c82",
+    "common.py": "8f464cbf6c99e9b4e787cbda954cd1b12f7ac97b4cfd398c3eee0aaef82b95c8",
+    "config.json": "3e7be296099a6d37758674ec2431b4673c903f7f2b3a5078e673606e8b06270a",
+    "fixtures/independent_source_audit.json": "ec1f134051a56f701b4987d9168a3b7ecdcf780ca21f672edf0d735f0e955d51",
+    "fixtures/public.jsonl": "f6e714cb36b8cdc433eb75ff2bcbde8c1c1f7ebb4d5e6573ea1fdf97f43e5504",
+    "fixtures/source_receipt.json": "3622e00736f84a3726288d28a29fddedb8ba2f2df8a2c55f9d43f3b36449b655",
+    "fixtures/tokenizer_receipt.json": "a5ebf1eea257928c8e5579e05f1c4fe8698cbc6b0767e50c8511a75dea4f32bf",
+    "freeze.py": "cdba90f407faeb312b1f9cd9d3041ce6a5aad5a11e8a0ace536db0cd80758849",
+    "parser.py": "70cfa6b90fa475a0f9ab8cce30964e9950889c35228ba4dd5413ef19d725c1ba",
+    "PROTOCOL.md": "a8f24cc38116dcd416bc50389132dae4148fe03a7cf2021d64a37205acaf8d40",
+    "queue.py": "0130a702ffbc56e257d92f094ae0580a2f96bc04b378719ccbb995b42487ca0e",
+    "README.md": "5e2840278ad57c18c8097a7e9ef130f711f4e25775e73aab239bcdfd7515a331",
+    "report.py": "32b136a5edbf984d61a3dfeceb5604ff7ca9317256199daf21be00a15042359b",
+    "sources.py": "b6db361246d7da55d05ea5bf7cc36e7dbe1011747d135fd6df6017c6c4e1ea7a",
+    "tests/test_audit.py": "ee8ce578ec63e1d0480331d7515fd3948d8b9edc75f864103b6fd9ff6f231ec6",
+    "tests/test_contracts.py": "83ab8e99a19b299785163fa1b7a642a7f79306d67754ae94d92cebcfbdb4bd96",
+    "tokenize.py": "02a87c68f8a9d4894742b506a0b17ff3357ce0620d1291f7b1fe8d284ef9cc74",
+    "worker.py": "6ef537a52b0b967067c0242be134f4688ed78dfa649999ddc42b285b570e45d2",
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+  },
+  "host_files_sha256": {
+    "fixtures/host_labels.jsonl": "890ef0882d6835b2aaada7af306065100e94e8a123193a30e84651a15bb8066d"
+  },
+  "dependencies_sha256": {
+    "experiments/nan_bpd01/backend.py": "7546f8fcbc36fd9b76ecf49c49d50a234f6494f058ae31bd5fea6fcd4bc8db7e",
+    "experiments/nan_bpd01/head.py": "eb930070270e4a26c5f6a7e46fe3286bd3c51547885a012173a32fd525527286",
+    "experiments/nan_comp02/head.py": "0b796e119f965df64d44ee758db5ec3ba90269bd87777e64a2b0186582da79e5",
+    "experiments/nan_comp03/prompt.py": "f373668151f2f86f8f5a717055fefacad6685b702296b873454904bb9dba9be9",
+    "experiments/nan_diag04/telemetry.py": "48642b1591e956028b2116c17f2fffad8ac5fbb1bedc83fc5416836f328cad18",
+    "experiments/nan_fit07/io.py": "615d1e78c7a1f27081d2f5f19a121fca5f6db2d7b131bc4ddb17c644c11f6357",
+    "experiments/nan_gym05/common.py": "8215f8f36c111031513cf8b3128059d338abe8bb7fb274606d9d1660050625c2",
+    "experiments/nan_gym05/observe.py": "440a1ee9c09830ee9e72bb0cd1516658c8151207aa331714ddd76c998542d88a",
+    "experiments/nan_ranksite13/resources.py": "e3ece880a839753c552273294888ed493849f0f787ca96d9d2032968f795980d",
+    "experiments/nan_recomp09/common.py": "91102a7d444a5c0086b324a374fd41bf65067dbb1095f7e7dca448265687fa19",
+    "mechinterp/dark_fiber_gyms/arg03_nanbeige.py": "f5d5f5ff3edb12d5da94578b2a1e8ee59401d783321e2b9510982789660f6591",
+    "mechinterp/dark_fiber_gyms/q4_3050.py": "af75735af37488851452d37210ecd1724008e3dab33d03a2fa338d33c876ff1c",
+    "mechinterp/nanbeige_bpd_gym/resident_head.py": "d19e56df10da0fd56d77ee3120e67334ae9de0d006d0e307eba645c446c8d720"
+  },
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "compactification_adapter_commit": "1ac36353b36581b6a634626bcd55542e53dae456",
+  "prefreeze_parent_commit": "173c6c8fea132dbd6e1c0164770b5191ad5a408d",
+  "exposure": "Prior NF4 FIT07 DEV5/8, native GYM05 and context outcomes visible. COMP14 source-only design and all two-template outcomes frozen before any COMP14 pretrained inference.",
+  "pretrained_inference_started": false,
+  "neural_retries": 0,
+  "formal_inferential_comparisons": 0,
+  "changes_old_gates": false,
+  "sealed_test_accessed": false
+}

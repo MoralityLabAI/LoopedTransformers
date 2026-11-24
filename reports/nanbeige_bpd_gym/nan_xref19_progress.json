@@ -1,0 +1,43 @@
+{
+  "experiment": "NAN-XREF-19",
+  "source_manifest_sha256": "d7dce25a01fd80425eecfa9716216933b0d215dfee069d4b0c381a340e360dda",
+  "updated_UTC": "2026-11-21T08:31:02.168845+00:00",
+  "backends": {
+    "nf4": {
+      "status": "failed_host_attempt_preserved",
+      "cells": [],
+      "failures": [
+        {
+          "UTC": "2026-11-21T08:28:00.596920+00:00",
+          "event": "audit_terminal",
+          "backend": "nf4",
+          "exit_code": 1
+        }
+      ]
+    },
+    "bf16": {
+      "status": "failed_host_attempt_preserved",
+      "cells": [],
+      "failures": [
+        {
+          "UTC": "2026-11-21T08:31:01.864895+00:00",
+          "event": "audit_terminal",
+          "backend": "bf16",
+          "exit_code": 1
+        }
+      ]
+    }
+  },
+  "unit": "Cached source root/family, reused development data; SAE features, worlds, loops and routing components correlated.",
+  "primary_contrast": "CAL-only fixed SAE towers and actual audited FIT16-IO18 factors versus their SVD/Haar controls on every cached context.",
+  "scientific_causal_floor": null,
+  "matched_sham_floor": null,
+  "estimated_causal_power": "Not calibrated; observational cross-reference only.",
+  "planned_formal_comparisons": 0,
+  "actual_formal_comparisons": 0,
+  "new_model_calls": 0,
+  "optimizer_steps": 0,
+  "BPD_donor_transfer_attempted": false,
+  "sealed_test_accessed": false,
+  "limitations": "Cached clean inputs only, no online edited state/readout and no new correctness/transfer evidence. Backend SAE indices never subtracted."
+}

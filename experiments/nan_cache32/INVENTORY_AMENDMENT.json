@@ -1,0 +1,119 @@
+{
+  "source_revision": 2,
+  "original_source_manifest_sha256": "4993a010890cc4a6d5b257bcdea61cb63fd69282603f423a1f9c2762589aeddd",
+  "original_ENGINEERING_sha256": "89b387c43eb4dcbcbf31a8d687ce46665928b77ff229cda648a85d75287dfed3",
+  "new_source_sha256": {
+    "inventory.py": "fc7e664b031b0d4b81f4abbc77ba2444eafa53a02a4f88dab8ea00882156abef",
+    "inventory_tests.py": "b10e1d15ba438d4c1c657dbc0f2a7aab31fac45453d42fe6c9bddcf3a7196ac3",
+    "inventory_amendment.py": "8ba9a65f9dbe51ed63418a1efbe650c21df81dc6e81940205b4e31ac0f1f0819",
+    "predecessors.py": "2930f583599f9b59583bddefff79fa0747618c82f85b5edcaf642f7d4daf5e5a",
+    "freeze.py": "f2496425fc52090895f8c122710661ba28c4d76027fe7826e42c15af83359c6b"
+  },
+  "numeric_method_and_plan_unchanged": true,
+  "all_noninventory_predecessor_AST_unchanged": true,
+  "original_waiting_attempt_archive": "runs/nan_cache32_before_inventory_20261122_001",
+  "retirement": {
+    "UTC": "2026-11-22T01:12:30.414374+00:00",
+    "retired_pid": 33772,
+    "retired_creation": "134397725093902002",
+    "reason": "Fix owned Windows venv-launcher false positive before any cached pretrained inference.",
+    "original_source_manifest_sha256": "4993a010890cc4a6d5b257bcdea61cb63fd69282603f423a1f9c2762589aeddd",
+    "source_publication": {
+      "remote_commit": "41c04a9236cf08aeeefd0dd76eeb7bd519822cd0",
+      "source_manifest_sha256": "4993a010890cc4a6d5b257bcdea61cb63fd69282603f423a1f9c2762589aeddd"
+    },
+    "cached_models_started": 0,
+    "worker_permits_written": 0,
+    "original_NF4_model_and_supervisor_unchanged": true,
+    "BF31_revision2_unchanged": true,
+    "model_or_math_termination": false,
+    "sealed_test_accessed": false
+  },
+  "retirement_receipt_sha256": "58f3ff843e122fed477b0efd7d3045b1f73937db0747b118f7b925d5725504af",
+  "stdlib_contracts_passed": 17,
+  "current_source_contract_proof": "Remote push CI at a6143a9ac3a08d1d6912dcb5c8872b3fa4b71333",
+  "current_source_CI_run": 44970882903,
+  "current_source_CI_log_sha256": "3040e5ba7b6211d3775d3d53862a265bd6dde8c953b2143da3354ee0cbcdeb77",
+  "current_source_CI_preflight": {
+    "MOCK_ONLY": true,
+    "status": "actual_production_preflight_small_random_CPU_passed",
+    "decoder_captures": 17,
+    "independent_mask_write_checks": 16,
+    "required_mock_shapes": [
+      {
+        "batch": 1,
+        "tokens": 11,
+        "right_padding": 0
+      },
+      {
+        "batch": 2,
+        "tokens": 9,
+        "right_padding": 1
+      }
+    ],
+    "actual_CUDA_admission": false,
+    "pretrained_parameters_loaded": 0,
+    "pretrained_forwards": 0,
+    "source_code_config_sha256": {
+      "config.json": "f6cb15b22847664f3a6049dc4b58fdd10f1650d112ac99a1da3d051f17c2ca19",
+      "configuration_nanbeige.py": "98abb9faa303717b234b3d381a9650e8cb656ccf287a12f6ad6215a3bbf8be10",
+      "modeling_nanbeige.py": "547737f989f5cb741c1a568acaf85f83521fa67a8f7268e19f9a37e60127c0d5"
+    },
+    "largest_mask_error": 4.9313036931675214e-08,
+    "largest_write_relative_L2": 0.0,
+    "real_task_or_gold_read": false,
+    "sealed_test_accessed": false
+  },
+  "historical_local_contracts_receipt_sha256": "f698ccc5d59d07827c995e1a98cf66b2d78edbb882548e17291653ab1cc676d7",
+  "actual_Windows_fixture_passed": true,
+  "actual_Windows_fixture": {
+    "status": "passed_actual_Windows_venv_launcher_fixture",
+    "MOCK_ONLY": true,
+    "inventory_source_sha256": "fc7e664b031b0d4b81f4abbc77ba2444eafa53a02a4f88dab8ea00882156abef",
+    "fixture_source_sha256": "d9602c94b573142859441de0eef1a7d062126d0b02b7f5f8a4c3c5f38fef19b8",
+    "own_actual_PID": 52292,
+    "parent_launcher_PID": 54000,
+    "parent_older_than_actual": true,
+    "actual_command_suffixes_identical": true,
+    "old_inventory_would_block_owned_launcher": true,
+    "new_inventory_excludes_only_owned_launcher": true,
+    "active_foreign_GPU_worker_still_blocked": true,
+    "parent_executable_matches_current_venv": true,
+    "pretrained_forwards": 0,
+    "host_module_executed": false,
+    "Torch_imported": false,
+    "NumPy_imported": false,
+    "sealed_test_accessed": false
+  },
+  "actual_Windows_fixture_source_sha256": "d9602c94b573142859441de0eef1a7d062126d0b02b7f5f8a4c3c5f38fef19b8",
+  "actual_Windows_fixture_receipt_sha256": "59242faa4f7019968fb0845243624b935365321bdeb48780c3a0f6d38c08e3c4",
+  "resource_profiles": {
+    "historical_local_contracts_before_plan_canonicalization": {
+      "resources_sha256": "be76419721b7ce98acb472086cc7c3db2ffdeab5336c2d6306fe685b33128901",
+      "samples": 3,
+      "maximum_sampled_private_bytes": 23986176,
+      "minimum_sampled_available_bytes": 5353635840
+    },
+    "actual_Windows_fixture": {
+      "resources_sha256": "b480ffe10cfeed4e13b4bee46356bb10a958a847426ff8343b33caed63c241bf",
+      "samples": 8,
+      "maximum_sampled_private_bytes": 18976768,
+      "minimum_sampled_available_bytes": 5387296768
+    }
+  },
+  "historical_numerical_fixtures_reexecuted_locally": false,
+  "pretrained_forwards_before_amendment": 0,
+  "unpublished_plan_canonicalization_failure_preserved": {
+    "previous_amendment_sha256": "08047758f87c580b36a6753de846ef70305d67481ff4059ca51258871bc60954",
+    "freeze_snapshot_sha256": "861572a0b6803fe6a7719678b20584a42286e5ac113d4d5b39206c2a04033709",
+    "failure_log_sha256": "5fb9a99e54b5e3bd666798b85addccdbc5ab1fd27466473e430594c51c6ebdc2",
+    "subsequent_local_admission_refusal_log_sha256": "871a591f2b0ae4e7ecf998d1fb9f9c60b94e0c3d2cab054ac4234a63db1892d2",
+    "subsequent_local_tests_executed": false,
+    "original_plan_bytes_changed": false,
+    "reason": "Saved JSON stringifies cardinality keys; compare the already registered canonical digest instead of Python object equality. Original plan bytes and digest remain exact."
+  },
+  "Torch_imported": false,
+  "NumPy_imported": false,
+  "formal_comparisons": 0,
+  "sealed_test_accessed": false
+}
