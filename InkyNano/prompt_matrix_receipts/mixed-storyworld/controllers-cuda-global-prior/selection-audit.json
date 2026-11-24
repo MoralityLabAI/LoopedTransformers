@@ -1,0 +1,137 @@
+{
+  "scope": "Three development roots in the mixed Sudoku, ARC and Storyworld fit, each with two request modes",
+  "plans_sha256": "66b14f1bbca60f0ef32110f9d9f81749a5acfbf0459f1ac400513ecfe03b2d6a",
+  "requests": 6,
+  "resident_slots_per_request": 192,
+  "policy": {
+    "global": {
+      "distinct_resident_layouts": 1,
+      "per_request_vs_global": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        },
+        "storyworld-hilbert/enc_03/infill": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        },
+        "storyworld-hilbert/enc_03/outfill": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        },
+        "sudoku/1700012/infill": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        },
+        "sudoku/1700012/outfill": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        }
+      },
+      "outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        },
+        "storyworld-hilbert/enc_03": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        },
+        "sudoku/1700012": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        }
+      }
+    },
+    "ldt": {
+      "distinct_resident_layouts": 5,
+      "per_request_vs_global": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "new_expert_slots": 5,
+          "layers_changed": 5
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "new_expert_slots": 3,
+          "layers_changed": 3
+        },
+        "storyworld-hilbert/enc_03/infill": {
+          "new_expert_slots": 10,
+          "layers_changed": 10
+        },
+        "storyworld-hilbert/enc_03/outfill": {
+          "new_expert_slots": 10,
+          "layers_changed": 10
+        },
+        "sudoku/1700012/infill": {
+          "new_expert_slots": 5,
+          "layers_changed": 5
+        },
+        "sudoku/1700012/outfill": {
+          "new_expert_slots": 5,
+          "layers_changed": 5
+        }
+      },
+      "outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "new_expert_slots": 2,
+          "layers_changed": 2
+        },
+        "storyworld-hilbert/enc_03": {
+          "new_expert_slots": 0,
+          "layers_changed": 0
+        },
+        "sudoku/1700012": {
+          "new_expert_slots": 2,
+          "layers_changed": 2
+        }
+      }
+    },
+    "trm": {
+      "distinct_resident_layouts": 6,
+      "per_request_vs_global": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "new_expert_slots": 5,
+          "layers_changed": 5
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "new_expert_slots": 5,
+          "layers_changed": 5
+        },
+        "storyworld-hilbert/enc_03/infill": {
+          "new_expert_slots": 9,
+          "layers_changed": 9
+        },
+        "storyworld-hilbert/enc_03/outfill": {
+          "new_expert_slots": 10,
+          "layers_changed": 10
+        },
+        "sudoku/1700012/infill": {
+          "new_expert_slots": 4,
+          "layers_changed": 4
+        },
+        "sudoku/1700012/outfill": {
+          "new_expert_slots": 6,
+          "layers_changed": 6
+        }
+      },
+      "outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "new_expert_slots": 4,
+          "layers_changed": 4
+        },
+        "storyworld-hilbert/enc_03": {
+          "new_expert_slots": 1,
+          "layers_changed": 1
+        },
+        "sudoku/1700012": {
+          "new_expert_slots": 4,
+          "layers_changed": 4
+        }
+      }
+    }
+  }
+}
