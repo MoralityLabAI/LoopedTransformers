@@ -248,7 +248,8 @@ def main():
         p.add_argument("--gpu-layers", type=int, default=0, help="partially offload to CUDA0")
         p.add_argument("--vram-limit-bytes", type=int, default=2 * GIB)
         p.add_argument("--rss-limit-bytes", type=int, default=4 * GIB)
-        p.add_argument("--case-timeout", type=int, default=900)
+        p.add_argument("--case-timeout", type=int, default=1800 if name == "benchmark" else 900,
+                       help="per-request native timeout in seconds (default: %(default)s)")
         p.add_argument("--max-new", type=int)
         p.add_argument("--limit", type=int)
         p.add_argument("--parse-special", action="store_true",
@@ -261,7 +262,7 @@ def main():
     a = parser.parse_args()
     if (a.max_new is not None and a.max_new < 2 or a.limit is not None and a.limit <= 0
             or a.context < 128 or a.threads < 1 or not 1 <= a.batch_tokens <= a.context or a.rss_limit_bytes <= (768 << 20)
-            or a.gpu_layers < 0 or a.vram_limit_bytes <= 0
+            or a.gpu_layers < 0 or a.vram_limit_bytes <= 0 or a.case_timeout <= 0
             or a.wsl_run_lock and (not a.wsl or not a.wsl_run_lock.startswith("/"))
             or a.runtime_library_manifest and os.name == "nt" and not a.wsl
             or a.published_composition and not a.model or a.teacher_in_ram and not a.model):

@@ -39,6 +39,8 @@ The persistent build reproduced packed Q4 and Q6 expert execution on the 3050. O
 
 The first request under the persistent matrix build reproduced the CPU's 24-token ARC outfill completion. CUDA reached 32.18 prefill tokens/s and 1.18 decode tokens/s, with 66.9 seconds of end-to-end latency. That request sampled a 1.93 GiB device-wide free-memory drop and reached 2.93 GiB process RSS. [Matched persistent-build replay](cuda-smoke/persistent/first-matched-grid-request.json)
 
+All four policies subsequently completed that same ARC outfill timing request. Each GPU completion matched its own CPU completion. At eight experts per layer, packing and model load together took 69–83 seconds per CUDA replay. The scoped teacher took 66.9 seconds end to end. Cold LDT replay took 110.7 seconds, TRM 140.9 and global frequency 150.5. These are four paired policies on one request at the 24-token timing cap. [Matched ARC policy and stage timings](cuda-smoke/persistent/first-complete-case.json)
+
 ## Held-out routing mass
 
 | Policy | Initial prefill | Initial decode | With train-root prior, prefill | With train-root prior, decode |
