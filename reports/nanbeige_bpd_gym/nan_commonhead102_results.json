@@ -1,0 +1,58 @@
+{
+  "experiment": "NAN-COMMONHEAD-102",
+  "fixture": {
+    "all_lattice_endpoint_bound_fixture": true,
+    "coordinatewise_common_difference_identity": true,
+    "exact_centered_bf16_pair": true
+  },
+  "formal_comparisons": 0,
+  "full_head_rows": 464,
+  "geometry_lock_sha256": "b3c9b8277a7a0ffabcc6896db1f4b272b897b920ff7b824b31d5dcdf289de046",
+  "max_sampled_private_bytes": 182702080,
+  "max_sampled_working_set_bytes": 161619968,
+  "parent_first_head_counts_exact": true,
+  "per_backend": {
+    "bf16": {
+      "centered_current_head_roots": 13,
+      "centered_differential_pairs_passing": 56,
+      "centered_endpoint_lattice_obstructed_pairs": 56,
+      "centered_geometry_roots": 0,
+      "centered_joint_roots": 0,
+      "centered_signed_geometry_pairs_passing": 0,
+      "centered_signed_head_pairs_passing": 55,
+      "median_centered_diff_cosine": 0.985227893138976,
+      "median_centered_worst_logit_drift": 0.0859375,
+      "median_common_at_original_peak": 0.0859375,
+      "median_half_difference_at_original_peak": 0.0703125,
+      "median_worst_endpoint_nearest_relative_error": 0.2785371022814034,
+      "pairs_common_dominant_at_original_peak": 40,
+      "pairs_logit_common_only_bound_refused": 0,
+      "roots": 14,
+      "signed_pairs": 56
+    },
+    "nf4": {
+      "centered_current_head_roots": 11,
+      "centered_differential_pairs_passing": 44,
+      "centered_endpoint_lattice_obstructed_pairs": 44,
+      "centered_geometry_roots": 0,
+      "centered_joint_roots": 0,
+      "centered_signed_geometry_pairs_passing": 0,
+      "centered_signed_head_pairs_passing": 44,
+      "median_centered_diff_cosine": 0.9840929116915322,
+      "median_centered_worst_logit_drift": 0.0625,
+      "median_common_at_original_peak": 0.125,
+      "median_half_difference_at_original_peak": 0.046875,
+      "median_worst_endpoint_nearest_relative_error": 0.3446811589822266,
+      "pairs_common_dominant_at_original_peak": 44,
+      "pairs_logit_common_only_bound_refused": 0,
+      "roots": 11,
+      "signed_pairs": 44
+    }
+  },
+  "pretrained_decoder_forwards": 0,
+  "private_pairs_sha256": "7f0849715788683269207069fa444a2ac1bbade9354da67109818f2f36600e4b",
+  "sealed_test_accessed": false,
+  "source_manifest_sha256": "d75ee487d81cc8bdb2e2ae7db61fcd5ddfdd8a49bc1d844be600a6a0967091cc",
+  "status": "current_head_decomposition_complete",
+  "vocabulary_rows": 166144
+}

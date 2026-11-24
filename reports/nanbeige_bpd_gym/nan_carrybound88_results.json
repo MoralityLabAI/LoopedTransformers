@@ -1,0 +1,120 @@
+{
+  "bounded_edited_heads": 144,
+  "clean_native_heads_matched": 48,
+  "complete_vocab_rows": 166144,
+  "evidence": "archived NF4 CPU enclosure",
+  "experiment": "NAN-CARRYBOUND-88",
+  "fixture": {
+    "exhaustive_BF16_head_inputs": 81,
+    "finite_head_enclosed": true,
+    "signed_norm_weights": true
+  },
+  "formal_comparisons": 0,
+  "max_native_selected_logit_error": 0.0,
+  "pretrained_decoder_forwards": 0,
+  "resources": {
+    "max_sampled_private_bytes": 184197120,
+    "max_sampled_working_set_bytes": 161792000,
+    "min_sampled_available_RAM_bytes": 8735723520
+  },
+  "sealed_test_accessed": false,
+  "source_manifest_sha256": "727bcd020d3c93de8bef56146f3fa07787b4226238b8d597f130896595d70194",
+  "splits": {
+    "calibration": {
+      "both_world_roots": {
+        "all_arms_guaranteed_gate_preserved": 0,
+        "all_arms_guaranteed_winner_preserved": 6,
+        "registered": 8,
+        "some_arm_guaranteed_gate_failed": 8
+      },
+      "cal_static": {
+        "current_head_gate": {
+          "failed": 16
+        },
+        "median_peak_drift_lower": 0.3984375,
+        "median_peak_drift_upper": 0.421875,
+        "median_unique_edited_residual_coordinates": 2528.0,
+        "winner_status": {
+          "preserved": 14,
+          "unresolved": 2
+        },
+        "worlds": 16
+      },
+      "learned": {
+        "current_head_gate": {
+          "failed": 16
+        },
+        "median_peak_drift_lower": 0.345703125,
+        "median_peak_drift_upper": 0.3837890625,
+        "median_unique_edited_residual_coordinates": 2553.0,
+        "winner_status": {
+          "preserved": 16
+        },
+        "worlds": 16
+      },
+      "seeded": {
+        "current_head_gate": {
+          "failed": 16
+        },
+        "median_peak_drift_lower": 0.259765625,
+        "median_peak_drift_upper": 0.296875,
+        "median_unique_edited_residual_coordinates": 2530.5,
+        "winner_status": {
+          "preserved": 14,
+          "unresolved": 2
+        },
+        "worlds": 16
+      }
+    },
+    "development": {
+      "both_world_roots": {
+        "all_arms_guaranteed_gate_preserved": 0,
+        "all_arms_guaranteed_winner_preserved": 13,
+        "registered": 16,
+        "some_arm_guaranteed_gate_failed": 16
+      },
+      "cal_static": {
+        "current_head_gate": {
+          "failed": 32
+        },
+        "median_peak_drift_lower": 0.40625,
+        "median_peak_drift_upper": 0.4296875,
+        "median_unique_edited_residual_coordinates": 2538.5,
+        "winner_status": {
+          "changed": 1,
+          "preserved": 29,
+          "unresolved": 2
+        },
+        "worlds": 32
+      },
+      "learned": {
+        "current_head_gate": {
+          "failed": 32
+        },
+        "median_peak_drift_lower": 0.3427734375,
+        "median_peak_drift_upper": 0.3740234375,
+        "median_unique_edited_residual_coordinates": 2560.5,
+        "winner_status": {
+          "preserved": 30,
+          "unresolved": 2
+        },
+        "worlds": 32
+      },
+      "seeded": {
+        "current_head_gate": {
+          "failed": 32
+        },
+        "median_peak_drift_lower": 0.255859375,
+        "median_peak_drift_upper": 0.2890625,
+        "median_unique_edited_residual_coordinates": 2527.5,
+        "winner_status": {
+          "changed": 1,
+          "preserved": 29,
+          "unresolved": 2
+        },
+        "worlds": 32
+      }
+    }
+  },
+  "status": "passed"
+}

@@ -1,0 +1,51 @@
+{
+  "backend": "bf16",
+  "baseline_batches": 48,
+  "capacity_edit_dose": 0.004,
+  "execution_variant": "NAN-RESCUEGPU-111",
+  "experiment": "NAN-BOUNDRESCUE-109",
+  "files_sha256": {
+    "experiments/nan_boundrescue109/RUNTIME_MANIFEST.json": "569e8b1bc2201358b402506da12fad91210d397e49e3ddda29068dfbc332cb65",
+    "experiments/nan_boundrescue109/RUNTIME_VERIFICATION.json": "b4871b8f551f88ff14bda3a07443b9e91793d87fb522052696658c5998e8c803",
+    "experiments/nan_boundrescue109/host.py": "2644c951b6665a89506e7a6bcf7d3fa26aa99c9b8a47a54ef62333e75470074b",
+    "experiments/nan_boundrescue109/verify_runtime.py": "15742faab21c9fd9f3d3fa955a12f60ddbbbbe9f5da4c559052c8708424afbf8",
+    "experiments/nan_readout34/runtime.py": "479aecead7f540da3196a271d6955cab0d949f191f79a25ad711976c2bdfd021",
+    "experiments/nan_rescuegpu111/.gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "experiments/nan_rescuegpu111/PROTOCOL.md": "4b2d208247fe7c76731588295e88daf903657372e92c2e3fe0df5438290e91b1",
+    "experiments/nan_rescuegpu111/__init__.py": "3034f96310a74d8ae6feac79e825ce22d4e7481ce50bdc953fada6a2ddd99d89",
+    "experiments/nan_rescuegpu111/device.py": "3095fe9b041f584857620562047361b9fdffd7f0ff4537d31a19e89482b91cd2",
+    "experiments/nan_rescuegpu111/host.py": "bcd811d08fb12c6d40d0d77a0abda551dd30102c457b8fc67864f22ea9d60ca9",
+    "experiments/nan_rescuegpu111/lane.py": "272279d7e812e5edf4e98bcf6ab3b17918fb84afa39f2a91a767a7078e5a0348",
+    "experiments/nan_rescuegpu111/verify.py": "b7725a9f5c85a1718050df4f3f55632e12faedebbf944cf7702dd1bad575008f",
+    "experiments/nan_rescuegpu111/worker.py": "25356cb52725aec1256aaad368a48afcc027817254da83d29ee791ff7d3fb770",
+    "experiments/nan_rescuegroup110/CPU_VERIFICATION.json": "4ae26b70c784cdc44ab1fc8c3e7b0049f0f57206d82a45a0a9e184203498eb6c",
+    "experiments/nan_rescuegroup110/SOURCE_MANIFEST.json": "5e8b3ada34e14747319ddf6294663c272de3161b6d70c6f0f6ed196abefb3f93",
+    "experiments/nan_rescuegroup110/group.py": "137955cb33d586b080bb6c82cb4e95aacd57a3b855d632ba97f71a0b6bccb485",
+    "experiments/nan_stagegroup103/verify.py": "f9f05937d948b51ee34744a548ca2ef1065f0f618a8736538885a882605dde0d",
+    "experiments/nan_stream36/device_preflight.py": "f01bca2516cf2e79a63480e9780d2deb7411777fe14596807a9c2e352aad221d",
+    "experiments/nan_vocab83/batches.py": "223f04536a80db3c8863e5907ac63256b1cd80cdc1ca874f4627f2a62c813fce",
+    "experiments/nan_vocab83/verify.py": "6940fe1387a53c668bf500587762e7858ce2a6a5dad33bbde398a3867ff5c53d"
+  },
+  "limits": {
+    "hard_maximum_worker_private_bytes": 6979321856,
+    "hard_minimum_available_RAM_bytes": 1073741824,
+    "maximum_artifact_bytes_per_backend": 268435456,
+    "maximum_backend_seconds": 604800,
+    "maximum_sampled_dedicated_GPU_bytes": 4294967296,
+    "maximum_sampled_shared_GPU_bytes": 268435456,
+    "maximum_slot_seconds": 3600,
+    "maximum_worker_private_bytes": 6442450944,
+    "minimum_available_RAM_bytes": 2147483648,
+    "minimum_free_disk_bytes": 21474836480,
+    "minimum_start_available_RAM_bytes": 5368709120
+  },
+  "max_position": 391,
+  "maximum_simultaneous_B2_branches": 2,
+  "offloaded_layers": 18,
+  "predecessor_runtime_sha256": "569e8b1bc2201358b402506da12fad91210d397e49e3ddda29068dfbc332cb65",
+  "roots": 16,
+  "seeds": [
+    11101,
+    11102
+  ]
+}
