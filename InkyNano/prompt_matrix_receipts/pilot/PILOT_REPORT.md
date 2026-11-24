@@ -38,6 +38,10 @@ On one held-out ARC-AGI-2 outfill from the public training set, all four CUDA po
 | LDT | 8 | 27.26 | 0.98 | 479.9 |
 | TRM | 8 | 16.94 | 1.00 | 526.1 |
 
+The native loader allocated 1,525.64 MiB of model buffers in CUDA-pinned host RAM and 581.20 MiB on the GPU in each eight-expert replay. It reserved a 781.20 MiB CUDA compute buffer. The scoped teacher used 1,920.78 MiB of host model buffers, 663.41 MiB of GPU model buffers and a 1,002.12 MiB CUDA compute buffer. [Native buffer accounting](arc-outfill-full-answer-matrix.json)
+
+The 12-expert ARC infill control reached 384 output tokens at 0.96 decode tokens/s and finished in 450.2 seconds. It repeated `</after>` and failed JSON parsing, pass@2 and exact-grid scoring. The same control took 506.0 seconds on the outfill prompt. The eight-expert infill policies remain pending. [Full-budget ARC control in both modes](arc-teacher-full-answer-both-modes.json)
+
 Serialized reference answers passed the score checks for both modes. The ARC answer used 153 of its 384 output tokens, and the Sudoku answer used 187 of its 256. The pinned tokenizer reproduced the native prompt token counts for all four grid requests. [Reference answer budget check](answer-budget-check.json)
 
 Each prior-based learned policy selected four distinct layouts across the four grid requests. Global frequency used one. With a reusable cache, the ARC outfill-to-infill transition would admit 4 LDT slots or 5 TRM slots. The Sudoku transition would admit 3 or 8, respectively. The corresponding packed projection estimates are 18.35 MiB and 25.19 MiB for ARC, and 16.02 MiB and 41.21 MiB for Sudoku. [Grid residency and admission estimates](controllers-global-prior/admission-estimates.json)

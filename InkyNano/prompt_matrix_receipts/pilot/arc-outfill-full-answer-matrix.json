@@ -250,5 +250,66 @@
       "subprocess_seconds": 482.05967379999856
     }
   ],
-  "distinct_completions": 4
+  "distinct_completions": 4,
+  "native_allocation_log": {
+    "scope": "Final active-run model and compute buffers reported in MiB by the native loader and scheduler. Caches and driver overhead are outside these buffer figures.",
+    "policies": {
+      "teacher_subset": {
+        "log_sha256": "25ad171caa8b0315ae38de03c03a26bc3bd09bdc731323900bd63535b7a8f7bc",
+        "offloaded_loader_layers": 28,
+        "total_loader_layers": 49,
+        "model_buffer_mib": {
+          "CUDA0": 663.41,
+          "CUDA_Host": 1920.78
+        },
+        "compute_buffer_mib": {
+          "CUDA0": 1002.12,
+          "CUDA_Host": 2.55
+        },
+        "planned_cuda_mib": 1775.5821533203125
+      },
+      "global": {
+        "log_sha256": "0e8c16bb515ac24136ceeabef2c297053d25e816d7217fadbb8787479710c708",
+        "offloaded_loader_layers": 28,
+        "total_loader_layers": 49,
+        "model_buffer_mib": {
+          "CUDA0": 581.2,
+          "CUDA_Host": 1525.64
+        },
+        "compute_buffer_mib": {
+          "CUDA0": 781.2,
+          "CUDA_Host": 2.55
+        },
+        "planned_cuda_mib": 1472.4512939453125
+      },
+      "ldt": {
+        "log_sha256": "9e73534ff55594ad8dacdad4c87e46801dc76a6f7baa49de2d060c13810136e7",
+        "offloaded_loader_layers": 28,
+        "total_loader_layers": 49,
+        "model_buffer_mib": {
+          "CUDA0": 581.2,
+          "CUDA_Host": 1525.64
+        },
+        "compute_buffer_mib": {
+          "CUDA0": 781.2,
+          "CUDA_Host": 2.55
+        },
+        "planned_cuda_mib": 1472.4512939453125
+      },
+      "trm": {
+        "log_sha256": "e2f8eeca863e47f8f1cb0695f39347bf020f780826148cd078278c87cc7cb79a",
+        "offloaded_loader_layers": 28,
+        "total_loader_layers": 49,
+        "model_buffer_mib": {
+          "CUDA0": 581.2,
+          "CUDA_Host": 1525.64
+        },
+        "compute_buffer_mib": {
+          "CUDA0": 781.2,
+          "CUDA_Host": 2.55
+        },
+        "planned_cuda_mib": 1472.4512939453125
+      }
+    }
+  }
 }
