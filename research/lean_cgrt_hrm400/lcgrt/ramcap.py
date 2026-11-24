@@ -21,6 +21,7 @@ import ctypes
 import re
 import sys
 
+JobObjectBasicAccountingInformation = 1
 JobObjectBasicProcessIdList = 3
 JobObjectExtendedLimitInformation = 9
 JOB_OBJECT_LIMIT_PRIORITY_CLASS = 0x20
@@ -38,6 +39,12 @@ def parse_size(s: str) -> int:
 
 if sys.platform == "win32":
     from ctypes import wintypes as wt
+
+    class _Accounting(ctypes.Structure):
+        _fields_ = [("TotalUserTime", ctypes.c_longlong), ("TotalKernelTime", ctypes.c_longlong),
+                    ("ThisPeriodTotalUserTime", ctypes.c_longlong), ("ThisPeriodTotalKernelTime", ctypes.c_longlong),
+                    ("TotalPageFaultCount", wt.DWORD), ("TotalProcesses", wt.DWORD),
+                    ("ActiveProcesses", wt.DWORD), ("TotalTerminatedProcesses", wt.DWORD)]
 
     class _IO(ctypes.Structure):
         _fields_ = [(n, ctypes.c_ulonglong) for n in ("ReadOps", "WriteOps", "OtherOps", "ReadBytes", "WriteBytes",
@@ -92,6 +99,13 @@ class Job:
         _check(_k32.QueryInformationJobObject(self.h, JobObjectExtendedLimitInformation, ctypes.byref(info),
                                               ctypes.sizeof(info), None), "QueryInformationJobObject")
         return int(info.PeakJobMemoryUsed)
+
+    def cpu_seconds(self) -> float:
+        """Cumulative user+kernel CPU seconds across all processes (active and exited) in the job."""
+        info = _Accounting()
+        _check(_k32.QueryInformationJobObject(self.h, JobObjectBasicAccountingInformation, ctypes.byref(info),
+                                              ctypes.sizeof(info), None), "QueryInformationJobObject")
+        return float(info.TotalUserTime + info.TotalKernelTime) * 1e-7
 
     def pids(self) -> list[int]:
         n = 4096                                     # header: two DWORDs (assigned, listed), then ULONG_PTR ids

@@ -18,12 +18,12 @@ def parse_ram(s):
     from lcgrt.ramcap import parse_size
     return parse_size(s)
 
-def guard(ram):
+def guard(ram,priority="below_normal"):
     if ram=="0":return None,"explicit no hard cap"
     limit=parse_ram(ram)
     if sys.platform=="win32":
         from lcgrt.ramcap import Job
-        job=Job(limit,"below_normal");job.assign_self()
+        job=Job(limit,priority);job.assign_self()
         return job,"Windows process-tree committed-memory limit"
     if sys.platform.startswith("linux"):
         # systemd-run --scope cgroup v2 MemoryMax must already enforce cap.
@@ -46,13 +46,14 @@ def main():
     p.add_argument("--profile",choices=("smoke","full"),default="full")
     p.add_argument("--threads",type=int,default=8);p.add_argument("--workers",type=int,default=2)
     p.add_argument("--ram",default="12G");p.add_argument("--timeout",type=int,default=900)
+    p.add_argument("--priority",choices=("idle","below_normal","normal"),default="below_normal")
     p.add_argument("--collect-only",action="store_true")
     args=p.parse_args()
     if not 1<=args.workers<=args.threads<=64 or args.timeout<180:raise SystemExit("invalid resource configuration")
     args.out=args.out.resolve();args.lean_source=args.lean_source.resolve();args.prior_07a=args.prior_07a.resolve()
     os.environ.update(CUDA_VISIBLE_DEVICES="",OMP_NUM_THREADS=str(args.threads),MKL_NUM_THREADS=str(args.threads),
         OPENBLAS_NUM_THREADS=str(args.threads),LEAN_NUM_THREADS=str(max(1,args.threads//args.workers)))
-    job,limit_kind=guard(args.ram)
+    job,limit_kind=guard(args.ram,args.priority)
     import psutil
     proc=psutil.Process()
     if hasattr(proc,"cpu_affinity"):
@@ -70,7 +71,7 @@ def main():
         raise SystemExit("New output directory must be empty.")
     resource={"os":platform.platform(),"python":sys.version,"logical_cpu":psutil.cpu_count(),
               "physical_ram":psutil.virtual_memory().total,"threads":args.threads,"workers":args.workers,
-              "requested_ram":args.ram,"memory_limit":limit_kind,
+              "requested_ram":args.ram,"priority":args.priority,"memory_limit":limit_kind,
               "cpu_only":True,"peak_sampled_tree_rss":0,"peak_sampled_processes":0}
     done=threading.Event()
     def monitor():
@@ -95,7 +96,9 @@ def main():
     finally:
         done.set();t.join()
         resource["seconds"]=time.perf_counter()-start
-        if job is not None:resource["job_peak_commit_bytes"]=job.peak_bytes()
+        if job is not None:
+            resource["job_peak_commit_bytes"]=job.peak_bytes()
+            resource["job_cpu_seconds"]=job.cpu_seconds()
         B.write(args.out/"resource_latest.json",resource)
     code=args.out/"review_code";code.mkdir(exist_ok=True)
     for rel in ("run_olr07b.py","ppt_gym/olr07b_cpu.py","ppt_gym/olr07a_library.py",
