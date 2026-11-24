@@ -2,7 +2,6 @@
   "base_commit": "8d078cf9158ec1b4cb81f9047f31cddbb2fdc34e",
   "goose_receipt_git_blob": "43104182fe346f7e5e1f9dc5815bc99372635008",
   "artifacts": {
-    "PILOT_REPORT.md": "65a4cc43c9d9ed2dbacf1cacee1606841ad8e2dedccbc573d01a7505684c819e",
     "bench-k8/cpu-throughput-overview.json": "4e794127a14de06986e6b7096c67acca16347120c835f45d19e2814c0dd59811",
     "bench-k8/mcp05-comparison.json": "3a191a50d6aa42680e802934b167ed9d3a46d246a40d9a91b513fee3e88b9b4e",
     "bench-k8/metrics.jsonl": "a4e0244f91c85ae49e654ffde56ef509e179cef3585cbecb4f19cc6df06a4f9f",
@@ -11,16 +10,29 @@
     "capture/spec.json": "b328d9afc6192e765fc3ae77b4940e20d9839c327ff23afe9771319a9ff89f44",
     "cases.jsonl": "f13a865f19324c0552d211719f961e15ddfb288d930a53cfe5c14f6d3932c575",
     "composition.json": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923",
+    "controllers/ldt.pt": "e259f96d648630d8d88647e9316de287756092e244b474c12e3e424669efdf45",
+    "controllers/plans.json": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac",
+    "controllers/training.json": "0f36442e65ac8775966ab21f479e37806a02d778b72932dd7173e0c7ea9a82a1",
+    "controllers/trm.pt": "074427e9a51ae46c3cbfff142f70d9c2ee0d39ac8f61a4424cd9e1d40a20688e",
     "controllers-global-prior/ldt.pt": "b4700c1b5bad460d93a74b7ae4b26104e80711cb5c447a20e3f2bbf02542ea1b",
     "controllers-global-prior/offline-summary.json": "293b08b4bdcdb6da2b92239c3c7551ec6d7e0a63d1e7dbea8a291b11a96c50a0",
     "controllers-global-prior/plans.json": "0270f14a2a1498296e7329cff589533f7cf7fde596177662d365a0bbdc6bfbbe",
     "controllers-global-prior/training.json": "9590abd1342314a36cdc9797c278077c759c868dfb1ab483246b98a553deba0e",
     "controllers-global-prior/trm.pt": "5a07aa5242f293d9cfb4db2aa9b5cd3b9a9dd17001757b3db518cd42529cb6ff",
-    "controllers/ldt.pt": "e259f96d648630d8d88647e9316de287756092e244b474c12e3e424669efdf45",
-    "controllers/plans.json": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac",
-    "controllers/training.json": "0f36442e65ac8775966ab21f479e37806a02d778b72932dd7173e0c7ea9a82a1",
-    "controllers/trm.pt": "074427e9a51ae46c3cbfff142f70d9c2ee0d39ac8f61a4424cd9e1d40a20688e",
     "offline-summary.json": "552579542a899e7b95bde3d6f592f22fa6d72c9598fc5349e9781ab7c98fa7ab",
-    "quality-trm-cpu-preview/receipt.json": "c69a77cc78b59ab97af7068a3e45f25545be00eefc975a76c3fd824165e0291d"
+    "PILOT_REPORT.md": "48d09c2bed51d3962e32d71d64c6f8edc2ea61f2afcb7e0eba1ae957a0269102",
+    "quality-trm-cpu-preview/receipt.json": "c69a77cc78b59ab97af7068a3e45f25545be00eefc975a76c3fd824165e0291d",
+    "quality-trm-cpu-preview-arc-agi-2-outfill/receipt.json": "bf457a07b0924efe4ad4bb5563d78aeadfb5868b9be868637237ad4f95f0cdc9"
+  },
+  "validation": {
+    "test_count": 46,
+    "passed": 45,
+    "skipped": 1,
+    "skip_reason": "compiled libggml-base not present in the Windows test environment",
+    "residency_plans_identical_per_fit": 16,
+    "reproduced_fits": [
+      "initial",
+      "train_root_global_frequency_prior"
+    ]
   }
 }

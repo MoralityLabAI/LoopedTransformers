@@ -19,6 +19,8 @@ The initial TRM produced the highest median decode rate. Packing and loading off
 
 The prior-based TRM completed the Sudoku outfill request on CPU with 256 output tokens at 1.25 decode tokens/s. It hit the output limit without a parseable JSON grid or an exact compact-grid match. This is one held-out request with the eight-expert policy. [Sudoku quality receipt](quality-trm-cpu-preview/receipt.json)
 
+The same TRM completed the held-out ARC-AGI-2 outfill request with 384 output tokens at 1.17 decode tokens/s. It hit the output limit and scored zero on the test grid under both JSON pass@2 and exact compact-grid scoring. [ARC quality receipt](quality-trm-cpu-preview-arc-agi-2-outfill/receipt.json)
+
 ## Held-out routing mass
 
 | Policy | Initial prefill | Initial decode | With train-root prior, prefill | With train-root prior, decode |
