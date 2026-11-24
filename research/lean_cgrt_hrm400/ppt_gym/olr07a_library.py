@@ -159,6 +159,12 @@ def grade(source,bank,out):
             if valid(a)!=valid(b):raise ValueError("native state replay drift")
             if not valid(a):
                 rows.append({**r,"scored":False,"reason":"unreached_or_source_state_mismatch"});continue
+            if any(x.get("scope_version")!="pre_command_v1" for x in (a,b)):
+                raise ValueError("unsafe legacy tracer: rebuild before collecting receipts")
+            scopes=[x.get("env_scope")=="before" and x.get("decl_in_env_before") is False for x in (a,b)]
+            if scopes[0]!=scopes[1]:raise ValueError("native scope replay drift")
+            if not all(scopes):
+                rows.append({**r,"scored":False,"reason":"not_portable_before_command"});continue
             def certifiable(x):return x.get("main_prop") is True and x.get("main_closed") is True
             if certifiable(a)!=certifiable(b):raise ValueError("native certifiability drift")
             if not certifiable(a):

@@ -178,6 +178,12 @@ def grade_file(source,out,items,timeout):
             if any(good)!=all(good):raise ValueError("source state replay disagreement")
             if not all(good):
                 rows.append({**r,"scored":False,"reason":"unreached_or_mismatch"});continue
+            if any(x.get("scope_version")!="pre_command_v1" for x in xs):
+                raise ValueError("unsafe legacy tracer: rebuild before collecting receipts")
+            scopes=[x.get("env_scope")=="before" and x.get("decl_in_env_before") is False for x in xs]
+            if any(scopes)!=all(scopes):raise ValueError("native scope replay drift")
+            if not all(scopes):
+                rows.append({**r,"scored":False,"reason":"not_portable_before_command"});continue
             cert=[x.get("main_prop") is True and x.get("main_closed") is True for x in xs]
             if any(cert)!=all(cert):raise ValueError("native certifiability changed")
             if not all(cert):

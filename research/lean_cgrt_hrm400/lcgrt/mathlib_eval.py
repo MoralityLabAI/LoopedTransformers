@@ -187,8 +187,10 @@ def human_text(s):
 
 def certifiable(row):
     """A reached state any tactic could complete: its main goal is a proposition with a closed
-    statement (Lean's `main_prop`, `main_closed`). Rows from runs before these fields: True."""
-    return bool(row.get("main_prop", True) and row.get("main_closed", True))
+    statement in a verified pre-command scope. Legacy rows are invalid for efficacy."""
+    return (row.get("scope_version") == "pre_command_v1" and row.get("env_scope") == "before"
+            and row.get("decl_in_env_before") is False
+            and row.get("main_prop") is True and row.get("main_closed") is True)
 
 
 def main(argv=None):
@@ -266,8 +268,10 @@ def main(argv=None):
         if Path(path).exists():
             for line in open(path, encoding="utf-8"):
                 row = json.loads(line)
+                if row.get("scope_version") != "pre_command_v1":
+                    raise ValueError("legacy candidate receipt cache: rebuild lgym_cert and reissue")
                 results[(f, row["line"], row["col"])] = {x["tactic"]: x for x in row["results"]}
-                meta[(f, row["line"], row["col"])] = {k: row[k] for k in ("goals", "main_prop", "main_closed") if k in row}
+                meta[(f, row["line"], row["col"])] = {k: row[k] for k in ("goals", "main_prop", "main_closed", "scope_version", "env_scope", "decl_in_env_before") if k in row}
     rows, summary = [], collections.defaultdict(dict)
     for i, s in enumerate(states):
         res = results.get((s["file"], s["line"], s["col"]))

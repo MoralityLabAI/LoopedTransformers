@@ -5,8 +5,8 @@ Tactic tracing for real Lean source (e.g. Mathlib files).
 the info trees, and writes one JSON line per source tactic: the enclosing declaration, the
 source text and position, the goals before and after as Lean pretty-prints them, and,
 for a sample of steps, the outcome of candidate tactics run on the same goal in the
-environment as it stood at that point of the file (so a theorem can never be used to
-prove itself). The reply summarises the run: steps, declarations with their axioms, and
+environment immediately before the enclosing source command. Nonportable goals
+are explicitly unscored. Source trace rows retain their original pretty-printed goals. The reply summarises the run: steps, declarations with their axioms, and
 error messages (for the checker status of each declaration).
 -/
 import Lean
@@ -85,6 +85,12 @@ def certifyClosed (g : MVarId) : MetaM Json := do
     for id in ids.reverse do
       if need.contains id then
         let d ← id.getDecl
+        -- Recursive theorem elaboration can carry a local auxiliary declaration
+        -- standing for the theorem itself. Abstracting it as a hypothesis would
+        -- certify a weaker, circular statement. Check the transitive dependency
+        -- closure of BOTH the target and the proof, including local let values.
+        if d.isAuxDecl then
+          return Json.mkObj [("kernel", false), ("why", "depends on auxiliary recursion declaration")]
         let mut s := collectFVars {} (← instantiateMVars d.type)
         if let some v := d.value? then s := collectFVars s (← instantiateMVars v)
         need := s.fvarIds.foldl (·.insert ·) need
@@ -129,6 +135,7 @@ def certifiable (g : MVarId) : MetaM (Bool × Bool) := g.withContext do
   for id in (← getLCtx).getFVarIds.reverse do
     if need.contains id then
       let d ← id.getDecl
+      if d.isAuxDecl then closed := false
       let t ← instantiateMVars d.type
       if t.hasExprMVar then closed := false
       let mut s := collectFVars {} t
@@ -139,10 +146,39 @@ def certifiable (g : MVarId) : MetaM (Bool × Bool) := g.withContext do
       need := s.fvarIds.foldl (·.insert ·) need
   return (prop, closed)
 
+/-- Conservative portability check. The tactic info tree has the environment
+AFTER the command; checking kernel axioms there cannot detect self-reference.
+Re-use only a goal whose instantiated target and local context are expressible
+in the exact preceding environment. Never fall back to the later environment
+for candidate execution. -/
+def stateConsts (g : MVarId) : MetaM (Array Name) := g.withContext do
+  let mut cs := (← instantiateMVars (← g.getType)).getUsedConstants
+  for d in (← getLCtx) do
+    cs := cs ++ (← instantiateMVars d.type).getUsedConstants
+    if let some v := d.value? then
+      cs := cs ++ (← instantiateMVars v).getUsedConstants
+  return cs
+
+def beforeContext (envBefore : Environment) (ctx : ContextInfo)
+    (ti : TacticInfo) (g : MVarId) : IO (Option ContextInfo) := do
+  let some decl := ctx.parentDecl? | return none
+  if decl.isAnonymous || envBefore.contains decl then return none
+  let portable ← try
+    ({ ctx with mctx := ti.mctxBefore }).runMetaM {} (withBudget 400000 do
+      let cs ← stateConsts g
+      return cs.all envBefore.contains)
+    catch _ => pure false
+  if portable then return some { ctx with env := envBefore }
+  return none
+
 def runCandidate (ctx : ContextInfo) (ti : TacticInfo) (g : MVarId) (tac : String) (hbLimit : Nat)
     (certify : Bool := false) : IO Json :=
   ({ ctx with mctx := ti.mctxBefore }).runMetaM {} do
     let env ← getEnv
+    let some decl := ctx.parentDecl? |
+      return Json.mkObj [("tactic", Json.str tac), ("ok", false), ("error", "scope: missing declaration")]
+    if decl.isAnonymous || env.contains decl then
+      return Json.mkObj [("tactic", Json.str tac), ("ok", false), ("error", "scope: declaration visible")]
     match Parser.runParserCategory env `tactic tac with
     | .error e => return Json.mkObj [("tactic", Json.str tac), ("ok", false), ("error", Json.str s!"parse: {e}")]
     | .ok stx =>
@@ -175,7 +211,7 @@ structure St where
 
 /-- Select mode: the outermost source tactic at a selected position gets the requested
 tactics run on its main goal, each closing result with a kernel certificate. -/
-def visitSelected (o : Opts) (input : String) (h : IO.FS.Handle) (st : IO.Ref St) (ctx : ContextInfo)
+def visitSelected (envBefore : Environment) (o : Opts) (input : String) (h : IO.FS.Handle) (st : IO.Ref St) (ctx : ContextInfo)
     (ti : TacticInfo) (p e : String.Pos) : IO Unit := do
   let pos := ctx.fileMap.toPosition p
   let key := (pos.line, pos.column)
@@ -185,27 +221,34 @@ def visitSelected (o : Opts) (input : String) (h : IO.FS.Handle) (st : IO.Ref St
   let before ← ppGoals ctx ti.mctxBefore ti.goalsBefore o.maxPP
   let mut res := #[]
   let mut cert := (false, false)
+  let mut scoped := false
+  let decl := ctx.parentDecl?.getD .anonymous
   if let some g := ti.goalsBefore.head? then
-    cert ← try ({ ctx with mctx := ti.mctxBefore }).runMetaM {} (certifiable g) catch _ => pure (false, false)
-    for c in tacs do
-      res := res.push (← runCandidate ctx ti g c o.candHeartbeats (certify := true))
+    if let some safeCtx ← beforeContext envBefore ctx ti g then
+      scoped := true
+      cert ← try ({ safeCtx with mctx := ti.mctxBefore }).runMetaM {} (certifiable g) catch _ => pure (false, false)
+      for c in tacs do
+        res := res.push (← runCandidate safeCtx ti g c o.candHeartbeats (certify := true))
   let row := Json.mkObj [
+    ("scope_version", "pre_command_v1"),
+    ("env_scope", Json.str (if scoped then "before" else "unavailable")),
+    ("decl_in_env_before", toJson (envBefore.contains decl)),
     ("decl", Json.str (ctx.parentDecl?.getD .anonymous).toString), ("line", toJson pos.line),
     ("col", toJson pos.column), ("tactic", Json.str (truncate (input.extract p e) 2000)),
     ("goals_before", Json.arr before), ("goals", toJson ti.goalsBefore.length),
     ("main_prop", toJson cert.1), ("main_closed", toJson cert.2), ("results", Json.arr res)]
   h.putStrLn row.compress
 
-partial def visit (o : Opts) (input : String) (h : IO.FS.Handle) (st : IO.Ref St)
+partial def visit (envBefore : Environment) (o : Opts) (input : String) (h : IO.FS.Handle) (st : IO.Ref St)
     (ctx? : Option ContextInfo) : InfoTree → IO Unit
-  | .context pci t => visit o input h st (pci.mergeIntoOuter? ctx?) t
+  | .context pci t => visit envBefore o input h st (pci.mergeIntoOuter? ctx?) t
   | .hole _ => pure ()
   | .node i cs => do
     if let (some ctx, .ofTacticInfo ti) := (ctx?, i) then
       let stx := ti.stx
       if !skipKinds.contains stx.getKind && !o.selMap.isEmpty then
         if let (some p, some e) := (stx.getPos? (canonicalOnly := true), stx.getTailPos? (canonicalOnly := true)) then
-          visitSelected o input h st ctx ti p e
+          visitSelected envBefore o input h st ctx ti p e
       else if !skipKinds.contains stx.getKind then
         if let (some p, some e) := (stx.getPos? (canonicalOnly := true), stx.getTailPos? (canonicalOnly := true)) then
           let n := (← st.get).steps
@@ -215,18 +258,24 @@ partial def visit (o : Opts) (input : String) (h : IO.FS.Handle) (st : IO.Ref St
           let before ← ppGoals ctx ti.mctxBefore ti.goalsBefore o.maxPP
           let after ← ppGoals ctx ti.mctxAfter ti.goalsAfter o.maxPP
           let mut cands := #[]
+          let mut scoped := false
           if o.candEvery > 0 && n % o.candEvery == 0 then
             if let some g := ti.goalsBefore.head? then
-              for c in o.candidates do
-                cands := cands.push (← runCandidate ctx ti g c o.candHeartbeats)
+              if let some safeCtx ← beforeContext envBefore ctx ti g then
+                scoped := true
+                for c in o.candidates do
+                  cands := cands.push (← runCandidate safeCtx ti g c o.candHeartbeats)
           let row := Json.mkObj [
+            ("scope_version", "pre_command_v1"),
+            ("env_scope", Json.str (if scoped then "before" else "unavailable_or_not_queried")),
+            ("decl_in_env_before", toJson (envBefore.contains decl)),
             ("decl", Json.str decl.toString), ("line", toJson pos.line), ("col", toJson pos.column),
             ("tactic", Json.str (truncate (input.extract p e) 2000)),
             ("kind", Json.str stx.getKind.toString), ("elaborator", Json.str ti.elaborator.toString),
             ("goals_before", Json.arr before), ("goals_after", Json.arr after),
             ("candidates", Json.arr cands)]
           h.putStrLn row.compress
-    for c in cs do visit o input h st ctx? c
+    for c in cs do visit envBefore o input h st ctx? c
 
 def traceFile (o : Opts) : IO Json := do
   let o := { o with selMap := o.select.foldl (fun m s => m.insert (s.line, s.col) s.tactics) {} }
@@ -235,15 +284,27 @@ def traceFile (o : Opts) : IO Json := do
   let inputCtx := Parser.mkInputContext input o.path
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   enableInits
-  let (env, messages) ← processHeader header {} messages inputCtx (trustLevel := 1024)
+  let (env, messages) ← processHeader header {} messages inputCtx (trustLevel := 0)
   let cmdState := { Command.mkState env messages {} with infoState := { enabled := true } }
-  let s ← IO.processCommands inputCtx parserState cmdState
-  let t1 ← IO.monoMsNow
   let h ← IO.FS.Handle.mk o.out .write
   let st ← IO.mkRef ({} : St)
-  -- Positions refer to the input context's text, which has CRLF normalised to LF.
-  for t in s.commandState.infoState.trees do
-    visit o inputCtx.input h st none t
+  -- Inspect new info trees immediately after each command, but run candidates
+  -- in the saved environment BEFORE that command (Fable's command-wise replay).
+  let mut s : Frontend.State := { commandState := cmdState, parserState, cmdPos := parserState.pos }
+  let mut done := false
+  let mut elabMs : Nat := 0
+  while !done do
+    let envBefore := s.commandState.env
+    let n0 := s.commandState.infoState.trees.size
+    let c0 ← IO.monoMsNow
+    let (d, s') ← (Frontend.processCommand.run { inputCtx }).run s
+    let c1 ← IO.monoMsNow
+    elabMs := elabMs + (c1 - c0)
+    s := s'
+    done := d
+    let trees := s.commandState.infoState.trees
+    for i in [n0:trees.size] do
+      visit envBefore o inputCtx.input h st none trees[i]!
   h.flush
   let finalEnv := s.commandState.env
   let fileMap := inputCtx.fileMap
@@ -260,7 +321,9 @@ def traceFile (o : Opts) : IO Json := do
       errs := errs.push (Json.mkObj [("line", toJson m.pos.line), ("col", toJson m.pos.column),
                                      ("text", Json.str (truncate (← m.data.toString) 300))])
   let t2 ← IO.monoMsNow
-  return Json.mkObj [("ok", true), ("steps", toJson (← st.get).steps), ("decls", Json.arr declsJ),
-                     ("errors", Json.arr errs), ("elab_ms", toJson (t1 - t0)), ("trace_ms", toJson (t2 - t1))]
+  return Json.mkObj [("ok", true), ("scope_version", "pre_command_v1"),
+                     ("steps", toJson (← st.get).steps), ("decls", Json.arr declsJ),
+                     ("errors", Json.arr errs), ("elab_ms", toJson elabMs),
+                     ("trace_ms", toJson (t2 - t0 - elabMs))]
 
 end LGymTrace
