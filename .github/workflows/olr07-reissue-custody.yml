@@ -1,0 +1,85 @@
+name: OLR-07 reissue custody
+on:
+  push:
+    branches: ['research/olr-obligation-ledger-20261123']
+    paths:
+      - 'research/lean_cgrt_hrm400/audit/olr07_reissue_custody.py'
+      - '.github/workflows/olr07-reissue-custody.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: olr07-reissue-custody
+  cancel-in-progress: false
+jobs:
+  custody:
+    name: Authenticate reissue run 45388529946
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RUN_ID: '45388529946'
+      DEST: research/lean_cgrt_hrm400/results/olr07_reissue
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch run metadata and exact artifact bytes
+        run: |
+          set -euo pipefail
+          trap 'echo "::error title=custody fetch::failed: $BASH_COMMAND"' ERR
+          mkdir -p "$DEST"
+          api="repos/$GITHUB_REPOSITORY/actions"
+          gh api "$api/runs/$RUN_ID" > "$RUNNER_TEMP/run.json"
+          gh api "$api/runs/$RUN_ID/jobs" > "$RUNNER_TEMP/jobs.json"
+          gh api "$api/runs/$RUN_ID/artifacts" > "$RUNNER_TEMP/artifacts.json"
+          for kind in 07a 07b; do
+            id=$(python -c 'import json,sys;print(next(a["id"] for a in json.load(open(sys.argv[1]))["artifacts"] if a["name"]==sys.argv[2]))' "$RUNNER_TEMP/artifacts.json" "olr07-scope-reissue-$kind")
+            gh api "$api/artifacts/$id/zip" > "$DEST/olr07-scope-reissue-$kind.zip"
+          done
+          gh api "$api/artifacts/14890402416/zip" > "$RUNNER_TEMP/original07a.zip"
+          sha256sum "$DEST"/*.zip "$RUNNER_TEMP/original07a.zip"
+      - name: Authenticate both corrected manifests and sibling files
+        run: >
+          python research/lean_cgrt_hrm400/audit/olr07_reissue_custody.py
+          --dir "$DEST" --repo . --run "$RUNNER_TEMP/run.json" --jobs "$RUNNER_TEMP/jobs.json"
+          --artifacts "$RUNNER_TEMP/artifacts.json"
+          --original-07a "$RUNNER_TEMP/original07a.zip"
+          --original-07b research/lean_cgrt_hrm400/results/olr07b/olr07b-full_AUDIT.zip
+          --out "$DEST/custody.json"
+      - name: Summary
+        run: |
+          python - "$DEST/custody.json" >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          import json, sys
+          c = json.load(open(sys.argv[1]))
+          print("## OLR-07 reissue custody\n")
+          print("| kind | artifact sha256 | manifest sha256 | files | native_valid | cal gate | eval gate |")
+          print("| --- | --- | --- | --- | --- | --- | --- |")
+          for k in ("07a", "07b"):
+              x = c[k]; g = x["gates"]
+              print(f"| {k} | `{x['artifact']['sha256']}` | `{x['manifest_sha256']}` | {x['listed_files_verified']} "
+                    f"| {g['native_valid']} | {g['source_calibration_gate']} | {g['fresh_gap_gate']} |")
+          print("\n<details><summary>custody.json</summary>\n\n```json")
+          print(json.dumps(c, indent=1, sort_keys=True)[:600000])
+          print("```\n</details>")
+          EOF
+      - name: Commit authenticated bytes to the research branch
+        run: |
+          set -euo pipefail
+          trap 'echo "::error title=custody commit::failed: $BASH_COMMAND"' ERR
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DEST/olr07-scope-reissue-07a.zip" "$DEST/olr07-scope-reissue-07b.zip" "$DEST/custody.json"
+          if git diff --cached --quiet; then echo "custody already committed"; exit 0; fi
+          git commit -m "research(olr): commit authenticated 07A/07B reissue artifacts from run $RUN_ID" \
+                     -m "Artifact bytes match the run's recorded digests; every manifest-listed file, the original registries, tracer and runner hashes and both scope sentinels verified by audit/olr07_reissue_custody.py."
+          for i in 1 2 3; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep 10
+          done
+          echo "::error title=custody commit::push to $GITHUB_REF_NAME refused"
+          exit 1
