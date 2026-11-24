@@ -226,6 +226,8 @@ def main():
     p.add_argument("--approved-atlas",action="store_true")
     p.add_argument("--trace-only",action="store_true")
     a=p.parse_args()
+    if a.trace_only and not a.roster:
+        raise ValueError("trace-only requires a roster")
     if a.atlas and not a.approved_atlas:
         raise ValueError("explicit full atlas approval required")
     if not 1<=a.rank<=1152 or not 0<a.parity_tol<1 or not 0<a.prefix_tol<1:

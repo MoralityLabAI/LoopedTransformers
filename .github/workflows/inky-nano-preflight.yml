@@ -17,6 +17,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install numpy safetensors
       - run: python -m unittest discover -s InkyNano -p 'test_*.py' -v
   source-inventory:
     runs-on: ubuntu-latest
