@@ -130,3 +130,5 @@ For all-night operation, Windows sleep/hibernate, charger policy, ventilation, C
 ## Provenance
 
 The local predecessor LR-01 trained 5,161 parameters on generated propositional proofs, finding a strong role for shared attention visits on deeper dependencies. Its reported results were based on a Python fragment checker and await a Lean-kernel audit. This gym has independent generated data and new model code; no LR-01 pretrained checkpoint is loaded, and no 400M-parameter run has been performed.
+
+- [07B local CPU/RAM gym](OLR_07B_LOCAL_RUN.md): registered native library receipt run, checkpointed collection, conditional matched-reader training, complete audit and compact Fable handoff bundles.
