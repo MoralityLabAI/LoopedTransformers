@@ -1,0 +1,46 @@
+name: lbf17-relational-fresco
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf17_relational_fresco.py"
+      - "research/lite_braille_fresco/lean/LBF17AbstractInterp.lean"
+      - "research/lite_braille_fresco/tests/test_lbf17_relational_fresco.py"
+      - ".github/workflows/lbf17-relational-fresco.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-lean-formalization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run stdlib-only LBF test suite
+        run: python -m unittest discover -s research/lite_braille_fresco/tests -p "test_*.py" -v
+
+      - name: Install CPU PyTorch & Lean 4.19.0
+        run: |
+          pip install --index-url https://download.pytorch.org/whl/cpu torch
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain leanprover/lean4:v4.19.0
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Extract pinned rewrite_gym.py and run full PyTorch + Lean 4.19 test suite
+        run: |
+          mkdir -p /tmp/pinned_ppt
+          git cat-file blob 204a1d012a4ebe8e80d8bd722590742b7e7f02ba > /tmp/pinned_ppt/rewrite_gym.py
+          export LBF13_UPSTREAM=/tmp/pinned_ppt/rewrite_gym.py
+          export LBF14_UPSTREAM=/tmp/pinned_ppt/rewrite_gym.py
+          export LCGRT_LEAN_HOME="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0"
+          python -m unittest discover -s research/lite_braille_fresco/tests -p "test_*.py" -v
