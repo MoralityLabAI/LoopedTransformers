@@ -22,6 +22,7 @@ Start with these documents:
 - [OLR yellow paper v0.1](OLR_YELLOW_PAPER.md): formal verifier/environment contract, implemented 5,930-parameter addressed memory, aliasing and sufficiency proofs, native evidence and independent Fable review assignment.
 - [OLR-06 redesign](OLR_06_REDESIGN.md), [work order](OLR_06_WORK_ORDER.md), [06A reproduction](OLR_06A_REPRODUCTION.md) and [06B registration](OLR_06B_REGISTRATION.md): verifier-owned exact ledger, signed constraint closure, finite-horizon query planning, matched-direction incidence policies, and same-information exact utility controls. Synthetic feasibility only.
 - [06B results](OLR_06B_RESULTS.md): all 15 source fits and 1,520 synthetic policy trials completed; tiny matched-direction advantage, two-step symbolic search remains stronger.
+- [06C native registration](OLR_06C_REGISTRATION.md) and [results](OLR_06C_RESULTS.md): scoped Boolean relation receipts, shared posterior planner, 1,023 native query replays and 759 independent axiom-free declarations. Exact finite evaluator saturates; learned bidirectional transfer trails one-direction control.
 - [OLR-METTA-05 registration](OLR_METTA_05_REGISTRATION.md): matched addressed/dense tied-memory comparison, three-to-five occupied-obligation load transfer, and focal-versus-sham receipt edits.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.

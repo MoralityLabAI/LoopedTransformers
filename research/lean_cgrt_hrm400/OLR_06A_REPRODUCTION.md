@@ -24,3 +24,19 @@ Local log SHA-256 47fb82106b6730087906e4b5644cad3242d91f4b60fa7eb6b789277010542e
 ## Scientific status
 
 The exact signed-component solver still solves every consistent graph and identifies every unanchored component without learning. This confirms the feasibility of learned directional graph transport, while leaving no accuracy headroom for a learned parity solver over the explicit reference. OLR-06B therefore moves to paid acquisition of missing facts and compares to same-information Bellman planning. No native proof or 5M architecture claim follows.
+
+## Completed pinned-runtime seven-arm reproduction
+
+The original [matrix workflow 45316890532](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45316890532) completed all seven arms successfully on pinned Torch 2.5.1 CPU. Means below are from three per-seed rounded scores in the actual job logs, not refits on the new native family.
+
+| Arm | DEV T8 | Deep T8 | Deep T16 | Deep T32 |
+| --- | ---: | ---: | ---: | ---: |
+| No transport | .7390 | .5340 | .5340 | .5340 |
+| Top-down | .8550 | .7997 | .7977 | .7430 |
+| Bottom-up | .8450 | .7887 | .7907 | .7827 |
+| Bidirectional | 1.0000 | .9957 | .9917 | .9900 |
+| Deep-supervised bi | 1.0000 | .9977 | .9993 | .9987 |
+| Dense tied | .9497 | .8057 | .7413 | .6813 |
+| Dense untied | .9093 | .7507 | .7507 | .7507 |
+
+The pinned run reproduces the original ordinary bidirectional and dense-tied rounded scores. Deep supervision is stronger in this particular rerun than in the referee's supplied logs; these are run-specific results and do not establish bit-exact portability. Pure parity transport remains dominated by exact signed closure. Native applicability and paid-query results are reported separately.
