@@ -1,0 +1,44 @@
+name: LRF-02 native generator critic
+on:
+  push:
+    paths:
+      - 'experiments/lean_review_feedback/lrf02/**'
+      - '.github/workflows/lrf02-native-critic.yml'
+  pull_request:
+    paths:
+      - 'experiments/lean_review_feedback/lrf02/**'
+      - '.github/workflows/lrf02-native-critic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lrf02-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  generator-critic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU Torch and pinned Lean
+        run: |
+          python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst -o /tmp/lean419.tar.zst
+          tar --zstd -xf /tmp/lean419.tar.zst -C /tmp
+          echo "/tmp/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Verify reward adapter
+        working-directory: experiments/lean_review_feedback
+        run: python -m unittest -v test_reward
+      - name: Train and replay prospective generator and critic
+        run: |
+          lean --version
+          python -u experiments/lean_review_feedback/lrf02/train.py --out /tmp/lrf02
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lrf02-native-critic-receipts
+          path: /tmp/lrf02
+          retention-days: 30
