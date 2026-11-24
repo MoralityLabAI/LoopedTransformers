@@ -30,6 +30,8 @@ def decode_native(args, model, text, limit, mode, directory, log):
     prompt, receipt = directory / "prompt.txt", directory / "native.json"
     prompt.write_text(text, encoding="utf8", newline="\n")
     command = ["wsl.exe", "-d", args.wsl, "--exec"] if args.wsl and os.name == "nt" else []
+    if args.wsl_run_lock:
+        command.extend(("flock", args.wsl_run_lock))
     command.extend(runtime_path(path, args.wsl) for path in (args.native, model, prompt, receipt))
     command.extend((str(limit), str(args.context), str(args.threads), mode,
                     str(args.rss_limit_bytes), "1" if args.parse_special else "0", str(args.batch_tokens)))
@@ -97,6 +99,8 @@ def run(args):
         spec["published_composition_sha256"] = sha(args.published_composition)
     if args.gpu_layers:
         spec["vram_limit_bytes"] = args.vram_limit_bytes
+    if args.wsl_run_lock:
+        spec["wsl_run_lock"] = args.wsl_run_lock
     spec_path = args.out / "spec.json"
     if spec_path.is_file() and read_json(spec_path) != spec:
         raise ValueError("run settings changed; use a new --out directory")
@@ -230,6 +234,7 @@ def main():
         p.add_argument("--runtime-revision", required=True)
         p.add_argument("--out", type=Path, required=True)
         p.add_argument("--wsl")
+        p.add_argument("--wsl-run-lock", help="Linux lock path shared by local native model processes")
         p.add_argument("--context", type=int, default=2048)
         p.add_argument("--threads", type=int, default=4)
         p.add_argument("--batch-tokens", type=int, default=128)
@@ -250,6 +255,7 @@ def main():
     if (a.max_new is not None and a.max_new < 2 or a.limit is not None and a.limit <= 0
             or a.context < 128 or a.threads < 1 or not 1 <= a.batch_tokens <= a.context or a.rss_limit_bytes <= (768 << 20)
             or a.gpu_layers < 0 or a.vram_limit_bytes <= 0
+            or a.wsl_run_lock and (not a.wsl or not a.wsl_run_lock.startswith("/"))
             or a.published_composition and not a.model or a.teacher_in_ram and not a.model):
         parser.error("invalid runtime limits")
     run(a)

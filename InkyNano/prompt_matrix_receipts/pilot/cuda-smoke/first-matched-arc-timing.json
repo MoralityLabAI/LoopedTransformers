@@ -1,0 +1,46 @@
+{
+  "case_id": "arc-agi-2-training/2de01db2/outfill",
+  "policy": "teacher_subset",
+  "same_input_and_output_token_counts": true,
+  "identity": {
+    "case_file_sha256": "f13a865f19324c0552d211719f961e15ddfb288d930a53cfe5c14f6d3932c575",
+    "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+    "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+    "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+    "context": 512,
+    "threads": 4,
+    "batch_tokens": 32,
+    "sampler": "greedy",
+    "max_new_override": 24,
+    "parse_special": false,
+    "capacity": 8,
+    "plans_sha256": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac",
+    "controller_checkpoint_sha256": {
+      "ldt": "e259f96d648630d8d88647e9316de287756092e244b474c12e3e424669efdf45",
+      "trm": "074427e9a51ae46c3cbfff142f70d9c2ee0d39ac8f61a4424cd9e1d40a20688e"
+    },
+    "published_composition_sha256": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923"
+  },
+  "cpu": {
+    "input_tokens": 199,
+    "output_tokens": 24,
+    "prefill_tps": 2.6484509543613606,
+    "decode_tps": 0.9964461123375381,
+    "end_to_end_seconds": 136.2047606999986,
+    "peak_rss_bytes": 2938077184
+  },
+  "cuda": {
+    "input_tokens": 199,
+    "output_tokens": 24,
+    "prefill_tps": 27.380270924239245,
+    "decode_tps": 0.8816136984399281,
+    "end_to_end_seconds": 77.40749540000252,
+    "peak_rss_bytes": 3076722688,
+    "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_layers_requested": 28,
+    "planned_vram_bytes": 1801860864,
+    "preflight_seconds": 9.113183582,
+    "sampled_peak_device_free_delta_bytes": 2074083328,
+    "vram_cap_bytes": 2147483648
+  }
+}
