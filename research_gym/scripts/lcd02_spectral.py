@@ -94,6 +94,10 @@ def smoke():
     assert torch.allclose(norm(g),norm(scalar_match(d,g)),atol=1e-5)
     assert torch.equal(guide(torch.zeros_like(d),u,torch.ones(3)),torch.zeros_like(d))
     assert torch.allclose(projected(d,u,torch.ones(3)),d@u@u.T,atol=1e-5)
+    cfg=dict(method="pca",rank=3,lam=[.5,-.5,.25])
+    rb=dict(method="random",rank=3,lam=[.2,.1,-.3])
+    bb=dict(pca=u,random=v)
+    assert torch.allclose(norm(correction(d,dict(method="matched_random",source=cfg,random=rb),bb)),norm(g),atol=1e-5)
     f=torch.randn(128,3,generator=gen)
     truth=torch.tensor([.2,-.3,.1])
     lam=fit_ridge(f,f@truth,1e-6)
@@ -107,11 +111,11 @@ def smoke():
 def seed(it):
     return int(it["id"][:8],16)
 
-def data():
+def data(include_test=False):
     # Fit U and coefficients, select hyperparameters, and test on disjoint fresh roots.
     fit=base.items(FIT_SEED,16)
     select=base.items(SELECT_SEED,16)
-    test=base.items(TEST_SEED,64)
+    test=base.items(TEST_SEED,64) if include_test else []
     sets=[{r["id"] for r in x} for x in (fit,select,test)]
     if any(len(s)!=len(x) for s,x in zip(sets,(fit,select,test))) or any(
         sets[i]&sets[j] for i in range(3) for j in range(i)):
@@ -226,6 +230,10 @@ def correction(d,c,bases):
         return cap(projected(d,u,torch.full((c["rank"],),OMEGA)),d)
     if m=="matched_scalar":
         return scalar_match(d,correction(d,c["source"],bases))
+    if m=="matched_random":
+        g=correction(d,c["random"],bases)
+        target=norm(correction(d,c["source"],bases))
+        return g*(target/norm(g).clamp_min(1e-20))
     u=bases[m][:,:c["rank"]]
     return guide(d,u,torch.tensor(c["lam"]))
 
@@ -279,6 +287,7 @@ def select_arms(candidates,summaries):
     selected["random_rank_matched"]=next(c for c in candidates if c["method"]=="random"
                                          and c["rank"]==p["rank"] and c["ridge"]==p["ridge"])
     selected["matched_scalar"]=dict(method="matched_scalar",source=p)
+    selected["matched_random"]=dict(method="matched_random",source=p,random=selected["random_rank_matched"])
     selected["base"]=dict(method="scalar",dose=0.)
     selected["loopcd"]=dict(method="scalar",dose=OMEGA)
     selected["deep"]=dict(method="deep")
@@ -291,7 +300,7 @@ def unique_configs(arms):
 
 def main(a):
     model,tok,labels,cand,meta=load()
-    fit_roots,sel_roots,test_roots=data()
+    fit_roots,sel_roots,test_roots=data(a.stage=="test")
     meta.update(fit_sha=base.digest(fit_roots),select_sha=base.digest(sel_roots))
     ok,receipt=parity(model,tok,fit_roots)
     if not ok:
@@ -317,9 +326,11 @@ def main(a):
     for name,c in arms.items():
         rr=rows[base.key(c)]
         comp[name]=dict(delta=base.paired(primary,rr),
-                        pca_latency_ratio=sum(r["latency_ms"] for r in primary)/sum(r["latency_ms"] for r in rr),
+                        pca_latency_ratio=(None if name in ("matched_scalar","matched_random") else
+                            sum(r["latency_ms"] for r in primary)/sum(r["latency_ms"] for r in rr)),
                         peak_bytes=max(r["peak_bytes"] for r in rr))
-    # Ratio of effective forward costs excludes fit amortization; fit receipt is separate.
+    # Matched-norm arms compute the source correction to know its norm; they are diagnostic,
+    # not fair latency baselines. Native forward cost excludes fit amortization.
     base.write(a.out,dict(meta=dict(meta,test_sha=base.digest(test_roots)),status="PILOT_COMPLETE",
                            parity=receipt,freeze_sha=f["freeze_sha"],arms=arms,
                            summaries=summaries,comparisons=comp,rows=rows))
