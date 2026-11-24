@@ -2330,14 +2330,90 @@ def find_lean_exe() -> Path | None:
     return elan if elan.exists() else None
 
 
+def certify_single_thread(rg, items: list, out: Path, chunk_size: int = 350) -> dict:
+    """Standalone zero-axiom Lean 4.19.0 certifier using `--threads=1` and bounded batch chunks
+    so multi-agent Windows virtual commit charge stays < 400 MB."""
+    import re
+    out = Path(out)
+    if out.exists():
+        shutil.rmtree(out)
+    if not items:
+        raise ValueError("nonempty native certificate list required")
+    names = [n for _, _, n in items]
+    if len(set(names)) != len(names):
+        raise ValueError("duplicate certificate name")
+    lean_exe = find_lean_exe()
+    if lean_exe is None:
+        raise RuntimeError("Lean 4.19.0 executable not found")
+    out.mkdir(parents=True, exist_ok=True)
+    ver = subprocess.check_output([str(lean_exe), "--version"], text=True).strip()
+    if "version 4.19.0" not in ver:
+        raise ValueError(f"pinned Lean 4.19.0 required, got {ver}")
+
+    all_logs = []
+    all_srcs = []
+    passed_all: set[str] = set()
+    for ci in range(0, len(items), chunk_size):
+        chunk = items[ci:ci + chunk_size]
+        c_names = [n for _, _, n in chunk]
+        src_text = (
+            "namespace LBF12Cert\n\n"
+            + "\n\n".join(base.render_proof(rg, c, p, n) for c, p, n in chunk)
+            + "\n\nend LBF12Cert\n"
+            + "\n".join(f"#print axioms LBF12Cert.{n}" for n in c_names)
+            + "\n"
+        )
+        pfile = out / (f"Proofs_{ci // chunk_size:03d}.lean" if len(items) > chunk_size else "Proofs.lean")
+        pfile.write_text(src_text, encoding="utf-8")
+        all_srcs.append(src_text)
+        gc.collect()
+        proc = None
+        for attempt in range(3):
+            proc = subprocess.run([str(lean_exe), "--threads=1", str(pfile)], capture_output=True, text=True, timeout=420)
+            if proc.returncode == 0:
+                break
+            time.sleep(1.5 * (attempt + 1))
+        log = (proc.stdout if proc else "") + (proc.stderr if proc else "")
+        all_logs.append(log)
+        passed = set(re.findall(r"'LBF12Cert\.([A-Za-z0-9_]+)' does not depend on any axioms", log))
+        if proc is None or proc.returncode != 0 or passed != set(c_names):
+            raise RuntimeError("independent standalone Lean certificate rejected: " + log[-2500:])
+        passed_all.update(passed)
+
+    full_log = "\n".join(all_logs)
+    (out / "compiler.log").write_text(full_log, encoding="utf-8")
+    src_concat_sha = hashlib.sha256("\n".join(all_srcs).encode("utf-8")).hexdigest()
+    log_sha = hashlib.sha256(full_log.encode("utf-8")).hexdigest()
+    exe_sha = hashlib.sha256(lean_exe.read_bytes()).hexdigest()
+    m = {
+        "schema": "lbf12.explicit_eq_trans_cert.v1",
+        "actual_lean_compiler": True,
+        "lean_version": ver,
+        "lean_exe_sha256": exe_sha,
+        "source_sha256": src_concat_sha,
+        "log_sha256": log_sha,
+        "compiled_axiom_free": len(passed_all),
+        "declarations": names,
+        "native_online_tactic_calls": 0,
+    }
+    (out / "manifest.json").write_text(json.dumps(m, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return m
+
+
 def verify_lbf18_lean_formalization(out_dir: Path | None = None) -> dict:
     lean_exe = find_lean_exe()
     if lean_exe is None:
         raise RuntimeError("Lean 4.19.0 executable not found")
     ver = subprocess.check_output([str(lean_exe), "--version"], text=True).strip()
-    proc = subprocess.run([str(lean_exe), str(LEAN18_FILE)], capture_output=True, text=True)
-    if proc.returncode != 0:
-        raise RuntimeError(f"Lean 4 compilation failed:\n{proc.stdout}\n{proc.stderr}")
+    gc.collect()
+    proc = None
+    for attempt in range(3):
+        proc = subprocess.run([str(lean_exe), "--threads=1", str(LEAN18_FILE)], capture_output=True, text=True)
+        if proc.returncode == 0:
+            break
+        time.sleep(1.5 * (attempt + 1))
+    if proc is None or proc.returncode != 0:
+        raise RuntimeError(f"Lean 4 compilation failed:\n{proc.stdout if proc else ''}\n{proc.stderr if proc else ''}")
     lines = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
     expected_theorems = [
         "keyed_cache_lookup_sound",
@@ -2697,6 +2773,7 @@ def run_calibration_phase(rg, out_dir: Path, scratch_dir: Path) -> dict:
     """Phase 1: Calibration, Hybrid Train-Only Fit, Clean Benchmarks, 2x2 Factorial, and Stress Suite.
     Strictly forbidden from opening any `ordinary` or `ood` split."""
     torch.set_num_threads(1)
+    base.certify = certify_single_thread
     out_dir.mkdir(parents=True, exist_ok=True)
     scratch_dir.mkdir(parents=True, exist_ok=True)
 
@@ -3008,6 +3085,7 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
         raise RuntimeError("Run --phase calibrate and commit registration before --phase confirm-sealed")
 
     torch.set_num_threads(1)
+    base.certify = certify_single_thread
     reg_sha = hashlib.sha256(registration_path.read_bytes()).hexdigest()
     cal_sum = json.loads(cal_sum_path.read_text(encoding="utf-8"))
     adaptive_margins = (
