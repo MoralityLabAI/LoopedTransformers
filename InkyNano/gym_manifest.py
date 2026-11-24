@@ -19,6 +19,14 @@ def entries(root):
             for p in sorted(root.rglob("*")) if p.is_file() and p!=root/"manifest.json"}
 
 
+def verify(root):
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf8"))
+    if (manifest.get("model") != MODEL or manifest.get("revision") != REV
+            or not manifest.get("files") or manifest["files"] != entries(root)):
+        raise ValueError(f"handoff integrity mismatch: {root}")
+    return manifest
+
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("root",type=Path)
@@ -26,13 +34,10 @@ def main():
     p.add_argument("--verify",action="store_true")
     a=p.parse_args()
     manifest=a.root/"manifest.json"
-    actual=entries(a.root)
     if a.verify:
-        expected=json.loads(manifest.read_text(encoding="utf8"))
-        if expected["files"]!=actual or expected["revision"]!=REV:
-            raise ValueError("handoff integrity mismatch")
-        print("verified",len(actual),"files")
+        print("verified",len(verify(a.root)["files"]),"files")
     else:
+        actual=entries(a.root)
         if not a.exporter_commit or not actual:
             raise ValueError("need exporter commit and files")
         manifest.write_text(json.dumps({"model":MODEL,"revision":REV,"exporter_commit":a.exporter_commit,

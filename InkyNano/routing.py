@@ -14,32 +14,35 @@ import math
 from collections import defaultdict
 
 
+def parse_visit(r):
+    root, turn, t, layer, p = (r[k] for k in ("root", "turn", "token", "layer", "pass"))
+    if not all(isinstance(x, str) and x for x in (root, turn)):
+        raise ValueError("root/turn must be nonempty strings")
+    if not all(type(x) is int for x in (t, layer, p)):
+        raise ValueError("indices must be integers")
+    if t < 0 or not 0 <= layer < 24 or not 0 <= p < (3 if 6 <= layer < 18 else 1):
+        raise ValueError("invalid visit index")
+    ids, weights = r["experts"], r["weights"]
+    if len(ids) != 8 or len(set(ids)) != 8 or any(type(e) is not int or not 0 <= e < 128 for e in ids):
+        raise ValueError("invalid top-8 expert IDs")
+    if len(weights) != 8 or any(not math.isfinite(w) or w < 0 for w in weights):
+        raise ValueError("invalid weights")
+    z = sum(weights)
+    if not math.isfinite(z) or z <= 0:
+        raise ValueError("invalid routing mass")
+    return (root, turn, t, layer, p), ids, [w / z for w in weights]
+
+
 def parse_rows(lines, strict=False):
     seen, rows = set(), []
     for line in lines:
         if not line.strip():
             continue
-        r = json.loads(line)
-        root, turn, t, layer, p = (r[k] for k in ("root", "turn", "token", "layer", "pass"))
-        if not all(isinstance(x, str) and x for x in (root, turn)):
-            raise ValueError("root/turn must be nonempty strings")
-        if not all(type(x) is int for x in (t, layer, p)):
-            raise ValueError("indices must be integers")
-        if t < 0 or not 0 <= layer < 24 or not 0 <= p < (3 if 6 <= layer < 18 else 1):
-            raise ValueError("invalid visit index")
-        key = root, turn, t, layer, p
+        key, ids, weights = parse_visit(json.loads(line))
         if key in seen:
             raise ValueError("duplicate visit")
         seen.add(key)
-        ids, weights = r["experts"], r["weights"]
-        if len(ids) != 8 or len(set(ids)) != 8 or any(type(e) is not int or not 0 <= e < 128 for e in ids):
-            raise ValueError("invalid top-8 expert IDs")
-        if len(weights) != 8 or any(not math.isfinite(w) or w < 0 for w in weights):
-            raise ValueError("invalid weights")
-        z = sum(weights)
-        if not math.isfinite(z) or z <= 0:
-            raise ValueError("invalid routing mass")
-        rows.append((key, dict(zip(ids, (w / z for w in weights)))))
+        rows.append((key, dict(zip(ids, weights))))
     if not rows:
         raise ValueError("empty trace")
     if strict:

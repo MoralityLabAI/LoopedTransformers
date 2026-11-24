@@ -3,6 +3,8 @@
 Research program: compress Inkling 2 Mini into a text-first, locally runnable looped MoE with an LDT-controlled resident expert bank. Target: RTX 3050 4 GiB with CPU RAM backing, batch 1. This is an experimental scaffold, not released weights or an inference implementation.
 
 ## Cloud-to-local gym
+- [Stage 1 report](STAGE1.md): local controller sweep, receipts, and rerun commands.
+- [Stage 2 specification](STAGE2.md): native packed residency and activation-aware refinement.
 - [GYM.md](GYM.md): handoff schema, cloud export and RTX 3050 post-training commands.
 - [SILICO_GOAL.md](SILICO_GOAL.md): copy-ready bounded cloud job.
 - gym_export.py, gym_data.py, gym_train.py, gym_manifest.py: native capture, spectral export, causal data and local controller.

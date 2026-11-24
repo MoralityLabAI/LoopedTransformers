@@ -6,6 +6,9 @@ from collections import defaultdict
 import numpy as np
 import torch
 from torch import nn
+from expert_lattice import ExpertLattice
+
+LATTICE = ExpertLattice()
 
 
 class Mesh(nn.Module):
@@ -30,21 +33,9 @@ def admit(scores,old,k,b):
     """Exact maximizer of sum scores with k slots, <= b new IDs.
     Capacity/provenance is hard; learned scores are soft.
     """
-    if len(scores)!=128 or not np.isfinite(scores).all() or not 8<=k<=128 or not 0<=b<=k:
+    if not 8 <= k <= LATTICE.experts:
         raise ValueError("invalid admission state")
-    if old is None:
-        return frozenset(sorted(range(128),key=lambda e:(-scores[e],e))[:k])
-    if len(old)!=k or any(not 0<=e<128 for e in old):
-        raise ValueError("invalid previous set")
-    inside=sorted(old,key=lambda e:(-scores[e],e))
-    outside=sorted(set(range(128))-old,key=lambda e:(-scores[e],e))
-    best=None
-    for j in range(min(b,len(outside))+1):
-        choice=frozenset(inside[:k-j]+outside[:j])
-        candidate=(float(sum(scores[e] for e in sorted(choice))),-j,choice)
-        if best is None or candidate[:2]>best[:2]:
-            best=candidate
-    return best[2]
+    return LATTICE.admit(scores, old, k, b)
 
 
 def evaluate(data,scores,idx,k,b):

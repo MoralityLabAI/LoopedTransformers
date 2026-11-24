@@ -22,6 +22,10 @@ Checkout the pinned PR branch commit, use the teacher and Transformers revisions
 
 ## Local training (no paid GPU required)
 
+Use [Stage 1](STAGE1.md) for the full controller comparison, per-root receipts,
+archive verification, and sharded reruns. The commands below run the original
+single-horizon trainer.
+
 ```sh
 python InkyNano/gym_data.py --roster export/roster.jsonl --trace export/trace.jsonl --out export
 python InkyNano/gym_train.py --data export/demand_H64.npz --out local/mesh64 --device cuda --resident 8 --max-swaps 2
