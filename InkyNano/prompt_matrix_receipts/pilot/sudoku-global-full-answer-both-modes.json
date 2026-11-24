@@ -1,0 +1,145 @@
+{
+  "scope": "Full-budget eight-expert global-frequency CUDA Sudoku on one development root in both modes.",
+  "runtime_spec": {
+    "command": "benchmark",
+    "case_file_sha256": "f13a865f19324c0552d211719f961e15ddfb288d930a53cfe5c14f6d3932c575",
+    "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+    "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+    "runtime_binary_sha256": "07b8f5ca04d8a6b4d82ddf3ee27b87bd33b5b5113be5cf3e440d45f6ea76c844",
+    "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+    "context": 1024,
+    "threads": 4,
+    "batch_tokens": 32,
+    "sampler": "greedy",
+    "n_gpu_layers": 28,
+    "max_new_override": null,
+    "parse_special": false,
+    "rss_limit_bytes": 3221225472,
+    "capacity": 8,
+    "teacher_in_ram": true,
+    "plans_sha256": "0270f14a2a1498296e7329cff589533f7cf7fde596177662d365a0bbdc6bfbbe",
+    "controller_checkpoint_sha256": {
+      "ldt": "b4700c1b5bad460d93a74b7ae4b26104e80711cb5c447a20e3f2bbf02542ea1b",
+      "trm": "5a07aa5242f293d9cfb4db2aa9b5cd3b9a9dd17001757b3db518cd42529cb6ff"
+    },
+    "published_composition_sha256": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923",
+    "vram_limit_bytes": 2147483648,
+    "runtime_library_manifest_sha256": "10d945a6bee286f51d5c8317d053ec39e7971077ddb2131092d5f9d9970c5813"
+  },
+  "rows": {
+    "outfill": {
+      "case_id": "sudoku/1700012/outfill",
+      "root": "sudoku/1700012",
+      "task": "sudoku",
+      "mode": "outfill",
+      "prompt_sha256": "c00a8d88d3c6dc6ef4afe9a1bbcb8a8db46cde0f0ddaf22f328cb4353306f6f8",
+      "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+      "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "policy": "global",
+      "capacity": 8,
+      "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+      "storage_mode": "ram",
+      "quality_evaluated": true,
+      "quality": {
+        "parse_ok": false,
+        "correct": false,
+        "exact_grid_match": false
+      },
+      "teacher_runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "offline_mass": {
+        "prefill": 0.8873208165168762,
+        "decode": 0.893366813659668
+      },
+      "selection_seconds": 1.0900002962443978e-05,
+      "end_to_end_seconds": 466.16896540000016,
+      "expert_weight_bytes": 999309312,
+      "compact_gguf_bytes": 2221144160,
+      "pack_seconds": 38.18478809999942,
+      "content": "000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n000000064\n",
+      "cuda": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1543977088,
+        "preflight_seconds": 9.571819017,
+        "sampled_peak_device_free_delta_bytes": 1807745024,
+        "vram_cap_bytes": 2147483648
+      },
+      "decode_seconds": 324.081997735,
+      "decode_tps": 0.7868379045494284,
+      "decoded_tokens": 255,
+      "embedding_length": 2304,
+      "input_tokens": 95,
+      "load_seconds": 30.05169354,
+      "output_tokens": 256,
+      "peak_rss_bytes": 2708766720,
+      "prefill_seconds": 14.601604337,
+      "prefill_tps": 6.506134381361987,
+      "stop": "limit",
+      "tokenize_seconds": 0.005563784,
+      "subprocess_seconds": 427.9841663999978
+    },
+    "infill": {
+      "case_id": "sudoku/1700012/infill",
+      "root": "sudoku/1700012",
+      "task": "sudoku",
+      "mode": "infill",
+      "prompt_sha256": "7ea3e93c0e754112ad1465b153d4e11780257217115dfd7dbfb1b73883814665",
+      "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+      "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "policy": "global",
+      "capacity": 8,
+      "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+      "storage_mode": "ram",
+      "quality_evaluated": true,
+      "quality": {
+        "parse_ok": false,
+        "correct": false,
+        "exact_grid_match": false
+      },
+      "teacher_runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "offline_mass": {
+        "prefill": 0.8916201591491699,
+        "decode": 0.9287319779396057
+      },
+      "selection_seconds": 7.299997378140688e-06,
+      "end_to_end_seconds": 438.16715559999284,
+      "expert_weight_bytes": 999309312,
+      "compact_gguf_bytes": 2221144160,
+      "pack_seconds": 38.969675699998334,
+      "content": "</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n<",
+      "cuda": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1543977088,
+        "preflight_seconds": 9.954421389,
+        "sampled_peak_device_free_delta_bytes": 1814036480,
+        "vram_cap_bytes": 2147483648
+      },
+      "decode_seconds": 347.505627485,
+      "decode_tps": 0.7338010663180038,
+      "decoded_tokens": 255,
+      "embedding_length": 2304,
+      "input_tokens": 134,
+      "load_seconds": 30.670641425,
+      "output_tokens": 256,
+      "peak_rss_bytes": 2711920640,
+      "prefill_seconds": 9.488908468,
+      "prefill_tps": 14.121750721054589,
+      "stop": "limit",
+      "tokenize_seconds": 0.006213908,
+      "subprocess_seconds": 399.1974725999971
+    }
+  },
+  "verification": {
+    "outfill": {
+      "matches_scoped_teacher_completion": false,
+      "timing_run_output_is_exact_prefix": true,
+      "after_close_tag_count": 0
+    },
+    "infill": {
+      "matches_scoped_teacher_completion": true,
+      "timing_run_output_is_exact_prefix": true,
+      "after_close_tag_count": 51
+    }
+  }
+}
