@@ -1,0 +1,8 @@
+diff --git a/src/llama-model.cpp b/src/llama-model.cpp
+--- a/src/llama-model.cpp
++++ b/src/llama-model.cpp
+@@ -2167,1 +2167,3 @@
+-    ml.init_mappings(true, use_mlock ? &pimpl->mlock_mmaps : nullptr);
++    // The prompt matrix starts on a memory-limited workstation. Map the
++    // unrestricted bank on demand instead of prefaulting all weight pages.
++    ml.init_mappings(false, use_mlock ? &pimpl->mlock_mmaps : nullptr);
