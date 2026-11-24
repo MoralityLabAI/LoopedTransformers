@@ -25,6 +25,8 @@ Start with these documents:
 - [06C native registration](OLR_06C_REGISTRATION.md) and [results](OLR_06C_RESULTS.md): scoped Boolean relation receipts, shared posterior planner, 1,023 native query replays and 759 independent axiom-free declarations. Exact finite evaluator saturates; learned bidirectional transfer trails one-direction control.
 - [06D opaque rewrite results](OLR_06D_RESULTS.md): all calibrated neural residuals zero; exact PDB wins concrete-expansion metric, but setup costs exceed unrestricted single-target search.
 - [06E shared frontier registration](OLR_06E_REGISTRATION.md): multi-goal exact rewrite proposal ledger, shared query budget and native conjunction certificates.
+- [06E completed results](OLR_06E_RESULTS.md): 22/24 conjunctions at 256 concrete expansions, 280 native leaf replays and 80 conjunction certificates; registered learned-scheduler headroom fails.
+- [06F anytime abstraction registration](OLR_06F_REGISTRATION.md): partially settled reverse-Dijkstra pattern tables, monotone lower bounds, lazy queue rekey, and a single charged abstract+concrete work budget.
 - [OLR-METTA-05 registration](OLR_METTA_05_REGISTRATION.md): matched addressed/dense tied-memory comparison, three-to-five occupied-obligation load transfer, and focal-versus-sham receipt edits.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.
