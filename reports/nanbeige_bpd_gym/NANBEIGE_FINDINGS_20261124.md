@@ -1,0 +1,9 @@
+# What we learned about Nanbeige
+
+November 24, 2026
+
+**The fit that reconstructed Nanbeige’s next-pass K best was worse at preserving the donor’s direction.** On eight exposed calibration roots, the BF16 rank-2 reader fit cut relative K-readout squared error from **0.2258 to 0.0000176**. At the same physical write dose, mean donor-direction cosine fell from **0.900 to 0.805**. Those two measurements tell us different things about the same fit. [RT-BPD-02 results](https://github.com/MoralityLabAI/BPD/blob/7a308f4f06ff2511a60719c52c2244a7f14089ca/mechinterp/bpd/theory/rtbpd02/NANBEIGE_RT_BPD_02_REPORT_20261123.md)
+
+**The second pass changes both answers and the inputs seen by the tied weights.** On focused pointer tasks, first-token accuracy went from **3/32 to 29/32 in NF4** and **3/32 to 32/32 in BF16**. In the calibration archive, roughly **95% of BF16 and 98% of NF4** pass-2 contrast energy lay outside the span of the corresponding pass-1 contrasts. That explains why a fit calibrated at one pass needs a separate transfer check. [Nanbeige synthesis](NANBEIGE_RESEARCH_SYNTHESIS_20261123.md) · [Archive analysis](https://github.com/MoralityLabAI/BPD/blob/7a308f4f06ff2511a60719c52c2244a7f14089ca/mechinterp/bpd/theory/rtbpd02/NANBEIGE_CAL_ARCHIVE_AGGREGATE.json)
+
+**Whether K carries the donor’s effect on the answer is still open.** The CPU fixture matched all **32** serial head records and restored clean K exactly in all **16** rescue branches. The **391-token device check was unrun and 0/16 native roots were scored**. The registered test would measure how much donor-versus-foil logit advantage disappears when clean K is restored in both the active and matched-sham arms. [K-rescue verification](NAN_KRESCUE114_STATUS_20261123.md) · [Closeout in PR #235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
