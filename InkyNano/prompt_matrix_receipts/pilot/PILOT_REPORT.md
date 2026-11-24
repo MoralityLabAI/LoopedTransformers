@@ -31,7 +31,9 @@ The same teacher also scored zero on the Sudoku outfill with the pinned Inkling 
 
 The first CUDA request used the 12-expert control on one held-out ARC-AGI-2 outfill from the public training set. It emitted repeated rows of zeros and reached 384 output tokens at 0.97 decode tokens/s. The recorded answer failed JSON parsing, test-grid pass@2 and exact compact-grid scoring. [First full-budget CUDA ARC receipt](first-full-answer-arc.json)
 
-The eight-expert global-frequency control used the same prompt. It reached 384 tokens at 1.02 decode tokens/s, with a different repeated digit row and the same failed scores. Its cold request took 521.6 seconds, compared with 506.0 seconds for the 12-expert control. The learned policies and other requests are in progress. [Full-budget ARC outfill controls](arc-outfill-full-answer-controls.json)
+The eight-expert global-frequency control used the same prompt. It reached 384 tokens at 1.02 decode tokens/s, with a different repeated digit row and the same failed scores. Its cold request took 521.6 seconds, compared with 506.0 seconds for the 12-expert control. [Full-budget ARC outfill controls](arc-outfill-full-answer-controls.json)
+
+The prior-based LDT retained 92.98% of teacher decode routing mass on this request. It reached 384 tokens at 0.98 decode tokens/s and finished in 479.9 seconds. The completion repeated example headings and failed all three ARC checks. TRM outfill and the remaining grid requests are in progress. [Full-budget ARC LDT outfill](arc-outfill-full-answer-ldt.json)
 
 Serialized reference answers passed the score checks for both modes. The ARC answer used 153 of its 384 output tokens, and the Sudoku answer used 187 of its 256. The pinned tokenizer reproduced the native prompt token counts for all four grid requests. [Reference answer budget check](answer-budget-check.json)
 
@@ -66,7 +68,7 @@ The full timing matrix completed all 16 CPU/CUDA pairs, with one development roo
 | TRM | 74.22% | 74.95% | 89.67% | 92.08% |
 | Hindsight | 90.06% | 94.10% | 90.06% | 94.10% |
 
-The prior substantially improved the learned policies on this development split. Their retained mass was close to global frequency. The 16 CPU timing requests used the initial checkpoints. [Initial routing summary](offline-summary.json) · [Prior-based routing summary](controllers-global-prior/offline-summary.json)
+The prior substantially improved the learned policies on this development split. Their retained mass was close to global frequency. The 24-token CPU and CUDA timing matrix used the initial checkpoints at a 512-token context. Full-answer scoring uses the train-root-prior checkpoints at a 1,024-token context with the same prompts. On the four held-out requests, the prior changed 55–56 of 192 LDT slots and 49–56 TRM slots. The global-frequency and hindsight layouts matched across fits. [Initial routing summary](offline-summary.json) · [Prior-based routing summary](controllers-global-prior/offline-summary.json)
 
 The RTX 3050 repeated the prior-based fit on the same native Sudoku and ARC training roots with PyTorch 2.5.1+cu121. Both 20,544-parameter controllers took a combined 18.47 seconds of training. PyTorch peaked at 18.38 MiB allocated and 24 MiB reserved. Incremental process RSS peaked at 465 MiB. The CPU runner reproduced all eight learned residency plans from the GPU-trained checkpoints. All eight selected the same experts as the CPU-trained fit on these four development requests. [Training receipt](controllers-cuda-global-prior/training.json) · [Checkpoint replay and held-out mass](controllers-cuda-global-prior/offline-summary.json)
 
