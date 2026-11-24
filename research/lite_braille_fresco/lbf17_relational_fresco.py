@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 from collections import defaultdict, deque
 import functools
+import gc
 import html
 import json
 import math
@@ -1505,12 +1506,16 @@ def _ball_k_alpha1(ball_map: dict[str, int], L: int, k: int) -> torch.Tensor:
     return a
 
 
-def teacher(rg, suite: Path, out: Path) -> tuple[list[dict], dict]:
+def teacher(rg, suite: Path, out: Path, resume: bool = False) -> tuple[list[dict], dict]:
     cases, m, refs = rg.load_split(suite, "train", witnesses=True)
     if len(cases) != COUNTS["train"] or m["seed"] != SEED:
         raise ValueError("unexpected LBF-17 training roster")
-    out.mkdir(parents=True)
-    ref_cert = base.certify(rg, [(c, refs[c.root], "train_" + c.root) for c in cases], out / "references")
+    saved_manifest = None
+    if resume and (out / "manifest.json").exists():
+        saved_manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    else:
+        out.mkdir(parents=True)
+        ref_cert = base.certify(rg, [(c, refs[c.root], "train_" + c.root) for c in cases], out / "references")
 
     frames = []
     audits = []
@@ -1641,12 +1646,21 @@ def teacher(rg, suite: Path, out: Path) -> tuple[list[dict], dict]:
 
     if len(audits) != 24:
         raise ValueError(f"expected 24 counterfactual audit proofs, got {len(audits)}")
-    cf_cert = base.certify(rg, audits, out / "counterfactuals")
     serial = [{
         "root": f["root"], "lineage": f["lineage"], "step": f["step"], "rollout": f["rollout"],
         "m0": len(f["state"].fronts[0]), "m1": len(f["state"].fronts[1]),
         "min_dr": f["min_dr"], "min_ell": f["min_ell"],
     } for f in frames]
+    if saved_manifest is not None:
+        tmp_check = out / "_verify_frames_summary.jsonl"
+        base.write_jsonl(tmp_check, serial)
+        sha_now = base.file_sha(tmp_check)
+        tmp_check.unlink(missing_ok=True)
+        if sha_now != saved_manifest["frames_summary_sha256"]:
+            raise ValueError("resumed teacher frames SHA-256 mismatch against saved manifest")
+        return frames, saved_manifest
+
+    cf_cert = base.certify(rg, audits, out / "counterfactuals")
     base.write_jsonl(out / "frames_summary.jsonl", serial)
     receipt = {
         "train_roots": len(cases),
@@ -1683,7 +1697,8 @@ def fit(frames: list[dict], seed: int, arch: str, out: Path,
     for step in range(STEPS):
         if time.monotonic() - t0 > 1800:
             raise TimeoutError(f"CPU fit cap exceeded for {arch}")
-        bloss = torch.zeros(())
+        opt.zero_grad(set_to_none=True)
+        bloss_val = 0.0
         step_indices = []
         for _ in range(BATCH_SIZE):
             rname = rng.choice(roots)
@@ -1715,7 +1730,6 @@ def fit(frames: list[dict], seed: int, arch: str, out: Path,
                 lsub = torch.zeros(())
                 if "sub_u" in o and arch not in ("sym_prov_readout", "lbf16_pos1_opened"):
                     hk = min(2, k)
-                    # Supervise subterm glyph brightness on supported cells only (preserving exact 0s)
                     pu = o["sub_u"].clamp(1e-6, 1.0 - 1e-6)
                     pv = o["sub_v"].clamp(1e-6, 1.0 - 1e-6)
                     mu_s = (o["sub_u"].detach() > 1e-6).float()
@@ -1727,12 +1741,13 @@ def fit(frames: list[dict], seed: int, arch: str, out: Path,
                     lsub = 0.15 * lsub
                 fl = fl + wk * (lm + lr + lsub)
                 ws += wk
-            bloss = bloss + (fl / ws) / BATCH_SIZE
+            item_loss = (fl / ws) / BATCH_SIZE
+            if not torch.isfinite(item_loss):
+                raise ValueError(f"nonfinite LBF-17 training loss for {arch}")
+            # Backpropagate per frame immediately so at most 1 autograd graph resides in RAM!
+            item_loss.backward()
+            bloss_val += float(item_loss.detach())
 
-        if not torch.isfinite(bloss):
-            raise ValueError(f"nonfinite LBF-17 training loss for {arch}")
-        opt.zero_grad(set_to_none=True)
-        bloss.backward()
         gnorm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         if not torch.isfinite(gnorm):
             raise ValueError(f"nonfinite LBF-17 gradient for {arch}")
@@ -1740,7 +1755,7 @@ def fit(frames: list[dict], seed: int, arch: str, out: Path,
         sched.step()
         drec = {"step": step + 1, "frames": step_indices}
         draws.append(drec)
-        trace.append({**drec, "loss": float(bloss.detach())})
+        trace.append({**drec, "loss": bloss_val})
 
     fit_sec = time.monotonic() - t0
     model.eval()
@@ -2184,79 +2199,118 @@ def run_fit_worker(upstream_path: Path, suite: Path, frames_pt: Path, jobs_spec:
             continue
         sd_s, arch = item.split(":")
         sd = int(sd_s)
-        _, rec = fit(frames, sd, arch, out / f"{sd}_{arch}")
+        mod, rec = fit(frames, sd, arch, out / f"{sd}_{arch}")
+        del mod
+        gc.collect()
         print(f"[LBF17] fit {sd}:{arch} ({rec['parameters']}p) in {rec['fit_wall_clock_sec']}s", flush=True)
 
 
 # ============================================================================
 # 6. Registered End-to-End LBF-17 Prospective Campaign
 # ============================================================================
-def campaign(rg, out: Path, threads: int = 2, upstream_path: Path | None = None) -> dict:
-    if out.exists():
+def campaign(rg, out: Path, threads: int = 2, upstream_path: Path | None = None,
+             resume: bool = False) -> dict:
+    if out.exists() and not resume:
         raise ValueError("fresh LBF-17 output directory required")
-    out.mkdir(parents=True)
+    out.mkdir(parents=True, exist_ok=True)
     torch.set_num_threads(1)
     torch.backends.mkldnn.enabled = False
 
-    theory_cert = verify_lean_theory_module(out / "lean_theory_certificates")
+    lt_dir = out / "lean_theory_certificates"
+    if resume and (lt_dir / "manifest.json").exists():
+        theory_cert = json.loads((lt_dir / "manifest.json").read_text(encoding="utf-8"))
+        if theory_cert.get("compiled_axiom_free") != 15:
+            raise ValueError("invalid cached Lean theory certificate")
+    else:
+        theory_cert = verify_lean_theory_module(lt_dir)
 
     suite = out / "suite"
-    sm = rg.freeze(suite, SEED, COUNTS)
+    if resume and (suite / "manifest.json").exists():
+        sm = json.loads((suite / "manifest.json").read_text(encoding="utf-8"))
+    else:
+        sm = rg.freeze(suite, SEED, COUNTS)
     if sm["counts"] != COUNTS or sm["unique_rule_system_lineages"] != sum(COUNTS.values()):
         raise ValueError("LBF-17 suite census mismatch")
     checked_historical = verify_historical_disjointness(rg, suite)
 
-    frames, tm = teacher(rg, suite, out / "teacher")
-    print(f"[LBF17] teacher done: {len(frames)} frames, {tm['reference_certificates']} ref certs", flush=True)
+    frames, tm = teacher(rg, suite, out / "teacher", resume=resume)
+    print(f"[LBF17] teacher ready: {len(frames)} frames, {tm['reference_certificates']} ref certs", flush=True)
 
     all_jobs = [(s, a) for s in SEEDS for a in ALL_LEARNED_ARCHS]
+    pending_jobs = []
+    for sd, ar in all_jobs:
+        mdir = out / f"{sd}_{ar}"
+        if resume and (mdir / "manifest.json").exists() and (mdir / "checkpoint.pt").exists():
+            rec = json.loads((mdir / "manifest.json").read_text(encoding="utf-8"))
+            if (base.file_sha(mdir / "checkpoint.pt") != rec["checkpoint_sha256"]
+                    or base.file_sha(mdir / "draws.jsonl") != rec["draws_sha256"]):
+                raise ValueError(f"corrupted existing checkpoint for {sd}:{ar}")
+            print(f"[LBF17] verified existing {sd}:{ar} ({rec['parameters']}p)", flush=True)
+        else:
+            if mdir.exists():
+                for f in mdir.glob("*"):
+                    f.unlink()
+                mdir.rmdir()
+            pending_jobs.append((sd, ar))
+
     n_workers = max(1, min(2, threads))
     models = {}
     receipts = {}
 
-    if n_workers == 2 and upstream_path is not None:
-        # Interleave jobs across 2 single-threaded OS worker processes (zero GIL contention, <=2 CPU cores total)
-        frames_pt = out / "teacher" / "_worker_frames.pt"
-        _serialize_frames_for_workers(frames, frames_pt)
-        env = dict(os.environ)
-        env["OMP_NUM_THREADS"] = "1"
-        env["MKL_NUM_THREADS"] = "1"
-        env["OPENBLAS_NUM_THREADS"] = "1"
-        shards = [all_jobs[0::2], all_jobs[1::2]]
-        procs = []
-        for sh in shards:
-            spec = ",".join(f"{sd}:{ar}" for sd, ar in sh)
+    if pending_jobs:
+        if n_workers == 2 and upstream_path is not None and len(pending_jobs) >= 2:
+            # Spawn ONLY 1 child process for half the jobs while executing the other half in this
+            # parent process -> strictly 2 Python/PyTorch processes total (<2.5 GB commit charge)!
+            frames_pt = out / "teacher" / "_worker_frames.pt"
+            _serialize_frames_for_workers(frames, frames_pt)
+            env = dict(os.environ)
+            env["OMP_NUM_THREADS"] = "1"
+            env["MKL_NUM_THREADS"] = "1"
+            env["OPENBLAS_NUM_THREADS"] = "1"
+            parent_jobs = pending_jobs[0::2]
+            child_jobs = pending_jobs[1::2]
             cmd = [
                 sys.executable, str(Path(__file__).resolve()),
                 "--fit-worker",
                 "--upstream", str(upstream_path),
                 "--suite", str(suite),
                 "--frames-pt", str(frames_pt),
-                "--jobs", spec,
+                "--jobs", ",".join(f"{sd}:{ar}" for sd, ar in child_jobs),
                 "--out", str(out),
             ]
-            procs.append(subprocess.Popen(cmd, env=env))
-        codes = [p.wait() for p in procs]
-        frames_pt.unlink(missing_ok=True)
-        if any(c != 0 for c in codes):
-            raise RuntimeError(f"parallel fit worker failed with exit codes {codes}")
-        for sd, ar in all_jobs:
-            mdir = out / f"{sd}_{ar}"
-            rec = json.loads((mdir / "manifest.json").read_text(encoding="utf-8"))
-            mod, _ = new_lbf17_model(sd, ar)
-            ckpt = torch.load(mdir / "checkpoint.pt", map_location="cpu", weights_only=True)
-            mod.load_state_dict(ckpt["weights"])
-            mod.eval()
-            for p in mod.parameters():
-                p.requires_grad_(False)
-            models[(sd, ar)] = mod
-            receipts[(sd, ar)] = rec
-    else:
-        for sd, ar in all_jobs:
-            mod, rec = fit(frames, sd, ar, out / f"{sd}_{ar}")
-            print(f"[LBF17] fit {sd}:{ar} ({rec['parameters']}p) in {rec['fit_wall_clock_sec']}s", flush=True)
-            models[(sd, ar)] = mod
-            receipts[(sd, ar)] = rec
+            child_proc = subprocess.Popen(cmd, env=env)
+            try:
+                for sd, ar in parent_jobs:
+                    mod, rec = fit(frames, sd, ar, out / f"{sd}_{ar}")
+                    del mod
+                    gc.collect()
+                    print(f"[LBF17] fit {sd}:{ar} ({rec['parameters']}p) in {rec['fit_wall_clock_sec']}s", flush=True)
+            finally:
+                rc_child = child_proc.wait()
+                frames_pt.unlink(missing_ok=True)
+            if rc_child != 0:
+                raise RuntimeError(f"child fit worker failed with exit code {rc_child}")
+        else:
+            for sd, ar in pending_jobs:
+                mod, rec = fit(frames, sd, ar, out / f"{sd}_{ar}")
+                del mod
+                gc.collect()
+                print(f"[LBF17] fit {sd}:{ar} ({rec['parameters']}p) in {rec['fit_wall_clock_sec']}s", flush=True)
+
+    del frames
+    gc.collect()
+
+    for sd, ar in all_jobs:
+        mdir = out / f"{sd}_{ar}"
+        rec = json.loads((mdir / "manifest.json").read_text(encoding="utf-8"))
+        mod, _ = new_lbf17_model(sd, ar)
+        ckpt = torch.load(mdir / "checkpoint.pt", map_location="cpu", weights_only=True)
+        mod.load_state_dict(ckpt["weights"])
+        mod.eval()
+        for p in mod.parameters():
+            p.requires_grad_(False)
+        models[(sd, ar)] = mod
+        receipts[(sd, ar)] = rec
 
     for seed in SEEDS:
         ref_draws = receipts[(seed, "rel_prov_opened")]["draws_sha256"]
@@ -2601,6 +2655,7 @@ def main():
     p.add_argument("--upstream", type=Path, required=True)
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--threads", type=int, default=2)
+    p.add_argument("--resume", action="store_true")
     p.add_argument("--fit-worker", action="store_true")
     p.add_argument("--suite", type=Path, default=None)
     p.add_argument("--frames-pt", type=Path, default=None)
@@ -2609,7 +2664,10 @@ def main():
     if args.fit_worker:
         run_fit_worker(args.upstream, args.suite, args.frames_pt, args.jobs, args.out)
         return
-    campaign(base.load_upstream(args.upstream), args.out, threads=args.threads, upstream_path=args.upstream)
+    campaign(
+        base.load_upstream(args.upstream), args.out, threads=args.threads,
+        upstream_path=args.upstream, resume=args.resume,
+    )
 
 
 if __name__ == "__main__":
