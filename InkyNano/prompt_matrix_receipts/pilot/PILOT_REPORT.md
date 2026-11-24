@@ -29,7 +29,9 @@ The same teacher also scored zero on the Sudoku outfill with the pinned Inkling 
 
 ### Full-answer RTX 3050 grid replay
 
-The first CUDA request used the 12-expert control on one held-out ARC-AGI-2 outfill from the public training set. It emitted repeated rows of zeros and reached 384 output tokens at 0.97 decode tokens/s. The recorded answer failed JSON parsing, test-grid pass@2 and exact compact-grid scoring. The other CUDA grid requests are in progress. [First full-budget CUDA ARC receipt](first-full-answer-arc.json)
+The first CUDA request used the 12-expert control on one held-out ARC-AGI-2 outfill from the public training set. It emitted repeated rows of zeros and reached 384 output tokens at 0.97 decode tokens/s. The recorded answer failed JSON parsing, test-grid pass@2 and exact compact-grid scoring. [First full-budget CUDA ARC receipt](first-full-answer-arc.json)
+
+The eight-expert global-frequency control used the same prompt. It reached 384 tokens at 1.02 decode tokens/s, with a different repeated digit row and the same failed scores. Its cold request took 521.6 seconds, compared with 506.0 seconds for the 12-expert control. The learned policies and other requests are in progress. [Full-budget ARC outfill controls](arc-outfill-full-answer-controls.json)
 
 Serialized reference answers passed the score checks for both modes. The ARC answer used 153 of its 384 output tokens, and the Sudoku answer used 187 of its 256. The pinned tokenizer reproduced the native prompt token counts for all four grid requests. [Reference answer budget check](answer-budget-check.json)
 
