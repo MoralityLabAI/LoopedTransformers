@@ -41,6 +41,10 @@ The first request under the persistent matrix build reproduced the CPU's 24-toke
 
 All four policies subsequently completed that same ARC outfill timing request. Each GPU completion matched its own CPU completion. At eight experts per layer, packing and model load together took 69–83 seconds per CUDA replay. The scoped teacher took 66.9 seconds end to end. Cold LDT replay took 110.7 seconds, TRM 140.9 and global frequency 150.5. These are four paired policies on one request at the 24-token timing cap. [Matched ARC policy and stage timings](cuda-smoke/persistent/first-complete-case.json)
 
+The LDT ARC infill replay diverged after 20 shared characters despite a matching prompt, checkpoint plan and token counts. Both completions contained prompt formatting tags and reached the 24-token timing cap. CUDA sped up prefill from 3.52 to 20.06 tokens/s, while end-to-end time increased from 157.8 to 171.6 seconds. This pair shows that greedy replay can produce different completions across the two backends. [ARC infill completion comparison](cuda-smoke/persistent/arc-infill-completion-divergence.json)
+
+Across both ARC modes, seven of eight completions matched exactly. The GPU improved prefill in all eight pairs and shortened six requests end to end. CPU decode was faster in seven pairs. Infill end-to-end time increased for both learned policies, from 157.8 to 171.6 seconds for LDT and from 159.5 to 184.2 seconds for TRM. The eight CUDA requests peaked at 2.93 GiB process RSS and sampled up to a 1.93 GiB drop in device-wide free memory. [ARC infill and outfill timing pairs](cuda-smoke/persistent/arc-both-modes.json)
+
 ## Held-out routing mass
 
 | Policy | Initial prefill | Initial decode | With train-root prior, prefill | With train-root prior, decode |

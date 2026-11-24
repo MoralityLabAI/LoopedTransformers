@@ -1,0 +1,67 @@
+{
+  "paired_metrics": {
+    "case_id": "arc-agi-2-training/2de01db2/infill",
+    "policy": "ldt",
+    "root": "arc-agi-2-training/2de01db2",
+    "task": "arc-agi-2",
+    "mode": "infill",
+    "capacity": 8,
+    "prompt_sha256": "4fe3a70945ac1b283e16ea81640ab50d8ba3d8a11985019aa257ff35a85a7046",
+    "quality_evaluated": false,
+    "cpu": {
+      "input_tokens": 238,
+      "output_tokens": 24,
+      "prefill_tps": 3.517342273770991,
+      "decode_tps": 1.4735415813854744,
+      "end_to_end_seconds": 157.77717159999884,
+      "peak_rss_bytes": 2438057984,
+      "stop": "limit",
+      "quality": {}
+    },
+    "cuda": {
+      "input_tokens": 238,
+      "output_tokens": 24,
+      "prefill_tps": 20.06418250748376,
+      "decode_tps": 1.1817388879748907,
+      "end_to_end_seconds": 171.56431430000157,
+      "peak_rss_bytes": 2666512384,
+      "stop": "limit",
+      "quality": {}
+    },
+    "cuda_offload": {
+      "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+      "gpu_layers_requested": 28,
+      "planned_vram_bytes": 1484424960,
+      "preflight_seconds": 9.53121363,
+      "sampled_peak_device_free_delta_bytes": 1755316224,
+      "vram_cap_bytes": 2147483648
+    },
+    "same_token_counts": true,
+    "same_output": false,
+    "cpu_to_cuda_wall_time_ratio": 0.9196386337318716
+  },
+  "shared_values": {
+    "input_tokens": 238,
+    "output_tokens": 24,
+    "compact_gguf_bytes": 2221144160,
+    "expert_weight_bytes": 999309312,
+    "offline_mass": {
+      "prefill": 0.6965401768684387,
+      "decode": 0.6723818778991699
+    },
+    "stop": "limit"
+  },
+  "plans_sha256": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac",
+  "common_prefix_characters": 20,
+  "completions": {
+    "cpu": {
+      "content": "</before>\n</after>\n</before>\n</after>\n</before>",
+      "sha256": "a5f6ce591024a2eccb11ae6f3e7afa48e05b65c0b923c36f5c9730a7ba511ee1"
+    },
+    "cuda": {
+      "content": "</before>\n</after>\n<replacement>\n</before>\n</after>\n",
+      "sha256": "0764dfe27918d02527f7fd00cf18007da45c2a80ae7a50ecab79d2e9efc77e43"
+    }
+  },
+  "scope": "24-token timing probe. Both runs withheld full-answer scoring."
+}

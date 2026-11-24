@@ -1,0 +1,383 @@
+{
+  "cpu_spec": {
+    "command": "benchmark",
+    "case_file_sha256": "f13a865f19324c0552d211719f961e15ddfb288d930a53cfe5c14f6d3932c575",
+    "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+    "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+    "runtime_binary_sha256": "eca02a08e898b86099bb5e42cc69b9198c521ea341e0f8fd01a7540718d87c44",
+    "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+    "context": 512,
+    "threads": 4,
+    "batch_tokens": 32,
+    "sampler": "greedy",
+    "n_gpu_layers": 0,
+    "max_new_override": 24,
+    "parse_special": false,
+    "rss_limit_bytes": 3221225472,
+    "capacity": 8,
+    "teacher_in_ram": true,
+    "plans_sha256": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac",
+    "controller_checkpoint_sha256": {
+      "ldt": "e259f96d648630d8d88647e9316de287756092e244b474c12e3e424669efdf45",
+      "trm": "074427e9a51ae46c3cbfff142f70d9c2ee0d39ac8f61a4424cd9e1d40a20688e"
+    },
+    "published_composition_sha256": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923"
+  },
+  "cuda_spec": {
+    "command": "benchmark",
+    "case_file_sha256": "f13a865f19324c0552d211719f961e15ddfb288d930a53cfe5c14f6d3932c575",
+    "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+    "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+    "runtime_binary_sha256": "07b8f5ca04d8a6b4d82ddf3ee27b87bd33b5b5113be5cf3e440d45f6ea76c844",
+    "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+    "context": 512,
+    "threads": 4,
+    "batch_tokens": 32,
+    "sampler": "greedy",
+    "n_gpu_layers": 28,
+    "max_new_override": 24,
+    "parse_special": false,
+    "rss_limit_bytes": 3221225472,
+    "capacity": 8,
+    "teacher_in_ram": true,
+    "plans_sha256": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac",
+    "controller_checkpoint_sha256": {
+      "ldt": "e259f96d648630d8d88647e9316de287756092e244b474c12e3e424669efdf45",
+      "trm": "074427e9a51ae46c3cbfff142f70d9c2ee0d39ac8f61a4424cd9e1d40a20688e"
+    },
+    "published_composition_sha256": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923",
+    "vram_limit_bytes": 2147483648,
+    "runtime_library_manifest_sha256": "10d945a6bee286f51d5c8317d053ec39e7971077ddb2131092d5f9d9970c5813"
+  },
+  "scope": "One ARC-AGI-2 public-training development root, two modes and four policies. 24-token timing cap.",
+  "paired": [
+    {
+      "case_id": "arc-agi-2-training/2de01db2/infill",
+      "policy": "global",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "infill",
+      "capacity": 8,
+      "prompt_sha256": "4fe3a70945ac1b283e16ea81640ab50d8ba3d8a11985019aa257ff35a85a7046",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 238,
+        "output_tokens": 24,
+        "prefill_tps": 4.765472503928782,
+        "decode_tps": 1.696862147208734,
+        "end_to_end_seconds": 144.36321390000194,
+        "peak_rss_bytes": 2437959680,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 238,
+        "output_tokens": 24,
+        "prefill_tps": 25.482153271810557,
+        "decode_tps": 1.0832034672886346,
+        "end_to_end_seconds": 113.95346019999852,
+        "peak_rss_bytes": 2666639360,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 9.913339956,
+        "sampled_peak_device_free_delta_bytes": 1755316224,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 1.2668611698726093
+    },
+    {
+      "case_id": "arc-agi-2-training/2de01db2/infill",
+      "policy": "ldt",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "infill",
+      "capacity": 8,
+      "prompt_sha256": "4fe3a70945ac1b283e16ea81640ab50d8ba3d8a11985019aa257ff35a85a7046",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 238,
+        "output_tokens": 24,
+        "prefill_tps": 3.517342273770991,
+        "decode_tps": 1.4735415813854744,
+        "end_to_end_seconds": 157.77717159999884,
+        "peak_rss_bytes": 2438057984,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 238,
+        "output_tokens": 24,
+        "prefill_tps": 20.06418250748376,
+        "decode_tps": 1.1817388879748907,
+        "end_to_end_seconds": 171.56431430000157,
+        "peak_rss_bytes": 2666512384,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 9.53121363,
+        "sampled_peak_device_free_delta_bytes": 1755316224,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": false,
+      "cpu_to_cuda_wall_time_ratio": 0.9196386337318716
+    },
+    {
+      "case_id": "arc-agi-2-training/2de01db2/infill",
+      "policy": "teacher_subset",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "infill",
+      "capacity": 12,
+      "prompt_sha256": "4fe3a70945ac1b283e16ea81640ab50d8ba3d8a11985019aa257ff35a85a7046",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 238,
+        "output_tokens": 24,
+        "prefill_tps": 4.578690226114019,
+        "decode_tps": 1.8727596438973528,
+        "end_to_end_seconds": 104.92586740000115,
+        "peak_rss_bytes": 2938515456,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 238,
+        "output_tokens": 24,
+        "prefill_tps": 24.71046859197091,
+        "decode_tps": 0.8721521804828192,
+        "end_to_end_seconds": 89.56070810000165,
+        "peak_rss_bytes": 3079671808,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1801860864,
+        "preflight_seconds": 10.439599533,
+        "sampled_peak_device_free_delta_bytes": 2074083328,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 1.1715613869738846
+    },
+    {
+      "case_id": "arc-agi-2-training/2de01db2/infill",
+      "policy": "trm",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "infill",
+      "capacity": 8,
+      "prompt_sha256": "4fe3a70945ac1b283e16ea81640ab50d8ba3d8a11985019aa257ff35a85a7046",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 238,
+        "output_tokens": 24,
+        "prefill_tps": 3.6755655643029588,
+        "decode_tps": 1.3985220387475756,
+        "end_to_end_seconds": 159.54711910000333,
+        "peak_rss_bytes": 2437591040,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 238,
+        "output_tokens": 24,
+        "prefill_tps": 16.982527743464882,
+        "decode_tps": 0.8113578030141911,
+        "end_to_end_seconds": 184.24335890000293,
+        "peak_rss_bytes": 2666373120,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 11.010896097,
+        "sampled_peak_device_free_delta_bytes": 1755316224,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 0.8659585889692591
+    },
+    {
+      "case_id": "arc-agi-2-training/2de01db2/outfill",
+      "policy": "global",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "outfill",
+      "capacity": 8,
+      "prompt_sha256": "aafbc9e0b5d3c0c0e3d91cdf5575721c36ad676ccacb18abc4dc624538a8cce6",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 199,
+        "output_tokens": 24,
+        "prefill_tps": 3.10333881176151,
+        "decode_tps": 1.1485525190575765,
+        "end_to_end_seconds": 165.67102890000024,
+        "peak_rss_bytes": 2437668864,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 199,
+        "output_tokens": 24,
+        "prefill_tps": 19.61922463628352,
+        "decode_tps": 1.136953508628142,
+        "end_to_end_seconds": 150.50224959999468,
+        "peak_rss_bytes": 2661621760,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 8.636531405,
+        "sampled_peak_device_free_delta_bytes": 1755316224,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 1.1007877247039242
+    },
+    {
+      "case_id": "arc-agi-2-training/2de01db2/outfill",
+      "policy": "ldt",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "outfill",
+      "capacity": 8,
+      "prompt_sha256": "aafbc9e0b5d3c0c0e3d91cdf5575721c36ad676ccacb18abc4dc624538a8cce6",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 199,
+        "output_tokens": 24,
+        "prefill_tps": 4.858141036203385,
+        "decode_tps": 2.553041030553003,
+        "end_to_end_seconds": 140.31209030000173,
+        "peak_rss_bytes": 2438275072,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 199,
+        "output_tokens": 24,
+        "prefill_tps": 31.146963667617353,
+        "decode_tps": 1.0747690812869393,
+        "end_to_end_seconds": 110.66256570000041,
+        "peak_rss_bytes": 2661769216,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 9.29205942,
+        "sampled_peak_device_free_delta_bytes": 1755316224,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 1.2679273195271779
+    },
+    {
+      "case_id": "arc-agi-2-training/2de01db2/outfill",
+      "policy": "teacher_subset",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "outfill",
+      "capacity": 12,
+      "prompt_sha256": "aafbc9e0b5d3c0c0e3d91cdf5575721c36ad676ccacb18abc4dc624538a8cce6",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 199,
+        "output_tokens": 24,
+        "prefill_tps": 2.6484509543613606,
+        "decode_tps": 0.9964461123375381,
+        "end_to_end_seconds": 136.2047606999986,
+        "peak_rss_bytes": 2938077184,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 199,
+        "output_tokens": 24,
+        "prefill_tps": 32.18197452811335,
+        "decode_tps": 1.1846829351729538,
+        "end_to_end_seconds": 66.92365670000072,
+        "peak_rss_bytes": 3146264576,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1801860864,
+        "preflight_seconds": 8.650136853,
+        "sampled_peak_device_free_delta_bytes": 2074083328,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 2.0352259188490684
+    },
+    {
+      "case_id": "arc-agi-2-training/2de01db2/outfill",
+      "policy": "trm",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "outfill",
+      "capacity": 8,
+      "prompt_sha256": "aafbc9e0b5d3c0c0e3d91cdf5575721c36ad676ccacb18abc4dc624538a8cce6",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 199,
+        "output_tokens": 24,
+        "prefill_tps": 4.824547104625969,
+        "decode_tps": 1.7552264270380549,
+        "end_to_end_seconds": 141.80763020000268,
+        "peak_rss_bytes": 2437648384,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 199,
+        "output_tokens": 24,
+        "prefill_tps": 20.74652875583695,
+        "decode_tps": 0.6384546893331613,
+        "end_to_end_seconds": 140.90971160000117,
+        "peak_rss_bytes": 2661916672,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 11.172744945,
+        "sampled_peak_device_free_delta_bytes": 1755316224,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 1.0063722974790439
+    }
+  ]
+}
