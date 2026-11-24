@@ -221,17 +221,17 @@ def visitSelected (envBefore : Environment) (o : Opts) (input : String) (h : IO.
   let before ← ppGoals ctx ti.mctxBefore ti.goalsBefore o.maxPP
   let mut res := #[]
   let mut cert := (false, false)
-  let mut scoped := false
+  let mut scopeOK := false
   let decl := ctx.parentDecl?.getD .anonymous
   if let some g := ti.goalsBefore.head? then
     if let some safeCtx ← beforeContext envBefore ctx ti g then
-      scoped := true
+      scopeOK := true
       cert ← try ({ safeCtx with mctx := ti.mctxBefore }).runMetaM {} (certifiable g) catch _ => pure (false, false)
       for c in tacs do
         res := res.push (← runCandidate safeCtx ti g c o.candHeartbeats (certify := true))
   let row := Json.mkObj [
     ("scope_version", "pre_command_v1"),
-    ("env_scope", Json.str (if scoped then "before" else "unavailable")),
+    ("env_scope", Json.str (if scopeOK then "before" else "unavailable")),
     ("decl_in_env_before", toJson (envBefore.contains decl)),
     ("decl", Json.str (ctx.parentDecl?.getD .anonymous).toString), ("line", toJson pos.line),
     ("col", toJson pos.column), ("tactic", Json.str (truncate (input.extract p e) 2000)),
@@ -258,16 +258,16 @@ partial def visit (envBefore : Environment) (o : Opts) (input : String) (h : IO.
           let before ← ppGoals ctx ti.mctxBefore ti.goalsBefore o.maxPP
           let after ← ppGoals ctx ti.mctxAfter ti.goalsAfter o.maxPP
           let mut cands := #[]
-          let mut scoped := false
+          let mut scopeOK := false
           if o.candEvery > 0 && n % o.candEvery == 0 then
             if let some g := ti.goalsBefore.head? then
               if let some safeCtx ← beforeContext envBefore ctx ti g then
-                scoped := true
+                scopeOK := true
                 for c in o.candidates do
                   cands := cands.push (← runCandidate safeCtx ti g c o.candHeartbeats)
           let row := Json.mkObj [
             ("scope_version", "pre_command_v1"),
-            ("env_scope", Json.str (if scoped then "before" else "unavailable_or_not_queried")),
+            ("env_scope", Json.str (if scopeOK then "before" else "unavailable_or_not_queried")),
             ("decl_in_env_before", toJson (envBefore.contains decl)),
             ("decl", Json.str decl.toString), ("line", toJson pos.line), ("col", toJson pos.column),
             ("tactic", Json.str (truncate (input.extract p e) 2000)),
