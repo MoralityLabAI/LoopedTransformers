@@ -565,9 +565,9 @@ class LowRankJointRewriteCell(nn.Module):
         lp = F.relu(self.left_proj(qw[:, :-1]))
         rp = F.relu(self.right_proj(qw[:, 1:]))
         bi_lr = torch.tanh(lp.amax(dim=2, keepdim=True) * rp.amax(dim=2, keepdim=True))
-        qw_mod = qw.clone()
-        qw_mod[:, :-1] = qw_mod[:, :-1] * (0.5 + 0.5 * bi_lr)
-        qw_mod[:, 1:] = qw_mod[:, 1:] * (0.5 + 0.5 * bi_lr)
+        m_left = F.pad(0.5 + 0.5 * bi_lr, (0, 0, 0, 0, 0, 1), value=1.0)
+        m_right = F.pad(0.5 + 0.5 * bi_lr, (0, 0, 0, 0, 1, 0), value=1.0)
+        qw_mod = qw * m_left * m_right
 
         rew = torch.zeros_like(qw)
         if r2 is not None and L >= 2:
@@ -729,12 +729,9 @@ class RelationalProvenanceFrescoNet(nn.Module):
     def bigram_to_pos1_channels(bi: torch.Tensor) -> torch.Tensor:
         """Map (N, Fp, L-1, 6, 6, Cb) -> zero-preserving node symbol channels (N, L, 6, Cb)."""
         b_max_f = bi.amax(dim=1)  # (N, L-1, 6, 6, Cb)
-        left_s = b_max_f.amax(dim=3)   # (N, L-1, 6, Cb)
-        right_s = b_max_f.amax(dim=2)  # (N, L-1, 6, Cb)
-        out = torch.zeros((bi.shape[0], bi.shape[2] + 1, 6, bi.shape[-1]), dtype=bi.dtype)
-        out[:, :-1] = torch.maximum(out[:, :-1], left_s)
-        out[:, 1:] = torch.maximum(out[:, 1:], right_s)
-        return out
+        left_s = F.pad(b_max_f.amax(dim=3), (0, 0, 0, 0, 0, 1))
+        right_s = F.pad(b_max_f.amax(dim=2), (0, 0, 0, 0, 1, 0))
+        return torch.maximum(left_s, right_s)
 
     def subterm_brightness(self, oh_u: torch.Tensor, bu: torch.Tensor,
                            bi_u: torch.Tensor | None) -> torch.Tensor:

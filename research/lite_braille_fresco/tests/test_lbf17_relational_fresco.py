@@ -226,6 +226,17 @@ class UpstreamEquivarianceComputeAndLeanTests(unittest.TestCase):
             self.assertLessEqual(r_la["work"], b_cap)
             self.assertGreater(r_la["work"], 0)
 
+        # 6. Verify clean out-of-place backward() across all 8 learned architectures
+        for arch in m17.ALL_LEARNED_ARCHS:
+            mod, _ = m17.new_lbf17_model(113, arch)
+            outs_b, _ = mod(c, s, 100, mode="normal")
+            loss = sum(
+                o["pot"].mean() + o["s0"].mean() + o["s1"].mean()
+                + (o["sub_u"].mean() if "sub_u" in o else 0.0)
+                for o in outs_b
+            )
+            loss.backward()
+
     def test_lean_formalization_compiles_axiom_free_when_lean_available(self):
         lean_exe = m17.base.config.LEAN_EXE
         if not lean_exe.exists() and not shutil.which("lean"):
