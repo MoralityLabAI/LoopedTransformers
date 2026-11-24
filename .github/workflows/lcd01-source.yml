@@ -4,8 +4,10 @@ on:
     paths:
       - 'research_gym/scripts/lcd01_huginn.py'
       - 'research_gym/scripts/lcd02_spectral.py'
+      - 'research_gym/scripts/lcd03_anderson.py'
       - 'experiments/lcd01/**'
       - 'experiments/lcd02/**'
+      - 'experiments/lcd03/**'
       - '.github/workflows/lcd01-source.yml'
   workflow_dispatch:
 jobs:
@@ -22,3 +24,5 @@ jobs:
       - run: python -m research_gym.scripts.lcd01_huginn --stage smoke
       - run: python -m py_compile research_gym/scripts/lcd02_spectral.py
       - run: python -m research_gym.scripts.lcd02_spectral --stage smoke
+      - run: python -m py_compile research_gym/scripts/lcd03_anderson.py
+      - run: python -m research_gym.scripts.lcd03_anderson --stage smoke
