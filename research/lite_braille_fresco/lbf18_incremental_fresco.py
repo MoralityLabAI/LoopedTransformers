@@ -381,13 +381,13 @@ def load_frozen_lbf17_checkpoint(
         raise ValueError(f"frozen checkpoint SHA mismatch for {seed}_{arch}: {actual_sha} != {expected['checkpoint_sha256']}")
     model, _ = m17.new_lbf17_model(seed, arch)
     payload = torch.load(io.BytesIO(raw_bytes), map_location="cpu", weights_only=True)
-    model.load_state_dict(payload["weights"])
+    model.load_state_dict(payload["weights"], strict=True)
     for p in model.parameters():
         p.requires_grad_(False)
     model.eval()
-    actual_fp = base._model_fingerprint(model)
-    if actual_fp != expected["final"]:
-        raise ValueError(f"frozen model parameter fingerprint mismatch for {seed}_{arch}")
+    sd_now = model.state_dict()
+    if not all(torch.equal(sd_now[k], payload["weights"][k]) for k in sd_now):
+        raise ValueError(f"frozen model tensor bytes mismatch after load for {seed}_{arch}")
     return model, actual_sha, expected
 
 
