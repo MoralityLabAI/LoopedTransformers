@@ -31,6 +31,8 @@ Start with these documents:
 - [06G portfolio registration](OLR_06G_REGISTRATION.md): source-native certified strategy labels, fully paid restart schedules, calibrated root-level incidence selectors and cheap classical controls.
 - [06G results](OLR_06G_RESULTS.md): calibrated incidence selectors reverted to fixed demand; native portfolio gate FAIL.
 - [06H live frontier registration](OLR_06H_REGISTRATION.md): cloned exact shared ledger at a paid prefix, component-block counterfactual utility targets, matched deterministic controls and source/fresh native headroom gate.
+- [06H results](OLR_06H_RESULTS.md): both headroom gates FAIL; close finite rewrite allocation family.
+- [07A library receipt registration](OLR_07A_REGISTRATION.md): authentic Lean source goals, native speculative tactic receipt replay, four-call empirical feedback controls.
 - [OLR-METTA-05 registration](OLR_METTA_05_REGISTRATION.md): matched addressed/dense tied-memory comparison, three-to-five occupied-obligation load transfer, and focal-versus-sham receipt edits.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.

@@ -1,0 +1,49 @@
+name: OLR-07A authentic library receipt preflight
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/olr07a_library.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_olr07a.py"
+      - ".github/workflows/olr07a-library.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: olr07a-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OMP_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: leanprover/lean4
+          ref: 6caaee842e9495688c1567e78c0e68dbb96942aa
+          path: lean4-source
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Receipt and paid empirical tree tests
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m unittest discover -s ppt_gym/tests -p "test_olr07a.py" -v
+      - name: Authentic source states and native receipt replays
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m ppt_gym.olr07a_library --lean-source "${{ github.workspace }}/lean4-source" --out runs/olr07a
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: olr07a-native-library
+          path: research/lean_cgrt_hrm400/runs/olr07a
+          if-no-files-found: ignore
