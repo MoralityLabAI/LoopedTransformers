@@ -1,0 +1,38 @@
+name: LRF-01 native proof reward feedback
+on:
+  push:
+    paths:
+      - 'experiments/lean_review_feedback/**'
+      - '.github/workflows/lean-review-feedback.yml'
+  pull_request:
+    paths:
+      - 'experiments/lean_review_feedback/**'
+      - '.github/workflows/lean-review-feedback.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-feedback:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original Lean 4.19
+        run: |
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst -o /tmp/lean419.tar.zst
+          tar --zstd -xf /tmp/lean419.tar.zst -C /tmp
+          echo "/tmp/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Unit tests
+        working-directory: experiments/lean_review_feedback
+        run: python -m unittest -v test_reward
+      - name: Replay original traces and matched native reward controls
+        run: python -u experiments/lean_review_feedback/pilot.py --out /tmp/lrf01
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lrf01-native-feedback
+          path: /tmp/lrf01
+          retention-days: 30
