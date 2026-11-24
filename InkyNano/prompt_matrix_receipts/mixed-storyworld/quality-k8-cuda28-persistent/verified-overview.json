@@ -1,0 +1,209 @@
+{
+  "scope": "One held-out Storyworld scene with two prompt modes and four cold 3050 policies. The Goose aggregate uses its historical workflow, cache, model and hardware.",
+  "requests": 8,
+  "independent_development_roots": 1,
+  "parsed_scenes": 0,
+  "valid_structures": 0,
+  "median_prefill_tps": 28.30579446086348,
+  "median_decode_tps": 0.9490259788203093,
+  "max_peak_rss_bytes": 3127844864,
+  "max_sampled_device_free_delta_bytes": 2134900736,
+  "historical_goose": {
+    "benchmark": "hilbert-storyworld-canvas-v1",
+    "storyworld": "The City That Lost Its Night Bell",
+    "run_id": "inky-storyworld-hilbert-20261124",
+    "runtime": {
+      "model": "inky-mini-varloop",
+      "model_label": "Inky Mini (IQ4_NL, 2 loops)",
+      "checkpoint": "TML-d24-varloop-research-IQ4_NL.gguf",
+      "context_tokens": 34816,
+      "loop_count": 2,
+      "cpu_moe_layers": 10,
+      "backend": "CUDA0 (RTX 5080 Laptop GPU)",
+      "logit_bias": "200008-inf",
+      "reasoning_budget": 0,
+      "seed": 523,
+      "temperature": 0.0
+    },
+    "conveyor_16k": {
+      "total_recorded_turns": 145,
+      "http_200_timed_turns": 89,
+      "preflight_parity_turns": 89,
+      "total_prompt_tokens_in": 234586,
+      "total_cached_prompt_tokens": 110899,
+      "total_uncached_prompt_tokens": 123687,
+      "total_completion_tokens_out": 149847,
+      "aggregate_prefill_tps": 36.006,
+      "aggregate_decode_tps": 9.478,
+      "total_provider_wall_seconds": 19351.52,
+      "cached_prompt_token_fraction": 0.47274347147741125
+    },
+    "planning": [
+      {
+        "target_prompt_tokens": 16384,
+        "prompt_tokens": 16384,
+        "completion_tokens": 1024,
+        "prefill_tps": 16.528,
+        "decode_tps": 8.003,
+        "wall_seconds": 1119.203,
+        "finish_reason": "length",
+        "accepted_long_context_plan": false
+      },
+      {
+        "target_prompt_tokens": 24576,
+        "prompt_tokens": 24577,
+        "completion_tokens": 1024,
+        "prefill_tps": 54.082,
+        "decode_tps": 17.344,
+        "wall_seconds": 513.578,
+        "finish_reason": "length",
+        "accepted_long_context_plan": false
+      },
+      {
+        "target_prompt_tokens": 32768,
+        "prompt_tokens": 32768,
+        "completion_tokens": 1024,
+        "prefill_tps": 47.715,
+        "decode_tps": 17.588,
+        "wall_seconds": 745.157,
+        "finish_reason": "length",
+        "accepted_long_context_plan": false
+      }
+    ],
+    "verified_canvas": {
+      "status": "verified",
+      "visited_scenes": 32,
+      "verified_secret_endings": [
+        "end_bell_as_question",
+        "end_bell_as_answer"
+      ]
+    },
+    "comparison_scope": "Historical authoring workflow with its original model, device and prompt cache"
+  },
+  "mode_results": {
+    "infill": {
+      "teacher_subset": {
+        "input_tokens": 484,
+        "output_tokens": 512,
+        "prefill_tps": 41.23872062998819,
+        "decode_tps": 0.9384296220290328,
+        "end_to_end_seconds": 607.2803391000016,
+        "quality": {
+          "parse_ok": false,
+          "schema_keys_present": false,
+          "storyworld_structure_ok": false,
+          "storyworld_paragraph_target_ok": false
+        },
+        "matches_scoped_teacher_completion": true,
+        "most_repeated_output_line_count": 102
+      },
+      "global": {
+        "input_tokens": 484,
+        "output_tokens": 512,
+        "prefill_tps": 27.52689011807631,
+        "decode_tps": 0.9492716488791664,
+        "end_to_end_seconds": 703.1635367999988,
+        "quality": {
+          "parse_ok": false,
+          "schema_keys_present": false,
+          "storyworld_structure_ok": false,
+          "storyworld_paragraph_target_ok": false
+        },
+        "matches_scoped_teacher_completion": true,
+        "most_repeated_output_line_count": 102
+      },
+      "ldt": {
+        "input_tokens": 484,
+        "output_tokens": 512,
+        "prefill_tps": 41.658062347380984,
+        "decode_tps": 0.8636397504882216,
+        "end_to_end_seconds": 702.5282328999965,
+        "quality": {
+          "parse_ok": false,
+          "schema_keys_present": false,
+          "storyworld_structure_ok": false,
+          "storyworld_paragraph_target_ok": false
+        },
+        "matches_scoped_teacher_completion": false,
+        "most_repeated_output_line_count": 102
+      },
+      "trm": {
+        "input_tokens": 484,
+        "output_tokens": 512,
+        "prefill_tps": 29.08469880365065,
+        "decode_tps": 0.9761182402013459,
+        "end_to_end_seconds": 648.113823300002,
+        "quality": {
+          "parse_ok": false,
+          "schema_keys_present": false,
+          "storyworld_structure_ok": false,
+          "storyworld_paragraph_target_ok": false
+        },
+        "matches_scoped_teacher_completion": false,
+        "most_repeated_output_line_count": 102
+      }
+    },
+    "outfill": {
+      "teacher_subset": {
+        "input_tokens": 445,
+        "output_tokens": 512,
+        "prefill_tps": 23.30340107925074,
+        "decode_tps": 0.9487803087614523,
+        "end_to_end_seconds": 604.1612820000009,
+        "quality": {
+          "parse_ok": false,
+          "schema_keys_present": false,
+          "storyworld_structure_ok": false,
+          "storyworld_paragraph_target_ok": false
+        },
+        "matches_scoped_teacher_completion": true,
+        "most_repeated_output_line_count": 1
+      },
+      "global": {
+        "input_tokens": 445,
+        "output_tokens": 512,
+        "prefill_tps": 31.69966324933412,
+        "decode_tps": 1.1454294361897612,
+        "end_to_end_seconds": 540.4089573000019,
+        "quality": {
+          "parse_ok": false,
+          "schema_keys_present": false,
+          "storyworld_structure_ok": false,
+          "storyworld_paragraph_target_ok": false
+        },
+        "matches_scoped_teacher_completion": false,
+        "most_repeated_output_line_count": 1
+      },
+      "ldt": {
+        "input_tokens": 445,
+        "output_tokens": 512,
+        "prefill_tps": 21.657857002947004,
+        "decode_tps": 1.0914793147671653,
+        "end_to_end_seconds": 577.0797154000029,
+        "quality": {
+          "parse_ok": false,
+          "schema_keys_present": false,
+          "storyworld_structure_ok": false,
+          "storyworld_paragraph_target_ok": false
+        },
+        "matches_scoped_teacher_completion": false,
+        "most_repeated_output_line_count": 2
+      },
+      "trm": {
+        "input_tokens": 445,
+        "output_tokens": 512,
+        "prefill_tps": 27.504130001464397,
+        "decode_tps": 0.7622124045313079,
+        "end_to_end_seconds": 795.4122399000007,
+        "quality": {
+          "parse_ok": false,
+          "schema_keys_present": false,
+          "storyworld_structure_ok": false,
+          "storyworld_paragraph_target_ok": false
+        },
+        "matches_scoped_teacher_completion": false,
+        "most_repeated_output_line_count": 3
+      }
+    }
+  }
+}

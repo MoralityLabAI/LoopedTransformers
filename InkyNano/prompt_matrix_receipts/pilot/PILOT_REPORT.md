@@ -99,10 +99,15 @@ The 12-expert control peaked at 2.91 GiB process RSS. Its native sampler measure
 
 ### Full-budget Storyworld infill
 
-The 12-expert control processed the 484-token infill prompt at 41.24 prefill tokens/s and generated 512 tokens at 0.94 decode tokens/s. It repeated the prompt's `</replacement>` delimiter and failed scene validation. Cold request time was 607.3 seconds in infill and 604.2 seconds in outfill. The reference scene passed the same structure checks in both modes. [Scoped control in both modes](../mixed-storyworld/storyworld-teacher-both-modes.json)
+Each policy processed the same 484-token infill prompt, reached 512 output tokens and failed the scene checks. The 12-expert control and global frequency returned identical text with 102 occurrences of `</replacement>`. LDT and TRM returned identical text with 102 occurrences of `</after>`. The four runs used the same 1,024-token context and CUDA placement settings. [Raw Storyworld receipts](../mixed-storyworld/quality-k8-cuda28-persistent/metrics.jsonl)
 
-The eight-expert global-frequency run used its outfill residency on the infill prompt. Prefill reached 27.53 tokens/s, decode reached 0.95 tokens/s and cold request time was 703.2 seconds. Its 512-token completion matched the 12-expert infill control exactly and repeated `</replacement>` 102 times. [Global-frequency metrics in both modes](../mixed-storyworld/storyworld-global-both-modes.json)
+| Policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds |
+| --- | ---: | ---: | ---: | ---: |
+| Scoped teacher | 12 | 41.24 | 0.94 | 607.3 |
+| Global frequency | 8 | 27.53 | 0.95 | 703.2 |
+| LDT | 8 | 41.66 | 0.86 | 702.5 |
+| TRM | 8 | 29.08 | 0.98 | 648.1 |
 
-The two infill controls spent 538.3 seconds decoding with global frequency and 544.5 seconds with the scoped teacher. The longer global-frequency cold request included 45.3 seconds of packing and 59.9 seconds outside the recorded stages. The scoped run spent 1.7 seconds outside the recorded stages. The receipts give aggregate cold time and decode time separately.
+The global-frequency and scoped controls spent 538.3 and 544.5 seconds decoding. Global frequency also spent 45.3 seconds packing and 59.9 seconds outside the recorded stages. The scoped run spent 1.7 seconds outside the recorded stages. [Per-stage receipts](../mixed-storyworld/storyworld-global-both-modes.json)
 
-LDT reached 512 infill tokens at 0.86 decode tokens/s and 702.5 seconds of cold request time. Its response repeated `</after>` and failed the scene checks. Its infill and outfill used identical resident experts. TRM is the remaining infill replay. [LDT metrics in both modes](../mixed-storyworld/storyworld-ldt-both-modes.json)
+Across the eight local Storyworld runs, median prefill was 28.31 tokens/s and median decode was 0.95 tokens/s. All eight failed scene validation on the single held-out root. The historical Goose rates summarize its multi-turn workflow on a different model and device, with prompt caching. [Complete Storyworld overview and historical comparison](../mixed-storyworld/quality-k8-cuda28-persistent/verified-overview.json)
