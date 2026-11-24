@@ -3,6 +3,7 @@
 Research program: compress Inkling 2 Mini into a text-first, locally runnable looped MoE with an LDT-controlled resident expert bank. Target: RTX 3050 4 GiB with CPU RAM backing, batch 1. This is an experimental scaffold, not released weights or an inference implementation.
 
 ## Cloud-to-local gym
+- [GGUF conversion report](GGUF_CONVERSION.md): resumable Colab CPU conversion of all 3,072 experts + text backbone to GGML GGUF bundles, 16-expert receipts, and selective LDT loader (`gguf_convert.py`, `gguf_loader.py`, `inkynano_colab_gguf.ipynb`).
 - [Stage 1 report](STAGE1.md): local controller sweep, receipts, and rerun commands.
 - [Stage 2 specification](STAGE2.md): native packed residency and activation-aware refinement.
 - [GYM.md](GYM.md): handoff schema, cloud export and RTX 3050 post-training commands.
