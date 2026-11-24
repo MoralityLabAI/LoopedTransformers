@@ -78,10 +78,19 @@ On the single Storyworld development root, averaged across both modes, global se
 
 Across six held-out requests, LDT chose five distinct layouts and TRM chose six. Global frequency used one. Of the 192 resident slots per request, LDT changed 3–10 and TRM changed 4–10 relative to global frequency. For the paired Storyworld prompts, LDT kept the same layout and TRM changed one slot between outfill and infill. [Resident expert selection audit](../mixed-storyworld/controllers-cuda-global-prior/selection-audit.json)
 
-The first full-budget Storyworld outfill used the 12-expert control on the RTX 3050. It reached 512 output tokens at 0.95 decode tokens/s and processed the 445-token prompt at 23.30 tokens/s. The completion failed JSON parsing and the structural checks. The published reference scene passes the local structural checks in both modes and misses the separate two-to-four-paragraph target. The cached Goose workflow recorded 36.01 prefill and 9.48 decode tokens/s on the RTX 5080 Laptop GPU. These measurements cover different workloads and runtime configurations. [Reference scene check](../mixed-storyworld/reference-scene-score.json) · [Outfill metrics and Goose comparison](../mixed-storyworld/first-storyworld-outfill.json)
+The published bank's packed projection sizes give a cold expert payload of 999,309,312 bytes per eight-expert request, which matches the runtime receipt. With a reusable resident cache, switching between the two Storyworld modes would admit zero expert bytes for LDT and 4,810,752 bytes for TRM. These estimates count packed expert projections. The measured cold path repacks the model for every request. [Expert admission estimates](../mixed-storyworld/controllers-cuda-global-prior/admission-estimates.json)
 
-The full-budget control peaked at 2.91 GiB process RSS. Its native sampler measured a 2,036 MiB drop in device free VRAM after CUDA initialization. A Windows `nvidia-smi` sample showed 2,114 MiB device-wide in use and the driver withheld per-process usage.
+### Full-budget Storyworld outfill
 
-Global frequency used eight experts per layer on the same outfill prompt. It reached 512 tokens at 1.15 decode tokens/s, with 31.70 prefill tokens/s and 540.4 seconds of cold request time. It also failed JSON parsing and the structural checks. The matched 12-expert control took 604.2 seconds, and the global-frequency run reduced peak process RSS to 2.53 GiB and the measured free-VRAM drop to 1.69 GiB. [Matched outfill control receipts](../mixed-storyworld/storyworld-outfill-controls.json)
+All four policies processed the same 445-token prompt on the RTX 3050. Each reached the 512-token limit and failed JSON parsing and the scene structure checks. The published reference scene passes the structure checks in both modes and misses the separate two-to-four-paragraph target. [Raw outfill metrics and historical Goose comparison](../mixed-storyworld/storyworld-outfill-matrix.json) · [Reference scene check](../mixed-storyworld/reference-scene-score.json)
 
-LDT changed 10 of 192 resident slots relative to global frequency on the same outfill prompt. It retained 85.91% of teacher decode routing mass versus 85.58% for global. It reached 512 tokens at 1.09 decode tokens/s with a 577.1-second cold request time. Its completion differed from global frequency and failed the same quality checks. The TRM outfill and the infill replays remain pending. [LDT outfill replay](../mixed-storyworld/storyworld-outfill-ldt.json)
+| Policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds |
+| --- | ---: | ---: | ---: | ---: |
+| Scoped teacher | 12 | 23.30 | 0.95 | 604.2 |
+| Global frequency | 8 | 31.70 | 1.15 | 540.4 |
+| LDT | 8 | 21.66 | 1.09 | 577.1 |
+| TRM | 8 | 27.50 | 0.76 | 795.4 |
+
+LDT exchanged 10 of 192 resident slots relative to global frequency on this prompt. It retained 85.91% of teacher decode routing mass versus 85.58% for global. [LDT outfill comparison](../mixed-storyworld/storyworld-outfill-ldt.json)
+
+The 12-expert control peaked at 2.91 GiB process RSS. Its native sampler measured a 2,036 MiB drop in device free VRAM after CUDA initialization. A Windows sample showed 2,114 MiB device-wide in use, and the driver withheld per-process usage. The eight-expert runs stayed near 2.53 GiB RSS and a 1.69 GiB native free-VRAM drop. Infill is in progress. [Scoped resource receipt](../mixed-storyworld/first-storyworld-outfill.json)

@@ -1,0 +1,160 @@
+{
+  "scope": "Packed expert projection payload if the prior resident set can be reused. Excludes the backbone, router rows, alignment, and runtime transfers.",
+  "plans_sha256": "66b14f1bbca60f0ef32110f9d9f81749a5acfbf0459f1ac400513ecfe03b2d6a",
+  "bank_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+  "bytes_per_expert_by_physical_layer": [
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    7174656,
+    7174656,
+    7174656,
+    7174656
+  ],
+  "cold_expert_payload_bytes_per_request": 999309312,
+  "by_policy": {
+    "global": {
+      "from_global_selection": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "storyworld-hilbert/enc_03/infill": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "storyworld-hilbert/enc_03/outfill": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "sudoku/1700012/infill": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "sudoku/1700012/outfill": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        }
+      },
+      "from_outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "storyworld-hilbert/enc_03": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "sudoku/1700012": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        }
+      }
+    },
+    "ldt": {
+      "from_global_selection": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "new_expert_slots": 5,
+          "packed_projection_bytes": 28781568
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "new_expert_slots": 3,
+          "packed_projection_bytes": 14432256
+        },
+        "storyworld-hilbert/enc_03/infill": {
+          "new_expert_slots": 10,
+          "packed_projection_bytes": 50471424
+        },
+        "storyworld-hilbert/enc_03/outfill": {
+          "new_expert_slots": 10,
+          "packed_projection_bytes": 50471424
+        },
+        "sudoku/1700012/infill": {
+          "new_expert_slots": 5,
+          "packed_projection_bytes": 28781568
+        },
+        "sudoku/1700012/outfill": {
+          "new_expert_slots": 5,
+          "packed_projection_bytes": 26417664
+        }
+      },
+      "from_outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "new_expert_slots": 2,
+          "packed_projection_bytes": 14349312
+        },
+        "storyworld-hilbert/enc_03": {
+          "new_expert_slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "sudoku/1700012": {
+          "new_expert_slots": 2,
+          "packed_projection_bytes": 11985408
+        }
+      }
+    },
+    "trm": {
+      "from_global_selection": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "new_expert_slots": 5,
+          "packed_projection_bytes": 24053760
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "new_expert_slots": 5,
+          "packed_projection_bytes": 28781568
+        },
+        "storyworld-hilbert/enc_03/infill": {
+          "new_expert_slots": 9,
+          "packed_projection_bytes": 45660672
+        },
+        "storyworld-hilbert/enc_03/outfill": {
+          "new_expert_slots": 10,
+          "packed_projection_bytes": 50471424
+        },
+        "sudoku/1700012/infill": {
+          "new_expert_slots": 4,
+          "packed_projection_bytes": 21606912
+        },
+        "sudoku/1700012/outfill": {
+          "new_expert_slots": 6,
+          "packed_projection_bytes": 33592320
+        }
+      },
+      "from_outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "new_expert_slots": 4,
+          "packed_projection_bytes": 23970816
+        },
+        "storyworld-hilbert/enc_03": {
+          "new_expert_slots": 1,
+          "packed_projection_bytes": 4810752
+        },
+        "sudoku/1700012": {
+          "new_expert_slots": 4,
+          "packed_projection_bytes": 21606912
+        }
+      }
+    }
+  }
+}
