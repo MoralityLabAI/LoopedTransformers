@@ -55,11 +55,18 @@ Serialized reference answers passed the score checks for both modes. The ARC ans
 
 Each prior-based learned policy selected four distinct layouts across the four grid requests. Global frequency used one. With a reusable cache, the ARC outfill-to-infill transition would admit 4 LDT slots or 5 TRM slots. The Sudoku transition would admit 3 or 8, respectively. The corresponding packed projection estimates are 18.35 MiB and 25.19 MiB for ARC, and 16.02 MiB and 41.21 MiB for Sudoku. [Grid residency and admission estimates](controllers-global-prior/admission-estimates.json)
 
-The first full-budget Sudoku outfill replay used the same prompt and 12-expert teacher model as the earlier CPU preview. Both runs reached 256 tokens, repeated JSON placeholders and failed exact-grid scoring. The completions differed. CPU reached 3.05 prefill and 1.22 decode tokens/s, with 281.7 seconds of native subprocess time. CUDA reached 10.02 prefill and 0.86 decode tokens/s, with 358.2 seconds of native subprocess time. [Full-budget Sudoku teacher pair](sudoku-outfill-full-answer-teacher-pair.json)
+### Full-budget Sudoku outfill
 
-The eight-expert CUDA global-frequency control used the same Sudoku outfill prompt. It repeated a row of givens and reached 256 tokens at 0.79 decode tokens/s. Its 466.2-second cold request failed exact-grid scoring. For both CUDA controls, the 24-token timing output was an exact prefix of the full completion. The 45 givens in the rendered prompts yielded one solution matching the scoring reference in both modes. [Full-budget Sudoku outfill controls](sudoku-outfill-full-answer-controls.json)
+All four CUDA policies used the same 95-token Sudoku outfill prompt, reached 256 output tokens and failed exact-grid scoring. The 45 givens in the rendered prompts yielded one solution matching the scoring reference in both modes. For both CUDA controls, the 24-token timing output was an exact prefix of the full completion. [Full-budget Sudoku outfill matrix](sudoku-outfill-full-answer-matrix.json) · [Reference uniqueness and control prefixes](sudoku-outfill-full-answer-controls.json)
 
-LDT Sudoku outfill used the same prior-based checkpoint as the CPU preview and reproduced its entire 256-token completion. Both failed exact-grid scoring. CPU reached 3.77 prefill and 1.88 decode tokens/s. CUDA reached 10.06 prefill and 0.80 decode tokens/s. Native subprocess times were 194.0 and 367.5 seconds, respectively. The CUDA LDT request took 406.1 seconds including packing, compared with 466.2 seconds for global frequency. [Full-budget Sudoku LDT CPU and CUDA pair](sudoku-outfill-full-answer-ldt-pair.json)
+| Sudoku outfill policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds |
+| --- | ---: | ---: | ---: | ---: |
+| Scoped teacher | 12 | 10.02 | 0.86 | 358.2 |
+| Global frequency | 8 | 6.51 | 0.79 | 466.2 |
+| LDT | 8 | 10.06 | 0.80 | 406.1 |
+| TRM | 8 | 10.45 | 0.86 | 384.3 |
+
+LDT and TRM each reproduced their own full 256-token CPU completion with the same trained checkpoint. LDT decoded at 1.88 tokens/s on CPU and 0.80 on CUDA. TRM decoded at 1.25 tokens/s on CPU and 0.86 on CUDA. The 12-expert teacher completions differed across backends. All three CPU previews also failed exact-grid scoring. Full-budget Sudoku infill is in progress. [LDT CPU and CUDA pair](sudoku-outfill-full-answer-ldt-pair.json) · [TRM CPU comparison](sudoku-outfill-full-answer-matrix.json) · [Scoped teacher CPU and CUDA pair](sudoku-outfill-full-answer-teacher-pair.json)
 
 ## RTX 3050 CUDA smoke
 
