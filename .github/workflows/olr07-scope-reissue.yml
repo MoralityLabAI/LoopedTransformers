@@ -1,6 +1,7 @@
 name: OLR-07 exact pre-command receipt reissue
 on:
-  pull_request:
+  push:
+    branches: ['research/olr-obligation-ledger-20261123']
     paths:
       - 'research/lean_cgrt_hrm400/lean/Trace.lean'
       - 'research/lean_cgrt_hrm400/ppt_gym/olr07_reissue.py'
@@ -11,7 +12,7 @@ permissions:
   actions: read
 concurrency:
   group: olr07-reissue-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   reissue:
     strategy:
