@@ -1,0 +1,20 @@
+name: LCD-01 source checks
+on:
+  pull_request:
+    paths:
+      - 'research_gym/scripts/lcd01_huginn.py'
+      - 'experiments/lcd01/**'
+      - '.github/workflows/lcd01-source.yml'
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m py_compile research_gym/scripts/lcd01_huginn.py
+      - run: python -m research_gym.scripts.lcd01_huginn --stage smoke
