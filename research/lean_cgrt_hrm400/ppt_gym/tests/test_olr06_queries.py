@@ -35,14 +35,16 @@ class QueryTests(unittest.TestCase):
     def test_delayed_relation_gain(self):
         root=delayed_example();p=Planner(root)
         self.assertEqual(p.closure(1)[-1],0)
-        self.assertEqual(p.choose(0,0,1),3)
-        self.assertEqual(p.choose(0,0,2),3)
+        self.assertIn(p.choose(0,0,1),(4,5))
+        self.assertIn(p.choose(0,0,2),(4,5))
+        q=p.values(0,0,2)
+        self.assertGreater(q[4],max(q[j] for j in (0,1,2,3,STOP)))
         greedy=p.expectation(lambda a,s:p.choose(a,s,1))
         two=p.expectation(lambda a,s:p.choose(a,s,2))
         opt=p.expectation(lambda a,s:p.choose(a,s))
-        self.assertEqual(greedy["resolved"],4)
-        self.assertEqual(two["resolved"],4)
-        self.assertEqual(opt["resolved"],5)
+        self.assertEqual(greedy["resolved"],6)
+        self.assertEqual(two["resolved"],6)
+        self.assertEqual(opt["resolved"],8)
         self.assertAlmostEqual(opt["utility"],p.value())
 
     def test_reference_against_independent_fraction_recursion(self):

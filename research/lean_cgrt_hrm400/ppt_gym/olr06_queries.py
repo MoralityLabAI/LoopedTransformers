@@ -169,13 +169,14 @@ def bank():
 
 
 def delayed_example():
-    # Three unknown main components (1,1,3), one distractor (2).
-    # Main path must use two relation queries and an anchor, total gain 5.
-    # Any immediate-gain greedy policy takes the distractor first;
-    # two-step lookahead also spends on it. Three-step optimum gets 5.
-    return Root((1,1,3,2),(),(
+    # Four main components (1,1,1,5), two distractors (2,2).
+    # Reaching the large component needs an anchor plus three relations.
+    # Any two-step-optimal opening chooses a distractor. Even receding
+    # horizon two-step search is then capped at 6, whereas full search gets 8.
+    return Root((1,1,1,5,2,2),(),(
         Offer("relation",0,1,1,4),Offer("relation",1,2,1,4),
-        Offer("anchor",0,0,1,4),Offer("anchor",3,3,1,4)),3,"delayed")
+        Offer("relation",2,3,1,4),Offer("anchor",0,0,1,4),
+        Offer("anchor",4,4,1,4),Offer("anchor",5,5,1,4)),4,"delayed")
 
 
 class Planner:

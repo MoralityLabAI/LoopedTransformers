@@ -47,8 +47,8 @@ jobs:
           m=json.load(open("runs/olr06b-eval/manifest.json",encoding="utf-8"))
           assert m["query_roots"]==80 and m["policy_trials"]==1520,m
           assert m["frozen_neural_state_tables"]==1200,m
-          assert m["delayed_example"]["optimal"]["resolved"]==5,m
-          assert m["delayed_example"]["lookahead2"]["resolved"]==4,m
+          assert m["delayed_example"]["optimal"]["resolved"]==8,m
+          assert m["delayed_example"]["lookahead2"]["resolved"]==6,m
           assert m["native_lean"] is False and m["architecture_promotion_eligible"] is False
           print("OLR06B exact expectation scorecard",json.dumps(m["scorecard"],sort_keys=True))
           PY
