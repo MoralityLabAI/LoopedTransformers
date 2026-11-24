@@ -87,11 +87,11 @@ def same_prefix(a,b,n):
     return {'id_mismatch_rows':mismatch,'compared_rows':total,'max_abs_weight_diff':max_delta}
 
 
-def write_roster_and_visits(r,arm,prompt_len,ids,vs,rf,tf,continuation):
+def write_roster_and_visits(r,arm,prompt_len,ids,vs,rf,tf,continuation,finish_reason=None):
     rf.write(json.dumps({'root':r['root'],'turn':arm,'family':r['family'],'split':r['split'],
         'source_kind':r['source_kind'],'source':r['source'],'category':r['category'],
         'arm':arm,'token_ids':ids,'prompt_len':prompt_len,
-        'prompt':r['prompt'],'continuation':continuation})+'\n')
+        'prompt':r['prompt'],'continuation':continuation,'finish_reason':finish_reason})+'\n')
     for l,per in vs.items():
         for pass_id,(ix,w) in enumerate(per):
             for t,(selected,weight) in enumerate(zip(ix.tolist(),w.tolist())):
@@ -158,7 +158,10 @@ def main():
                 else:
                     ids,vs=capture_online(model,routers,p,None,args.max_new_tokens,deadline=deadline)
                     text=tok.decode(ids[len(p):],skip_special_tokens=False)
-                write_roster_and_visits(r,arm,len(p),ids,vs,rf,tf,text)
+                eos=model.config.get_text_config().eos_token_id
+                eos_ids=eos if isinstance(eos,(list,tuple)) else [eos]
+                reason='reference' if arm=='reference_forced' else ('eos' if ids[-1] in eos_ids else 'token_cap')
+                write_roster_and_visits(r,arm,len(p),ids,vs,rf,tf,text,reason)
                 n+=1;lengths.append(len(ids)-len(p))
                 state['arms'][arm]={'roots':n,'continuation_lengths':lengths,'complete':False}
                 dump(out/'online_receipt.json',state)
