@@ -1,0 +1,667 @@
+{
+  "fiber_count_sweep_k3_endpoints": {
+    "1": {
+      "fn": 2,
+      "fp": 104,
+      "precision": 0.9655629139072848,
+      "tp": 2916
+    },
+    "2": {
+      "fn": 0,
+      "fp": 42,
+      "precision": 0.9858108108108108,
+      "tp": 2918
+    },
+    "3": {
+      "fn": 0,
+      "fp": 78,
+      "precision": 0.9739652870493992,
+      "tp": 2918
+    },
+    "4": {
+      "fn": 0,
+      "fp": 28,
+      "precision": 0.9904955872369314,
+      "tp": 2918
+    },
+    "5": {
+      "fn": 0,
+      "fp": 19,
+      "precision": 0.9935308137555329,
+      "tp": 2918
+    },
+    "L": {
+      "fn": 0,
+      "fp": 17,
+      "precision": 0.9942078364565587,
+      "tp": 2918
+    }
+  },
+  "float32_sigmoid_underflow_witness": {
+    "float32_smallest_subnormal": 1.1754943508222875e-38,
+    "gate_bias": -110.0,
+    "gated_message_max": 0.0,
+    "note": "sigma(z) > 0 and softplus(z) > 0 hold over the reals but not in float32 for z <~ -104; the positivity argument of section 1.2 is therefore a statement about ideal arithmetic",
+    "real_arithmetic_value_is_positive": true,
+    "sigmoid_value": 0.0
+  },
+  "float32_support_vs_symbolic": {
+    "107_rel_prov_opened": {
+      "1": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.9947897791862488,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 19114,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "10": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 12,
+        "min_positive": 2.984710700815185e-09,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 437832,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 8
+      },
+      "12": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 22,
+        "min_positive": 2.339750355268011e-12,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 473233,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 13
+      },
+      "2": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.568609893321991,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 39627,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "3": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.3534248173236847,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 68066,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "4": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.0215857345610857,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 112400,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "5": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.0035087026190012693,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 177983,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "6": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 2.4102802854031324e-05,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 253186,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "8": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 1,
+        "min_positive": 2.8636009119509254e-08,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 370670,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 1
+      }
+    },
+    "107_rel_prov_standard": {
+      "1": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.9982030391693115,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 19114,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "10": {
+        "exact_zero": 45653,
+        "le_1e-12": 87778,
+        "le_1e-6": 114022,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 437832,
+        "words_with_exact_zero_loss": 449,
+        "words_with_threshold_loss": 466
+      },
+      "12": {
+        "exact_zero": 48628,
+        "le_1e-12": 79011,
+        "le_1e-6": 97578,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 473233,
+        "words_with_exact_zero_loss": 411,
+        "words_with_threshold_loss": 445
+      },
+      "2": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.0014177811099216342,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 39627,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "3": {
+        "exact_zero": 0,
+        "le_1e-12": 138,
+        "le_1e-6": 1440,
+        "min_positive": 2.4868728393340933e-30,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 68066,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 238
+      },
+      "4": {
+        "exact_zero": 82,
+        "le_1e-12": 4231,
+        "le_1e-6": 15373,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 112400,
+        "words_with_exact_zero_loss": 21,
+        "words_with_threshold_loss": 455
+      },
+      "5": {
+        "exact_zero": 1915,
+        "le_1e-12": 21008,
+        "le_1e-6": 47828,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 177983,
+        "words_with_exact_zero_loss": 204,
+        "words_with_threshold_loss": 467
+      },
+      "6": {
+        "exact_zero": 8238,
+        "le_1e-12": 47788,
+        "le_1e-6": 82299,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 253186,
+        "words_with_exact_zero_loss": 380,
+        "words_with_threshold_loss": 467
+      },
+      "8": {
+        "exact_zero": 30366,
+        "le_1e-12": 82309,
+        "le_1e-6": 117008,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 370670,
+        "words_with_exact_zero_loss": 463,
+        "words_with_threshold_loss": 467
+      }
+    },
+    "109_rel_prov_opened": {
+      "1": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.9238154292106628,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 19114,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "10": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 24,
+        "min_positive": 7.982448729793035e-11,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 437832,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 10
+      },
+      "12": {
+        "exact_zero": 0,
+        "le_1e-12": 10,
+        "le_1e-6": 31,
+        "min_positive": 2.7480272470811373e-30,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 473233,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 15
+      },
+      "2": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.5366379618644714,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 39627,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "3": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.33515092730522156,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 68066,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "4": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.039410270750522614,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 112400,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "5": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.0012617171742022038,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 177983,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "6": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 4,
+        "min_positive": 5.347819183043612e-07,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 253186,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 1
+      },
+      "8": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 5,
+        "min_positive": 1.7152351761140494e-09,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 370670,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 3
+      }
+    },
+    "109_rel_prov_standard": {
+      "1": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.9809659123420715,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 19114,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "10": {
+        "exact_zero": 60506,
+        "le_1e-12": 111961,
+        "le_1e-6": 142526,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 437832,
+        "words_with_exact_zero_loss": 458,
+        "words_with_threshold_loss": 467
+      },
+      "12": {
+        "exact_zero": 65291,
+        "le_1e-12": 104076,
+        "le_1e-6": 126962,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 473233,
+        "words_with_exact_zero_loss": 418,
+        "words_with_threshold_loss": 455
+      },
+      "2": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.0010693153599277139,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 39627,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "3": {
+        "exact_zero": 0,
+        "le_1e-12": 200,
+        "le_1e-6": 2175,
+        "min_positive": 5.006550340575906e-31,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 68066,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 275
+      },
+      "4": {
+        "exact_zero": 114,
+        "le_1e-12": 5326,
+        "le_1e-6": 20230,
+        "min_positive": 2.802596928649634e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 112400,
+        "words_with_exact_zero_loss": 33,
+        "words_with_threshold_loss": 465
+      },
+      "5": {
+        "exact_zero": 2558,
+        "le_1e-12": 27420,
+        "le_1e-6": 55573,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 177983,
+        "words_with_exact_zero_loss": 243,
+        "words_with_threshold_loss": 467
+      },
+      "6": {
+        "exact_zero": 11176,
+        "le_1e-12": 59209,
+        "le_1e-6": 96968,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 253186,
+        "words_with_exact_zero_loss": 418,
+        "words_with_threshold_loss": 467
+      },
+      "8": {
+        "exact_zero": 41043,
+        "le_1e-12": 102743,
+        "le_1e-6": 140577,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 370670,
+        "words_with_exact_zero_loss": 465,
+        "words_with_threshold_loss": 467
+      }
+    },
+    "113_rel_prov_opened": {
+      "1": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.9600040912628174,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 19114,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "10": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 15,
+        "min_positive": 5.7544511378182506e-09,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 437832,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 9
+      },
+      "12": {
+        "exact_zero": 0,
+        "le_1e-12": 4,
+        "le_1e-6": 22,
+        "min_positive": 9.139447450565723e-18,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 473233,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 12
+      },
+      "2": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.55313640832901,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 39627,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "3": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.34461510181427,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 68066,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "4": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.07198376953601837,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 112400,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "5": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.003808816894888878,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 177983,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "6": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 1.1931056178582367e-05,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 253186,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "8": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 1,
+        "min_positive": 1.05501625213833e-08,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 370670,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 1
+      }
+    },
+    "113_rel_prov_standard": {
+      "1": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.9903098344802856,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 19114,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "10": {
+        "exact_zero": 58810,
+        "le_1e-12": 109186,
+        "le_1e-6": 139423,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 437832,
+        "words_with_exact_zero_loss": 459,
+        "words_with_threshold_loss": 467
+      },
+      "12": {
+        "exact_zero": 63016,
+        "le_1e-12": 101023,
+        "le_1e-6": 123514,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 473233,
+        "words_with_exact_zero_loss": 415,
+        "words_with_threshold_loss": 456
+      },
+      "2": {
+        "exact_zero": 0,
+        "le_1e-12": 0,
+        "le_1e-6": 0,
+        "min_positive": 0.0008811007719486952,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 39627,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 0
+      },
+      "3": {
+        "exact_zero": 0,
+        "le_1e-12": 215,
+        "le_1e-6": 2465,
+        "min_positive": 7.864790715476017e-32,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 68066,
+        "words_with_exact_zero_loss": 0,
+        "words_with_threshold_loss": 284
+      },
+      "4": {
+        "exact_zero": 114,
+        "le_1e-12": 5539,
+        "le_1e-6": 19191,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 112400,
+        "words_with_exact_zero_loss": 32,
+        "words_with_threshold_loss": 463
+      },
+      "5": {
+        "exact_zero": 2568,
+        "le_1e-12": 26855,
+        "le_1e-6": 55092,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 177983,
+        "words_with_exact_zero_loss": 247,
+        "words_with_threshold_loss": 467
+      },
+      "6": {
+        "exact_zero": 10918,
+        "le_1e-12": 58249,
+        "le_1e-6": 96001,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 253186,
+        "words_with_exact_zero_loss": 416,
+        "words_with_threshold_loss": 467
+      },
+      "8": {
+        "exact_zero": 39742,
+        "le_1e-12": 100751,
+        "le_1e-6": 138407,
+        "min_positive": 1.401298464324817e-45,
+        "neural_positive_outside_symbolic": 0,
+        "symbolic_cells": 370670,
+        "words_with_exact_zero_loss": 465,
+        "words_with_threshold_loss": 467
+      }
+    }
+  },
+  "k3_false_positive_decomposition_endpoints": {
+    "sym_adj2": {
+      "fn_cells": 0,
+      "fp_cells": 124,
+      "not_reachable_within_6": 11,
+      "reachable_within_6": 113
+    },
+    "sym_pos1": {
+      "fn_cells": 0,
+      "fp_cells": 1377,
+      "not_reachable_within_6": 629,
+      "reachable_within_6": 748
+    },
+    "sym_prov4_adj2": {
+      "fn_cells": 0,
+      "fp_cells": 28,
+      "not_reachable_within_6": 1,
+      "reachable_within_6": 27
+    },
+    "sym_sub3": {
+      "fn_cells": 0,
+      "fp_cells": 8,
+      "not_reachable_within_6": 0,
+      "reachable_within_6": 8
+    },
+    "words": 96
+  },
+  "pass1_fiber_collisions": {
+    "excess_redexes_sharing_fiber_different_position": 831,
+    "excess_redexes_sharing_fiber_same_position": 105,
+    "mean_redexes_per_word": 5.32762312633833,
+    "redex_count_histogram": {
+      "2": 9,
+      "3": 36,
+      "4": 88,
+      "5": 127,
+      "6": 113,
+      "7": 62,
+      "8": 25,
+      "9": 7
+    },
+    "words": 467,
+    "words_with_two_or_more_redexes_in_one_fiber": 426
+  },
+  "pass_grid": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    12
+  ],
+  "rational_saturation_attenuation": {
+    "entry": 1e-09,
+    "eps": 0.0001,
+    "float32_result_is_zero": false,
+    "mask_after_9_such_edges": 1.401298464324817e-45,
+    "note": "rho_eps(x) ~ x/eps for x << eps, so a chain of small entries attenuates geometrically; 'without exponential attenuation' holds only while entries stay >> eps",
+    "rho": 9.999900612456258e-06
+  },
+  "roots": 48,
+  "words": 467
+}
