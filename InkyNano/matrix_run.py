@@ -60,6 +60,10 @@ def run(args):
     guard.check()
     if args.rss_limit_bytes > available_memory() - GIB:
         raise MemoryError("insufficient host RAM for the configured native process limit plus headroom")
+    if args.runtime_library_manifest:
+        command = ["wsl.exe", "-d", args.wsl, "--exec"] if os.name == "nt" else []
+        command.extend(("sha256sum", "--check", runtime_path(args.runtime_library_manifest, args.wsl)))
+        subprocess.run(command, check=True, stdout=subprocess.DEVNULL)
     cases = cases_and_labels(args.cases)
     if args.command == "benchmark":
         cases = [case for case in cases if case["split"] == "dev"]
@@ -101,6 +105,8 @@ def run(args):
         spec["vram_limit_bytes"] = args.vram_limit_bytes
     if args.wsl_run_lock:
         spec["wsl_run_lock"] = args.wsl_run_lock
+    if args.runtime_library_manifest:
+        spec["runtime_library_manifest_sha256"] = sha(args.runtime_library_manifest)
     spec_path = args.out / "spec.json"
     if spec_path.is_file() and read_json(spec_path) != spec:
         raise ValueError("run settings changed; use a new --out directory")
@@ -235,6 +241,7 @@ def main():
         p.add_argument("--out", type=Path, required=True)
         p.add_argument("--wsl")
         p.add_argument("--wsl-run-lock", help="Linux lock path shared by local native model processes")
+        p.add_argument("--runtime-library-manifest", type=Path, help="sha256sum manifest of the native runtime files")
         p.add_argument("--context", type=int, default=2048)
         p.add_argument("--threads", type=int, default=4)
         p.add_argument("--batch-tokens", type=int, default=128)
@@ -256,6 +263,7 @@ def main():
             or a.context < 128 or a.threads < 1 or not 1 <= a.batch_tokens <= a.context or a.rss_limit_bytes <= (768 << 20)
             or a.gpu_layers < 0 or a.vram_limit_bytes <= 0
             or a.wsl_run_lock and (not a.wsl or not a.wsl_run_lock.startswith("/"))
+            or a.runtime_library_manifest and os.name == "nt" and not a.wsl
             or a.published_composition and not a.model or a.teacher_in_ram and not a.model):
         parser.error("invalid runtime limits")
     run(a)

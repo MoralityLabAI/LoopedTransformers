@@ -8,6 +8,13 @@ from matrix_cases import jsonl
 from stage1_data import read_json, write_json
 
 
+REPLAY_SETTINGS = (
+    "case_file_sha256", "model_sha256", "runtime_revision", "expert_manifest_sha256",
+    "context", "threads", "batch_tokens", "sampler", "max_new_override", "parse_special",
+    "rss_limit_bytes", "capacity", "teacher_in_ram", "plans_sha256", "controller_checkpoint_sha256",
+)
+
+
 def index(rows, policy=None):
     result = {}
     for row in rows:
@@ -16,6 +23,52 @@ def index(rows, policy=None):
             raise ValueError(f"duplicate benchmark result {key}")
         result[key] = row
     return result
+
+
+def compare_backends(cpu_rows, cuda_rows, cpu_spec, cuda_spec):
+    for specs, gpu in ((cpu_spec, False), (cuda_spec, True)):
+        layers = specs.get("n_gpu_layers", -1)
+        if (specs.get("command") != "benchmark" or layers < 0 or bool(layers) != gpu
+                or not specs.get("runtime_binary_sha256")):
+            raise ValueError("expected CPU and CUDA benchmark specifications in that order")
+    different = [field for field in REPLAY_SETTINGS
+                 if field not in cpu_spec or field not in cuda_spec or cpu_spec[field] != cuda_spec[field]]
+    if cpu_spec.get("published_composition_sha256") != cuda_spec.get("published_composition_sha256"):
+        different.append("published_composition_sha256")
+    if different:
+        raise ValueError(f"CPU/CUDA replay settings differ: {', '.join(different)}")
+
+    cpu, cuda = index(cpu_rows), index(cuda_rows)
+    paired = []
+    for key in sorted(cpu.keys() & cuda.keys()):
+        host, device = cpu[key], cuda[key]
+        identity = ("root", "task", "mode", "prompt_sha256", "model_sha256", "runtime_revision",
+                    "expert_manifest_sha256", "capacity", "storage_mode", "quality_evaluated")
+        different = [field for field in identity if host[field] != device[field]]
+        for field in ("model_sha256", "runtime_revision", "expert_manifest_sha256"):
+            if host[field] != cpu_spec[field] and field not in different:
+                different.append(field)
+        if different:
+            raise ValueError(f"CPU/CUDA receipt identity differs for {key}: {', '.join(different)}")
+        if ("cuda" in host or device.get("cuda", {}).get("gpu_layers_requested") != cuda_spec["n_gpu_layers"]
+                or device["cuda"].get("vram_cap_bytes") != cuda_spec.get("vram_limit_bytes")):
+            raise ValueError(f"backend telemetry does not match the specifications for {key}")
+        metrics = ("input_tokens", "output_tokens", "prefill_tps", "decode_tps", "end_to_end_seconds",
+                   "peak_rss_bytes", "stop", "quality")
+        same_counts = all(host[field] == device[field] for field in ("input_tokens", "output_tokens"))
+        result = {field: host[field] for field in ("case_id", "policy", "root", "task", "mode",
+                                                   "capacity", "prompt_sha256", "quality_evaluated")}
+        result.update(cpu={field: host[field] for field in metrics}, cuda={field: device[field] for field in metrics},
+                      cuda_offload=device["cuda"], same_token_counts=same_counts,
+                      same_output=host["content"] == device["content"])
+        if same_counts and device["end_to_end_seconds"] > 0:
+            result["cpu_to_cuda_wall_time_ratio"] = host["end_to_end_seconds"] / device["end_to_end_seconds"]
+        paired.append(result)
+    return {
+        "cpu_spec": cpu_spec, "cuda_spec": cuda_spec, "paired": paired,
+        "cpu_only": [list(key) for key in sorted(cpu.keys() - cuda.keys())],
+        "cuda_only": [list(key) for key in sorted(cuda.keys() - cpu.keys())],
+    }
 
 
 def historical_storyworld(receipt):
@@ -146,15 +199,23 @@ def compare(runtime, historical):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--matrix", type=Path, required=True)
+    p.add_argument("--cpu-baseline", type=Path, help="matching CPU metrics for a CUDA matrix, with sibling spec.json")
     p.add_argument("--goose-baseline", type=Path)
     p.add_argument("--goose-receipt", type=Path, help="historical MCP-05 Storyworld aggregate receipt")
     p.add_argument("--out", type=Path, required=True)
     a = p.parse_args()
-    outcome = compare(list(jsonl(a.matrix)), list(jsonl(a.goose_baseline)) if a.goose_baseline else [])
+    rows = list(jsonl(a.matrix))
+    outcome = compare(rows, list(jsonl(a.goose_baseline)) if a.goose_baseline else [])
+    if a.cpu_baseline:
+        outcome["matched_cpu_cuda"] = compare_backends(list(jsonl(a.cpu_baseline)), rows,
+                                                       read_json(a.cpu_baseline.with_name("spec.json")),
+                                                       read_json(a.matrix.with_name("spec.json")))
     if a.goose_receipt:
         outcome["historical_goose"] = historical_storyworld(read_json(a.goose_receipt))
     write_json(a.out, outcome)
-    print(f"{len(outcome['groups'])} metric groups, {len(outcome['paired'])} paired requests")
+    backend_count = len(outcome.get("matched_cpu_cuda", {}).get("paired", []))
+    print(f"{len(outcome['groups'])} metric groups, {len(outcome['paired'])} policy/baseline pairs, "
+          f"{backend_count} CPU/CUDA pairs")
 
 
 if __name__ == "__main__":

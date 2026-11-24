@@ -21,7 +21,9 @@ The prior-based TRM completed the Sudoku outfill request on CPU with 256 output 
 
 The same TRM completed the held-out ARC-AGI-2 outfill request with 384 output tokens at 1.17 decode tokens/s. It hit the output limit and scored zero on the test grid under both JSON pass@2 and exact compact-grid scoring. [ARC quality receipt](quality-trm-cpu-preview-arc-agi-2-outfill/receipt.json)
 
-The 12-expert teacher also reached 256 tokens on the same Sudoku outfill prompt and scored zero on both grid checks. Both the eight-expert TRM and the matched teacher failed this plain-completion setup. [Matched teacher receipt](quality-teacher_subset-cpu-preview/receipt.json)
+The 12-expert teacher also reached 256 tokens on the same Sudoku outfill prompt and scored zero on both grid checks. [Matched teacher receipt](quality-teacher_subset-cpu-preview/receipt.json)
+
+The eight-expert LDT with the train-root prior reached 256 tokens at 1.88 decode tokens/s and peaked at 2.36 GiB process RSS. It produced neither a parseable JSON grid nor an exact compact-grid match. All three policies tested on this held-out prompt failed both grid checks. [LDT quality receipt](quality-ldt-cpu-preview/receipt.json)
 
 The same teacher also scored zero on the Sudoku outfill with the pinned Inkling chat template and reasoning effort set to none. It reached the 256-token cap in both prompt conditions. [Templated teacher receipt](quality-teacher_subset-cpu-preview-chat/receipt.json)
 
@@ -29,7 +31,9 @@ The same teacher also scored zero on the Sudoku outfill with the pinned Inkling 
 
 The standard CUDA build generated eight tokens on the RTX 3050 Laptop GPU using the fixed eight-expert model, 32 llama.cpp offload slots, a 512-token context and a 32-token batch. It reached 3.37 prefill tokens/s and 1.23 decode tokens/s. The largest sampled device-wide free-memory drop was 1.64 GiB. The native process peaked at 1.90 GiB RSS. The 12-expert teacher exceeded the configured budget at 32 offload slots once runtime overhead was included. At 28 slots its allocation preflight passed for the 512-token timing and 1024-token quality contexts. [CUDA smoke receipt](cuda-smoke/native-cuda-smoke.json) · [Teacher preflight](cuda-smoke/native-cuda-teacher-inspect-28-1024.json)
 
-The first matched timing pair used the 12-expert teacher for ARC outfill with 199 input tokens and 24 output tokens on each backend. Prefill was 2.65 tokens/s on CPU and 27.38 on CUDA. Decode was 1.00 tokens/s on CPU and 0.88 on CUDA. End-to-end time was 136.2 seconds on CPU and 77.4 on CUDA, which sampled a 1.93 GiB device-wide free-memory drop and used 2.87 GiB peak process RSS. This pair measures one request. [Matched ARC receipt](cuda-smoke/first-matched-arc-timing.json)
+The first matched timing pair used the 12-expert teacher for ARC outfill with 199 input tokens and the same 24-token completion on both backends. Prefill was 2.65 tokens/s on CPU and 27.38 on CUDA. Decode was 1.00 tokens/s on CPU and 0.88 on CUDA. End-to-end time was 136.2 seconds on CPU and 77.4 on CUDA, which sampled a 1.93 GiB device-wide free-memory drop and used 2.87 GiB peak process RSS. This pair measures one request. [Matched ARC receipt](cuda-smoke/first-matched-arc-timing.json) · [Matched comparison and remaining pairs](bench-k8-cuda28-initial/summary-with-cpu.json)
+
+WSL restarted before the next CUDA request and cleared the build’s linked libraries under its temporary directory. The original timing receipt and executable checksum were preserved. A new run from the persistent build has a separate runtime identity and receipt directory.
 
 ## Held-out routing mass
 

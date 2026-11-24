@@ -8,7 +8,7 @@ import numpy as np
 import torch
 
 from matrix_cases import hilbert_storyworld_cases, render, score, sudoku_cases, sudoku_solutions
-from matrix_compare import compare, historical_storyworld
+from matrix_compare import REPLAY_SETTINGS, compare, compare_backends, historical_storyworld
 from matrix_expert_bank import ExpertBank, FORMAT
 from matrix_gguf import ARCH, LAYERS, PublishedComposition, pack, plan_array
 from prompt_matrix import PromptController, features, plans, select
@@ -80,6 +80,30 @@ class PromptMatrixTests(unittest.TestCase):
         self.assertEqual(matched["root_mean_correct_delta"], 1)
         mismatch = compare([{**global_control, "capacity": 16}, trm], [])
         self.assertEqual(mismatch["paired"], [])
+
+    def test_backend_comparison_pairs_partial_runs_and_checks_replay_identity(self):
+        cpu_spec = {field: None for field in REPLAY_SETTINGS}
+        cpu_spec.update(command="benchmark", model_sha256="model", runtime_revision="revision",
+                        n_gpu_layers=0, runtime_binary_sha256="cpu-bin", plans_sha256="plans")
+        cuda_spec = {**cpu_spec, "runtime_binary_sha256": "cuda-bin", "n_gpu_layers": 28, "vram_limit_bytes": 1024}
+        host = {"case_id": "a/infill", "policy": "ldt", "root": "a", "task": "sudoku", "mode": "infill",
+                "prompt_sha256": "prompt", "model_sha256": "model", "runtime_revision": "revision",
+                "expert_manifest_sha256": None, "capacity": 8, "storage_mode": "ram", "quality_evaluated": False,
+                "input_tokens": 20, "output_tokens": 5, "prefill_tps": 2, "decode_tps": 3, "end_to_end_seconds": 20,
+                "peak_rss_bytes": 200, "stop": "limit", "quality": {}, "content": "first"}
+        device = {**host, "end_to_end_seconds": 10, "content": "second",
+                  "cuda": {"gpu_layers_requested": 28, "vram_cap_bytes": 1024}}
+        result = compare_backends([host, {**host, "case_id": "b/infill"}], [device], cpu_spec, cuda_spec)
+        self.assertEqual(result["cpu_only"], [["b/infill", "ldt"]])
+        pair, = result["paired"]
+        self.assertEqual(pair["cpu_to_cuda_wall_time_ratio"], 2)
+        self.assertFalse(pair["same_output"])
+        different_length = compare_backends([host], [{**device, "output_tokens": 4}], cpu_spec, cuda_spec)
+        self.assertNotIn("cpu_to_cuda_wall_time_ratio", different_length["paired"][0])
+        with self.assertRaisesRegex(ValueError, "plans_sha256"):
+            compare_backends([host], [device], cpu_spec, {**cuda_spec, "plans_sha256": "other"})
+        with self.assertRaisesRegex(ValueError, "prompt_sha256"):
+            compare_backends([host], [{**device, "prompt_sha256": "different"}], cpu_spec, cuda_spec)
 
     def test_sudoku_modes_share_one_root_but_never_render_the_solution(self):
         outfill, infill, _, _ = sudoku_cases(1, 1, 17)
