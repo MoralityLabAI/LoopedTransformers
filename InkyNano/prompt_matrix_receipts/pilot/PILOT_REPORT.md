@@ -29,13 +29,18 @@ The same teacher also scored zero on the Sudoku outfill with the pinned Inkling 
 
 ### Full-answer RTX 3050 grid replay
 
-The first CUDA request used the 12-expert control on one held-out ARC-AGI-2 outfill from the public training set. It emitted repeated rows of zeros and reached 384 output tokens at 0.97 decode tokens/s. The recorded answer failed JSON parsing, test-grid pass@2 and exact compact-grid scoring. [First full-budget CUDA ARC receipt](first-full-answer-arc.json)
+On one held-out ARC-AGI-2 outfill from the public training set, all four CUDA policies reached 384 output tokens. The four completions differed and failed JSON parsing, test-grid pass@2 and exact compact-grid scoring. TRM repeated a digit row, and LDT repeated example headings. Their eight-expert layouts retained 93.28% and 92.98% of teacher decode routing mass, respectively. ARC infill and the Sudoku requests are in progress. [Full-budget ARC outfill receipts](arc-outfill-full-answer-matrix.json)
 
-The eight-expert global-frequency control used the same prompt. It reached 384 tokens at 1.02 decode tokens/s, with a different repeated digit row and the same failed scores. Its cold request took 521.6 seconds, compared with 506.0 seconds for the 12-expert control. [Full-budget ARC outfill controls](arc-outfill-full-answer-controls.json)
-
-The prior-based LDT retained 92.98% of teacher decode routing mass on this request. It reached 384 tokens at 0.98 decode tokens/s and finished in 479.9 seconds. The completion repeated example headings and failed all three ARC checks. TRM outfill and the remaining grid requests are in progress. [Full-budget ARC LDT outfill](arc-outfill-full-answer-ldt.json)
+| Policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds |
+| --- | ---: | ---: | ---: | ---: |
+| Scoped teacher | 12 | 14.71 | 0.97 | 506.0 |
+| Global frequency | 8 | 16.39 | 1.02 | 521.6 |
+| LDT | 8 | 27.26 | 0.98 | 479.9 |
+| TRM | 8 | 16.94 | 1.00 | 526.1 |
 
 Serialized reference answers passed the score checks for both modes. The ARC answer used 153 of its 384 output tokens, and the Sudoku answer used 187 of its 256. The pinned tokenizer reproduced the native prompt token counts for all four grid requests. [Reference answer budget check](answer-budget-check.json)
+
+Each prior-based learned policy selected four distinct layouts across the four grid requests. Global frequency used one. With a reusable cache, the ARC outfill-to-infill transition would admit 4 LDT slots or 5 TRM slots. The Sudoku transition would admit 3 or 8, respectively. The corresponding packed projection estimates are 18.35 MiB and 25.19 MiB for ARC, and 16.02 MiB and 41.21 MiB for Sudoku. [Grid residency and admission estimates](controllers-global-prior/admission-estimates.json)
 
 ## RTX 3050 CUDA smoke
 

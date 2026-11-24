@@ -1,0 +1,127 @@
+{
+  "scope": "Full-answer grid fit, two development roots and both modes. Manifest projection payload for admissions with a reusable cache.",
+  "plans_sha256": "0270f14a2a1498296e7329cff589533f7cf7fde596177662d365a0bbdc6bfbbe",
+  "bank_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+  "cold_expert_payload_bytes_per_request": 999309312,
+  "bytes_per_expert_by_physical_layer": [
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    4810752,
+    7174656,
+    7174656,
+    7174656,
+    7174656
+  ],
+  "policies": {
+    "global": {
+      "distinct_layouts": 1,
+      "from_global": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "sudoku/1700012/infill": {
+          "slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "sudoku/1700012/outfill": {
+          "slots": 0,
+          "packed_projection_bytes": 0
+        }
+      },
+      "outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "slots": 0,
+          "packed_projection_bytes": 0
+        },
+        "sudoku/1700012": {
+          "slots": 0,
+          "packed_projection_bytes": 0
+        }
+      }
+    },
+    "ldt": {
+      "distinct_layouts": 4,
+      "from_global": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "slots": 3,
+          "packed_projection_bytes": 14432256
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "slots": 1,
+          "packed_projection_bytes": 4810752
+        },
+        "sudoku/1700012/infill": {
+          "slots": 3,
+          "packed_projection_bytes": 14432256
+        },
+        "sudoku/1700012/outfill": {
+          "slots": 4,
+          "packed_projection_bytes": 21606912
+        }
+      },
+      "outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "slots": 4,
+          "packed_projection_bytes": 19243008
+        },
+        "sudoku/1700012": {
+          "slots": 3,
+          "packed_projection_bytes": 16796160
+        }
+      }
+    },
+    "trm": {
+      "distinct_layouts": 4,
+      "from_global": {
+        "arc-agi-2-training/2de01db2/infill": {
+          "slots": 3,
+          "packed_projection_bytes": 14432256
+        },
+        "arc-agi-2-training/2de01db2/outfill": {
+          "slots": 5,
+          "packed_projection_bytes": 26417664
+        },
+        "sudoku/1700012/infill": {
+          "slots": 6,
+          "packed_projection_bytes": 35956224
+        },
+        "sudoku/1700012/outfill": {
+          "slots": 7,
+          "packed_projection_bytes": 36039168
+        }
+      },
+      "outfill_to_infill": {
+        "arc-agi-2-training/2de01db2": {
+          "slots": 5,
+          "packed_projection_bytes": 26417664
+        },
+        "sudoku/1700012": {
+          "slots": 8,
+          "packed_projection_bytes": 43213824
+        }
+      }
+    }
+  }
+}
