@@ -72,7 +72,9 @@ LDT and TRM each reproduced their own full 256-token CPU completion with the sam
 
 The 12-expert control processed the 134-token infill prompt at 18.26 prefill tokens/s. It reached 256 output tokens at 0.82 decode tokens/s, repeated `</after>` 51 times and failed exact-grid scoring. Cold request time was 367.3 seconds in infill and 358.2 seconds in outfill. [Full-budget Sudoku control in both modes](sudoku-teacher-full-answer-both-modes.json)
 
-The eight-expert global-frequency layout returned the same infill completion as the 12-expert control. It reached 256 output tokens, repeated `</after>` 51 times and failed exact-grid scoring. Prefill was 14.12 tokens/s, decode was 0.73 tokens/s and cold request time was 438.2 seconds. The LDT and TRM infill runs are pending. [Full-budget global-frequency Sudoku in both modes](sudoku-global-full-answer-both-modes.json)
+The eight-expert global-frequency layout returned the same infill completion as the 12-expert control. It reached 256 output tokens, repeated `</after>` 51 times and failed exact-grid scoring. Prefill was 14.12 tokens/s, decode was 0.73 tokens/s and cold request time was 438.2 seconds. [Full-budget global-frequency Sudoku in both modes](sudoku-global-full-answer-both-modes.json)
+
+The eight-expert LDT returned the same infill completion as both controls. It reached 256 output tokens and failed exact-grid scoring. Prefill was 10.49 tokens/s, decode was 0.82 tokens/s and cold request time was 450.0 seconds. The TRM attempt stopped at the 2 GiB device-wide free-memory guard and wrote no scored completion. [LDT Sudoku receipts and TRM guard event](sudoku-ldt-full-answer-both-modes.json)
 
 ## RTX 3050 CUDA smoke
 
