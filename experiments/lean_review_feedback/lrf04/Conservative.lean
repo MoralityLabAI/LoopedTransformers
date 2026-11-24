@@ -16,7 +16,7 @@ theorem conservative_sound {S O A : Type} [DecidableEq O]
     (h : conservative obs auth xs o a = true) : auth s a = true := by
   have hp : (xs.any (fun t => decide (obs t = o)) &&
       xs.all (fun t => if obs t = o then auth t a else true)) = true := h
-  have hall := (Bool.and_eq_true.mp hp).2
+  have hall := (Bool.and_eq_true_iff.mp hp).2
   have hs := (List.all_eq_true.mp hall) s hm
   simpa [ho] using hs
 
