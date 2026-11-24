@@ -122,11 +122,12 @@ def step(model,e,h,idx,t):
 
 def errors(x,y):
     d=x.float()-y.float()
-    return dict(max_abs=float(d.abs().max()),
-                relative=float(norm(d)/norm(y).clamp_min(1e-20)))
+    a=float(d.abs().max())
+    b=float(norm(d)/norm(y).clamp_min(1e-20))
+    return dict(max_abs=a if math.isfinite(a) else None,relative=b if math.isfinite(b) else None)
 
 def within(r):
-    return math.isfinite(r["relative"]) and r["max_abs"]<=.125 and r["relative"]<=.005
+    return r["relative"] is not None and r["max_abs"] is not None and r["max_abs"]<=.125 and r["relative"]<=.005
 
 @torch.inference_mode()
 def admit(model,tok,roots):
@@ -148,6 +149,13 @@ def admit(model,tok,roots):
         native=model(input_ids=ids,num_steps=DEPTH,use_cache=False).logits[:,-1].float()
         parity=errors(z,native)
         top1=bool((z.argmax(-1)==native.argmax(-1)).all())
+        ss=base.trajectory(model,ids,seed,32,(DEPTH,))
+        prefix=errors(ss[DEPTH],saved[DEPTH][0])
+        z32=base.read(model,ss[32])
+        torch.manual_seed(seed)
+        n32=model(input_ids=ids,num_steps=32,use_cache=False).logits[:,-1].float()
+        parity32=errors(z32,n32)
+        top32=bool((z32.argmax(-1)==n32.argmax(-1)).all())
         hs,ix=saved[8]
         resumed=hs.clone()
         j=clone_idx(ix)
@@ -164,8 +172,10 @@ def admit(model,tok,roots):
             torch.manual_seed(seed+2)
             v,_=step(model,e,hs.clone(),clone_idx(saved[t][1]),t)
             comparisons.append(dict(step=t,**errors(v,ref)))
-        passed=top1 and within(parity) and within(resume) and all(within(r) for r in comparisons)
-        result.append(dict(id=it["id"],parity=parity,top1_equal=top1,resume=resume,
+        passed=(top1 and top32 and within(parity) and within(parity32) and within(prefix)
+                and within(resume) and all(within(r) for r in comparisons))
+        result.append(dict(id=it["id"],parity=parity,top1_equal=top1,parity32=parity32,
+                           top1_equal32=top32,prefix16=prefix,resume=resume,
                            same_input_map=comparisons,passed=passed))
         ok=ok and passed
     return ok,result
@@ -191,13 +201,14 @@ def forward(model,ids,it,c,diagnose=False):
     source=c.get("source",c)
     at=source.get("at",0)
     window=source.get("window",0)
+    ref_at=source.get("ref",at-4)
     history=[]
     if window and at-window==0:
         history=[h.clone()]
     rec=None
     for t in range(1,depth+1):
         h,idx=step(model,e,h,idx,t-1)
-        if method in ("scalar","matched_scalar") and t==at-4:
+        if method in ("scalar","matched_scalar") and t==ref_at:
             ref=h.clone()
         if window and at-window<=t<=at:
             history.append(h.clone())
@@ -253,6 +264,8 @@ def evaluate(model,tok,labels,cand,roots,arms,meta,out,admission,timed=False):
                 e,h,idx,depth=diag
                 next_h,_=step(model,e,h.clone(),clone_idx(idx),depth)
                 residual=float(norm(next_h.float()-h.float())/norm(h).clamp_min(1e-20))
+                if not math.isfinite(residual):
+                    raise ValueError("nonfinite native diagnostic residual")
                 del e,h,idx,next_h
             r=base.row(z,cand,target)
             r.update(id=it["id"],family=it["family"],target=target,seed=spectral.seed(it),
@@ -270,7 +283,8 @@ def choose(arms,summaries):
     def best(method,at=None):
         keys=[k for k,c in arms.items() if c["method"]==method and (at is None or c["at"]==at)]
         return arms[min(keys,key=lambda k:(-summaries[k]["accuracy"],summaries[k]["nll"],k))]
-    out={"base16":dict(method="base"),"base32":dict(method="deep")}
+    out={"base16":dict(method="base"),"base32":dict(method="deep"),
+         "loopcd16":dict(method="scalar",at=16,ref=6,dose=.5)}
     for at in INTERVENTIONS:
         a=best("anderson",at)
         out[f"aa{at}"]=a
@@ -314,7 +328,7 @@ def main(a):
     for at in INTERVENTIONS:
         r=rows[f"aa{at}"]
         comp[str(at)]={}
-        for name in ("base16","base32",f"scalar{at}",f"matched_scalar{at}",f"matched_random{at}"):
+        for name in ("base16","base32","loopcd16",f"scalar{at}",f"matched_scalar{at}",f"matched_random{at}"):
             b=rows[name]
             comp[str(at)][name]=dict(paired=base.paired(r,b),
                 latency_ratio=None if name.startswith("matched") else sum(x["latency_ms"] for x in r)/sum(x["latency_ms"] for x in b),
