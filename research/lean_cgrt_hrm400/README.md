@@ -29,6 +29,8 @@ Start with these documents:
 - [06F anytime abstraction registration](OLR_06F_REGISTRATION.md): partially settled reverse-Dijkstra pattern tables, monotone lower bounds, lazy queue rekey, and a single charged abstract+concrete work budget.
 - [06F results](OLR_06F_RESULTS.md): total-work headroom gate PASS (19/24 best fixed per panel, 23/24 hindsight).
 - [06G portfolio registration](OLR_06G_REGISTRATION.md): source-native certified strategy labels, fully paid restart schedules, calibrated root-level incidence selectors and cheap classical controls.
+- [06G results](OLR_06G_RESULTS.md): calibrated incidence selectors reverted to fixed demand; native portfolio gate FAIL.
+- [06H live frontier registration](OLR_06H_REGISTRATION.md): cloned exact shared ledger at a paid prefix, component-block counterfactual utility targets, matched deterministic controls and source/fresh native headroom gate.
 - [OLR-METTA-05 registration](OLR_METTA_05_REGISTRATION.md): matched addressed/dense tied-memory comparison, three-to-five occupied-obligation load transfer, and focal-versus-sham receipt edits.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.
