@@ -167,8 +167,11 @@ def evaluate_candidate(task,candidate,out:Path,lean="lean",allowed=ALLOWED):
             return done("contract_axiom_disagreement_censored")
         result["contract"]=True
     elif second["status"]=="rejected":
-        # A failed equality/application gate is an unestablished contract,
-        # not a proof of semantic inequivalence or falsity.
+        # Only known native contract diagnostics are negative reward evidence.
+        # A generic crash or unrelated elaboration failure remains censored.
+        diagnostic=second.get("error_excerpt","").lower()
+        if not re.search(r"type mismatch|rfl.*failed|failed.*rfl|not definitionally equal",diagnostic,re.S):
+            return done("contract_unknown_censored")
         result["contract"]=False
     else:return done("contract_unknown_censored")
     if not result["foundation"]:
