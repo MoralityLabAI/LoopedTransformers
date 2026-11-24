@@ -59,13 +59,14 @@
     "cuda-smoke/persistent/sudoku-outfill-timing.json": "6cc6442b5f0a93c61848e2a5a122bede997571ceafb493eaac003273e7d09264",
     "first-full-answer-arc.json": "c09cddf95c6c0a5cbb0f558932bb7304d26c235e073103144270627c72af062c",
     "offline-summary.json": "552579542a899e7b95bde3d6f592f22fa6d72c9598fc5349e9781ab7c98fa7ab",
-    "PILOT_REPORT.md": "998d62a90d08706da3831e78fe6974c65ab9e9beda758a08dac9516e3439307c",
+    "PILOT_REPORT.md": "c3bd66f066013f546afe27327608d725e66c17f91bc717a8c626c9b380e9dd4f",
     "quality-ldt-cpu-preview/receipt.json": "a1fae80adbc25185b090b6ce6cd9dd5278202aa18059b4dd2c985f7a0937c3b0",
     "quality-teacher_subset-cpu-preview/receipt.json": "b8abb7bd1357f165591802ba0ee4124c2ca5849a0a5666daa4a639e8d6e19b5a",
     "quality-teacher_subset-cpu-preview-chat/receipt.json": "bed8bdaa3278344073861737a9ff2de89796fe4f91a2fbd4114600dd93a666a6",
     "quality-trm-cpu-preview/receipt.json": "c69a77cc78b59ab97af7068a3e45f25545be00eefc975a76c3fd824165e0291d",
     "quality-trm-cpu-preview-arc-agi-2-outfill/receipt.json": "bf457a07b0924efe4ad4bb5563d78aeadfb5868b9be868637237ad4f95f0cdc9",
     "sudoku-outfill-full-answer-controls.json": "276982ddf54ce7ba9c25cfcbb701209cbd753b85e313312e25d2080f8e2b6954",
+    "sudoku-outfill-full-answer-ldt-pair.json": "9db5b237de14e86d21d74ba5affd363e50aec452afa3748558fcd1cf0b454b26",
     "sudoku-outfill-full-answer-teacher-pair.json": "793ad9dcfdda3c6200f9ac2c8e2c0abf08da8c9003f370cbad50ae830506fea8"
   },
   "validation": {
@@ -93,12 +94,13 @@
     "persistent_grid_timing_pairs": 16,
     "persistent_grid_completion_matches": 13,
     "persistent_grid_pairs_within_budgets": true,
-    "full_budget_cuda_grid_rows_at_snapshot": 10,
+    "full_budget_cuda_grid_rows_at_snapshot": 11,
     "grid_reference_budget_checks": 4,
     "full_budget_arc_outfill_correct": 0,
     "arc_control_short_prefix_matches": 4,
     "full_budget_arc_correct": 0,
     "full_budget_arc_infill_distinct_completions": 1,
-    "sudoku_control_outfill_short_prefix_matches": 2
+    "sudoku_control_outfill_short_prefix_matches": 2,
+    "sudoku_ldt_full_answer_cpu_cuda_match": true
   }
 }
