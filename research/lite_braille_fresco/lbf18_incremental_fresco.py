@@ -1609,37 +1609,56 @@ def fit_hybrid_sym_rec_model(rg, train_frames: list[dict], draws_rows: list[list
     pw_weights = [0.20, 0.30, 0.50]
 
     for step_idx, batch_indices in enumerate(draws_rows):
-        opt.zero_grad()
+        opt.zero_grad(set_to_none=True)
         bsz = max(1, len(batch_indices))
         for fi in batch_indices:
             fr = train_frames[fi]
             c = fr["case"]
-            s = fr["state"]
             rk = canonical_rules_key(c.rules)
-            miss = [w for w in (s.fronts[0] + s.fronts[1]) if (rk, w) not in word_bank]
-            if miss:
-                ents, _ = compute_sym_bitset_word_entries(c, list(dict.fromkeys(miss)), use_rust=True)
-                for w, ent in zip(dict.fromkeys(miss), ents):
-                    word_bank[(rk, w)] = ent
-            u_ent = [word_bank[(rk, w)] for w in s.fronts[0]]
-            v_ent = [word_bank[(rk, w)] for w in s.fronts[1]]
-            pools, dh, lb, sp = model.compute_rib_pools(u_ent, v_ent)
-            outs = model.forward_from_pools(c, s, fr["rem_budget"], u_ent, v_ent, pools, dh, lb, sp)
+            st_cur = fr["state"].clone_light()
 
-            tgt_act = fr["action_targets"]
-            tgt_pair = fr["pair_targets"]
-            loss_item = torch.zeros((), dtype=torch.float32)
+            def get_ents(words_list):
+                miss = [w for w in words_list if (rk, w) not in word_bank]
+                if miss:
+                    uniq_m = list(dict.fromkeys(miss))
+                    ents, _ = compute_sym_bitset_word_entries(c, uniq_m, use_rust=True)
+                    for w, ent in zip(uniq_m, ents):
+                        word_bank[(rk, w)] = ent
+                return [word_bank[(rk, w)] for w in words_list]
+
+            if fr["prev_state"] is not None and step_idx >= 160:
+                with torch.no_grad():
+                    pu_e = get_ents(fr["prev_state"].fronts[0])
+                    pv_e = get_ents(fr["prev_state"].fronts[1])
+                    ppools, pdh, plb, psp = model.compute_rib_pools(pu_e, pv_e)
+                    po = model.forward_from_pools(c, fr["prev_state"], fr["prev_rem"], pu_e, pv_e, ppools, pdh, plb, psp)
+                    psig = po[-1]["pot"].sigmoid()
+                    pm = float(psig.mean().item())
+                    st_cur.prev_pot = {
+                        (u, v): float(psig[i, j].item()) - pm
+                        for i, u in enumerate(fr["prev_state"].fronts[0])
+                        for j, v in enumerate(fr["prev_state"].fronts[1])
+                    }
+
+            u_ent = get_ents(st_cur.fronts[0])
+            v_ent = get_ents(st_cur.fronts[1])
+            pools, dh, lb, sp = model.compute_rib_pools(u_ent, v_ent)
+            outs = model.forward_from_pools(c, st_cur, fr["rem"], u_ent, v_ent, pools, dh, lb, sp)
+
+            ym = fr["y_mat"]
+            ny = fr["node_y"]
+            pos_w = ym.new_full(ym.shape, 5.0)
+            tprob = torch.softmax(ny * 4.0, dim=0)
+            fl = torch.zeros((), dtype=torch.float32)
+            ws = 0.0
             for k, out in enumerate(outs):
-                scores = torch.cat([out["s0"], out["s1"]], dim=0)
-                log_p = F.log_softmax(scores, dim=0)
-                kl = -(tgt_act * log_p).sum()
-                feas = ~out["infeas"]
-                if bool(feas.any()):
-                    bce = F.binary_cross_entropy_with_logits(out["pot"][feas], tgt_pair[feas])
-                else:
-                    bce = torch.zeros((), dtype=torch.float32)
-                loss_item = loss_item + pw_weights[k] * (kl + 0.35 * bce)
-            (loss_item / bsz).backward()
+                wk = float((k + 1) ** 2)
+                lm = F.binary_cross_entropy_with_logits(out["pot"], ym, pos_weight=pos_w)
+                sc = torch.cat([out["s0"], out["s1"]], dim=0)
+                lr = -(tprob * F.log_softmax(sc, dim=0)).sum()
+                fl = fl + wk * (lm + lr)
+                ws += wk
+            ((fl / ws) / bsz).backward()
         nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
         sched.step()
@@ -1671,7 +1690,7 @@ def calibrate_adaptive_margins_on_train(
         for seed, (model, ckpt_sha) in sorted(models_by_seed.items()):
             ctrl = IncrementalFrescoController(model, ckpt_sha, use_rust=True)
             for fr in train_frames:
-                c, s, rem = fr["case"], fr["state"], fr["rem_budget"]
+                c, s, rem = fr["case"], fr["state"], fr["rem"]
                 outs = ctrl.forward(c, s, rem, mode="normal")
                 infeas = outs[-1]["infeas"]
                 fu = ~infeas.all(dim=1)
@@ -2830,7 +2849,7 @@ def run_calibration_phase(rg, out_dir: Path, scratch_dir: Path) -> dict:
         else:
             draws_gz = LBF17_RESULTS_DIR / f"{seed}_rel_prov_opened" / "draws.jsonl.gz"
             draws_rows = [
-                json.loads(ln)["frame_indices"]
+                json.loads(ln)["frames"]
                 for ln in gzip.decompress(draws_gz.read_bytes()).decode("utf-8").splitlines()
                 if ln.strip()
             ]
