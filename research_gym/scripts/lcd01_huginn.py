@@ -127,8 +127,8 @@ def score_from_states(model, states, cfg, seed):
     h = states[depth]
     if m == "base":
         return read(model, h), 1
-    if m in ("hidden", "random_hidden"):
-        return read(model, hidden_guidance(h, states[r], w, seed if m == "random_hidden" else None)), 1
+    if m in ("hidden", "random_hidden", "random_matched"):
+        return read(model, hidden_guidance(h, states[r], w, seed if m != "hidden" else None)), 1
     z = read(model, h)
     if m == "temperature":
         return logit_guidance(z, z, w, m), 1
@@ -198,6 +198,8 @@ def run(args):
                 raise ValueError("freeze mismatch: "+k)
         if {r["id"] for r in cal} & {r["id"] for r in evaluation}:
             raise ValueError("split collision")
+        if freeze.get("status") != "CALIBRATED":
+            raise ValueError("calibration incomplete")
         selected = freeze["selected"]
         if freeze["freeze_sha"] != digest(selected):
             raise ValueError("freeze digest mismatch")
@@ -206,6 +208,8 @@ def run(args):
             raise ValueError("incomplete freeze")
         if any(c not in configs(c["depth"]) for c in selected):
             raise ValueError("invalid frozen config")
+        # Add an exact dose/reference-matched random arm alongside its independently tuned version.
+        selected = list(selected) + [dict(c, method="random_matched") for c in selected if c["method"]=="hidden"]
         use = evaluation
         meta["eval_sha"] = digest(use)
         meta["freeze_sha"] = freeze["freeze_sha"]
@@ -224,9 +228,11 @@ def run(args):
                 torch.manual_seed(73)
                 b = model(input_ids=ids,num_steps=depth,use_cache=False).logits[:,-1].float()
                 err = float((a-b).abs().max())
-                parity.append(dict(id=it["id"],depth=depth,max_abs=err,
+                prefix = trajectory(model,ids,73,max(DEPTHS),(depth,))[depth]
+                prefix_err = float((h[depth].float()-prefix.float()).abs().max())
+                parity.append(dict(id=it["id"],depth=depth,max_abs=err,prefix_max_abs=prefix_err,
                                    top1_equal=bool((a.argmax(-1)==b.argmax(-1)).all())))
-                if not torch.isfinite(a).all() or not torch.isfinite(b).all() or err > .125 or not parity[-1]["top1_equal"]:
+                if not torch.isfinite(a).all() or not torch.isfinite(b).all() or err > .125 or prefix_err > .125 or not parity[-1]["top1_equal"]:
                     write(args.out, dict(meta=meta,status="BLOCKED_PARITY",parity=parity))
                     raise RuntimeError("manual recurrence parity failed; inspect receipt")
     all_rows = {key(c):[] for c in selected}
@@ -261,6 +267,8 @@ def run(args):
                           latency_ms=ms,peak_bytes=peak)
             all_rows[key(c)].append(record)
             del z
+            if args.stage == "test":
+                del states
         if len(all_rows[key(selected[0])]) % 8 == 0:
             print(args.stage,len(all_rows[key(selected[0])]),"/",len(use),flush=True)
             write(args.out,dict(meta=meta,status="IN_PROGRESS",parity=parity,rows=all_rows))
