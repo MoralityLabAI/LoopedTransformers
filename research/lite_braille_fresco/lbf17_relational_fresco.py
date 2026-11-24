@@ -18,12 +18,16 @@ from __future__ import annotations
 
 import argparse
 from collections import defaultdict, deque
+import functools
 import html
+import json
 import math
+import os
 from pathlib import Path
 import random
 import re
 import subprocess
+import sys
 import time
 
 import torch
@@ -371,25 +375,45 @@ def symbolic_prov4_adj2(rules: tuple[tuple[str, str], ...], w0: str,
 # ============================================================================
 # 2. Differentiable S6-Equivariant Relational-Provenance Fresco Architecture
 # ============================================================================
+@functools.lru_cache(maxsize=512)
+def _cached_pos_rules(rules: tuple[tuple[str, str], ...]):
+    return m16.EquivariantHorizonFrescoNet.encode_rule_tensors(rules)
+
+
+@functools.lru_cache(maxsize=32768)
+def _cached_pub_matches(rules: tuple[tuple[str, str], ...], word: str) -> tuple[int, int]:
+    matches = 0
+    checks = 0
+    L = len(word)
+    for a, b in rules:
+        la = len(a)
+        for p in range(L - la + 1):
+            checks += 1
+            sub = word[p:p + la]
+            if sub == a or sub == b:
+                matches += 1
+    return matches, checks
+
+
 def trellis_arc_filter_soft(e: torch.Tensor, eps: float = 1e-4) -> torch.Tensor:
-    """Zero-preserving S6-equivariant differentiable forward-backward trellis filter."""
-    Lm1 = e.shape[-4]
-    rho = e / (e + eps)
-    fwd = [None] * Lm1
-    cur_f = rho[..., 0, :, :, :].amax(dim=-2)
-    for p in range(Lm1):
-        fwd[p] = cur_f
-        if p + 1 < Lm1:
-            cur_f = (cur_f.unsqueeze(-2) * rho[..., p, :, :, :]).amax(dim=-3)
-    bwd = [None] * Lm1
-    cur_b = rho[..., Lm1 - 1, :, :, :].amax(dim=-3)
-    for p in range(Lm1 - 1, -1, -1):
-        bwd[p] = cur_b
-        if p > 0:
-            cur_b = (rho[..., p, :, :, :] * cur_b.unsqueeze(-3)).amax(dim=-2)
-    f_stack = torch.stack(fwd, dim=-3).unsqueeze(-2)
-    b_stack = torch.stack(bwd, dim=-3).unsqueeze(-3)
-    return e * f_stack * b_stack
+    """Zero-preserving S6-equivariant forward-backward trellis filter (exact support mask)."""
+    with torch.no_grad():
+        Lm1 = e.shape[-4]
+        rho = e / (e + eps)
+        fwd = [None] * Lm1
+        cur_f = rho[..., 0, :, :, :].amax(dim=-2)
+        for p in range(Lm1):
+            fwd[p] = cur_f
+            if p + 1 < Lm1:
+                cur_f = (cur_f.unsqueeze(-2) * rho[..., p, :, :, :]).amax(dim=-3)
+        bwd = [None] * Lm1
+        cur_b = rho[..., Lm1 - 1, :, :, :].amax(dim=-3)
+        for p in range(Lm1 - 1, -1, -1):
+            bwd[p] = cur_b
+            if p > 0:
+                cur_b = (rho[..., p, :, :, :] * cur_b.unsqueeze(-3)).amax(dim=-2)
+        mask = torch.stack(fwd, dim=-3).unsqueeze(-2) * torch.stack(bwd, dim=-3).unsqueeze(-3)
+    return e * mask
 
 
 class FastProvenanceBigramCell(nn.Module):
@@ -405,6 +429,7 @@ class FastProvenanceBigramCell(nn.Module):
             self.rule3_mlp = nn.Sequential(nn.Linear(3 * cb, 2 * cb), nn.GELU(), nn.Linear(2 * cb, cb), nn.Softplus())
 
     @staticmethod
+    @functools.lru_cache(maxsize=512)
     def encode_bigram_rules(rules: tuple[tuple[str, str], ...]):
         r2_x, r2_y, r3_x, r3_y = [], [], [], []
         for a, b in rules:
@@ -423,7 +448,9 @@ class FastProvenanceBigramCell(nn.Module):
             y2 = torch.stack(r2_y)
             x2_bi = (x2[:, 0, :, None] * x2[:, 1, None, :]).reshape(-1, 36)
             y2_bi = (y2[:, 0, :, None] * y2[:, 1, None, :]).reshape(-1, 36)
-            out2 = (x2, y2, x2_bi, y2_bi)
+            ml2 = (x2[:, 0, :, None] * y2[:, 0, None, :]).reshape(-1, 36)
+            mr2 = (x2[:, 1, :, None] * y2[:, 1, None, :]).reshape(-1, 36)
+            out2 = (x2, y2, x2_bi, y2_bi, ml2, mr2)
         out3 = None
         if r3_x:
             x3 = torch.stack(r3_x)
@@ -432,7 +459,9 @@ class FastProvenanceBigramCell(nn.Module):
             x3_b1 = (x3[:, 1, :, None] * x3[:, 2, None, :]).reshape(-1, 36)
             y3_b0 = (y3[:, 0, :, None] * y3[:, 1, None, :]).reshape(-1, 36)
             y3_b1 = (y3[:, 1, :, None] * y3[:, 2, None, :]).reshape(-1, 36)
-            out3 = (x3, y3, x3_b0, x3_b1, y3_b0, y3_b1)
+            ml3 = (x3[:, 0, :, None] * y3[:, 0, None, :]).reshape(-1, 36)
+            mr3 = (x3[:, 2, :, None] * y3[:, 2, None, :]).reshape(-1, 36)
+            out3 = (x3, y3, x3_b0, x3_b1, y3_b0, y3_b1, ml3, mr3)
         return out2, out3
 
     def forward(self, oh_bi: torch.Tensor, pass_idx: int, gated_bi: torch.Tensor,
@@ -444,94 +473,108 @@ class FastProvenanceBigramCell(nn.Module):
         if pass_idx == 0:
             q = oh_bi.unsqueeze(1).expand(N, 1, Lm1, 6, 6, Cb)
         else:
-            q = trellis_arc_filter_soft(torch.clamp(gated_bi, 0.0, 1.5))
+            q = torch.clamp(gated_bi, 0.0, 1.5)
 
         if scramble_pos is not None:
             inv = torch.argsort(scramble_pos)
-            qw = q[:, :, scramble_pos, :, :, :]
+            qw = q[:, :, scramble_pos, :, :, :].contiguous()
         else:
-            qw = q
+            qw = q.contiguous()
 
-        qw36 = qw.reshape(N, qw.shape[1], Lm1, 36, Cb)
-        oh36 = oh_bi.reshape(N, Lm1, 36)
+        QFp = qw.shape[1]
+        qw_c36 = qw.reshape(N, QFp, Lm1, 36, Cb).movedim(-1, -2).contiguous()
+        with torch.no_grad():
+            q_ind = qw / (qw + 1e-4)
+            q36_ind = q_ind.reshape(N, QFp, Lm1, 36, Cb)
+            oh36 = oh_bi.reshape(N, Lm1, 36)
+            p_idx = torch.arange(Lm1)
+            f_idx = torch.arange(Fp)
+            q_edge = torch.arange(Lm1)
+
         rew36 = torch.zeros((N, Fp, Lm1, 36, Cb), dtype=oh_bi.dtype)
         rew_bd = torch.zeros((N, Fp, Lm1, 6, 6, Cb), dtype=oh_bi.dtype)
 
-        p_idx = torch.arange(Lm1)
-        f_idx = torch.arange(Fp)
-        q_edge = torch.arange(Lm1)
-
         if r2_pack is not None and Lm1 >= 1:
-            x2, y2, x2_bi, y2_bi = r2_pack
-            pi2 = torch.einsum("nfpkc,ek->nfepc", qw36, x2_bi)
+            x2, y2, x2_bi, y2_bi, ml2, mr2 = r2_pack[:6] if len(r2_pack) == 6 else (
+                *r2_pack,
+                (r2_pack[0][:, 0, :, None] * r2_pack[1][:, 0, None, :]).reshape(-1, 36),
+                (r2_pack[0][:, 1, :, None] * r2_pack[1][:, 1, None, :]).reshape(-1, 36),
+            )
+            pi2 = (qw_c36 @ x2_bi.t()).permute(0, 1, 4, 2, 3).contiguous()
             if pass_idx == 1 and self.use_provenance:
-                rhs_is_root = torch.einsum("npk,ek->nep", oh36, y2_bi) > 0.99
-                same_fib = (p_idx[None, :] % Fp == f_idx[:, None])
-                pi2 = pi2.masked_fill((rhs_is_root[:, None, :, :] & same_fib[None, :, None, :]).unsqueeze(-1), 0.0)
+                with torch.no_grad():
+                    rhs_is_root = (oh36 @ y2_bi.t()).transpose(1, 2) > 0.99
+                    same_fib = (p_idx[None, :] % Fp == f_idx[:, None])
+                    sup2 = (rhs_is_root[:, None, :, :] & same_fib[None, :, None, :]).unsqueeze(-1)
+                pi2 = pi2.masked_fill(sup2, 0.0)
             act2 = (self.rule2_mlp(pi2) * pi2) if self.learned else pi2
             if pass_idx == 0 and self.use_provenance:
                 route2 = (p_idx[None, :] % Fp == f_idx[:, None]).float()
                 act2 = act2.expand(N, Fp, -1, Lm1, Cb) * route2[None, :, None, :, None]
-                qw_ctx = qw.expand(N, Fp, Lm1, 6, 6, Cb)
-                qw36_ctx = qw36.expand(N, Fp, Lm1, 36, Cb)
+                q_ind_ctx = q_ind.expand(N, Fp, Lm1, 6, 6, Cb)
+                q36_ind_ctx = q36_ind.expand(N, Fp, Lm1, 36, Cb)
             else:
-                qw_ctx = qw
-                qw36_ctx = qw36
+                q_ind_ctx = q_ind
+                q36_ind_ctx = q36_ind
 
-            rew36 = rew36 + torch.einsum("nfepc,ek->nfpkc", act2, y2_bi)
+            act2_p = act2.permute(0, 1, 3, 4, 2).contiguous()
+            rew36 = rew36 + (act2_p @ y2_bi).movedim(-2, -1)
             if Lm1 >= 2:
-                left_m = torch.einsum("nfpasc,es->nfepac", qw_ctx[:, :, :-1], x2[:, 0])
-                left_m = left_m / (left_m + 1e-4)
-                t_l2 = act2[:, :, :, 1:, None, :] * left_m
-                rew_bd[:, :, :-1] = rew_bd[:, :, :-1] + torch.einsum("nfepac,ed->nfpadc", t_l2, y2[:, 0])
+                tl2 = (act2_p[:, :, 1:] @ ml2).reshape(N, Fp, Lm1 - 1, Cb, 6, 6)
+                qi_l = q_ind_ctx[:, :, :-1].movedim(-1, -3)
+                rew_bd[:, :, :-1] = rew_bd[:, :, :-1] + (qi_l @ tl2).movedim(-3, -1)
 
-                right_m = torch.einsum("nfpsbc,es->nfepbc", qw_ctx[:, :, 1:], x2[:, 1])
-                right_m = right_m / (right_m + 1e-4)
-                t_r2 = act2[:, :, :, :-1, None, :] * right_m
-                rew_bd[:, :, 1:] = rew_bd[:, :, 1:] + torch.einsum("nfepbc,ed->nfpdbc", t_r2, y2[:, 1])
+                tr2 = (act2_p[:, :, :-1] @ mr2).reshape(N, Fp, Lm1 - 1, Cb, 6, 6)
+                qi_r = q_ind_ctx[:, :, 1:].movedim(-1, -3)
+                rew_bd[:, :, 1:] = rew_bd[:, :, 1:] + (tr2.transpose(-1, -2) @ qi_r).movedim(-3, -1)
 
             ctx_m2 = ((q_edge[None, :] < p_idx[:, None] - 1) | (q_edge[None, :] > p_idx[:, None] + 1)).float()
-            ctx_w2 = torch.einsum("nfepc,pq->nfqc", act2, ctx_m2)
-            rew36 = rew36 + ctx_w2[:, :, :, None, :] * (qw36_ctx / (qw36_ctx + 1e-4))
+            ctx_w2 = (act2_p.sum(dim=-1).movedim(-1, -2) @ ctx_m2).movedim(-2, -1)
+            rew36 = rew36 + ctx_w2.unsqueeze(-2) * q36_ind_ctx
 
         if r3_pack is not None and Lm1 >= 2:
-            x3, y3, x3_b0, x3_b1, y3_b0, y3_b1 = r3_pack
+            x3, y3, x3_b0, x3_b1, y3_b0, y3_b1, ml3, mr3 = r3_pack[:8] if len(r3_pack) == 8 else (
+                *r3_pack,
+                (r3_pack[0][:, 0, :, None] * r3_pack[1][:, 0, None, :]).reshape(-1, 36),
+                (r3_pack[0][:, 2, :, None] * r3_pack[1][:, 2, None, :]).reshape(-1, 36),
+            )
             Lm2 = Lm1 - 1
             p3_idx = torch.arange(Lm2)
-            m3_0 = torch.einsum("nfpkc,ek->nfepc", qw36[:, :, :-1], x3_b0)
-            m3_1 = torch.einsum("nfpkc,ek->nfepc", qw36[:, :, 1:], x3_b1)
+            m3_0 = (qw_c36[:, :, :-1] @ x3_b0.t()).permute(0, 1, 4, 2, 3).contiguous()
+            m3_1 = (qw_c36[:, :, 1:] @ x3_b1.t()).permute(0, 1, 4, 2, 3).contiguous()
             pi3 = m3_0 * m3_1
             if pass_idx == 1 and self.use_provenance:
-                r0 = torch.einsum("npk,ek->nep", oh36[:, :-1], y3_b0) > 0.99
-                r1 = torch.einsum("npk,ek->nep", oh36[:, 1:], y3_b1) > 0.99
-                same_fib3 = (p3_idx[None, :] % Fp == f_idx[:, None])
-                pi3 = pi3.masked_fill(((r0 & r1)[:, None, :, :] & same_fib3[None, :, None, :]).unsqueeze(-1), 0.0)
+                with torch.no_grad():
+                    r0 = (oh36[:, :-1] @ y3_b0.t()).transpose(1, 2) > 0.99
+                    r1 = (oh36[:, 1:] @ y3_b1.t()).transpose(1, 2) > 0.99
+                    same_fib3 = (p3_idx[None, :] % Fp == f_idx[:, None])
+                    sup3 = ((r0 & r1)[:, None, :, :] & same_fib3[None, :, None, :]).unsqueeze(-1)
+                pi3 = pi3.masked_fill(sup3, 0.0)
             act3 = (self.rule3_mlp(torch.cat([pi3, m3_0, m3_1], dim=-1)) * pi3) if self.learned else pi3
             if pass_idx == 0 and self.use_provenance:
                 route3 = (p3_idx[None, :] % Fp == f_idx[:, None]).float()
                 act3 = act3.expand(N, Fp, -1, Lm2, Cb) * route3[None, :, None, :, None]
-                qw_ctx = qw.expand(N, Fp, Lm1, 6, 6, Cb)
-                qw36_ctx = qw36.expand(N, Fp, Lm1, 36, Cb)
+                q_ind_ctx = q_ind.expand(N, Fp, Lm1, 6, 6, Cb)
+                q36_ind_ctx = q36_ind.expand(N, Fp, Lm1, 36, Cb)
             else:
-                qw_ctx = qw
-                qw36_ctx = qw36
+                q_ind_ctx = q_ind
+                q36_ind_ctx = q36_ind
 
-            rew36[:, :, :-1] = rew36[:, :, :-1] + torch.einsum("nfepc,ek->nfpkc", act3, y3_b0)
-            rew36[:, :, 1:] = rew36[:, :, 1:] + torch.einsum("nfepc,ek->nfpkc", act3, y3_b1)
+            act3_p = act3.permute(0, 1, 3, 4, 2).contiguous()
+            rew36[:, :, :-1] = rew36[:, :, :-1] + (act3_p @ y3_b0).movedim(-2, -1)
+            rew36[:, :, 1:] = rew36[:, :, 1:] + (act3_p @ y3_b1).movedim(-2, -1)
             if Lm2 >= 2:
-                left3_m = torch.einsum("nfpasc,es->nfepac", qw_ctx[:, :, :-2], x3[:, 0])
-                left3_m = left3_m / (left3_m + 1e-4)
-                t_l3 = act3[:, :, :, 1:, None, :] * left3_m
-                rew_bd[:, :, :-2] = rew_bd[:, :, :-2] + torch.einsum("nfepac,ed->nfpadc", t_l3, y3[:, 0])
+                tl3 = (act3_p[:, :, 1:] @ ml3).reshape(N, Fp, Lm2 - 1, Cb, 6, 6)
+                qi_l3 = q_ind_ctx[:, :, :-2].movedim(-1, -3)
+                rew_bd[:, :, :-2] = rew_bd[:, :, :-2] + (qi_l3 @ tl3).movedim(-3, -1)
 
-                right3_m = torch.einsum("nfpsbc,es->nfepbc", qw_ctx[:, :, 2:], x3[:, 2])
-                right3_m = right3_m / (right3_m + 1e-4)
-                t_r3 = act3[:, :, :, :-1, None, :] * right3_m
-                rew_bd[:, :, 2:] = rew_bd[:, :, 2:] + torch.einsum("nfepbc,ed->nfpdbc", t_r3, y3[:, 2])
+                tr3 = (act3_p[:, :, :-1] @ mr3).reshape(N, Fp, Lm2 - 1, Cb, 6, 6)
+                qi_r3 = q_ind_ctx[:, :, 2:].movedim(-1, -3)
+                rew_bd[:, :, 2:] = rew_bd[:, :, 2:] + (tr3.transpose(-1, -2) @ qi_r3).movedim(-3, -1)
 
             ctx_m3 = ((q_edge[None, :] < p3_idx[:, None] - 1) | (q_edge[None, :] > p3_idx[:, None] + 2)).float()
-            ctx_w3 = torch.einsum("nfepc,pq->nfqc", act3, ctx_m3)
-            rew36 = rew36 + ctx_w3[:, :, :, None, :] * (qw36_ctx / (qw36_ctx + 1e-4))
+            ctx_w3 = (act3_p.sum(dim=-1).movedim(-1, -2) @ ctx_m3).movedim(-2, -1)
+            rew36 = rew36 + ctx_w3.unsqueeze(-2) * q36_ind_ctx
 
         rew = rew36.reshape(N, Fp, Lm1, 6, 6, Cb) + rew_bd
         if scramble_pos is not None:
@@ -799,8 +842,10 @@ class RelationalProvenanceFrescoNet(nn.Module):
         L = len(case.source)
         Lm1 = L - 1
 
-        oh_u, oh_bi_u, hu, u_ids = self.init_words(u_words)
-        oh_v, oh_bi_v, hv, v_ids = self.init_words(v_words)
+        oh_all, oh_bi_all, h_all, all_ids = self.init_words(u_words + v_words)
+        oh_u, oh_v = oh_all[:m0], oh_all[m0:]
+        oh_bi_u, oh_bi_v = oh_bi_all[:m0], oh_bi_all[m0:]
+        u_ids, v_ids = all_ids[:m0], all_ids[m0:]
 
         g0 = torch.tensor([s.dist[0][w] for w in u_words], dtype=torch.float32)[:, None]
         g1 = torch.tensor([s.dist[1][w] for w in v_words], dtype=torch.float32)[None, :]
@@ -847,7 +892,7 @@ class RelationalProvenanceFrescoNet(nn.Module):
             dh_goal = (w_ids != g_ids[None, :]).sum(dim=-1).float() / L
             degs = []
             for w in words:
-                dg, ch = m15.public_rule_matches(case, w)
+                dg, ch = _cached_pub_matches(case.rules, w)
                 rule_win_checks += ch
                 degs.append(dg / 24.0)
             gs = torch.tensor([s.dist[side][w] / depth_cap for w in words], dtype=torch.float32)
@@ -903,14 +948,12 @@ class RelationalProvenanceFrescoNet(nn.Module):
                 row["bi_u_out"] = sym_bu3.detach().cpu().clone()
             return [row], rule_win_checks
 
-        r2_pos, r3_pos = m16.EquivariantHorizonFrescoNet.encode_rule_tensors(case.rules)
+        r2_pos, r3_pos = _cached_pos_rules(case.rules)
         r2_bi, r3_bi = (None, None) if self.is_lowrank else FastProvenanceBigramCell.encode_bigram_rules(case.rules)
 
-        bu = torch.zeros_like(hu)
-        bv = torch.zeros_like(hv)
+        b_all = torch.zeros_like(h_all)
         Fp = 1 if self.is_lowrank else (FP_FIBERS if self.use_prov else 1)
-        bi_u = None if self.is_lowrank else torch.zeros((m0, Fp, Lm1, 6, 6, self.cb))
-        bi_v = None if self.is_lowrank else torch.zeros((m1, Fp, Lm1, 6, 6, self.cb))
+        bi_all = None if self.is_lowrank else torch.zeros((m0 + m1, Fp, Lm1, 6, 6, self.cb))
 
         bu_anchor = bv_anchor = bi_u_anchor = bi_v_anchor = None
         bm = torch.zeros((m0, m1, self.dm), dtype=torch.float32)
@@ -925,71 +968,69 @@ class RelationalProvenanceFrescoNet(nn.Module):
         for k in range(self.passes):
             rule_win_checks += (m0 + m1) * win_per_word * (1 + (1 if k == 0 and bi_mult else bi_mult))
             if self.nonrecurrent:
-                gu = torch.zeros_like(hu)
-                gv = torch.zeros_like(hv)
-                hu, bu, _, qu = self.pos_cell(oh_u, hu, gu, bu, r2_pos, r3_pos, scramble_pos=win_perm_node)
-                hv, bv, _, qv = self.pos_cell(oh_v, hv, gv, bv, r2_pos, r3_pos, scramble_pos=win_perm_node)
-                gbi_u = torch.zeros_like(bi_u)
-                gbi_v = torch.zeros_like(bi_v)
-                bi_u, _ = self.bi_cell(oh_bi_u, 0, gbi_u, bi_u, r2_bi, r3_bi, scramble_pos=win_perm_edge)
-                bi_v, _ = self.bi_cell(oh_bi_v, 0, gbi_v, bi_v, r2_bi, r3_bi, scramble_pos=win_perm_edge)
+                g_all = torch.zeros_like(h_all)
+                h_all, b_all, _, q_all = self.pos_cell(oh_all, h_all, g_all, b_all, r2_pos, r3_pos, scramble_pos=win_perm_node)
+                gbi_all = torch.zeros_like(bi_all)
+                bi_all, _ = self.bi_cell(oh_bi_all, 0, gbi_all, bi_all, r2_bi, r3_bi, scramble_pos=win_perm_edge)
+                bu, bv = b_all[:m0], b_all[m0:]
+                qu, qv = q_all[:m0], q_all[m0:]
+                bi_u, bi_v = bi_all[:m0], bi_all[m0:]
                 bu_anchor, bv_anchor = bu, bv
                 bi_u_anchor, bi_v_anchor = bi_u, bi_v
                 mu_in = mbi_u = mm_in = None
-                su_gate = sv_gate = sm_gate = sbi_u = gm = None
+                s_pos_gate = sm_gate = sbi_u = gm = None
             else:
-                mu_in, mv_in = bu, bv
-                mbi_u, mbi_v = bi_u, bi_v
+                m_in = b_all
+                mbi_in = bi_all
                 mm_in = bm
                 if k > 0:
                     if mode == "env_zero":
-                        mu_in = torch.zeros_like(mu_in)
-                        mv_in = torch.zeros_like(mv_in)
-                        if mbi_u is not None:
-                            mbi_u = torch.zeros_like(mbi_u)
-                            mbi_v = torch.zeros_like(mbi_v)
+                        m_in = torch.zeros_like(m_in)
+                        if mbi_in is not None:
+                            mbi_in = torch.zeros_like(mbi_in)
                     elif mode == "env_roll":
-                        mu_in = mu_in.roll(1, dims=1)
-                        mv_in = mv_in.roll(1, dims=1)
-                        if mbi_u is not None:
-                            mbi_u = mbi_u.roll(1, dims=2)
-                            mbi_v = mbi_v.roll(1, dims=2)
+                        m_in = m_in.roll(1, dims=1)
+                        if mbi_in is not None:
+                            mbi_in = mbi_in.roll(1, dims=2)
                     elif mode == "mat_zero":
                         mm_in = torch.zeros_like(mm_in)
                     elif mode == "mat_roll":
                         mm_in = mm_in.roll(shifts=(1, 1), dims=(0, 1))
 
-                gu, su_gate = self.env_gate(hu, mu_in)
-                gv, sv_gate = self.env_gate(hv, mv_in)
+                g_all, s_pos_gate = self.env_gate(h_all, m_in)
                 if self.is_lowrank:
-                    hu, bu, qu = self.lowrank_cell(oh_u, hu, gu, mu_in, r2_pos, r3_pos, scramble_pos=win_perm_node)
-                    hv, bv, qv = self.lowrank_cell(oh_v, hv, gv, mv_in, r2_pos, r3_pos, scramble_pos=win_perm_node)
+                    h_all, b_all, q_all = self.lowrank_cell(oh_all, h_all, g_all, m_in, r2_pos, r3_pos, scramble_pos=win_perm_node)
                     sbi_u = None
                 else:
-                    hu, bu, _, qu = self.pos_cell(oh_u, hu, gu, mu_in, r2_pos, r3_pos, scramble_pos=win_perm_node)
-                    hv, bv, _, qv = self.pos_cell(oh_v, hv, gv, mv_in, r2_pos, r3_pos, scramble_pos=win_perm_node)
+                    h_all, b_all, _, q_all = self.pos_cell(oh_all, h_all, g_all, m_in, r2_pos, r3_pos, scramble_pos=win_perm_node)
                     if k == 0:
-                        gbi_u = torch.zeros_like(mbi_u)
-                        gbi_v = torch.zeros_like(mbi_v)
+                        gbi_all = torch.zeros_like(mbi_in)
                         sbi_u = torch.zeros((1,))
                     else:
-                        gbi_u, sbi_u = self.bi_gate(oh_bi_u.unsqueeze(1).expand_as(mbi_u), mbi_u)
-                        gbi_v, _ = self.bi_gate(oh_bi_v.unsqueeze(1).expand_as(mbi_v), mbi_v)
-                    bi_u, _ = self.bi_cell(oh_bi_u, k, gbi_u, mbi_u, r2_bi, r3_bi, scramble_pos=win_perm_edge)
-                    bi_v, _ = self.bi_cell(oh_bi_v, k, gbi_v, mbi_v, r2_bi, r3_bi, scramble_pos=win_perm_edge)
+                        gbi_all, sbi_all = self.bi_gate(oh_bi_all.unsqueeze(1).expand_as(mbi_in), mbi_in)
+                        sbi_u = sbi_all[:m0]
+                    bi_all, _ = self.bi_cell(oh_bi_all, k, gbi_all, mbi_in, r2_bi, r3_bi, scramble_pos=win_perm_edge)
+                bu, bv = b_all[:m0], b_all[m0:]
+                qu, qv = q_all[:m0], q_all[m0:]
+                bi_u = None if bi_all is None else bi_all[:m0]
+                bi_v = None if bi_all is None else bi_all[m0:]
+                mu_in = m_in[:m0]
+                mbi_u = None if mbi_in is None else mbi_in[:m0]
                 if k == 0:
                     bu_anchor, bv_anchor = bu, bv
                     bi_u_anchor, bi_v_anchor = bi_u, bi_v
 
             bu_nov = F.relu(bu - bu_anchor)
             bv_nov = F.relu(bv - bv_anchor)
-            ov_q = torch.einsum("ilsc,jlsc->ijlc", qu, qv)
-            ov_1hop = torch.einsum("ilsc,jlsc->ijlc", bu_anchor, bv_anchor)
-            ov_khop = torch.einsum("ilsc,jlsc->ijlc", bu_nov, bv_nov) + 0.5 * (
-                torch.einsum("ilsc,jlsc->ijlc", bu_nov, bv_anchor) + torch.einsum("ilsc,jlsc->ijlc", bu_anchor, bv_nov)
-            )
-            ov_u2v = torch.einsum("ilsc,jlsc->ijlc", bu, oh_v.expand_as(bv))
-            ov_v2u = torch.einsum("ilsc,jlsc->ijlc", oh_u.expand_as(bu), bv)
+            # Single batched matmul across all 6 positionwise overlap terms (L, 6*ce, m0, 6) @ (L, 6*ce, 6, m1)
+            u_pos_stack = torch.cat([qu, bu_anchor, bu_nov, 0.5 * bu_anchor, bu, oh_u.expand_as(bu)], dim=-1)
+            v_pos_stack = torch.cat([qv, bv_anchor, bv_nov + 0.5 * bv_anchor, bv_nov, oh_v.expand_as(bv), bv], dim=-1)
+            # u_pos_stack: (m0, L, 6, 6*ce) -> (L, 6*ce, m0, 6)
+            up_m = u_pos_stack.permute(1, 3, 0, 2).contiguous()
+            vp_m = v_pos_stack.permute(1, 3, 2, 0).contiguous()
+            ov_all6 = (up_m @ vp_m).permute(2, 3, 0, 1)  # (m0, m1, L, 6*ce)
+            ov_q, ov_1hop, ov_k1, ov_k2, ov_u2v, ov_v2u = ov_all6.split(self.ce, dim=-1)
+            ov_khop = ov_k1 + ov_k2
 
             if self.is_lowrank:
                 rib_raw = torch.cat([ov_q, ov_1hop, ov_khop, ov_u2v, ov_v2u, mismatch.float().unsqueeze(-1)], dim=-1)
@@ -1003,13 +1044,13 @@ class RelationalProvenanceFrescoNet(nn.Module):
                 obu0 = oh_bi_u.reshape(m0, Lm1, 36, 1).expand(m0, Lm1, 36, self.cb)
                 obv0 = oh_bi_v.reshape(m1, Lm1, 36, 1).expand(m1, Lm1, 36, self.cb)
 
-                b_0 = torch.einsum("ipkc,jpkc->ijpc", obu0, obv0)
-                b_1hop = torch.einsum("ipkc,jpkc->ijpc", au_bi, av_bi)
-                b_khop = torch.einsum("ipkc,jpkc->ijpc", nu_bi, nv_bi) + 0.5 * (
-                    torch.einsum("ipkc,jpkc->ijpc", nu_bi, av_bi) + torch.einsum("ipkc,jpkc->ijpc", au_bi, nv_bi)
-                )
-                b_u2v = torch.einsum("ipkc,jpkc->ijpc", cu_bi, obv0)
-                b_v2u = torch.einsum("ipkc,jpkc->ijpc", obu0, cv_bi)
+                u_bi_stack = torch.cat([obu0, au_bi, nu_bi, 0.5 * au_bi, cu_bi, obu0], dim=-1)
+                v_bi_stack = torch.cat([obv0, av_bi, nv_bi + 0.5 * av_bi, nv_bi, obv0, cv_bi], dim=-1)
+                ub_m = u_bi_stack.permute(1, 3, 0, 2).contiguous()
+                vb_m = v_bi_stack.permute(1, 3, 2, 0).contiguous()
+                bi_all6 = (ub_m @ vb_m).permute(2, 3, 0, 1)  # (m0, m1, Lm1, 6*cb)
+                b_0, b_1hop, b_k1, b_k2, b_u2v, b_v2u = bi_all6.split(self.cb, dim=-1)
+                b_khop = b_k1 + b_k2
                 bi_node = self.pad_edges_to_nodes(torch.cat([b_0, b_1hop, b_khop, b_u2v, b_v2u], dim=-1))
                 rib_raw = torch.cat([ov_q, ov_1hop, ov_khop, ov_u2v, ov_v2u, bi_node, mismatch.float().unsqueeze(-1)], dim=-1)
 
@@ -1131,7 +1172,9 @@ class RelationalProvenanceFrescoNet(nn.Module):
                     row["bw_u_in"] = mu_in.detach().cpu().clone()
                     if mbi_u is not None:
                         row["bi_u_in"] = mbi_u.detach().cpu().clone()
-                    row["word_gate_strength"] = 0.5 * (float(su_gate.detach().mean()) + float(sv_gate.detach().mean()))
+                    row["word_gate_strength"] = 0.5 * (
+                        float(s_pos_gate[:m0].detach().mean()) + float(s_pos_gate[m0:].detach().mean())
+                    )
                     row["bi_gate_strength"] = 0.0 if sbi_u is None else float(sbi_u.detach().mean())
                     row["fresco_gate_strength"] = float(sm_gate.detach().mean())
                     row["fresco_gate_contrib_rms"] = base.rms(gm)
@@ -1622,8 +1665,9 @@ def teacher(rg, suite: Path, out: Path) -> tuple[list[dict], dict]:
     return frames, receipt
 
 
-def fit(frames: list[dict], seed: int, arch: str, out: Path):
-    model, shared_init = new_lbf17_model(seed, arch)
+def fit(frames: list[dict], seed: int, arch: str, out: Path,
+        pre_init: tuple | None = None):
+    model, shared_init = pre_init if pre_init is not None else new_lbf17_model(seed, arch)
     init_fp = base._model_fingerprint(model)
     opt = torch.optim.AdamW(model.parameters(), lr=3e-3, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=STEPS, eta_min=2e-4)
@@ -1637,7 +1681,7 @@ def fit(frames: list[dict], seed: int, arch: str, out: Path):
     t0 = time.monotonic()
 
     for step in range(STEPS):
-        if time.monotonic() - t0 > 900:
+        if time.monotonic() - t0 > 1800:
             raise TimeoutError(f"CPU fit cap exceeded for {arch}")
         bloss = torch.zeros(())
         step_indices = []
@@ -1646,7 +1690,7 @@ def fit(frames: list[dict], seed: int, arch: str, out: Path):
             f_idx, fr = rng.choice(byroot[rname])
             step_indices.append(f_idx)
             st_cur = fr["state"].clone_light()
-            if fr["prev_state"] is not None:
+            if fr["prev_state"] is not None and step >= 160:
                 with torch.no_grad():
                     po, _ = model(fr["case"], fr["prev_state"], fr["prev_rem"], mode="normal")
                     psig = po[-1]["pot"].sigmoid()
@@ -2096,14 +2140,62 @@ def verify_historical_disjointness(rg, suite_dir: Path) -> int:
     return len(historical)
 
 
+def _serialize_frames_for_workers(frames: list[dict], dest: Path) -> None:
+    def pack_st(st: m15.FringeState | None):
+        if st is None:
+            return None
+        return {"fronts": st.fronts, "dist": st.dist, "work": st.work, "expanded": st.expanded}
+
+    payload = [{
+        "root": f["root"], "lineage": f["lineage"], "step": f["step"], "rollout": f["rollout"],
+        "state": pack_st(f["state"]), "prev_state": pack_st(f["prev_state"]),
+        "rem": f["rem"], "prev_rem": f["prev_rem"], "rem_cap": f["rem_cap"],
+        "min_dr": f["min_dr"], "min_ell": f["min_ell"], "costs": f["costs"],
+        "y_mat": f["y_mat"], "node_y": f["node_y"],
+        "sub_u_y": f["sub_u_y"], "sub_v_y": f["sub_v_y"],
+    } for f in frames]
+    torch.save(payload, dest)
+
+
+def _rehydrate_frames_for_worker(rg, suite: Path, src_pt: Path) -> list[dict]:
+    train_cases, _ = rg.load_split(suite, "train")
+    by_root = {c.root: c for c in train_cases}
+    raw = torch.load(src_pt, weights_only=False)
+    def unpack_st(d):
+        if d is None:
+            return None
+        return m15.FringeState(d["fronts"], [{}, {}], d["dist"], d["work"], d["expanded"])
+
+    return [{
+        **r,
+        "case": by_root[r["root"]],
+        "state": unpack_st(r["state"]),
+        "prev_state": unpack_st(r["prev_state"]),
+    } for r in raw]
+
+
+def run_fit_worker(upstream_path: Path, suite: Path, frames_pt: Path, jobs_spec: str, out: Path) -> None:
+    torch.set_num_threads(1)
+    torch.backends.mkldnn.enabled = False
+    rg = base.load_upstream(upstream_path)
+    frames = _rehydrate_frames_for_worker(rg, suite, frames_pt)
+    for item in jobs_spec.split(","):
+        if not item:
+            continue
+        sd_s, arch = item.split(":")
+        sd = int(sd_s)
+        _, rec = fit(frames, sd, arch, out / f"{sd}_{arch}")
+        print(f"[LBF17] fit {sd}:{arch} ({rec['parameters']}p) in {rec['fit_wall_clock_sec']}s", flush=True)
+
+
 # ============================================================================
 # 6. Registered End-to-End LBF-17 Prospective Campaign
 # ============================================================================
-def campaign(rg, out: Path, threads: int = 2) -> dict:
+def campaign(rg, out: Path, threads: int = 2, upstream_path: Path | None = None) -> dict:
     if out.exists():
         raise ValueError("fresh LBF-17 output directory required")
     out.mkdir(parents=True)
-    torch.set_num_threads(max(1, min(2, threads)))
+    torch.set_num_threads(1)
     torch.backends.mkldnn.enabled = False
 
     theory_cert = verify_lean_theory_module(out / "lean_theory_certificates")
@@ -2116,13 +2208,57 @@ def campaign(rg, out: Path, threads: int = 2) -> dict:
 
     frames, tm = teacher(rg, suite, out / "teacher")
     print(f"[LBF17] teacher done: {len(frames)} frames, {tm['reference_certificates']} ref certs", flush=True)
+
+    all_jobs = [(s, a) for s in SEEDS for a in ALL_LEARNED_ARCHS]
+    n_workers = max(1, min(2, threads))
     models = {}
     receipts = {}
+
+    if n_workers == 2 and upstream_path is not None:
+        # Interleave jobs across 2 single-threaded OS worker processes (zero GIL contention, <=2 CPU cores total)
+        frames_pt = out / "teacher" / "_worker_frames.pt"
+        _serialize_frames_for_workers(frames, frames_pt)
+        env = dict(os.environ)
+        env["OMP_NUM_THREADS"] = "1"
+        env["MKL_NUM_THREADS"] = "1"
+        env["OPENBLAS_NUM_THREADS"] = "1"
+        shards = [all_jobs[0::2], all_jobs[1::2]]
+        procs = []
+        for sh in shards:
+            spec = ",".join(f"{sd}:{ar}" for sd, ar in sh)
+            cmd = [
+                sys.executable, str(Path(__file__).resolve()),
+                "--fit-worker",
+                "--upstream", str(upstream_path),
+                "--suite", str(suite),
+                "--frames-pt", str(frames_pt),
+                "--jobs", spec,
+                "--out", str(out),
+            ]
+            procs.append(subprocess.Popen(cmd, env=env))
+        codes = [p.wait() for p in procs]
+        frames_pt.unlink(missing_ok=True)
+        if any(c != 0 for c in codes):
+            raise RuntimeError(f"parallel fit worker failed with exit codes {codes}")
+        for sd, ar in all_jobs:
+            mdir = out / f"{sd}_{ar}"
+            rec = json.loads((mdir / "manifest.json").read_text(encoding="utf-8"))
+            mod, _ = new_lbf17_model(sd, ar)
+            ckpt = torch.load(mdir / "checkpoint.pt", map_location="cpu", weights_only=True)
+            mod.load_state_dict(ckpt["weights"])
+            mod.eval()
+            for p in mod.parameters():
+                p.requires_grad_(False)
+            models[(sd, ar)] = mod
+            receipts[(sd, ar)] = rec
+    else:
+        for sd, ar in all_jobs:
+            mod, rec = fit(frames, sd, ar, out / f"{sd}_{ar}")
+            print(f"[LBF17] fit {sd}:{ar} ({rec['parameters']}p) in {rec['fit_wall_clock_sec']}s", flush=True)
+            models[(sd, ar)] = mod
+            receipts[(sd, ar)] = rec
+
     for seed in SEEDS:
-        for arch in ALL_LEARNED_ARCHS:
-            k = (seed, arch)
-            models[k], receipts[k] = fit(frames, seed, arch, out / f"{seed}_{arch}")
-            print(f"[LBF17] fit {seed}:{arch} ({receipts[k]['parameters']}p) in {receipts[k]['fit_wall_clock_sec']}s", flush=True)
         ref_draws = receipts[(seed, "rel_prov_opened")]["draws_sha256"]
         for arch in ALL_LEARNED_ARCHS:
             if receipts[(seed, arch)]["draws_sha256"] != ref_draws:
@@ -2465,8 +2601,15 @@ def main():
     p.add_argument("--upstream", type=Path, required=True)
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--threads", type=int, default=2)
+    p.add_argument("--fit-worker", action="store_true")
+    p.add_argument("--suite", type=Path, default=None)
+    p.add_argument("--frames-pt", type=Path, default=None)
+    p.add_argument("--jobs", type=str, default="")
     args = p.parse_args()
-    campaign(base.load_upstream(args.upstream), args.out, threads=args.threads)
+    if args.fit_worker:
+        run_fit_worker(args.upstream, args.suite, args.frames_pt, args.jobs, args.out)
+        return
+    campaign(base.load_upstream(args.upstream), args.out, threads=args.threads, upstream_path=args.upstream)
 
 
 if __name__ == "__main__":
