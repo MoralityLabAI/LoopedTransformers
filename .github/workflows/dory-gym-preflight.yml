@@ -1,0 +1,20 @@
+name: DoryGym preflight
+on:
+  pull_request:
+    paths:
+      - 'DoryGym/**'
+      - '.github/workflows/dory-gym-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s DoryGym -p 'test_*.py' -v
+      - run: python DoryGym/make_roster.py --out /tmp/dory-roster.jsonl
