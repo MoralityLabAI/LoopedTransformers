@@ -29,9 +29,9 @@ The same teacher also scored zero on the Sudoku outfill with the pinned Inkling 
 
 ### Full-answer RTX 3050 grid replay
 
-On one held-out ARC-AGI-2 outfill from the public training set, all four CUDA policies reached 384 output tokens. The four completions differed and failed JSON parsing, test-grid pass@2 and exact compact-grid scoring. TRM repeated a digit row, and LDT repeated example headings. Their eight-expert layouts retained 93.28% and 92.98% of teacher decode routing mass, respectively. ARC infill and the Sudoku requests are in progress. [Full-budget ARC outfill receipts](arc-outfill-full-answer-matrix.json)
+The full-answer matrix completed eight ARC-AGI-2 requests on one held-out root from the public training set. All reached 384 tokens and failed JSON parsing, test-grid pass@2 and exact compact-grid scoring. The four outfill completions differed. TRM repeated a digit row and LDT repeated example headings. Their outfill layouts retained 93.28% and 92.98% of teacher decode routing mass, respectively. [Complete full-budget ARC matrix](arc-full-answer-matrix.json)
 
-| Policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds |
+| ARC outfill policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds |
 | --- | ---: | ---: | ---: | ---: |
 | Scoped teacher | 12 | 14.71 | 0.97 | 506.0 |
 | Global frequency | 8 | 16.39 | 1.02 | 521.6 |
@@ -40,11 +40,16 @@ On one held-out ARC-AGI-2 outfill from the public training set, all four CUDA po
 
 The native loader allocated 1,525.64 MiB of model buffers in CUDA-pinned host RAM and 581.20 MiB on the GPU in each eight-expert replay. It reserved a 781.20 MiB CUDA compute buffer. The scoped teacher used 1,920.78 MiB of host model buffers, 663.41 MiB of GPU model buffers and a 1,002.12 MiB CUDA compute buffer. [Native buffer accounting](arc-outfill-full-answer-matrix.json)
 
-The 12-expert ARC infill control reached 384 output tokens at 0.96 decode tokens/s and finished in 450.2 seconds. It repeated `</after>` and failed JSON parsing, pass@2 and exact-grid scoring. The same control took 506.0 seconds on the outfill prompt. [Full-budget ARC control in both modes](arc-teacher-full-answer-both-modes.json)
+All four ARC infill completions matched exactly, with 77 occurrences of `</after>`. The 24-token CUDA timing output was an exact prefix of the full completion for both controls in both ARC modes. LDT changed the resident set in three physical layers relative to global frequency. Its retained teacher decode mass went from 92.79% to 92.92%, and its retained prefill mass went from 90.05% to 89.91%. [Timing prefix checks](arc-global-full-answer-both-modes.json) · [Layer-level residency comparison](arc-ldt-full-answer-both-modes.json)
 
-Global-frequency ARC infill produced the same 384-token completion as the 12-expert control, with 77 occurrences of `</after>`. It decoded at 0.86 tokens/s and took 542.2 seconds. The 24-token CUDA timing output was an exact prefix of the full completion for both controls in both ARC modes. [Global-frequency ARC receipts and timing prefix checks](arc-global-full-answer-both-modes.json)
+| ARC infill policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds |
+| --- | ---: | ---: | ---: | ---: |
+| Scoped teacher | 12 | 29.78 | 0.96 | 450.2 |
+| Global frequency | 8 | 25.29 | 0.86 | 542.2 |
+| LDT | 8 | 19.88 | 0.81 | 574.4 |
+| TRM | 8 | 19.82 | 0.87 | 562.0 |
 
-LDT changed the resident set in three physical layers relative to global frequency on the ARC infill prompt. Its retained teacher decode routing mass rose from 92.79% to 92.92%, while prefill mass fell from 90.05% to 89.91%. The 384-token completion matched both controls exactly and failed scoring. LDT decoded at 0.81 tokens/s with a 574.4-second cold request. TRM infill is in progress. [LDT ARC receipts and layer-level residency comparison](arc-ldt-full-answer-both-modes.json)
+All eight requests loaded in RAM mode. Live selection took 5–112 ms across the four learned requests. Packing and model loading took 70.4–77.6 seconds across the six eight-expert requests. Full-answer Sudoku is in progress.
 
 Serialized reference answers passed the score checks for both modes. The ARC answer used 153 of its 384 output tokens, and the Sudoku answer used 187 of its 256. The pinned tokenizer reproduced the native prompt token counts for all four grid requests. [Reference answer budget check](answer-budget-check.json)
 
