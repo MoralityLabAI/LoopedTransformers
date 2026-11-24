@@ -1,0 +1,118 @@
+{
+  "schema": "LRF04/verified-ci-log-receipt-v1",
+  "date": "2026-11-24",
+  "run": 45410995361,
+  "job": 138504408224,
+  "head": "00aeb2ad19da869d38cbb71bc9f7d1d800eed685",
+  "conclusion": "success",
+  "gate": {
+    "passed": true,
+    "version": "Lean (version 4.35.0, x86_64-unknown-linux-gnu, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc, Release)",
+    "source_commit": "f0873083c5a6b0e424d0872db058b8edb8f56f5d",
+    "native_reference": {
+      "status": "compiled",
+      "returncode": 0,
+      "reports": {
+        "LRF04.conservative_sound": [
+          "Quot.sound",
+          "propext"
+        ],
+        "LRF04.states_complete": [
+          "propext"
+        ],
+        "LRF04.compatible_matches_demo": [],
+        "LRF04.collision_denied": [],
+        "LRF04.unknown_denied": []
+      },
+      "error_excerpt": "",
+      "source_sha256": "949921eec7faf9a0126176c4a05694e3e8c0419b553c50ef7231f1224bd445d0",
+      "log_sha256": "906a47d3c4f875b18d873cf4e40ed642647d0e273de87b00c59de1f750ebb5e5",
+      "seconds": 0.27170815400000237
+    },
+    "native_table": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "table_cells": 12,
+    "request_cases": 10,
+    "allows": 1,
+    "unauthorized_allows": 0,
+    "request_compiler_calls": 3,
+    "lrf03_regression": {
+      "version": "Lean (version 4.35.0, x86_64-unknown-linux-gnu, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc, Release)",
+      "source_commit": "f0873083c5a6b0e424d0872db058b8edb8f56f5d",
+      "source_blob": "965687067ddb4ed4f696118ad5fea68286d56665",
+      "roots": 4,
+      "cases": 28,
+      "positive": 8,
+      "negative": 12,
+      "censored": 8,
+      "false_positive": 0,
+      "compiler_calls": 44,
+      "failures": [],
+      "passed": true
+    }
+  },
+  "mock_tests": [
+    "test_faults_fail_closed (test_controller.ControllerTests.test_faults_fail_closed) ... ok",
+    "test_finite_truth_table (test_controller.ControllerTests.test_finite_truth_table) ... ok",
+    "test_preflight_denies_without_execution (test_controller.ControllerTests.test_preflight_denies_without_execution) ... ok",
+    "test_verifier_errors_and_unknown (test_controller.ControllerTests.test_verifier_errors_and_unknown) ... ok"
+  ],
+  "native_tactic_cases": [
+    "CASE factor_of_section correct verified_target_proof (True, True, True, 1)",
+    "CASE factor_of_section incomplete native_nonclosure_censored (False, None, None, None)",
+    "CASE factor_of_section malformed malformed_censored (None, None, None, None)",
+    "CASE factor_of_section altered statement_contract_unestablished (True, True, False, 0)",
+    "CASE factor_of_section added_hypothesis statement_contract_unestablished (True, True, False, 0)",
+    "CASE factor_of_section hidden_axiom excluded_axiom (True, False, True, 0)",
+    "CASE factor_of_section unused_axiom verified_target_proof (True, True, True, 1)",
+    "CASE authorization_of_section correct verified_target_proof (True, True, True, 1)",
+    "CASE authorization_of_section incomplete native_nonclosure_censored (False, None, None, None)",
+    "CASE authorization_of_section malformed malformed_censored (None, None, None, None)",
+    "CASE authorization_of_section altered statement_contract_unestablished (True, True, False, 0)",
+    "CASE authorization_of_section added_hypothesis statement_contract_unestablished (True, True, False, 0)",
+    "CASE authorization_of_section hidden_axiom excluded_axiom (True, False, True, 0)",
+    "CASE authorization_of_section unused_axiom verified_target_proof (True, True, True, 1)",
+    "CASE demo_monitor_correct correct verified_target_proof (True, True, True, 1)",
+    "CASE demo_monitor_correct incomplete native_nonclosure_censored (False, None, None, None)",
+    "CASE demo_monitor_correct malformed malformed_censored (None, None, None, None)",
+    "CASE demo_monitor_correct altered statement_contract_unestablished (True, True, False, 0)",
+    "CASE demo_monitor_correct added_hypothesis statement_contract_unestablished (True, True, False, 0)",
+    "CASE demo_monitor_correct hidden_axiom excluded_axiom (True, False, True, 0)",
+    "CASE demo_monitor_correct unused_axiom verified_target_proof (True, True, True, 1)",
+    "CASE demo_monitor_unknown_denied correct verified_target_proof (True, True, True, 1)",
+    "CASE demo_monitor_unknown_denied incomplete native_nonclosure_censored (False, None, None, None)",
+    "CASE demo_monitor_unknown_denied malformed malformed_censored (None, None, None, None)",
+    "CASE demo_monitor_unknown_denied altered statement_contract_unestablished (True, True, False, 0)",
+    "CASE demo_monitor_unknown_denied added_hypothesis statement_contract_unestablished (True, True, False, 0)",
+    "CASE demo_monitor_unknown_denied hidden_axiom excluded_axiom (True, False, True, 0)",
+    "CASE demo_monitor_unknown_denied unused_axiom verified_target_proof (True, True, True, 1)"
+  ],
+  "authorization_requests": [
+    "AUTH_CASE permit True verified_permission 2",
+    "AUTH_CASE incomplete False certificate_denied 1",
+    "AUTH_CASE malformed_action False malformed_actions 0",
+    "AUTH_CASE wrong_root False wrong_required_theorem 0",
+    "AUTH_CASE denied_action False policy_denied 0",
+    "AUTH_CASE denied_observation False policy_denied 0",
+    "AUTH_CASE unknown False unknown_observation 0",
+    "AUTH_CASE collision False authorization_collision 0",
+    "AUTH_CASE caller_receipt False malformed_request 0",
+    "AUTH_CASE malformed_observation False malformed_request 0"
+  ],
+  "artifact_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45410995361/artifacts/14928460573",
+  "artifact_zip_sha256": "53f9ef19c45513e1628f00c7ae2240ac9c3c9313f32efecaf1582fe569557fa2",
+  "preserved_first_failed_run": 45400185219,
+  "provenance": "Parsed from completed GitHub Actions job log; archive digest reported by upload step, not independently downloaded."
+}
