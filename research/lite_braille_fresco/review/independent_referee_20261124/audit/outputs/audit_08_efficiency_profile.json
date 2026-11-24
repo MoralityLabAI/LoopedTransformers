@@ -1,0 +1,443 @@
+{
+  "decision_cost_identical_states": {
+    "adj2_noprov_opened": {
+      "flop_ratio_vs_sym_prov_readout": 4.909255812776611,
+      "flopcounter_mflops_per_decision": 177.5281896,
+      "max_ms": 37.719172450010774,
+      "median_ms_per_decision": 33.30733760001294,
+      "min_ms": 30.518221049987915,
+      "ns_per_counted_flop": 0.18761717603868894,
+      "time_ratio_vs_sym_prov_readout": 2.206001859098224
+    },
+    "compute_nonrecurrent": {
+      "flop_ratio_vs_sym_prov_readout": 9.109623873833078,
+      "flopcounter_mflops_per_decision": 329.4216264,
+      "max_ms": 92.50382785000966,
+      "median_ms_per_decision": 78.27300480000758,
+      "min_ms": 71.23033070001838,
+      "ns_per_counted_flop": 0.23760736553757597,
+      "time_ratio_vs_sym_prov_readout": 5.184154800351075
+    },
+    "lbf16_pos1_opened": {
+      "flop_ratio_vs_sym_prov_readout": 4.517701732498551,
+      "flopcounter_mflops_per_decision": 163.3688364,
+      "max_ms": 22.567212799981462,
+      "median_ms_per_decision": 22.12308100001792,
+      "min_ms": 19.99529289998918,
+      "ns_per_counted_flop": 0.13541799946380667,
+      "time_ratio_vs_sym_prov_readout": 1.465249441462447
+    },
+    "param_nonrecurrent": {
+      "flop_ratio_vs_sym_prov_readout": 1.8928422276075656,
+      "flopcounter_mflops_per_decision": 68.44883759999999,
+      "max_ms": 18.75901769999473,
+      "median_ms_per_decision": 15.71295394999197,
+      "min_ms": 15.136457250014246,
+      "ns_per_counted_flop": 0.22955764481809068,
+      "time_ratio_vs_sym_prov_readout": 1.0406957782657957
+    },
+    "rel_prov_opened": {
+      "flop_ratio_vs_sym_prov_readout": 6.281757433610784,
+      "flopcounter_mflops_per_decision": 227.160504,
+      "max_ms": 59.0398771999844,
+      "median_ms_per_decision": 54.69936874999348,
+      "min_ms": 51.33367324999654,
+      "ns_per_counted_flop": 0.24079612338768838,
+      "time_ratio_vs_sym_prov_readout": 3.6228326203394303
+    },
+    "sym_prov_readout": {
+      "flop_ratio_vs_sym_prov_readout": 1.0,
+      "flopcounter_mflops_per_decision": 36.161935,
+      "max_ms": 21.76037050001014,
+      "median_ms_per_decision": 15.098508400001265,
+      "min_ms": 14.454489950003335,
+      "ns_per_counted_flop": 0.41752490291244826,
+      "time_ratio_vs_sym_prov_readout": 1.0
+    }
+  },
+  "decision_time_split_rel_prov_opened": {
+    "frontier_level_pair_in_prelude_axial_heads (not cacheable)": 0.05213705153461783,
+    "pair_ribbon_in_and_conv (cacheable per pair and pass)": 0.1085877298445668,
+    "remainder_pairwise_overlap_construction_and_glue (mostly cacheable per pair)": 0.19668738256205276,
+    "word_level_cells_and_gates (cacheable per word)": 0.6425878360587626
+  },
+  "fixed_states": {
+    "count": 20,
+    "mean_m0": 8.05,
+    "mean_m1": 7.6
+  },
+  "flop_counter_coverage": {
+    "adj2_noprov_opened": {
+      "self_cpu_time_share_in_flop_counted_operators": 0.40665335468995356,
+      "self_cpu_time_share_uncounted": 0.5933466453100464,
+      "top_operators_by_self_time_share": [
+        [
+          "aten::bmm",
+          0.1558
+        ],
+        [
+          "aten::_nnpack_spatial_convolution",
+          0.1194
+        ],
+        [
+          "aten::copy_",
+          0.0968
+        ],
+        [
+          "aten::addmm",
+          0.0852
+        ],
+        [
+          "aten::cat",
+          0.0652
+        ],
+        [
+          "aten::add",
+          0.0458
+        ],
+        [
+          "aten::mul",
+          0.0433
+        ],
+        [
+          "aten::amax",
+          0.0429
+        ]
+      ]
+    },
+    "compute_nonrecurrent": {
+      "self_cpu_time_share_in_flop_counted_operators": 0.7472104425922108,
+      "self_cpu_time_share_uncounted": 0.2527895574077892,
+      "top_operators_by_self_time_share": [
+        [
+          "aten::_nnpack_spatial_convolution",
+          0.6506
+        ],
+        [
+          "aten::bmm",
+          0.0599
+        ],
+        [
+          "aten::copy_",
+          0.0529
+        ],
+        [
+          "aten::add",
+          0.0342
+        ],
+        [
+          "aten::amax",
+          0.0285
+        ],
+        [
+          "aten::addmm",
+          0.0239
+        ],
+        [
+          "aten::gelu",
+          0.0198
+        ],
+        [
+          "aten::cat",
+          0.0189
+        ]
+      ]
+    },
+    "lbf16_pos1_opened": {
+      "self_cpu_time_share_in_flop_counted_operators": 0.4469562999300758,
+      "self_cpu_time_share_uncounted": 0.5530437000699242,
+      "top_operators_by_self_time_share": [
+        [
+          "aten::_nnpack_spatial_convolution",
+          0.1571
+        ],
+        [
+          "aten::bmm",
+          0.1256
+        ],
+        [
+          "aten::addmm",
+          0.0984
+        ],
+        [
+          "aten::copy_",
+          0.0957
+        ],
+        [
+          "aten::cat",
+          0.0471
+        ],
+        [
+          "aten::gelu",
+          0.0352
+        ],
+        [
+          "aten::mul",
+          0.0317
+        ],
+        [
+          "aten::einsum",
+          0.031
+        ]
+      ]
+    },
+    "param_nonrecurrent": {
+      "self_cpu_time_share_in_flop_counted_operators": 0.4003938794087683,
+      "self_cpu_time_share_uncounted": 0.5996061205912318,
+      "top_operators_by_self_time_share": [
+        [
+          "aten::bmm",
+          0.2265
+        ],
+        [
+          "aten::copy_",
+          0.0875
+        ],
+        [
+          "aten::_nnpack_spatial_convolution",
+          0.0794
+        ],
+        [
+          "aten::add",
+          0.0767
+        ],
+        [
+          "aten::mul",
+          0.0701
+        ],
+        [
+          "aten::amax",
+          0.0609
+        ],
+        [
+          "aten::addmm",
+          0.0552
+        ],
+        [
+          "aten::cat",
+          0.04
+        ]
+      ]
+    },
+    "rel_prov_opened": {
+      "self_cpu_time_share_in_flop_counted_operators": 0.3971397165294226,
+      "self_cpu_time_share_uncounted": 0.6028602834705774,
+      "top_operators_by_self_time_share": [
+        [
+          "aten::bmm",
+          0.2048
+        ],
+        [
+          "aten::copy_",
+          0.0895
+        ],
+        [
+          "aten::add",
+          0.0817
+        ],
+        [
+          "aten::_nnpack_spatial_convolution",
+          0.0804
+        ],
+        [
+          "aten::addmm",
+          0.0686
+        ],
+        [
+          "aten::mul",
+          0.0652
+        ],
+        [
+          "aten::cat",
+          0.0538
+        ],
+        [
+          "aten::amax",
+          0.0484
+        ]
+      ]
+    },
+    "sym_prov_readout": {
+      "self_cpu_time_share_in_flop_counted_operators": 0.4736071637332303,
+      "self_cpu_time_share_uncounted": 0.5263928362667697,
+      "top_operators_by_self_time_share": [
+        [
+          "aten::bmm",
+          0.2307
+        ],
+        [
+          "aten::_nnpack_spatial_convolution",
+          0.1648
+        ],
+        [
+          "aten::mul",
+          0.0482
+        ],
+        [
+          "aten::copy_",
+          0.043
+        ],
+        [
+          "aten::amax",
+          0.0392
+        ],
+        [
+          "aten::as_strided",
+          0.0385
+        ],
+        [
+          "aten::add",
+          0.0314
+        ],
+        [
+          "aten::matmul",
+          0.0285
+        ]
+      ]
+    }
+  },
+  "instrumentation": {
+    "ratio_rel_prov_over_sym_prov_as_archived_protocol": 3.186275289109888,
+    "ratio_rel_prov_over_sym_prov_uninstrumented": 3.6071111773030458,
+    "rel_prov_opened": {
+      "instrumentation_overhead_factor": 4.845253910649687,
+      "registered_runner_as_archived_ms_per_episode": 1332.4547279167216,
+      "registered_runner_warm_flop_cache_no_probe_ms": 309.74658116675374,
+      "uninstrumented_loop_ms": 275.002043750078
+    },
+    "reported_ratio_in_results": 2.459021099468925,
+    "sym_prov_readout": {
+      "instrumentation_overhead_factor": 5.485203867258507,
+      "registered_runner_as_archived_ms_per_episode": 418.1856892500188,
+      "registered_runner_warm_flop_cache_no_probe_ms": 90.19987441676373,
+      "uninstrumented_loop_ms": 76.23885991661912
+    }
+  },
+  "memory": {
+    "adj2_noprov_opened": [
+      {
+        "L": 10,
+        "m0": 7,
+        "m1": 8,
+        "measured_over_estimate": 10.082855953779866,
+        "profiler_peak_allocated_bytes": 6589832,
+        "registered_estimate_bytes": 653568,
+        "state": "median_state"
+      },
+      {
+        "L": 10,
+        "m0": 16,
+        "m1": 18,
+        "measured_over_estimate": 8.504131480450383,
+        "profiler_peak_allocated_bytes": 17594980,
+        "registered_estimate_bytes": 2068992,
+        "state": "largest_state"
+      }
+    ],
+    "compute_nonrecurrent": [
+      {
+        "L": 10,
+        "m0": 7,
+        "m1": 8,
+        "measured_over_estimate": 4.385772937984058,
+        "profiler_peak_allocated_bytes": 14895348,
+        "registered_estimate_bytes": 3396288,
+        "state": "median_state"
+      },
+      {
+        "L": 10,
+        "m0": 16,
+        "m1": 18,
+        "measured_over_estimate": 4.452312517512224,
+        "profiler_peak_allocated_bytes": 63051584,
+        "registered_estimate_bytes": 14161536,
+        "state": "largest_state"
+      }
+    ],
+    "lbf16_pos1_opened": [
+      {
+        "L": 10,
+        "m0": 7,
+        "m1": 8,
+        "measured_over_estimate": 6.282701385716461,
+        "profiler_peak_allocated_bytes": 2640544,
+        "registered_estimate_bytes": 420288,
+        "state": "median_state"
+      },
+      {
+        "L": 10,
+        "m0": 16,
+        "m1": 18,
+        "measured_over_estimate": 4.751903619213828,
+        "profiler_peak_allocated_bytes": 7318996,
+        "registered_estimate_bytes": 1540224,
+        "state": "largest_state"
+      }
+    ],
+    "param_nonrecurrent": [
+      {
+        "L": 10,
+        "m0": 7,
+        "m1": 8,
+        "measured_over_estimate": 3.7459746063271386,
+        "profiler_peak_allocated_bytes": 5069832,
+        "registered_estimate_bytes": 1353408,
+        "state": "median_state"
+      },
+      {
+        "L": 10,
+        "m0": 16,
+        "m1": 18,
+        "measured_over_estimate": 3.36507795811885,
+        "profiler_peak_allocated_bytes": 12300356,
+        "registered_estimate_bytes": 3655296,
+        "state": "largest_state"
+      }
+    ],
+    "rel_prov_opened": [
+      {
+        "L": 10,
+        "m0": 7,
+        "m1": 8,
+        "measured_over_estimate": 7.357311320754717,
+        "profiler_peak_allocated_bytes": 9957444,
+        "registered_estimate_bytes": 1353408,
+        "state": "median_state"
+      },
+      {
+        "L": 10,
+        "m0": 16,
+        "m1": 18,
+        "measured_over_estimate": 6.90115930419862,
+        "profiler_peak_allocated_bytes": 25225780,
+        "registered_estimate_bytes": 3655296,
+        "state": "largest_state"
+      }
+    ],
+    "sym_prov_readout": [
+      {
+        "L": 10,
+        "m0": 7,
+        "m1": 8,
+        "measured_over_estimate": 0.7163131886319573,
+        "profiler_peak_allocated_bytes": 969464,
+        "registered_estimate_bytes": 1353408,
+        "state": "median_state"
+      },
+      {
+        "L": 10,
+        "m0": 16,
+        "m1": 18,
+        "measured_over_estimate": 0.6041469692194559,
+        "profiler_peak_allocated_bytes": 2208336,
+        "registered_estimate_bytes": 3655296,
+        "state": "largest_state"
+      }
+    ]
+  },
+  "memory_note": "registered 'peak tensor KB' = max over decisions of estimate_peak_tensor_bytes(arch, m0, m1, L)",
+  "roots": 12,
+  "seed": 107,
+  "threads": 1,
+  "torch": "2.15.0+cu132"
+}
