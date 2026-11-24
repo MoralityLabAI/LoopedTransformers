@@ -30,7 +30,7 @@ cache hits, path length, PDB setup and elapsed planning seconds. PDB constructio
 is metered separately; also report illustrative combined abstract+concrete
 counts at each cap. A cache hit is not a fresh neighbor enumeration, but does
 incur logical search work/time. Report both. No claim that these counts equate
-to FLOPs. Stop immediately when the fresh cap is reached. Capped misses remain
+to FLOPs. Stop immediately when the fresh cap is reached. Each discovery records both actual fresh enumerations and the minimum cap permitting its prefix (for a cache hit this is the current fresh count plus one). This preserves lower-cap prefix accounting. Capped misses remain
 censored. Per-root native certification costs are separate from planner cost.
 
 Registered arms:

@@ -136,14 +136,17 @@ class Meter:
         self.rules,self.cap,self.cached=rules,cap,cached
         self.expansions=self.edges=self.logical=self.logical_edges=self.hits=0
         self.cache={}
+        self.required_cap=0
 
     def visit(self,w):
         if self.expansions>=self.cap:raise ValueError("fresh search cap exceeded")
         self.logical+=1
         if self.cached and w in self.cache:
             moves=self.cache[w];self.hits+=1
+            self.required_cap=self.expansions+1
         else:
             moves=neighbors(w,self.rules);self.expansions+=1;self.edges+=len(moves)
+            self.required_cap=self.expansions
             if self.cached:self.cache[w]=moves
         self.logical_edges+=len(moves)
         return moves
@@ -230,7 +233,7 @@ def round_robin(root,arm,cap):
             if f.done:continue
             f.step(meter)
             if f.path is not None:
-                found[root.targets[i]]={"words":f.path,"found_at":meter.expansions}
+                found[root.targets[i]]={"words":f.path,"found_at":meter.required_cap,"fresh_at":meter.expansions}
     return result_row(meter,found,pdb,start)
 
 
@@ -246,7 +249,7 @@ def reverse(root,cap):
             if v in parent:continue
             parent[v]=w;depth[v]=depth[w]+1;queue.append(v)
             if v in pending:
-                pending.remove(v);found[v]={"words":path_up(parent,v),"found_at":meter.expansions}
+                pending.remove(v);found[v]={"words":path_up(parent,v),"found_at":meter.required_cap,"fresh_at":meter.expansions}
     return result_row(meter,found,None,start)
 
 
@@ -316,7 +319,7 @@ def shared(root,arm,cap):
         if w is None:break
         graph.expand(w,meter)
         for t,path in graph.connected_paths(pending).items():
-            found[t]={"words":path,"found_at":meter.expansions};pending.remove(t)
+            found[t]={"words":path,"found_at":meter.required_cap,"fresh_at":meter.expansions};pending.remove(t)
     return result_row(meter,found,None,start)
 
 
@@ -328,6 +331,8 @@ def bounded(root,arm,cap=512):
     else:raise ValueError("unregistered bounded arm")
     if r["expansions"]>cap or r["logical"]!=r["expansions"]+r["hits"]:
         raise ValueError("expansion accounting drift")
+    if any(q["found_at"]>cap for q in r["found"].values()):
+        raise ValueError("discovery prefix exceeds cap")
     validate_paths(root,r)
     return r
 
@@ -339,7 +344,7 @@ def exact(root):
         if not p["found"] or p["rewrite_distance"]>MAX_REWRITES:
             raise ValueError("registered exact ceiling failed")
         exp+=p["expansions"];edges+=p["candidate_edges_enumerated"]
-        found[case.target]={"words":p["words"],"found_at":exp}
+        found[case.target]={"words":p["words"],"found_at":exp,"fresh_at":exp}
     return {"found":found,"expansions":exp,"edges":edges,"logical":exp,
             "logical_edges":edges,"hits":0,"abstract_expansions":0,"abstract_edges":0,
             "pdb_seconds":0.,"seconds":time.perf_counter()-t}
@@ -350,7 +355,8 @@ def validate_paths(root,r):
     for t,q in r["found"].items():
         words=q["words"]
         if (words[0]!=t or words[-1]!=root.source or not 1<=len(words)-1<=MAX_REWRITES
-                or not 1<=q["found_at"]<=r["expansions"]):
+                or not 1<=q["fresh_at"]<=r["expansions"]
+                or q["found_at"] not in (q["fresh_at"],q["fresh_at"]+1)):
             raise ValueError("path or cap contract violated")
         for a,b in zip(words,words[1:]):
             if not any(m.next_word==b for m in neighbors(a,root.equations)):
