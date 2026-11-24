@@ -33,6 +33,15 @@ class Feedback(unittest.TestCase):
                 result=R.evaluate_candidate(TASK,{"trace":[0,1]},Path(d)/"one")
             self.assertIsNone(result["reward"])
             self.assertEqual(result["classification"],"replay_disagreement_censored")
+    def test_unrelated_second_compile_failure_is_censored(self):
+        a={"status":"compiled","reports":{R.ROOT:[]}}
+        b={"status":"rejected","error_excerpt":"compiler out of memory"}
+        with tempfile.TemporaryDirectory() as d:
+            with patch("reward.compile_source",side_effect=[a,b]):
+                result=R.evaluate_candidate(TASK,{"trace":[0,1]},Path(d)/"one")
+            self.assertIsNone(result["reward"])
+            self.assertIsNone(result["contract"])
+            self.assertEqual(result["classification"],"contract_unknown_censored")
     def test_unapproved_dependency(self):
         ax=["LRFSubmission.forbiddenPremise"]
         a={"status":"compiled","reports":{R.ROOT:ax}}
