@@ -1,0 +1,76 @@
+{
+  "routing_sha256": "3d1fd1f791abd5f5d99578d22a721a425e56f485d5eba57c678dd001902d609f",
+  "cases_sha256": "a4fdc327bbf62b79d61dfb6c2c27fae033f727091edf65252c85fc5dc1ee0285",
+  "design": "one development root per task in both modes",
+  "cuda_device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "torch_version_wsl": "2.5.1+cu121",
+  "learned_plans_identical_on_cpu_replay": 12,
+  "decisions_identical_to_cpu_fit": {
+    "global": 6,
+    "hindsight": 6,
+    "ldt": 6,
+    "trm": 6
+  },
+  "development_mass_by_task": {
+    "arc-agi-2": {
+      "global": {
+        "prefill": 0.8986486196517944,
+        "decode": 0.9194880723953247
+      },
+      "hindsight": {
+        "prefill": 0.9043185710906982,
+        "decode": 0.9464070200920105
+      },
+      "ldt": {
+        "prefill": 0.8981517255306244,
+        "decode": 0.913342297077179
+      },
+      "trm": {
+        "prefill": 0.8992243409156799,
+        "decode": 0.9213536083698273
+      }
+    },
+    "storyworld": {
+      "global": {
+        "prefill": 0.8575904667377472,
+        "decode": 0.8849679231643677
+      },
+      "hindsight": {
+        "prefill": 0.8674443364143372,
+        "decode": 0.9183335900306702
+      },
+      "ldt": {
+        "prefill": 0.8569315075874329,
+        "decode": 0.8884431421756744
+      },
+      "trm": {
+        "prefill": 0.857666015625,
+        "decode": 0.8840436935424805
+      }
+    },
+    "sudoku": {
+      "global": {
+        "prefill": 0.8853272199630737,
+        "decode": 0.8992323875427246
+      },
+      "hindsight": {
+        "prefill": 0.8969465494155884,
+        "decode": 0.9355044364929199
+      },
+      "ldt": {
+        "prefill": 0.8842824399471283,
+        "decode": 0.8964196145534515
+      },
+      "trm": {
+        "prefill": 0.8852696120738983,
+        "decode": 0.9009422361850739
+      }
+    }
+  },
+  "files": {
+    "ldt.pt": "3b4572666df6acadb9277cc1627bc919a0c16f877c26715cbcfe603f0481d8ce",
+    "plans.json": "66b14f1bbca60f0ef32110f9d9f81749a5acfbf0459f1ac400513ecfe03b2d6a",
+    "training.json": "35dc0ff1fcbf52950461e90fc7f406a47b8e0a6a8ccae5c1e0daba1221b7293e",
+    "trm.pt": "e94de5a9dc524fdce5a646b8944b5e2014134d4411037ea0f2ed24fc1cceb3bd"
+  }
+}
