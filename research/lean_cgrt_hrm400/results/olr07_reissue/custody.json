@@ -1,0 +1,1048 @@
+{
+ "07a": {
+  "artifact": {
+   "bytes": 236264,
+   "expires_at": "2027-02-22T11:54:52Z",
+   "id": 14918345837,
+   "name": "olr07-scope-reissue-07a.zip",
+   "sha256": "b3b2fcfb28ddadc9af262acf082194ad27d3c63a36a9e33df4511dcd1cd47720"
+  },
+  "calibration": null,
+  "census": {
+   "calibration": {
+    "certified_actions": 22,
+    "exclusions": {
+     "unreached": 4
+    },
+    "human_closed": 17,
+    "human_rate": 1.0,
+    "scored": 17,
+    "scored_menu_receipts": 204,
+    "selected": 21
+   },
+   "evaluation": {
+    "certified_actions": 158,
+    "exclusions": {
+     "not_portable_before_command": 2,
+     "source_state_mismatch": 4,
+     "uncertifiable": 2,
+     "unreached": 4
+    },
+    "human_closed": 65,
+    "human_rate": 0.8904109589041096,
+    "scored": 73,
+    "scored_menu_receipts": 876,
+    "selected": 85
+   },
+   "train": {
+    "certified_actions": 155,
+    "exclusions": {
+     "not_portable_before_command": 3,
+     "source_state_mismatch": 10,
+     "unreached": 9
+    },
+    "human_closed": 76,
+    "human_rate": 0.9620253164556962,
+    "scored": 79,
+    "scored_menu_receipts": 948,
+    "selected": 101
+   }
+  },
+  "clean_ceiling": {
+   "calibration": 9,
+   "evaluation": 44,
+   "train": 39
+  },
+  "contract": {
+   "candidate_hb": 500,
+   "human_hb": 500,
+   "lean_sha256": "92c3d35b5bfaa5e0fea413a775d504cf46cd95e1345df61c2274f76779e7e023",
+   "repl_sha256": "ae00588fb90db91c7836396359d66cf28a67ab0d5313539cf5a28708124faac3",
+   "runner_sha256": "73a61a910201aa29a99f891b40836bf9d7468385ffaef23b50e0a7429dcbe6c1",
+   "source_commit": "6caaee842e9495688c1567e78c0e68dbb96942aa",
+   "tracer_sha256": "5ec81720eba310a876640783a1e49129c04cd62c52c328e9b8ae978167bbf4d5"
+  },
+  "evaluation": null,
+  "gates": {
+   "elapsed_seconds": 96.900033409,
+   "fixed_order": null,
+   "fresh_gap_gate": false,
+   "native_valid": false,
+   "selected_on_calibration": null,
+   "source_calibration_gate": false
+  },
+  "listed_files_verified": 94,
+  "manifest_sha256": "b614ffabb3b199ef0d774b8cff0616447ec6b5574d1a56bce6d188fa5259ce87",
+  "original": {
+   "archive_sha256": "1bd5225cfef801941bc29c5466e7c6223c69a68e53a46737d711534cfb532814",
+   "manifest_sha256": "846958ede542bedd510d865b3559e6f4711a97963583084c2d1028e70da2328e",
+   "registry_roots": 207,
+   "registry_sha256": "029b8d591851c7034736db1c1ec09c6e956c80e339fefb8c42e7a0429ce18151",
+   "verified_files": 89
+  },
+  "paired": {
+   "calibration": {
+    "clean_any": 9,
+    "clean_per_action": {
+     "ac_rfl": 1,
+     "assumption": 0,
+     "constructor": 1,
+     "contradiction": 0,
+     "decide": 0,
+     "exact?": 5,
+     "omega": 0,
+     "rfl": 1,
+     "simp": 2,
+     "simp [*]": 5,
+     "simp_all": 6,
+     "trivial": 1
+    },
+    "files": 2,
+    "old_any": 14,
+    "old_minus_clean_ci95": [
+     0.0,
+     0.3125
+    ],
+    "old_per_action": {
+     "ac_rfl": 1,
+     "assumption": 0,
+     "constructor": 1,
+     "contradiction": 0,
+     "decide": 0,
+     "exact?": 11,
+     "omega": 0,
+     "rfl": 1,
+     "simp": 3,
+     "simp [*]": 6,
+     "simp_all": 6,
+     "trivial": 1
+    },
+    "roots": 17
+   },
+   "evaluation": {
+    "clean_any": 44,
+    "clean_per_action": {
+     "ac_rfl": 8,
+     "assumption": 5,
+     "constructor": 9,
+     "contradiction": 1,
+     "decide": 2,
+     "exact?": 28,
+     "omega": 6,
+     "rfl": 8,
+     "simp": 15,
+     "simp [*]": 28,
+     "simp_all": 32,
+     "trivial": 16
+    },
+    "files": 6,
+    "old_any": 62,
+    "old_minus_clean_ci95": [
+     0.06756756756756757,
+     0.3875
+    ],
+    "old_per_action": {
+     "ac_rfl": 8,
+     "assumption": 5,
+     "constructor": 9,
+     "contradiction": 1,
+     "decide": 2,
+     "exact?": 50,
+     "omega": 6,
+     "rfl": 8,
+     "simp": 28,
+     "simp [*]": 41,
+     "simp_all": 47,
+     "trivial": 16
+    },
+    "roots": 73
+   },
+   "train": {
+    "clean_any": 39,
+    "clean_per_action": {
+     "ac_rfl": 6,
+     "assumption": 2,
+     "constructor": 13,
+     "contradiction": 1,
+     "decide": 2,
+     "exact?": 23,
+     "omega": 7,
+     "rfl": 12,
+     "simp": 16,
+     "simp [*]": 28,
+     "simp_all": 29,
+     "trivial": 16
+    },
+    "files": 5,
+    "old_any": 61,
+    "old_minus_clean_ci95": [
+     0.19480519480519481,
+     0.3614457831325301
+    ],
+    "old_per_action": {
+     "ac_rfl": 6,
+     "assumption": 2,
+     "constructor": 13,
+     "contradiction": 1,
+     "decide": 2,
+     "exact?": 52,
+     "omega": 7,
+     "rfl": 12,
+     "simp": 31,
+     "simp [*]": 42,
+     "simp_all": 44,
+     "trivial": 16
+    },
+    "roots": 79
+   }
+  },
+  "sentinels": {
+   "in_run": {
+    "current_rejected": true,
+    "earlier_certified": true,
+    "later_rejected": true,
+    "simp_current_rejected": true
+   },
+   "standalone": {
+    "current_rejected": true,
+    "earlier_certified": true,
+    "later_rejected": true,
+    "simp_current_rejected": true
+   }
+  }
+ },
+ "07b": {
+  "artifact": {
+   "bytes": 1817110,
+   "expires_at": "2027-02-22T11:54:52Z",
+   "id": 14918860201,
+   "name": "olr07-scope-reissue-07b.zip",
+   "sha256": "e1df19a94877646dc71d91cdafdfdb04dc81aea1cc5ce0243284a41d511b09e8"
+  },
+  "calibration": {
+   "arms": {
+    "binary": {
+     "by_file": {
+      "src/Init/Data/Int/Compare.lean": {
+       "closed": 4,
+       "roots": 11
+      },
+      "src/Init/Data/Int/Gcd.lean": {
+       "closed": 1,
+       "roots": 7
+      },
+      "src/Init/Data/Int/LemmasAux.lean": {
+       "closed": 28,
+       "roots": 36
+      },
+      "src/Init/Data/Int/Linear.lean": {
+       "closed": 29,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Order.lean": {
+       "closed": 29,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Pow.lean": {
+       "closed": 4,
+       "roots": 5
+      }
+     },
+     "closed": 95,
+     "mean_calls": 2.587096774193548,
+     "rate": 0.6129032258064516,
+     "roots": 155
+    },
+    "diagnostic": {
+     "by_file": {
+      "src/Init/Data/Int/Compare.lean": {
+       "closed": 4,
+       "roots": 11
+      },
+      "src/Init/Data/Int/Gcd.lean": {
+       "closed": 1,
+       "roots": 7
+      },
+      "src/Init/Data/Int/LemmasAux.lean": {
+       "closed": 28,
+       "roots": 36
+      },
+      "src/Init/Data/Int/Linear.lean": {
+       "closed": 28,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Order.lean": {
+       "closed": 29,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Pow.lean": {
+       "closed": 4,
+       "roots": 5
+      }
+     },
+     "closed": 94,
+     "mean_calls": 2.632258064516129,
+     "rate": 0.6064516129032258,
+     "roots": 155
+    },
+    "fixed": {
+     "by_file": {
+      "src/Init/Data/Int/Compare.lean": {
+       "closed": 4,
+       "roots": 11
+      },
+      "src/Init/Data/Int/Gcd.lean": {
+       "closed": 1,
+       "roots": 7
+      },
+      "src/Init/Data/Int/LemmasAux.lean": {
+       "closed": 28,
+       "roots": 36
+      },
+      "src/Init/Data/Int/Linear.lean": {
+       "closed": 29,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Order.lean": {
+       "closed": 29,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Pow.lean": {
+       "closed": 4,
+       "roots": 5
+      }
+     },
+     "closed": 95,
+     "mean_calls": 2.587096774193548,
+     "rate": 0.6129032258064516,
+     "roots": 155
+    },
+    "local_binary": {
+     "by_file": {
+      "src/Init/Data/Int/Compare.lean": {
+       "closed": 3,
+       "roots": 11
+      },
+      "src/Init/Data/Int/Gcd.lean": {
+       "closed": 1,
+       "roots": 7
+      },
+      "src/Init/Data/Int/LemmasAux.lean": {
+       "closed": 18,
+       "roots": 36
+      },
+      "src/Init/Data/Int/Linear.lean": {
+       "closed": 24,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Order.lean": {
+       "closed": 29,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Pow.lean": {
+       "closed": 4,
+       "roots": 5
+      }
+     },
+     "closed": 79,
+     "mean_calls": 2.7096774193548385,
+     "rate": 0.5096774193548387,
+     "roots": 155
+    },
+    "local_diagnostic": {
+     "by_file": {
+      "src/Init/Data/Int/Compare.lean": {
+       "closed": 3,
+       "roots": 11
+      },
+      "src/Init/Data/Int/Gcd.lean": {
+       "closed": 1,
+       "roots": 7
+      },
+      "src/Init/Data/Int/LemmasAux.lean": {
+       "closed": 9,
+       "roots": 36
+      },
+      "src/Init/Data/Int/Linear.lean": {
+       "closed": 25,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Order.lean": {
+       "closed": 28,
+       "roots": 48
+      },
+      "src/Init/Data/Int/Pow.lean": {
+       "closed": 4,
+       "roots": 5
+      }
+     },
+     "closed": 70,
+     "mean_calls": 2.793548387096774,
+     "rate": 0.45161290322580644,
+     "roots": 155
+    }
+   },
+   "best": "fixed",
+   "best_full": 95,
+   "menu_gap": 0.0
+  },
+  "census": {
+   "calibration": {
+    "certified_actions": 289,
+    "exclusions": {},
+    "human_closed": 155,
+    "human_rate": 1.0,
+    "scored": 155,
+    "scored_menu_receipts": 1860,
+    "selected": 155
+   },
+   "evaluation": {
+    "certified_actions": 830,
+    "exclusions": {
+     "not_portable_before_command": 53,
+     "uncertifiable": 7
+    },
+    "human_closed": 552,
+    "human_rate": 0.9928057553956835,
+    "scored": 556,
+    "scored_menu_receipts": 6672,
+    "selected": 616
+   },
+   "train": {
+    "certified_actions": 1235,
+    "exclusions": {
+     "not_portable_before_command": 20,
+     "uncertifiable": 1
+    },
+    "human_closed": 628,
+    "human_rate": 0.9676425269645609,
+    "scored": 649,
+    "scored_menu_receipts": 7788,
+    "selected": 670
+   }
+  },
+  "clean_ceiling": {
+   "calibration": 95,
+   "evaluation": 270,
+   "train": 312
+  },
+  "contract": {
+   "candidate_hb": 500,
+   "human_hb": 20000,
+   "lean_sha256": "92c3d35b5bfaa5e0fea413a775d504cf46cd95e1345df61c2274f76779e7e023",
+   "repl_sha256": "ae00588fb90db91c7836396359d66cf28a67ab0d5313539cf5a28708124faac3",
+   "runner_sha256": "73a61a910201aa29a99f891b40836bf9d7468385ffaef23b50e0a7429dcbe6c1",
+   "source_commit": "6caaee842e9495688c1567e78c0e68dbb96942aa",
+   "tracer_sha256": "5ec81720eba310a876640783a1e49129c04cd62c52c328e9b8ae978167bbf4d5"
+  },
+  "evaluation": {
+   "arms": {
+    "binary": {
+     "by_file": {
+      "src/Init/Data/Array/Attach.lean": {
+       "closed": 23,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Count.lean": {
+       "closed": 18,
+       "roots": 47
+      },
+      "src/Init/Data/Array/Erase.lean": {
+       "closed": 25,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Extract.lean": {
+       "closed": 26,
+       "roots": 46
+      },
+      "src/Init/Data/Array/Find.lean": {
+       "closed": 24,
+       "roots": 43
+      },
+      "src/Init/Data/Array/InsertIdx.lean": {
+       "closed": 5,
+       "roots": 9
+      },
+      "src/Init/Data/Array/MapIdx.lean": {
+       "closed": 21,
+       "roots": 39
+      },
+      "src/Init/Data/Array/Mem.lean": {
+       "closed": 0,
+       "roots": 2
+      },
+      "src/Init/Data/Array/OfFn.lean": {
+       "closed": 2,
+       "roots": 5
+      },
+      "src/Init/Data/Array/Perm.lean": {
+       "closed": 1,
+       "roots": 6
+      },
+      "src/Init/Data/Array/TakeDrop.lean": {
+       "closed": 2,
+       "roots": 2
+      },
+      "src/Init/Data/Array/Zip.lean": {
+       "closed": 15,
+       "roots": 45
+      },
+      "src/Init/Data/Fin/Fold.lean": {
+       "closed": 11,
+       "roots": 19
+      },
+      "src/Init/Data/UInt/Bitwise.lean": {
+       "closed": 11,
+       "roots": 48
+      },
+      "src/Init/Data/UInt/Lemmas.lean": {
+       "closed": 15,
+       "roots": 48
+      },
+      "src/Init/Data/Vector/Erase.lean": {
+       "closed": 5,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Extract.lean": {
+       "closed": 6,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Find.lean": {
+       "closed": 23,
+       "roots": 40
+      },
+      "src/Init/Data/Vector/Lemmas.lean": {
+       "closed": 32,
+       "roots": 41
+      }
+     },
+     "closed": 265,
+     "mean_calls": 2.7482014388489207,
+     "rate": 0.4766187050359712,
+     "roots": 556
+    },
+    "diagnostic": {
+     "by_file": {
+      "src/Init/Data/Array/Attach.lean": {
+       "closed": 23,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Count.lean": {
+       "closed": 18,
+       "roots": 47
+      },
+      "src/Init/Data/Array/Erase.lean": {
+       "closed": 25,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Extract.lean": {
+       "closed": 26,
+       "roots": 46
+      },
+      "src/Init/Data/Array/Find.lean": {
+       "closed": 24,
+       "roots": 43
+      },
+      "src/Init/Data/Array/InsertIdx.lean": {
+       "closed": 5,
+       "roots": 9
+      },
+      "src/Init/Data/Array/MapIdx.lean": {
+       "closed": 21,
+       "roots": 39
+      },
+      "src/Init/Data/Array/Mem.lean": {
+       "closed": 0,
+       "roots": 2
+      },
+      "src/Init/Data/Array/OfFn.lean": {
+       "closed": 2,
+       "roots": 5
+      },
+      "src/Init/Data/Array/Perm.lean": {
+       "closed": 2,
+       "roots": 6
+      },
+      "src/Init/Data/Array/TakeDrop.lean": {
+       "closed": 2,
+       "roots": 2
+      },
+      "src/Init/Data/Array/Zip.lean": {
+       "closed": 15,
+       "roots": 45
+      },
+      "src/Init/Data/Fin/Fold.lean": {
+       "closed": 11,
+       "roots": 19
+      },
+      "src/Init/Data/UInt/Bitwise.lean": {
+       "closed": 11,
+       "roots": 48
+      },
+      "src/Init/Data/UInt/Lemmas.lean": {
+       "closed": 17,
+       "roots": 48
+      },
+      "src/Init/Data/Vector/Erase.lean": {
+       "closed": 5,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Extract.lean": {
+       "closed": 6,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Find.lean": {
+       "closed": 23,
+       "roots": 40
+      },
+      "src/Init/Data/Vector/Lemmas.lean": {
+       "closed": 32,
+       "roots": 41
+      }
+     },
+     "closed": 268,
+     "mean_calls": 2.735611510791367,
+     "rate": 0.48201438848920863,
+     "roots": 556
+    },
+    "fixed": {
+     "by_file": {
+      "src/Init/Data/Array/Attach.lean": {
+       "closed": 23,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Count.lean": {
+       "closed": 18,
+       "roots": 47
+      },
+      "src/Init/Data/Array/Erase.lean": {
+       "closed": 25,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Extract.lean": {
+       "closed": 26,
+       "roots": 46
+      },
+      "src/Init/Data/Array/Find.lean": {
+       "closed": 24,
+       "roots": 43
+      },
+      "src/Init/Data/Array/InsertIdx.lean": {
+       "closed": 5,
+       "roots": 9
+      },
+      "src/Init/Data/Array/MapIdx.lean": {
+       "closed": 21,
+       "roots": 39
+      },
+      "src/Init/Data/Array/Mem.lean": {
+       "closed": 0,
+       "roots": 2
+      },
+      "src/Init/Data/Array/OfFn.lean": {
+       "closed": 2,
+       "roots": 5
+      },
+      "src/Init/Data/Array/Perm.lean": {
+       "closed": 1,
+       "roots": 6
+      },
+      "src/Init/Data/Array/TakeDrop.lean": {
+       "closed": 2,
+       "roots": 2
+      },
+      "src/Init/Data/Array/Zip.lean": {
+       "closed": 15,
+       "roots": 45
+      },
+      "src/Init/Data/Fin/Fold.lean": {
+       "closed": 11,
+       "roots": 19
+      },
+      "src/Init/Data/UInt/Bitwise.lean": {
+       "closed": 11,
+       "roots": 48
+      },
+      "src/Init/Data/UInt/Lemmas.lean": {
+       "closed": 15,
+       "roots": 48
+      },
+      "src/Init/Data/Vector/Erase.lean": {
+       "closed": 5,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Extract.lean": {
+       "closed": 6,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Find.lean": {
+       "closed": 23,
+       "roots": 40
+      },
+      "src/Init/Data/Vector/Lemmas.lean": {
+       "closed": 32,
+       "roots": 41
+      }
+     },
+     "closed": 265,
+     "mean_calls": 2.7482014388489207,
+     "rate": 0.4766187050359712,
+     "roots": 556
+    },
+    "local_binary": {
+     "by_file": {
+      "src/Init/Data/Array/Attach.lean": {
+       "closed": 23,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Count.lean": {
+       "closed": 18,
+       "roots": 47
+      },
+      "src/Init/Data/Array/Erase.lean": {
+       "closed": 25,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Extract.lean": {
+       "closed": 26,
+       "roots": 46
+      },
+      "src/Init/Data/Array/Find.lean": {
+       "closed": 23,
+       "roots": 43
+      },
+      "src/Init/Data/Array/InsertIdx.lean": {
+       "closed": 5,
+       "roots": 9
+      },
+      "src/Init/Data/Array/MapIdx.lean": {
+       "closed": 20,
+       "roots": 39
+      },
+      "src/Init/Data/Array/Mem.lean": {
+       "closed": 0,
+       "roots": 2
+      },
+      "src/Init/Data/Array/OfFn.lean": {
+       "closed": 2,
+       "roots": 5
+      },
+      "src/Init/Data/Array/Perm.lean": {
+       "closed": 2,
+       "roots": 6
+      },
+      "src/Init/Data/Array/TakeDrop.lean": {
+       "closed": 2,
+       "roots": 2
+      },
+      "src/Init/Data/Array/Zip.lean": {
+       "closed": 15,
+       "roots": 45
+      },
+      "src/Init/Data/Fin/Fold.lean": {
+       "closed": 11,
+       "roots": 19
+      },
+      "src/Init/Data/UInt/Bitwise.lean": {
+       "closed": 11,
+       "roots": 48
+      },
+      "src/Init/Data/UInt/Lemmas.lean": {
+       "closed": 15,
+       "roots": 48
+      },
+      "src/Init/Data/Vector/Erase.lean": {
+       "closed": 4,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Extract.lean": {
+       "closed": 6,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Find.lean": {
+       "closed": 24,
+       "roots": 40
+      },
+      "src/Init/Data/Vector/Lemmas.lean": {
+       "closed": 31,
+       "roots": 41
+      }
+     },
+     "closed": 263,
+     "mean_calls": 2.7571942446043165,
+     "rate": 0.47302158273381295,
+     "roots": 556
+    },
+    "local_diagnostic": {
+     "by_file": {
+      "src/Init/Data/Array/Attach.lean": {
+       "closed": 23,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Count.lean": {
+       "closed": 18,
+       "roots": 47
+      },
+      "src/Init/Data/Array/Erase.lean": {
+       "closed": 25,
+       "roots": 45
+      },
+      "src/Init/Data/Array/Extract.lean": {
+       "closed": 24,
+       "roots": 46
+      },
+      "src/Init/Data/Array/Find.lean": {
+       "closed": 23,
+       "roots": 43
+      },
+      "src/Init/Data/Array/InsertIdx.lean": {
+       "closed": 5,
+       "roots": 9
+      },
+      "src/Init/Data/Array/MapIdx.lean": {
+       "closed": 21,
+       "roots": 39
+      },
+      "src/Init/Data/Array/Mem.lean": {
+       "closed": 0,
+       "roots": 2
+      },
+      "src/Init/Data/Array/OfFn.lean": {
+       "closed": 2,
+       "roots": 5
+      },
+      "src/Init/Data/Array/Perm.lean": {
+       "closed": 2,
+       "roots": 6
+      },
+      "src/Init/Data/Array/TakeDrop.lean": {
+       "closed": 1,
+       "roots": 2
+      },
+      "src/Init/Data/Array/Zip.lean": {
+       "closed": 15,
+       "roots": 45
+      },
+      "src/Init/Data/Fin/Fold.lean": {
+       "closed": 10,
+       "roots": 19
+      },
+      "src/Init/Data/UInt/Bitwise.lean": {
+       "closed": 11,
+       "roots": 48
+      },
+      "src/Init/Data/UInt/Lemmas.lean": {
+       "closed": 17,
+       "roots": 48
+      },
+      "src/Init/Data/Vector/Erase.lean": {
+       "closed": 4,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Extract.lean": {
+       "closed": 6,
+       "roots": 13
+      },
+      "src/Init/Data/Vector/Find.lean": {
+       "closed": 25,
+       "roots": 40
+      },
+      "src/Init/Data/Vector/Lemmas.lean": {
+       "closed": 31,
+       "roots": 41
+      }
+     },
+     "closed": 263,
+     "mean_calls": 2.7571942446043165,
+     "rate": 0.47302158273381295,
+     "roots": 556
+    }
+   },
+   "best": "diagnostic",
+   "best_full": 268,
+   "menu_gap": 0.0035971223021582736
+  },
+  "gates": {
+   "elapsed_seconds": 386.31237211999996,
+   "fixed_order": [
+    "simp_all",
+    "exact?",
+    "omega",
+    "simp [*]"
+   ],
+   "fresh_gap_gate": false,
+   "native_valid": true,
+   "selected_on_calibration": "fixed",
+   "source_calibration_gate": false
+  },
+  "listed_files_verified": 490,
+  "manifest_sha256": "fc7bb50e72378b5af1588c3aaddd925fcea57ae6f2091bca33551d030c1bcbe1",
+  "original": {
+   "archive_sha256": "64dedf29138a27d43130db135f711569f2738c5ee4505707eb8c144abbb88b1e",
+   "manifest_sha256": "b388335c52ffb4b40b63e3cc77a37202c8c70553901a115635dc74f1d735b1ad",
+   "registry_roots": 1441,
+   "registry_sha256": "d5cde5012d5312305b0b6e19b3ea823db8e55bdb95ef83dddfc71dfb2e8c212c",
+   "verified_files": 664
+  },
+  "paired": {
+   "calibration": {
+    "clean_any": 95,
+    "clean_per_action": {
+     "ac_rfl": 8,
+     "assumption": 16,
+     "constructor": 10,
+     "contradiction": 2,
+     "decide": 4,
+     "exact?": 48,
+     "omega": 45,
+     "rfl": 8,
+     "simp": 23,
+     "simp [*]": 45,
+     "simp_all": 54,
+     "trivial": 26
+    },
+    "files": 6,
+    "old_any": 127,
+    "old_minus_clean_ci95": [
+     0.1320754716981132,
+     0.32967032967032966
+    ],
+    "old_per_action": {
+     "ac_rfl": 8,
+     "assumption": 16,
+     "constructor": 10,
+     "contradiction": 2,
+     "decide": 4,
+     "exact?": 108,
+     "omega": 45,
+     "rfl": 8,
+     "simp": 40,
+     "simp [*]": 63,
+     "simp_all": 73,
+     "trivial": 26
+    },
+    "roots": 155
+   },
+   "evaluation": {
+    "clean_any": 270,
+    "clean_per_action": {
+     "ac_rfl": 32,
+     "assumption": 6,
+     "constructor": 41,
+     "contradiction": 2,
+     "decide": 8,
+     "exact?": 74,
+     "omega": 36,
+     "rfl": 41,
+     "simp": 151,
+     "simp [*]": 181,
+     "simp_all": 201,
+     "trivial": 57
+    },
+    "files": 19,
+    "old_any": 400,
+    "old_minus_clean_ci95": [
+     0.1443850267379679,
+     0.33477011494252873
+    ],
+    "old_per_action": {
+     "ac_rfl": 32,
+     "assumption": 6,
+     "constructor": 41,
+     "contradiction": 2,
+     "decide": 8,
+     "exact?": 212,
+     "omega": 36,
+     "rfl": 42,
+     "simp": 211,
+     "simp [*]": 249,
+     "simp_all": 269,
+     "trivial": 58
+    },
+    "roots": 556
+   },
+   "train": {
+    "clean_any": 312,
+    "clean_per_action": {
+     "ac_rfl": 57,
+     "assumption": 24,
+     "constructor": 85,
+     "contradiction": 19,
+     "decide": 7,
+     "exact?": 185,
+     "omega": 14,
+     "rfl": 79,
+     "simp": 157,
+     "simp [*]": 228,
+     "simp_all": 253,
+     "trivial": 127
+    },
+    "files": 23,
+    "old_any": 538,
+    "old_minus_clean_ci95": [
+     0.2823529411764706,
+     0.40711009174311924
+    ],
+    "old_per_action": {
+     "ac_rfl": 57,
+     "assumption": 24,
+     "constructor": 85,
+     "contradiction": 19,
+     "decide": 7,
+     "exact?": 459,
+     "omega": 14,
+     "rfl": 79,
+     "simp": 249,
+     "simp [*]": 352,
+     "simp_all": 379,
+     "trivial": 127
+    },
+    "roots": 649
+   }
+  },
+  "sentinels": {
+   "in_run": {
+    "current_rejected": true,
+    "earlier_certified": true,
+    "later_rejected": true,
+    "simp_current_rejected": true
+   },
+   "standalone": {
+    "current_rejected": true,
+    "earlier_certified": true,
+    "later_rejected": true,
+    "simp_current_rejected": true
+   }
+  }
+ },
+ "authenticated": true,
+ "pinned_digests": {
+  "07a": "b3b2fcfb28ddadc9af262acf082194ad27d3c63a36a9e33df4511dcd1cd47720",
+  "07b": "e1df19a94877646dc71d91cdafdfdb04dc81aea1cc5ce0243284a41d511b09e8"
+ },
+ "run": {
+  "event": "pull_request",
+  "head_sha": "ded064c8a993fea70c2d7033b064cd09ae788d19",
+  "html_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45388529946",
+  "jobs": [
+   {
+    "completed_at": "2026-11-24T11:58:26Z",
+    "id": 138425911844,
+    "name": "Native exact registry 07a",
+    "started_at": "2026-11-24T11:55:12Z"
+   },
+   {
+    "completed_at": "2026-11-24T12:02:58Z",
+    "id": 138425912530,
+    "name": "Native exact registry 07b",
+    "started_at": "2026-11-24T11:55:11Z"
+   }
+  ],
+  "run_attempt": 1,
+  "run_id": 45388529946,
+  "workflow": ".github/workflows/olr07-scope-reissue.yml"
+ },
+ "runner_sha256_at_head": "73a61a910201aa29a99f891b40836bf9d7468385ffaef23b50e0a7429dcbe6c1",
+ "schema": "olr07.reissue_custody.v1",
+ "tracer_sha256_at_head": "5ec81720eba310a876640783a1e49129c04cd62c52c328e9b8ae978167bbf4d5"
+}
