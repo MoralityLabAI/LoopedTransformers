@@ -152,10 +152,11 @@ def input_ids(tok,it):
         raise ValueError("BOS mismatch")
     return ids
 
-def state(model,ids,it,depth=DEPTH):
-    ss=base.trajectory(model,ids,seed(it),depth,(REF,) if depth==DEPTH else ())
+def state(model,ids,it,depth=DEPTH,need_contrast=True):
+    keep_ref=depth==DEPTH and need_contrast
+    ss=base.trajectory(model,ids,seed(it),depth,(REF,) if keep_ref else ())
     h=ss[depth]
-    return h,h.float()-ss[REF].float() if depth==DEPTH else None
+    return h,h.float()-ss[REF].float() if keep_ref else None
 
 @torch.inference_mode()
 def parity(model,tok,fit):
@@ -250,12 +251,13 @@ def evaluate(model,tok,labels,cand,roots,candidates,basis_lists,timed=False):
             h,d=state(model,ids,it)
         for c in order:
             depth=32 if c["method"]=="deep" else DEPTH
+            unguided=depth==32 or (c["method"]=="scalar" and c["dose"]==0.)
             if timed:
                 base.sync()
                 torch.cuda.reset_peak_memory_stats()
                 t0=time.perf_counter()
-                h,d=state(model,ids,it,depth)
-            g=None if depth==32 or (c["method"]=="scalar" and c["dose"]==0.) else correction(d,c,bases)
+                h,d=state(model,ids,it,depth,need_contrast=not unguided)
+            g=None if unguided else correction(d,c,bases)
             z=base.read(model,h if g is None else perturb(h,g))
             if timed:
                 base.sync()
@@ -308,8 +310,11 @@ def main(a):
         raise RuntimeError("native parity failed")
     if a.stage=="fit":
         bases,candidates,fit_receipt=fit(model,tok,labels,cand,fit_roots)
+        start=time.perf_counter()
         rows,summaries=evaluate(model,tok,labels,cand,sel_roots,candidates,bases)
         arms=select_arms(candidates,summaries)
+        fit_receipt["selection_elapsed_s"]=time.perf_counter()-start
+        fit_receipt["selection_coda_passes"]=len(sel_roots)*len(candidates)
         frozen=dict(bases=bases,arms=arms)
         base.write(a.out,dict(meta=meta,status="FROZEN",parity=receipt,frozen=frozen,
                                freeze_sha=base.digest(frozen),fit=fit_receipt,
