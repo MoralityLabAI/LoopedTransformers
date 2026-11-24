@@ -20,7 +20,7 @@ CAL_SEED, TEST_SEED = 2026112501, 2026112502
 DEPTHS = (8, 16, 32)
 FAMILIES = (1, 2, 3)
 DOSES = (.25, .5, 1.)
-REFS = (1, 6, 7)
+REFS = (1, 5, 6, 7)
 METHODS = ("logits", "adaptive_logits", "hidden", "random_hidden", "orthogonal_logits", "temperature")
 SCHEMA = "lcd01-v1"
 
@@ -36,7 +36,8 @@ def write(path, data):
 def configs(depth):
     base = [dict(method="base", depth=depth, ref=1, dose=0.)]
     for m in METHODS:
-        refs = [r for r in REFS if r < depth] if m in ("hidden", "random_hidden") else [1]
+        refs = ([r for r in REFS if r < depth] if m in ("hidden", "random_hidden")
+                else [1] if m == "temperature" else [1, 5])
         for r in refs:
             for w in DOSES:
                 base.append(dict(method=m, depth=depth, ref=r, dose=w))
@@ -127,8 +128,8 @@ def score_from_states(model, states, cfg, seed):
     h = states[depth]
     if m == "base":
         return read(model, h), 1
-    if m in ("hidden", "random_hidden", "random_matched"):
-        return read(model, hidden_guidance(h, states[r], w, seed if m != "hidden" else None)), 1
+    if m in ("hidden", "random_hidden", "random_matched", "paper_hidden"):
+        return read(model, hidden_guidance(h, states[r], w, seed if m in ("random_hidden","random_matched") else None)), 1
     z = read(model, h)
     if m == "temperature":
         return logit_guidance(z, z, w, m), 1
@@ -210,6 +211,10 @@ def run(args):
             raise ValueError("invalid frozen config")
         # Add an exact dose/reference-matched random arm alongside its independently tuned version.
         selected = list(selected) + [dict(c, method="random_matched") for c in selected if c["method"]=="hidden"]
+        selected += [dict(method="paper_logits",depth=16,ref=5,dose=.5),
+                     dict(method="paper_hidden",depth=16,ref=6,dose=.5),
+                     dict(method="paper_logits",depth=32,ref=1,dose=.5),
+                     dict(method="paper_hidden",depth=32,ref=6,dose=.5)]
         use = evaluation
         meta["eval_sha"] = digest(use)
         meta["freeze_sha"] = freeze["freeze_sha"]
@@ -297,6 +302,9 @@ def run(args):
                 latency_ratio=total(rr)/total(all_rows[deep]),
                 layer_token_ratio=layers(rr)/layers(all_rows[deep]),
                 peak_bytes=max(r["peak_bytes"] for r in rr))
+            if c["method"] == "hidden":
+                matched = key(dict(c,method="random_matched"))
+                comparisons[k]["matched_random"] = paired(rr,all_rows[matched])
         write(args.out,dict(meta=meta,status="PILOT_COMPLETE",parity=parity,selected=selected,
                            summaries=summaries,comparisons=comparisons,rows=all_rows))
 
