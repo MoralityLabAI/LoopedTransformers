@@ -85,7 +85,7 @@ replay_3050 --cases "$story/cases.jsonl" --plans "$story/controllers-cuda-global
     --limit 2 --out matrix/storyworld-quality-3050
 ```
 
-When launching the Linux runner from Windows, add `--wsl Ubuntu` and use a shared Linux `--wsl-run-lock` if another native job uses the same workstation. Pass the published MCP-05 receipt to `matrix_compare.py --goose-receipt` alongside the Storyworld metrics to include the historical comparison.
+When launching the Linux runner from Windows, add `--wsl Ubuntu` and use a shared Linux `--wsl-run-lock` if another native job uses the same workstation. Pass the published MCP-05 receipt to `matrix_compare.py --goose-receipt` alongside the Storyworld metrics to include the historical comparison. [Completed pilot report](prompt_matrix_receipts/pilot/PILOT_REPORT.md)
 
 ## Train and replay
 

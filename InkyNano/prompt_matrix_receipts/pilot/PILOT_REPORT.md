@@ -1,6 +1,16 @@
 # InkyNano prompt-fixed routing pilot
 
-The local pilot trained matched 20,544-parameter LDT and TRM controllers on native routing traces from a 12-expert-per-layer teacher composed from published InkyNano GGUF weights. Each request used one immutable eight-expert set per physical layer for prefill and decode. The pilot used one training root and one development root per task, each represented in infill and outfill. These results are development diagnostics.
+The local pilot trained matched 20,544-parameter LDT and TRM controllers on native routing traces from a 12-expert-per-layer teacher composed from published InkyNano GGUF weights. LDT, TRM and global frequency chose one fixed eight-expert set per physical layer for prefill and decode. The pilot used one training root and one development root per task, each represented in infill and outfill. These results are development diagnostics.
+
+## Full-answer RTX 3050 results
+
+| Workload | Median prefill tokens/s | Median decode tokens/s | Correct or valid |
+| --- | ---: | ---: | ---: |
+| Sudoku | 10.47 | 0.82 | 0/8 |
+| ARC-AGI-2 public training example | 19.85 | 0.97 | 0/8 |
+| Storyworld | 28.31 | 0.95 | 0/8 |
+
+The 24 requests cover two modes and four policies per root. All reached their full output budget. The historical Goose Storyworld workflow measured 36.01 prefill and 9.48 decode tokens/s with Inky Mini IQ4_NL on a different GPU and with prompt caching. The published history contains aggregate results for a different workload. [Verified matrix overview](quality-k8-cuda28-persistent-global-prior/verified-overview.json) · [Historical Goose comparison](../mixed-storyworld/quality-k8-cuda28-persistent/verified-overview.json)
 
 ## CPU timing
 
@@ -66,15 +76,20 @@ All four CUDA policies used the same 95-token Sudoku outfill prompt, reached 256
 | LDT | 8 | 10.06 | 0.80 | 406.1 |
 | TRM | 8 | 10.45 | 0.86 | 384.3 |
 
-LDT and TRM each reproduced their own full 256-token CPU completion with the same trained checkpoint. LDT decoded at 1.88 tokens/s on CPU and 0.80 on CUDA. TRM decoded at 1.25 tokens/s on CPU and 0.86 on CUDA. The 12-expert teacher completions differed across backends. All three CPU previews also failed exact-grid scoring. Full-budget Sudoku infill is in progress. [LDT CPU and CUDA pair](sudoku-outfill-full-answer-ldt-pair.json) · [TRM CPU comparison](sudoku-outfill-full-answer-matrix.json) · [Scoped teacher CPU and CUDA pair](sudoku-outfill-full-answer-teacher-pair.json)
+LDT and TRM each reproduced their own full 256-token CPU completion with the same trained checkpoint. LDT decoded at 1.88 tokens/s on CPU and 0.80 on CUDA. TRM decoded at 1.25 tokens/s on CPU and 0.86 on CUDA. The 12-expert teacher completions differed across backends. All three CPU previews also failed exact-grid scoring. [LDT CPU and CUDA pair](sudoku-outfill-full-answer-ldt-pair.json) · [TRM CPU comparison](sudoku-outfill-full-answer-matrix.json) · [Scoped teacher CPU and CUDA pair](sudoku-outfill-full-answer-teacher-pair.json)
 
 ### Full-budget Sudoku infill
 
-The 12-expert control processed the 134-token infill prompt at 18.26 prefill tokens/s. It reached 256 output tokens at 0.82 decode tokens/s, repeated `</after>` 51 times and failed exact-grid scoring. Cold request time was 367.3 seconds in infill and 358.2 seconds in outfill. [Full-budget Sudoku control in both modes](sudoku-teacher-full-answer-both-modes.json)
+All four policies processed the same 134-token prompt. Each reached the 256-token limit. 0 of 4 passed exact-grid scoring.
 
-The eight-expert global-frequency layout returned the same infill completion as the 12-expert control. It reached 256 output tokens, repeated `</after>` 51 times and failed exact-grid scoring. Prefill was 14.12 tokens/s, decode was 0.73 tokens/s and cold request time was 438.2 seconds. [Full-budget global-frequency Sudoku in both modes](sudoku-global-full-answer-both-modes.json)
+| Policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds | Matches scoped teacher text |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Scoped teacher | 12 | 18.26 | 0.82 | 367.3 | Yes |
+| Global frequency | 8 | 14.12 | 0.73 | 438.2 | Yes |
+| LDT | 8 | 10.49 | 0.82 | 450.0 | Yes |
+| TRM | 8 | 11.01 | 0.85 | 430.7 | Yes |
 
-The eight-expert LDT returned the same infill completion as both controls. It reached 256 output tokens and failed exact-grid scoring. Prefill was 10.49 tokens/s, decode was 0.82 tokens/s and cold request time was 450.0 seconds. The TRM attempt stopped at the 2 GiB device-wide free-memory guard and wrote no scored completion. [LDT Sudoku receipts and TRM guard event](sudoku-ldt-full-answer-both-modes.json)
+All four infill completions matched exactly, with 51 occurrences of `</after>`. The first TRM attempt stopped at the 2 GiB device-wide free-memory guard. The retry ran the same configuration once more GPU memory was free and reused the 15 existing grid receipts. [Raw CUDA receipts](quality-k8-cuda28-persistent-global-prior/metrics.jsonl) · [TRM guard event](sudoku-ldt-full-answer-both-modes.json) · [Token budget checks for reference answers](answer-budget-check.json)
 
 ## RTX 3050 CUDA smoke
 
