@@ -212,7 +212,9 @@ def sentinel(out,timeout):
     s=result[0];xs={x["tactic"]:x for x in s["results"]}
     if (s["env_scope"]!="before" or s["decl_in_env_before"] is not False
             or set(xs)!=set(menu) or not A.closed(xs[menu[0]])
-            or any(xs[t].get("ok") is True for t in menu[1:])):
+            or any(A.closed(xs[t]) for t in menu[1:]) or xs[menu[2]].get("ok") is True
+            or any(xs[t].get("ok") is True and
+                   (xs[t].get("cert") or {}).get("kernel") is not False for t in (menu[1],menu[3]))):
         raise ValueError("native self/future visibility sentinel FAILED "+str(s))
     write(out/"PASS.json",{"scope_version":VERSION,"earlier_certified":True,"current_rejected":True,
                            "later_rejected":True,"simp_current_rejected":True,"results":xs})

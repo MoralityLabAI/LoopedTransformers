@@ -75,3 +75,7 @@ reader as demonstrated. Freeze a new file/family roster after inspecting all
 spent cohorts; no SInt access before the 500K gate. Retain linear and matched
 compute baselines. Previous negative gates constrain their tested tasks, not
 all recurrence. No promotion or additional learned fit in this incident repair.
+
+## Scope regression refinement
+
+Run 45383957646 failed to build on the reserved Lean keyword scoped; afb4870 repaired that syntax. Run [45387408849](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45387408849) compiled, and the sentinel exposed an important distinction: the pre-command environment lacks the parent theorem, but its local auxiliary recursion declaration can still resolve under the theorem name. Both exact current and simp only [current] returned empty goals with kernel=false and why=depends on auxiliary recursion declaration. Earlier lemma was certified, future theorem was rejected as unknown. The old sentinel erroneously required tactic-level rejection even when the certificate correctly refused closure. Require no certified self/future proof, explicit negative kernel verdict for tactic-level self closure, and unknown/rejected future reference. This does not weaken proof acceptance. No original-registry outcomes were collected in either failed run. Preserve source and budgets.
