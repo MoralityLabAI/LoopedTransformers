@@ -45,6 +45,8 @@ The LDT ARC infill replay diverged after 20 shared characters despite a matching
 
 Across both ARC modes, seven of eight completions matched exactly. The GPU improved prefill in all eight pairs and shortened six requests end to end. CPU decode was faster in seven pairs. Infill end-to-end time increased for both learned policies, from 157.8 to 171.6 seconds for LDT and from 159.5 to 184.2 seconds for TRM. The eight CUDA requests peaked at 2.93 GiB process RSS and sampled up to a 1.93 GiB drop in device-wide free memory. [ARC infill and outfill timing pairs](cuda-smoke/persistent/arc-both-modes.json)
 
+The four Sudoku outfill timing pairs all had faster prefill and slower decode on CUDA. LDT elapsed time fell from 120.9 to 116.5 seconds, and TRM from 112.9 to 106.0 seconds. The LDT and global completions matched exactly. The TRM and scoped teacher completions differed across backends. [Sudoku outfill timing pairs](cuda-smoke/persistent/sudoku-outfill-timing.json)
+
 ## Held-out routing mass
 
 | Policy | Initial prefill | Initial decode | With train-root prior, prefill | With train-root prior, decode |
@@ -63,6 +65,8 @@ The RTX 3050 repeated the prior-based fit on the same native Sudoku and ARC trai
 MCP-05 used Inky Mini IQ4_NL with two loops and an RTX 5080 Laptop GPU. Its Storyworld conveyor recorded 89 timed provider turns, with aggregate prefill of 36.01 tokens/s and decode of 9.48 tokens/s. The receipt attributed 47.27% of prompt tokens to cache hits. Its browser verifier passed the authored world and both secret endings. The three long-context planning runs reached their output cap without an accepted plan. [Published MCP-05 receipt](https://github.com/MoralityLabAI/HybridTRMLDT/blob/1307e7f9a38eb1afd63fb585b0cc80e297ddf1d9/MCP/results/mcp05/inky-hilbert-storyworld-canvas-receipt.json)
 
 The local and historical throughputs describe different workloads, models, devices and cache conditions. The published receipt supports a historical comparison. A same-request replay needs the original Goose request payloads. The expanded local roster includes 20 new infill and outfill authoring cases derived from the verified world's encounter constraints. [Local and historical comparison](bench-k8/mcp05-comparison.json) · [Storyworld roster](../published-hilbert-storyworld-roster.json)
+
+Goose suppressed the `<|content_thinking|>` token (ID 200008), configured a 34,816-token context and recorded cached prompt tokens. The local timing harness uses greedy sampling without logit bias and a 512-token context, with text instructions for infill. The local full-answer replay uses a 1,024-token context. [Goose runtime settings](https://github.com/MoralityLabAI/HybridTRMLDT/blob/1307e7f9a38eb1afd63fb585b0cc80e297ddf1d9/MCP/results/mcp05/inky-hilbert-storyworld-canvas-receipt.json)
 
 ## Mixed-task Storyworld fit
 

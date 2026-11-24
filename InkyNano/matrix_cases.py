@@ -189,6 +189,14 @@ def hilbert_storyworld_cases(world_path, train, dev, seed):
 
 def response_body(text):
     text = text.rsplit("</think>", 1)[-1].strip()
+    native = text.removeprefix("<|message_model|>")
+    if native.startswith("<|content_thinking|>"):
+        _, _, native = native.partition("<|end_message|>")
+        native = native.strip().removeprefix("<|message_model|>")
+    if native.startswith("<|content_text|>"):
+        text = native.removeprefix("<|content_text|>").strip()
+        text = text.removesuffix("<|content_model_end_sampling|>").rstrip()
+        text = text.removesuffix("<|end_message|>").rstrip()
     if text.startswith("```") and text.endswith("```"):
         text = text.partition("\n")[2][:-3].strip()
     return text

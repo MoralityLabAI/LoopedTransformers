@@ -133,6 +133,16 @@ class PromptMatrixTests(unittest.TestCase):
         self.assertFalse(score(case, "here is my answer\n10\n01")["exact_grid_match"])
         self.assertFalse(score({**case, "label": case["label"] * 2}, "10\n01")["exact_grid_match"])
 
+    def test_scores_native_text_after_a_finished_thinking_message(self):
+        case = {"task": "sudoku", "label": {"grid": [[1, 2], [2, 1]]}}
+        grid = '{"grid":[[1,2],[2,1]]}'
+        thinking = f"<|message_model|><|content_thinking|>{grid}"
+        self.assertFalse(score(case, thinking)["correct"])
+        self.assertFalse(score(case, thinking + "<|end_message|>")["correct"])
+        final = "<|message_model|><|content_text|>" + grid + "<|end_message|><|content_model_end_sampling|>"
+        self.assertTrue(score(case, final)["correct"])
+        self.assertTrue(score(case, thinking + "<|end_message|>" + final)["correct"])
+
     def test_hilbert_authoring_preserves_encounter_rules_without_answer_prose(self):
         world = {"plan": {"title": "World", "premise": "Premise", "cast": [], "acts": [["Act"]]},
                  "math": {"operators": {"H0": []}, "clues": {"c0": "Clue"}}, "scenes": [
