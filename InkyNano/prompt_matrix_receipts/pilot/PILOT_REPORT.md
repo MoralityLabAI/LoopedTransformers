@@ -84,7 +84,7 @@ The published bank's packed projection sizes give a cold expert payload of 999,3
 
 ### Full-budget Storyworld outfill
 
-All four policies processed the same 445-token prompt on the RTX 3050. Each reached the 512-token limit and failed JSON parsing and the scene structure checks. The published reference scene passes the structure checks in both modes and misses the separate two-to-four-paragraph target. [Raw outfill metrics and historical Goose comparison](../mixed-storyworld/storyworld-outfill-matrix.json) · [Reference scene check](../mixed-storyworld/reference-scene-score.json)
+All four policies processed the same 445-token prompt on the RTX 3050. Each reached the 512-token limit and failed JSON parsing and the scene structure checks. The longest verbatim span shared with the prompt ranged from 225 to 384 characters across the four completions. The published reference scene passes the structure checks in both modes and misses the separate two-to-four-paragraph target. [Raw outfill metrics and historical Goose comparison](../mixed-storyworld/storyworld-outfill-matrix.json) · [Reference scene check](../mixed-storyworld/reference-scene-score.json)
 
 | Policy | Experts per layer | Prefill tokens/s | Decode tokens/s | Cold request seconds |
 | --- | ---: | ---: | ---: | ---: |
@@ -99,4 +99,6 @@ The 12-expert control peaked at 2.91 GiB process RSS. Its native sampler measure
 
 ### Full-budget Storyworld infill
 
-The 12-expert control processed the 484-token infill prompt at 41.24 prefill tokens/s and generated 512 tokens at 0.94 decode tokens/s. It repeated the prompt's `</replacement>` delimiter and failed scene validation. Cold request time was 607.3 seconds in infill and 604.2 seconds in outfill. The reference scene passed the same structure checks in both modes. The three eight-expert infill replays remain pending. [Scoped control in both modes](../mixed-storyworld/storyworld-teacher-both-modes.json)
+The 12-expert control processed the 484-token infill prompt at 41.24 prefill tokens/s and generated 512 tokens at 0.94 decode tokens/s. It repeated the prompt's `</replacement>` delimiter and failed scene validation. Cold request time was 607.3 seconds in infill and 604.2 seconds in outfill. The reference scene passed the same structure checks in both modes. [Scoped control in both modes](../mixed-storyworld/storyworld-teacher-both-modes.json)
+
+The eight-expert global-frequency run used its outfill residency on the infill prompt. Prefill reached 27.53 tokens/s, decode reached 0.95 tokens/s and cold request time was 703.2 seconds. Its 512-token completion matched the 12-expert infill control exactly and repeated `</replacement>` 102 times. Both learned infill policies remain pending. [Global-frequency metrics in both modes](../mixed-storyworld/storyworld-global-both-modes.json)
