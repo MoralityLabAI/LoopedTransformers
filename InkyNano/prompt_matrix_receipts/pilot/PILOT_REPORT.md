@@ -42,7 +42,9 @@ The native loader allocated 1,525.64 MiB of model buffers in CUDA-pinned host RA
 
 The 12-expert ARC infill control reached 384 output tokens at 0.96 decode tokens/s and finished in 450.2 seconds. It repeated `</after>` and failed JSON parsing, pass@2 and exact-grid scoring. The same control took 506.0 seconds on the outfill prompt. [Full-budget ARC control in both modes](arc-teacher-full-answer-both-modes.json)
 
-Global-frequency ARC infill produced the same 384-token completion as the 12-expert control, with 77 occurrences of `</after>`. It decoded at 0.86 tokens/s and took 542.2 seconds. The 24-token CUDA timing output was an exact prefix of the full completion for both controls in both ARC modes. The learned infill policies are in progress. [Global-frequency ARC receipts and timing prefix checks](arc-global-full-answer-both-modes.json)
+Global-frequency ARC infill produced the same 384-token completion as the 12-expert control, with 77 occurrences of `</after>`. It decoded at 0.86 tokens/s and took 542.2 seconds. The 24-token CUDA timing output was an exact prefix of the full completion for both controls in both ARC modes. [Global-frequency ARC receipts and timing prefix checks](arc-global-full-answer-both-modes.json)
+
+LDT changed the resident set in three physical layers relative to global frequency on the ARC infill prompt. Its retained teacher decode routing mass rose from 92.79% to 92.92%, while prefill mass fell from 90.05% to 89.91%. The 384-token completion matched both controls exactly and failed scoring. LDT decoded at 0.81 tokens/s with a 574.4-second cold request. TRM infill is in progress. [LDT ARC receipts and layer-level residency comparison](arc-ldt-full-answer-both-modes.json)
 
 Serialized reference answers passed the score checks for both modes. The ARC answer used 153 of its 384 output tokens, and the Sudoku answer used 187 of its 256. The pinned tokenizer reproduced the native prompt token counts for all four grid requests. [Reference answer budget check](answer-budget-check.json)
 

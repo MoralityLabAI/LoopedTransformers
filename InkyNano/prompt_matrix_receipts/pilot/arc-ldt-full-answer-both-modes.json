@@ -1,0 +1,433 @@
+{
+  "scope": "Full-budget CUDA LDT ARC replay in both modes on one public-training development root.",
+  "runtime_spec": {
+    "command": "benchmark",
+    "case_file_sha256": "f13a865f19324c0552d211719f961e15ddfb288d930a53cfe5c14f6d3932c575",
+    "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+    "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+    "runtime_binary_sha256": "07b8f5ca04d8a6b4d82ddf3ee27b87bd33b5b5113be5cf3e440d45f6ea76c844",
+    "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+    "context": 1024,
+    "threads": 4,
+    "batch_tokens": 32,
+    "sampler": "greedy",
+    "n_gpu_layers": 28,
+    "max_new_override": null,
+    "parse_special": false,
+    "rss_limit_bytes": 3221225472,
+    "capacity": 8,
+    "teacher_in_ram": true,
+    "plans_sha256": "0270f14a2a1498296e7329cff589533f7cf7fde596177662d365a0bbdc6bfbbe",
+    "controller_checkpoint_sha256": {
+      "ldt": "b4700c1b5bad460d93a74b7ae4b26104e80711cb5c447a20e3f2bbf02542ea1b",
+      "trm": "5a07aa5242f293d9cfb4db2aa9b5cd3b9a9dd17001757b3db518cd42529cb6ff"
+    },
+    "published_composition_sha256": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923",
+    "vram_limit_bytes": 2147483648,
+    "runtime_library_manifest_sha256": "10d945a6bee286f51d5c8317d053ec39e7971077ddb2131092d5f9d9970c5813"
+  },
+  "rows": {
+    "outfill": {
+      "case_id": "arc-agi-2-training/2de01db2/outfill",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "outfill",
+      "prompt_sha256": "aafbc9e0b5d3c0c0e3d91cdf5575721c36ad676ccacb18abc4dc624538a8cce6",
+      "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+      "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "policy": "ldt",
+      "capacity": 8,
+      "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+      "storage_mode": "ram",
+      "quality_evaluated": true,
+      "quality": {
+        "parse_ok": false,
+        "correct": false,
+        "test_pass_at_2": [
+          false
+        ],
+        "exact_grid_match": false
+      },
+      "teacher_runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "offline_mass": {
+        "prefill": 0.9038413166999817,
+        "decode": 0.9297568798065186
+      },
+      "selection_seconds": 0.11236229999849456,
+      "end_to_end_seconds": 479.8601437999969,
+      "expert_weight_bytes": 999309312,
+      "compact_gguf_bytes": 2221144160,
+      "pack_seconds": 42.90691850000076,
+      "content": "0000060006\n0004444444\n0000888888\nExample 3 input:\n0400400404\n0600600606\n8080808080\nTest 1 input:\n8880030888\n3044444400\n0600600606\nAnswer:\n0000060006\n0004444444\n0000888888\nExample 3 input:\n0400400404\n0600600606\n8080808080\nTest 1 input:\n8880030888\n3044444400\n0600600606\nAnswer:\n0000060006\n0004444444\n0000888888\nExample 3 input:\n0400400404\n0600600606\n8080808080\nTest 1 input:\n8880030888\n3044444400\n0600600606\nAnswer:\n0000060006\n0004444444\n0000888888\nExample 3 input:\n0400400404\n0600600606\n8080808080\nTest 1 input:\n8880030888\n3044444400\n0600600606\nAnswer:\n0000060006\n0004444444\n0000888888\nExample 3 input:\n0400400404\n0600600606\n8080808080\nTest 1 input:\n8880030888\n3044444400\n0600600606\nAnswer:\n0000060006\n0004444444\n0000888888\nExample 3 input:\n0400400404\n0600600606\n8080808080\nTest 1 input:\n8880030888\n3044444400\n0600600606\nAnswer:\n0000060006\n0004444444\n0000888888\nExample 3 input:\n040040040",
+      "cuda": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1543977088,
+        "preflight_seconds": 8.208847458,
+        "sampled_peak_device_free_delta_bytes": 1814036480,
+        "vram_cap_bytes": 2147483648
+      },
+      "decode_seconds": 392.565387409,
+      "decode_tps": 0.9756336454618855,
+      "decoded_tokens": 383,
+      "embedding_length": 2304,
+      "input_tokens": 199,
+      "load_seconds": 27.45808962,
+      "output_tokens": 384,
+      "peak_rss_bytes": 2713264128,
+      "prefill_seconds": 7.300867869,
+      "prefill_tps": 27.257033488438825,
+      "stop": "limit",
+      "tokenize_seconds": 0.003981432,
+      "subprocess_seconds": 436.8408629999976
+    },
+    "infill": {
+      "case_id": "arc-agi-2-training/2de01db2/infill",
+      "root": "arc-agi-2-training/2de01db2",
+      "task": "arc-agi-2",
+      "mode": "infill",
+      "prompt_sha256": "4fe3a70945ac1b283e16ea81640ab50d8ba3d8a11985019aa257ff35a85a7046",
+      "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+      "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "policy": "ldt",
+      "capacity": 8,
+      "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+      "storage_mode": "ram",
+      "quality_evaluated": true,
+      "quality": {
+        "parse_ok": false,
+        "correct": false,
+        "test_pass_at_2": [
+          false
+        ],
+        "exact_grid_match": false
+      },
+      "teacher_runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "offline_mass": {
+        "prefill": 0.8990899920463562,
+        "decode": 0.9291959404945374
+      },
+      "selection_seconds": 0.005082299998321105,
+      "end_to_end_seconds": 574.4465720000007,
+      "expert_weight_bytes": 999309312,
+      "compact_gguf_bytes": 2221144160,
+      "pack_seconds": 44.854195699997945,
+      "content": "</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>\n</after>",
+      "cuda": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1543977088,
+        "preflight_seconds": 9.377118768,
+        "sampled_peak_device_free_delta_bytes": 1814036480,
+        "vram_cap_bytes": 2147483648
+      },
+      "decode_seconds": 475.390386542,
+      "decode_tps": 0.8056536498054795,
+      "decoded_tokens": 383,
+      "embedding_length": 2304,
+      "input_tokens": 238,
+      "load_seconds": 31.366270844000002,
+      "output_tokens": 384,
+      "peak_rss_bytes": 2717552640,
+      "prefill_seconds": 11.971978909,
+      "prefill_tps": 19.879754367181704,
+      "stop": "limit",
+      "tokenize_seconds": 0.006812929,
+      "subprocess_seconds": 529.5872940000045
+    }
+  },
+  "reference_budget_checks": {
+    "outfill": {
+      "case_id": "arc-agi-2-training/2de01db2/outfill",
+      "task": "arc-agi-2",
+      "mode": "outfill",
+      "prompt_sha256": "aafbc9e0b5d3c0c0e3d91cdf5575721c36ad676ccacb18abc4dc624538a8cce6",
+      "tokenizer_prompt_tokens": 199,
+      "native_prompt_tokens": 199,
+      "reference_tokens": 153,
+      "max_output_tokens": 384,
+      "reference_within_budget": true,
+      "reference_passes_scorer": true
+    },
+    "infill": {
+      "case_id": "arc-agi-2-training/2de01db2/infill",
+      "task": "arc-agi-2",
+      "mode": "infill",
+      "prompt_sha256": "4fe3a70945ac1b283e16ea81640ab50d8ba3d8a11985019aa257ff35a85a7046",
+      "tokenizer_prompt_tokens": 238,
+      "native_prompt_tokens": 238,
+      "reference_tokens": 153,
+      "max_output_tokens": 384,
+      "reference_within_budget": true,
+      "reference_passes_scorer": true
+    }
+  },
+  "output_notes": {
+    "outfill": {
+      "matches_control_completions": {
+        "teacher_subset": false,
+        "global": false
+      },
+      "after_closing_tags": 0,
+      "before_closing_tags": 0,
+      "replacement_closing_tags": 0
+    },
+    "infill": {
+      "matches_control_completions": {
+        "teacher_subset": true,
+        "global": true
+      },
+      "after_closing_tags": 77,
+      "before_closing_tags": 0,
+      "replacement_closing_tags": 0
+    }
+  },
+  "infill_residency_comparison": {
+    "scope": "One held-out ARC infill prompt with each fixed eight-expert plan evaluated on the recorded scoped teacher routing.",
+    "case_id": "arc-agi-2-training/2de01db2/infill",
+    "prompt_sha256": "4fe3a70945ac1b283e16ea81640ab50d8ba3d8a11985019aa257ff35a85a7046",
+    "plans_sha256": "0270f14a2a1498296e7329cff589533f7cf7fde596177662d365a0bbdc6bfbbe",
+    "teacher_capture_sha256": "ce8acd4a74b83bcae6fe008f2192320d35f453091c6d3c4dcaf253aba051154d",
+    "policies": {
+      "global": {
+        "retained_mass": {
+          "prefill": 0.9004640250309497,
+          "decode": 0.9279285588622418
+        },
+        "changes_vs_global": []
+      },
+      "hindsight": {
+        "retained_mass": {
+          "prefill": 0.8973680779387078,
+          "decode": 0.9404608549877795
+        },
+        "changes_vs_global": [
+          {
+            "physical_layer_zero_based": 0,
+            "admitted_ids": [
+              6
+            ],
+            "evicted_ids": [
+              9
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.11425468570335218,
+              "decode": 4.023655841492724
+            }
+          },
+          {
+            "physical_layer_zero_based": 1,
+            "admitted_ids": [
+              5
+            ],
+            "evicted_ids": [
+              7
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": -3.2635331911667453,
+              "decode": 3.5493149510958277
+            }
+          },
+          {
+            "physical_layer_zero_based": 2,
+            "admitted_ids": [
+              10
+            ],
+            "evicted_ids": [
+              3
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.4673402926858361,
+              "decode": 4.732910336621732
+            }
+          },
+          {
+            "physical_layer_zero_based": 3,
+            "admitted_ids": [
+              9
+            ],
+            "evicted_ids": [
+              8
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": -4.871690267537487,
+              "decode": 6.411458541778126
+            }
+          },
+          {
+            "physical_layer_zero_based": 4,
+            "admitted_ids": [
+              0
+            ],
+            "evicted_ids": [
+              5
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.061109084507982026,
+              "decode": 0.0630082131879206
+            }
+          },
+          {
+            "physical_layer_zero_based": 5,
+            "admitted_ids": [
+              2
+            ],
+            "evicted_ids": [
+              1
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": -1.434278668069744,
+              "decode": 3.345469826438152
+            }
+          },
+          {
+            "physical_layer_zero_based": 7,
+            "admitted_ids": [
+              5
+            ],
+            "evicted_ids": [
+              3
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 2.0467045198452216,
+              "decode": 0.9539357556265671
+            }
+          },
+          {
+            "physical_layer_zero_based": 9,
+            "admitted_ids": [
+              11
+            ],
+            "evicted_ids": [
+              9
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.46120034172829616,
+              "decode": 1.1137520232737508
+            }
+          },
+          {
+            "physical_layer_zero_based": 13,
+            "admitted_ids": [
+              3
+            ],
+            "evicted_ids": [
+              7
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.3587065466039485,
+              "decode": -0.037224406446800806
+            }
+          },
+          {
+            "physical_layer_zero_based": 21,
+            "admitted_ids": [
+              2
+            ],
+            "evicted_ids": [
+              5
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": -1.370086365681289,
+              "decode": 5.921229618222612
+            }
+          }
+        ]
+      },
+      "ldt": {
+        "retained_mass": {
+          "prefill": 0.8990899388346724,
+          "decode": 0.9291959758270347
+        },
+        "changes_vs_global": [
+          {
+            "physical_layer_zero_based": 0,
+            "admitted_ids": [
+              4
+            ],
+            "evicted_ids": [
+              9
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": -0.018207533754277527,
+              "decode": 1.000816357031764
+            }
+          },
+          {
+            "physical_layer_zero_based": 1,
+            "admitted_ids": [
+              6
+            ],
+            "evicted_ids": [
+              9
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": -3.740799679039608,
+              "decode": 0.9272323351974254
+            }
+          },
+          {
+            "physical_layer_zero_based": 9,
+            "admitted_ids": [
+              11
+            ],
+            "evicted_ids": [
+              9
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.46120034172829616,
+              "decode": 1.1137520232737508
+            }
+          }
+        ]
+      },
+      "trm": {
+        "retained_mass": {
+          "prefill": 0.9008532590201312,
+          "decode": 0.9300536353032083
+        },
+        "changes_vs_global": [
+          {
+            "physical_layer_zero_based": 0,
+            "admitted_ids": [
+              6
+            ],
+            "evicted_ids": [
+              9
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.11425468570335218,
+              "decode": 4.023655841492724
+            }
+          },
+          {
+            "physical_layer_zero_based": 9,
+            "admitted_ids": [
+              11
+            ],
+            "evicted_ids": [
+              9
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.46120034172829616,
+              "decode": 1.1137520232737508
+            }
+          },
+          {
+            "physical_layer_zero_based": 13,
+            "admitted_ids": [
+              3
+            ],
+            "evicted_ids": [
+              7
+            ],
+            "teacher_mass_delta_percentage_points": {
+              "prefill": 0.3587065466039485,
+              "decode": -0.037224406446800806
+            }
+          }
+        ]
+      }
+    }
+  }
+}
