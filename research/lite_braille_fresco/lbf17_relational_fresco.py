@@ -2233,9 +2233,6 @@ def campaign(rg, out: Path, threads: int = 2, upstream_path: Path | None = None,
         raise ValueError("LBF-17 suite census mismatch")
     checked_historical = verify_historical_disjointness(rg, suite)
 
-    frames, tm = teacher(rg, suite, out / "teacher", resume=resume)
-    print(f"[LBF17] teacher ready: {len(frames)} frames, {tm['reference_certificates']} ref certs", flush=True)
-
     all_jobs = [(s, a) for s in SEEDS for a in ALL_LEARNED_ARCHS]
     pending_jobs = []
     for sd, ar in all_jobs:
@@ -2252,6 +2249,16 @@ def campaign(rg, out: Path, threads: int = 2, upstream_path: Path | None = None,
                     f.unlink()
                 mdir.rmdir()
             pending_jobs.append((sd, ar))
+
+    if not pending_jobs and resume and (out / "teacher" / "manifest.json").exists():
+        tm = json.loads((out / "teacher" / "manifest.json").read_text(encoding="utf-8"))
+        if base.file_sha(out / "teacher" / "frames_summary.jsonl") != tm["frames_summary_sha256"]:
+            raise ValueError("teacher frames_summary SHA-256 mismatch")
+        frames = None
+        print(f"[LBF17] teacher manifest verified ({tm['frames']} frames); all 24 checkpoints present", flush=True)
+    else:
+        frames, tm = teacher(rg, suite, out / "teacher", resume=resume)
+        print(f"[LBF17] teacher ready: {len(frames)} frames, {tm['reference_certificates']} ref certs", flush=True)
 
     n_workers = max(1, min(2, threads))
     models = {}
@@ -2322,7 +2329,7 @@ def campaign(rg, out: Path, threads: int = 2, upstream_path: Path | None = None,
 
     train_cases, _ = rg.load_split(suite, "train")
     cal_cases, _ = rg.load_split(suite, "calibration")
-    if len(cal_cases) != COUNTS["calibration"] or ({c.lineage for c in cal_cases} & {f["lineage"] for f in frames}):
+    if len(cal_cases) != COUNTS["calibration"] or ({c.lineage for c in cal_cases} & {c.lineage for c in train_cases}):
         raise ValueError("calibration roster or lineage disjointness failed")
 
     # Separate train-only and calibration abstraction-error & glyph-brightness diagnostics
