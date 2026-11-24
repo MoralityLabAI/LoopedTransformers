@@ -46,6 +46,8 @@ WSL restarted before the next CUDA request and cleared the build’s linked libr
 
 The prior substantially improved the learned policies on this development split. Their retained mass was close to global frequency. The 16 CPU timing requests used the initial checkpoints. [Initial routing summary](offline-summary.json) · [Prior-based routing summary](controllers-global-prior/offline-summary.json)
 
+The RTX 3050 repeated the prior-based fit on the same native Sudoku and ARC training roots with PyTorch 2.5.1+cu121. Both 20,544-parameter controllers took a combined 18.47 seconds of training. PyTorch peaked at 18.38 MiB allocated and 24 MiB reserved. Incremental process RSS peaked at 465 MiB. The CPU runner reproduced all eight learned residency plans from the GPU-trained checkpoints. All eight selected the same experts as the CPU-trained fit on these four development requests. [Training receipt](controllers-cuda-global-prior/training.json) · [Checkpoint replay and held-out mass](controllers-cuda-global-prior/offline-summary.json)
+
 ## Historical Goose reference
 
 MCP-05 used Inky Mini IQ4_NL with two loops and an RTX 5080 Laptop GPU. Its Storyworld conveyor recorded 89 timed provider turns, with aggregate prefill of 36.01 tokens/s and decode of 9.48 tokens/s. The receipt attributed 47.27% of prompt tokens to cache hits. Its browser verifier passed the authored world and both secret endings. The three long-context planning runs reached their output cap without an accepted plan. [Published MCP-05 receipt](https://github.com/MoralityLabAI/HybridTRMLDT/blob/1307e7f9a38eb1afd63fb585b0cc80e297ddf1d9/MCP/results/mcp05/inky-hilbert-storyworld-canvas-receipt.json)

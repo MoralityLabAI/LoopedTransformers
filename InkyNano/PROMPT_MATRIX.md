@@ -6,6 +6,8 @@ The LDT uses per-layer lexical evidence and pooled messages across six-layer blo
 
 `prompt_matrix.py --global-prior` starts both controllers from train-root global frequency and learns a bounded prompt-dependent correction to the prior logits. Save these fits in a separate directory to distinguish them from the unconditioned initialization experiment. Replaying their plans automatically loads the associated prior from each checkpoint.
 
+For a fit on the RTX 3050, run `prompt_matrix.py --device cuda` in an existing CUDA-enabled PyTorch environment. The training pool stays in host memory and the fitter sends one minibatch at a time to the GPU. The run records the training device and peak CUDA allocation, then scores and saves the controllers on CPU so the native benchmark replays the same expert selections.
+
 ## Data and comparison
 
 - `matrix_cases.py` generates 9×9 Sudoku roots with unique solutions and samples the official ARC-AGI-2 **public training** split. Its development partition uses disjoint roots from that public training split. `--compact-grids` represents each row with its original single-digit cells and no separators. This can keep complete cases within the context budget. Keep the public evaluation set unopened until the experiment is frozen. Score exact Sudoku grids and ARC pass@2 for each test grid, with success requiring all of a task's test grids. The separate `exact_grid_match` score also accepts a complete compact grid in Sudoku and single-test ARC cases. [Official ARC-AGI-2 dataset](https://github.com/arcprize/ARC-AGI-2/tree/f3283f727488ad98fe575ea6a5ac981e4a188e49)

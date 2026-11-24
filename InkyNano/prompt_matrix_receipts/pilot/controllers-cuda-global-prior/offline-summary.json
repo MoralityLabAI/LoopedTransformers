@@ -1,0 +1,37 @@
+{
+  "workload": "Native ARC-AGI-2 public-training and Sudoku route captures",
+  "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "torch_version_wsl": "2.5.1+cu121",
+  "cpu_checkpoint_replays_identical": 8,
+  "decisions_identical_to_cpu_fit": {
+    "global": 4,
+    "hindsight": 4,
+    "ldt": 4,
+    "trm": 4
+  },
+  "heldout_requests_per_policy": 4,
+  "development_mean_routing_mass": {
+    "global": {
+      "prefill": 0.8960482627153397,
+      "decode": 0.9199258685112
+    },
+    "hindsight": {
+      "prefill": 0.9006325602531433,
+      "decode": 0.9409557282924652
+    },
+    "ldt": {
+      "prefill": 0.8943144679069519,
+      "decode": 0.9206708371639252
+    },
+    "trm": {
+      "prefill": 0.8966588973999023,
+      "decode": 0.9207535982131958
+    }
+  },
+  "sha256": {
+    "ldt.pt": "eed228e5dad6b0ac0b6ab09b3b994625323995280afcf37c0a327687c90cbd77",
+    "plans.json": "58b4a609278e7d7f2f64c5a6d5f1fd57c4cff323cba743a079dc8fcdadb272cd",
+    "training.json": "98f06e7711a675b578f7a1da628853ae71cbade1686b9fb349084d983f27cc06",
+    "trm.pt": "0b0bfc69d5475ef873fb19008b82d0f5c598470da53daa5bc48010e24a07be6d"
+  }
+}

@@ -122,6 +122,7 @@ def load_targets(cases, source, composition_hash=None):
 
 def fit(model, x, y, train, cases, epochs, batch, seed, guard):
     started = perf_counter()
+    device = next(model.parameters()).device
     counts = Counter(cases[i]["root"] for i in train)
     weights = torch.tensor([len(train) / (len(counts) * counts[cases[i]["root"]])
                             for i in train], dtype=torch.float32)
@@ -133,11 +134,13 @@ def fit(model, x, y, train, cases, epochs, batch, seed, guard):
             guard.check()
             positions = order[begin:begin + batch]
             rows = train[positions]
-            log_prob = model(x[rows]).log_softmax(dim=-1)
-            loss = -(y[rows] * log_prob).sum(-1).mean(dim=(1, 2))
+            log_prob = model(x[rows].to(device)).log_softmax(dim=-1)
+            loss = -(y[rows].to(device) * log_prob).sum(-1).mean(dim=(1, 2))
             optimizer.zero_grad(set_to_none=True)
-            ((weights[positions] * loss).sum() / batch).backward()
+            ((weights[positions].to(device) * loss).sum() / batch).backward()
             optimizer.step()
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
     guard.check()
     return perf_counter() - started
 
@@ -173,6 +176,10 @@ def plans(cases, targets, predictions, provenance, bank=None):
 def train(args):
     guard = MemoryGuard()
     torch.set_num_threads(1)
+    device = torch.device(args.device)
+    if device.type == "cuda":
+        guard.configure_cuda(torch, device)
+        torch.cuda.reset_peak_memory_stats(device)
     cases = cases_and_labels(args.cases)
     bank = None
     composition_hash = None
@@ -206,8 +213,10 @@ def train(args):
     stats = {}
     for architecture in ("ldt", "trm"):
         torch.manual_seed(args.seed)
-        model = PromptController(architecture, log_prior=log_prior)
+        model = PromptController(architecture, log_prior=log_prior).to(device)
         seconds = fit(model, x, y, train_rows, cases, args.epochs, args.batch, args.seed, guard)
+        # Use the same CPU scoring path as checkpoint replay to reproduce top-k decisions.
+        model.cpu().eval()
         with torch.inference_mode():
             predictions[architecture] = torch.cat([
                 model(x[row:row + 1]).softmax(dim=-1) for row in dev_rows
@@ -224,6 +233,8 @@ def train(args):
     write_json(args.out / "training.json", {
         "model_sha256": provenance[0], "runtime_revision": provenance[1], "seed": args.seed,
         "epochs": args.epochs, "batch": args.batch, "global_prior": args.global_prior,
+        "device": device.type,
+        "cuda_device": torch.cuda.get_device_name(device) if device.type == "cuda" else None,
         "expert_manifest_sha256": bank.manifest_sha256 if bank else None,
         "published_composition_sha256": composition_hash,
         "train_roots": sorted({cases[i]["root"] for i in train_rows}),
@@ -242,6 +253,7 @@ def main():
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--seed", type=int, default=17)
     p.add_argument("--epochs", type=int, default=20)
+    p.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     p.add_argument("--global-prior", action="store_true",
                    help="learn bounded prompt-dependent corrections to train-root global frequency")
     p.add_argument("--batch", type=int, default=4)
