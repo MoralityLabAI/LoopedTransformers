@@ -1,0 +1,48 @@
+name: LRF-04 native authorization integration
+on:
+  push:
+    branches:
+      - research/refutationbench-authorization-lrf04-20261124
+    paths:
+      - 'experiments/lean_review_feedback/lrf04/**'
+      - '.github/workflows/lrf04-authorization.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lrf04-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: f0873083c5a6b0e424d0872db058b8edb8f56f5d
+          path: mathcan-dev
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Lean
+        run: |
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo "/tmp/lean-4.35.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Mock fault injection
+        working-directory: experiments/lean_review_feedback/lrf04
+        run: python -m unittest -v test_controller
+      - name: Build original pinned constructive module
+        working-directory: mathcan-dev
+        run: lake build MathCan.ConstructiveObservationAudit
+      - name: Independent native regression and live integration
+        run: python -u experiments/lean_review_feedback/lrf04/run.py --mathcan mathcan-dev --out /tmp/lrf04
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lrf04-integration-receipts
+          path: /tmp/lrf04
+          retention-days: 30
