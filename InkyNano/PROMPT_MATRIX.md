@@ -62,6 +62,31 @@ python InkyNano/matrix_run.py benchmark --cases matrix/cases.jsonl --model "$TEA
 
 Use `--teacher-in-ram` only for a bounded teacher that fits the process budget. The eager path can avoid simultaneous RSS for mapped source pages and the CPU's repacked copies. The unrestricted teacher defaults to demand paging. Use `--batch-tokens` to cap one native prefill batch when memory is tight and hold it fixed across timing comparisons. For a timing pilot, `--max-new` caps sampled output and the spec records the cap. Use the full case budget for scoring. A benchmark request can run for up to 1,800 seconds by default, with `--case-timeout` available for longer cases. Infill and outfill share a root and remain in the same split. If the teacher uses a subset, transfer up to the full bank requires a new capture and fit.
 
+### Replay the archived RTX 3050 full-answer matrix
+
+Run the following from the repository root in the environment that can launch the CUDA runner. Set `TEACHER_GGUF` to the scoped 12-expert GGUF identified by the archived composition receipt, `NATIVE` to the compiled runner, `RUNTIME_LIBRARIES` to its `sha256sum` manifest and `GGUF_PYTHON` to the pinned llama.cpp `gguf-py` directory. The runner checks the model and runtime library digests. The grid replay uses the archived prior-based fit. The Storyworld replay uses the mixed-task fit and the first two development requests, which are the outfill and infill of the same scene. Omit `--max-new` to use each request's full scoring budget.
+
+```sh
+archive=InkyNano/prompt_matrix_receipts
+pilot="$archive/pilot"
+story="$archive/mixed-storyworld"
+replay_3050() {
+    python InkyNano/matrix_run.py benchmark \
+        --model "$TEACHER_GGUF" --published-composition "$pilot/composition.json" \
+        --teacher-in-ram --native "$NATIVE" --gguf-python "$GGUF_PYTHON" \
+        --runtime-revision a6ac41c757c066941766164439f6876f2deaab04+demand-paging \
+        --runtime-library-manifest "$RUNTIME_LIBRARIES" \
+        --context 1024 --batch-tokens 32 --threads 4 --capacity 8 --gpu-layers 28 \
+        --rss-limit-bytes 3221225472 --vram-limit-bytes 2147483648 "$@"
+}
+replay_3050 --cases "$pilot/cases.jsonl" --plans "$pilot/controllers-global-prior/plans.json" \
+    --out matrix/grid-quality-3050
+replay_3050 --cases "$story/cases.jsonl" --plans "$story/controllers-cuda-global-prior/plans.json" \
+    --limit 2 --out matrix/storyworld-quality-3050
+```
+
+When launching the Linux runner from Windows, add `--wsl Ubuntu` and use a shared Linux `--wsl-run-lock` if another native job uses the same workstation. Pass the published MCP-05 receipt to `matrix_compare.py --goose-receipt` alongside the Storyworld metrics to include the historical comparison.
+
 ## Train and replay
 
 Use the Silico export's manifest to index the already-isolated weights and its matching backbone. Supply case-aligned, per-phase routing receipts with the same original Q4 checkpoint digest. Each receipt records the exact prompt digest, pinned teacher runtime revision, normalized routing mass and visit counts per physical layer. The training loader enforces the 48-visit loop layout for every token. Set `NATIVE` to the built runner and `RUNTIME_REV` to its pinned revision. Add `--wsl Ubuntu` when Python runs on Windows and the native binary was built in Ubuntu.

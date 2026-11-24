@@ -68,6 +68,10 @@ All four CUDA policies used the same 95-token Sudoku outfill prompt, reached 256
 
 LDT and TRM each reproduced their own full 256-token CPU completion with the same trained checkpoint. LDT decoded at 1.88 tokens/s on CPU and 0.80 on CUDA. TRM decoded at 1.25 tokens/s on CPU and 0.86 on CUDA. The 12-expert teacher completions differed across backends. All three CPU previews also failed exact-grid scoring. Full-budget Sudoku infill is in progress. [LDT CPU and CUDA pair](sudoku-outfill-full-answer-ldt-pair.json) · [TRM CPU comparison](sudoku-outfill-full-answer-matrix.json) · [Scoped teacher CPU and CUDA pair](sudoku-outfill-full-answer-teacher-pair.json)
 
+### Full-budget Sudoku infill
+
+The 12-expert control processed the 134-token infill prompt at 18.26 prefill tokens/s. It reached 256 output tokens at 0.82 decode tokens/s, repeated `</after>` 51 times and failed exact-grid scoring. Cold request time was 367.3 seconds in infill and 358.2 seconds in outfill. The three eight-expert infill runs remain pending. [Full-budget Sudoku control in both modes](sudoku-teacher-full-answer-both-modes.json)
+
 ## RTX 3050 CUDA smoke
 
 The standard CUDA build generated eight tokens on the RTX 3050 Laptop GPU using the fixed eight-expert model, 32 llama.cpp offload slots, a 512-token context and a 32-token batch. It reached 3.37 prefill tokens/s and 1.23 decode tokens/s. The largest sampled device-wide free-memory drop was 1.64 GiB. The native process peaked at 1.90 GiB RSS. The 12-expert teacher exceeded the configured budget at 32 offload slots once runtime overhead was included. At 28 slots its allocation preflight passed for the 512-token timing and 1024-token quality contexts. [CUDA smoke receipt](cuda-smoke/native-cuda-smoke.json) · [Teacher preflight](cuda-smoke/native-cuda-teacher-inspect-28-1024.json)
