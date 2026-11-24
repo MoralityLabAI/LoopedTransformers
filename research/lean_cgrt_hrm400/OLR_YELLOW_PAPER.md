@@ -8,6 +8,8 @@
 **Research branch:** [PR #318](https://github.com/MoralityLabAI/LoopedTransformers/pull/318).  
 **Experimental status:** OLR-01B–04D and MeTTa bridges have completed native developmental evaluations. OLR-METTA-05 source certification and fitting completed its CI step; final recall scoring remained in progress at the initial paper snapshot. No general learned-reasoning or architecture-promotion claim.
 
+> **Research decision, 2026-11-24:** The completed 05 native run and Fable's independent neural controls support **REDESIGN**. The explicit-map model closed every native evaluation proof; addressed attention lagged that control and simpler key-value storage. See [OLR-06 redesign and exact-ledger reference](OLR_06_REDESIGN.md). This v0.1 document is retained as the historical specification of the original architecture. The next proposed learned component is an incidence-directed policy over an exact verifier-owned receipt ledger; no 5M-model promotion has been authorized by the evidence.
+
 ## Abstract
 
 Obligation Ledger Recurrence (OLR) is a family of recurrent neural controllers for reasoning tasks whose execution is independently checked. It proposes to organize the latent state by persistent obligations rather than by a single undifferentiated residual stream. A weight-tied attention block computes messages over evidence, obligations and current tool events. An address-conditioned write rule preserves memory for obligations that a new receipt does not directly concern. A separate deterministic execution boundary tracks proof states, accepted/rejected actions, budgets, source provenance and terminal certificates. Lean supplies native proof judgments; Hyperon MeTTa filters typed evidence and repair proposals.
