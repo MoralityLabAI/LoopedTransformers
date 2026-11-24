@@ -47,6 +47,8 @@ Across both ARC modes, seven of eight completions matched exactly. The GPU impro
 
 The four Sudoku outfill timing pairs all had faster prefill and slower decode on CUDA. LDT elapsed time fell from 120.9 to 116.5 seconds, and TRM from 112.9 to 106.0 seconds. The LDT and global completions matched exactly. The TRM and scoped teacher completions differed across backends. [Sudoku outfill timing pairs](cuda-smoke/persistent/sudoku-outfill-timing.json)
 
+The full timing matrix completed all 16 CPU/CUDA pairs, with one development root per task, both modes and four policies. Median prefill rose from 3.71 to 19.84 tokens/s, median decode fell from 1.68 to 0.88 tokens/s, and median cold request time fell from 126.3 to 118.1 seconds. CUDA improved prefill in all 16 pairs and shortened 10 requests end to end. Thirteen completions matched exactly. GPU replays stayed within the 3 GiB RSS and 2 GiB sampled device-memory limits. The 24-token cap applies to the entire timing matrix. [Verified overview](bench-k8-cuda28-persistent/verified-overview.json) · [Paired metrics](bench-k8-cuda28-persistent/summary.json) · [Raw CUDA receipts](bench-k8-cuda28-persistent/metrics.jsonl)
+
 ## Held-out routing mass
 
 | Policy | Initial prefill | Initial decode | With train-root prior, prefill | With train-root prior, decode |
