@@ -3,7 +3,9 @@ on:
   pull_request:
     paths:
       - 'research_gym/scripts/lcd01_huginn.py'
+      - 'research_gym/scripts/lcd02_spectral.py'
       - 'experiments/lcd01/**'
+      - 'experiments/lcd02/**'
       - '.github/workflows/lcd01-source.yml'
   workflow_dispatch:
 jobs:
@@ -18,3 +20,5 @@ jobs:
       - run: pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
       - run: python -m py_compile research_gym/scripts/lcd01_huginn.py
       - run: python -m research_gym.scripts.lcd01_huginn --stage smoke
+      - run: python -m py_compile research_gym/scripts/lcd02_spectral.py
+      - run: python -m research_gym.scripts.lcd02_spectral --stage smoke
