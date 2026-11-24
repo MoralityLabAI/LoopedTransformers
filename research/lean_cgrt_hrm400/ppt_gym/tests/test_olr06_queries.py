@@ -80,7 +80,7 @@ class QueryTests(unittest.TestCase):
 
     def test_relabeling_signature_and_values(self):
         a=delayed_example()
-        order=(2,0,3,1);inv={u:j for j,u in enumerate(order)}
+        order=tuple(reversed(range(len(a.weights))));inv={u:j for j,u in enumerate(order)}
         b=Root(tuple(a.weights[u] for u in order),(),
                tuple(Offer(o.kind,inv[o.u],inv[o.v],o.cost,o.p4)
                      for o in reversed(a.offers)),a.budget,"renamed")
