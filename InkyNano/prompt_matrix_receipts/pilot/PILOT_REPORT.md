@@ -27,6 +27,12 @@ The eight-expert LDT with the train-root prior reached 256 tokens at 1.88 decode
 
 The same teacher also scored zero on the Sudoku outfill with the pinned Inkling chat template and reasoning effort set to none. It reached the 256-token cap in both prompt conditions. [Templated teacher receipt](quality-teacher_subset-cpu-preview-chat/receipt.json)
 
+### Full-answer RTX 3050 grid replay
+
+The first CUDA request used the 12-expert control on one held-out ARC-AGI-2 outfill from the public training set. It emitted repeated rows of zeros and reached 384 output tokens at 0.97 decode tokens/s. The recorded answer failed JSON parsing, test-grid pass@2 and exact compact-grid scoring. The other CUDA grid requests are in progress. [First full-budget CUDA ARC receipt](first-full-answer-arc.json)
+
+Serialized reference answers passed the score checks for both modes. The ARC answer used 153 of its 384 output tokens, and the Sudoku answer used 187 of its 256. The pinned tokenizer reproduced the native prompt token counts for all four grid requests. [Reference answer budget check](answer-budget-check.json)
+
 ## RTX 3050 CUDA smoke
 
 The standard CUDA build generated eight tokens on the RTX 3050 Laptop GPU using the fixed eight-expert model, 32 llama.cpp offload slots, a 512-token context and a 32-token batch. It reached 3.37 prefill tokens/s and 1.23 decode tokens/s. The largest sampled device-wide free-memory drop was 1.64 GiB. The native process peaked at 1.90 GiB RSS. The 12-expert teacher exceeded the configured budget at 32 offload slots once runtime overhead was included. At 28 slots its allocation preflight passed for the 512-token timing and 1024-token quality contexts. [CUDA smoke receipt](cuda-smoke/native-cuda-smoke.json) · [Teacher preflight](cuda-smoke/native-cuda-teacher-inspect-28-1024.json)
