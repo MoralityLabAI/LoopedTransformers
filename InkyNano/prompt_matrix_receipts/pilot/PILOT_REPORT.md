@@ -76,6 +76,8 @@ Four new native Storyworld traces joined the eight existing Sudoku and ARC trace
 
 On the single Storyworld development root, averaged across both modes, global selection retained 85.76% of teacher prefill routing mass and 88.50% of decode mass. The LDT retained 85.69% and 88.84%, the TRM 85.77% and 88.40%, and hindsight 86.74% and 91.83%. These results measure the 12-expert teacher's routing mass, with one resident set of eight per layer for each request. [Per-task routing results](../mixed-storyworld/controllers-cuda-global-prior/offline-summary.json)
 
+With prefill and decode weighted equally, the learned policies stayed within 0.34 percentage points of global frequency on each of the three development roots. Their remaining eight-expert hindsight headroom ranged from 1.51 to 2.59 points. LDT gained 0.14 points on Storyworld. TRM gained 0.12 points on ARC and 0.08 points on Sudoku. [Root-level routing mass and oracle headroom](../mixed-storyworld/controllers-cuda-global-prior/offline-summary.json)
+
 Across six held-out requests, LDT chose five distinct layouts and TRM chose six. Global frequency used one. Of the 192 resident slots per request, LDT changed 3–10 and TRM changed 4–10 relative to global frequency. For the paired Storyworld prompts, LDT kept the same layout and TRM changed one slot between outfill and infill. [Resident expert selection audit](../mixed-storyworld/controllers-cuda-global-prior/selection-audit.json)
 
 The published bank's packed projection sizes give a cold expert payload of 999,309,312 bytes per eight-expert request, which matches the runtime receipt. With a reusable resident cache, switching between the two Storyworld modes would admit zero expert bytes for LDT and 4,810,752 bytes for TRM. These estimates count packed expert projections. The measured cold path repacks the model for every request. [Expert admission estimates](../mixed-storyworld/controllers-cuda-global-prior/admission-estimates.json)
@@ -93,4 +95,8 @@ All four policies processed the same 445-token prompt on the RTX 3050. Each reac
 
 LDT exchanged 10 of 192 resident slots relative to global frequency on this prompt. It retained 85.91% of teacher decode routing mass versus 85.58% for global. [LDT outfill comparison](../mixed-storyworld/storyworld-outfill-ldt.json)
 
-The 12-expert control peaked at 2.91 GiB process RSS. Its native sampler measured a 2,036 MiB drop in device free VRAM after CUDA initialization. A Windows sample showed 2,114 MiB device-wide in use, and the driver withheld per-process usage. The eight-expert runs stayed near 2.53 GiB RSS and a 1.69 GiB native free-VRAM drop. Infill is in progress. [Scoped resource receipt](../mixed-storyworld/first-storyworld-outfill.json)
+The 12-expert control peaked at 2.91 GiB process RSS. Its native sampler measured a 2,036 MiB drop in device free VRAM after CUDA initialization. A Windows sample showed 2,114 MiB device-wide in use, and the driver withheld per-process usage. The eight-expert runs stayed near 2.53 GiB RSS and a 1.69 GiB native free-VRAM drop. [Scoped resource receipt](../mixed-storyworld/first-storyworld-outfill.json)
+
+### Full-budget Storyworld infill
+
+The 12-expert control processed the 484-token infill prompt at 41.24 prefill tokens/s and generated 512 tokens at 0.94 decode tokens/s. It repeated the prompt's `</replacement>` delimiter and failed scene validation. Cold request time was 607.3 seconds in infill and 604.2 seconds in outfill. The reference scene passed the same structure checks in both modes. The three eight-expert infill replays remain pending. [Scoped control in both modes](../mixed-storyworld/storyworld-teacher-both-modes.json)
