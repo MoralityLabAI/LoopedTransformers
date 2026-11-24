@@ -996,12 +996,21 @@ def probe_fresco_decision(model: MeetingPotentialFrescoNet, case, s: FringeState
         torch.testing.assert_close(outs_norm[0]["pot"], alts[md][0]["pot"], rtol=1e-6, atol=1e-6)
         torch.testing.assert_close(outs_norm[0]["s0"], alts[md][0]["s0"], rtol=1e-6, atol=1e-6)
         torch.testing.assert_close(outs_norm[0]["s1"], alts[md][0]["s1"], rtol=1e-6, atol=1e-6)
-    for k in range(1, model.passes):
+    if model.passes > 1:
+        # At Pass 2 (k=1), incoming banks come from identical Pass-1 states so norms match normal.
         torch.testing.assert_close(
-            outs_norm[k]["bm_in"].norm(), alts["roll"][k]["bm_in"].norm(), rtol=1e-5, atol=1e-5
+            outs_norm[1]["bm_in"].norm(), alts["roll"][1]["bm_in"].norm(), rtol=1e-5, atol=1e-5
         )
         torch.testing.assert_close(
-            outs_norm[k]["bw_u_in"].norm(), alts["roll"][k]["bw_u_in"].norm(), rtol=1e-5, atol=1e-5
+            outs_norm[1]["bw_u_in"].norm(), alts["roll"][1]["bw_u_in"].norm(), rtol=1e-5, atol=1e-5
+        )
+    for k in range(1, model.passes):
+        # Across all passes k>=1, cyclic roll is an exact Frobenius-norm isometry of pass (k-1)'s outgoing bank.
+        torch.testing.assert_close(
+            alts["roll"][k - 1]["bm_out"].norm(), alts["roll"][k]["bm_in"].norm(), rtol=1e-6, atol=1e-6
+        )
+        torch.testing.assert_close(
+            alts["roll"][k - 1]["bw_u_out"].norm(), alts["roll"][k]["bw_u_in"].norm(), rtol=1e-6, atol=1e-6
         )
 
     obs = build_fresco_observation(case, s, outs_norm, checkpoint_sha, ordinal)

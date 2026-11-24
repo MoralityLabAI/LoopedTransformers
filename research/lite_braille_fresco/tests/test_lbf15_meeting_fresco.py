@@ -75,6 +75,9 @@ class FringeAndCausalTests(unittest.TestCase):
         m15.expand_node(self.rg, c, s, 1, 0)
         self.assertTrue(s.live())
         net, _ = m15.new_model(107, "recurrent_opened")
+        with torch.no_grad():
+            net.word_gate.gate.weight.normal_(0.0, 0.25)
+            net.fresco_gate.gate.weight.normal_(0.0, 0.25)
         net.eval()
         raw, obs = [], []
         outs, _ = m15.probe_fresco_decision(net, c, s, 128 - s.work, "107:recurrent_opened", 1, "a" * 64, raw, obs)
