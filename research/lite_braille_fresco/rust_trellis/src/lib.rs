@@ -136,6 +136,8 @@ fn trellis_filter_u64(arcs: &mut [u64], alpha: usize) {
 /// Kernel 1: Batch u64-bitset symbolic `prov_{Fp} x adj2` abstract interpreter.
 /// Supports `alpha <= 8` (`alpha^2 <= 64`), `word_len <= 64`, arbitrary rule widths `>= 2`,
 /// `fp <= 32`, `k_max <= 16`.
+/// `guard_mode`: `0 = legacy`, `1 = fable_len_guard` (`fp >= ell_max` & no longer Pass-1 redex at `p`),
+///               `2 = pr348_mask_guard` (`D_f subseteq [p, p+ll)`), `3 = none`.
 /// Writes `out_bitsets` of shape `(n_words, k_max + 1, fp + 1, word_len - 1)` where fiber slot `0`
 /// is the root word `base_a2` and fiber slots `1..=fp` are the `fp` provenance fibers.
 /// Returns total executed rule-window checks.
@@ -152,6 +154,7 @@ pub unsafe extern "C" fn lbf18_sym_prov_adj2_batch(
     max_rlen: usize,
     fp: usize,
     k_max: usize,
+    guard_mode: usize,
     out_bitsets: *mut u64,     // (n_words, k_max + 1, fp + 1, lm1)
 ) -> u64 {
     if word_len < 2 || alpha > 8 || word_len > 64 || fp == 0 || fp > 32 {
@@ -166,6 +169,14 @@ pub unsafe extern "C" fn lbf18_sym_prov_adj2_batch(
     let out_stride_w = (k_max + 1) * out_stride_k;
     let out = std::slice::from_raw_parts_mut(out_bitsets, n_words * out_stride_w);
     out.fill(0);
+
+    let mut actual_max_rlen = 2usize;
+    for ri in 0..n_ors {
+        let ll = r_len[ri] as usize;
+        if ll > actual_max_rlen {
+            actual_max_rlen = ll;
+        }
+    }
 
     let mut total_checks = 0u64;
 
@@ -187,6 +198,8 @@ pub unsafe extern "C" fn lbf18_sym_prov_adj2_batch(
         let mut fibers = [[0u64; 64]; 32];
         let mut active = [false; 32];
         let mut w1_buf = [0u8; 64];
+        let mut max_origin_len = [0usize; 64];
+        let mut changed_mask = [0u64; 32];
 
         for ri in 0..n_ors {
             let ll = r_len[ri] as usize;
@@ -197,7 +210,7 @@ pub unsafe extern "C" fn lbf18_sym_prov_adj2_batch(
             let rhs = &r_rhs[ri * max_rlen..ri * max_rlen + ll];
             for p in 0..=(word_len - ll) {
                 total_checks += 1;
-                if &w0[p..p + ll] == lhs {
+                if &w0[p..p + ll] == lhs && lhs != rhs {
                     w1_buf[..word_len].copy_from_slice(w0);
                     w1_buf[p..p + ll].copy_from_slice(rhs);
                     let f = p % fp;
@@ -206,6 +219,14 @@ pub unsafe extern "C" fn lbf18_sym_prov_adj2_batch(
                         fibers[f][q] |= 1u64 << bit;
                     }
                     active[f] = true;
+                    if ll > max_origin_len[p] {
+                        max_origin_len[p] = ll;
+                    }
+                    for q in 0..ll {
+                        if rhs[q] != w0[p + q] {
+                            changed_mask[f] |= 1u64 << (p + q);
+                        }
+                    }
                 }
             }
         }
@@ -247,7 +268,18 @@ pub unsafe extern "C" fn lbf18_sym_prov_adj2_batch(
                     for p in 0..=(word_len - ll) {
                         total_checks += 1;
                         if step_idx == 1 && (p % fp == f) && &w0[p..p + ll] == rhs {
-                            continue;
+                            let suppress = match guard_mode {
+                                0 => true,
+                                1 => (fp >= actual_max_rlen) && (max_origin_len[p] <= ll),
+                                2 => {
+                                    let win_m = ((1u64 << ll) - 1) << p;
+                                    (changed_mask[f] & !win_m) == 0
+                                }
+                                _ => false,
+                            };
+                            if suppress {
+                                continue;
+                            }
                         }
                         let mut matched = true;
                         for q in 0..(ll - 1) {
@@ -514,15 +546,18 @@ fn trellis_arc_filter_soft_f32(
 
 /// Kernel 2: Fused sparse-bitset-pruned continuous multi-pass word-envelope evaluator
 /// for `RelationalProvenanceFrescoNet` (`rel_prov_opened`, `rel_prov_standard`,
-/// `adj2_noprov_opened`, `param_nonrecurrent`).
+/// `adj2_noprov_opened`, `param_nonrecurrent`), with decoupled exact Boolean `u64` support!
 ///
 /// `env_mode`: `0 = normal`, `1 = env_zero`, `2 = env_roll`
 /// `nonrecurrent`: `1` if `param_nonrecurrent` (`g_all = 0`), `0` otherwise
+/// `guard_mode`: `0 = legacy`, `1 = fable_len_guard`, `2 = pr348_mask_guard`, `3 = none`
 ///
 /// Writes:
-/// - `out_q`:  `(n_words, passes, L, 6, 20)`
-/// - `out_b`:  `(n_words, passes, L, 6, 20)`
-/// - `out_bi`: `(n_words, passes, fp, L - 1, 36, 4)`
+/// - `out_q`:         `(n_words, passes, L, 6, 20)`
+/// - `out_b`:         `(n_words, passes, L, 6, 20)`
+/// - `out_bi`:        `(n_words, passes, fp, L - 1, 36, 4)`
+/// - `out_supp_bits`: `(n_words, passes, fp + 1, L - 1)` exact pure-Boolean `u64` support (slot 0 = root)
+/// - `out_min_pos`:   `(n_words, passes)` minimum float32 channel-max across exact-Boolean-supported cells
 #[no_mangle]
 pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
     words_ptr: *const u8,       // (n_words, L)
@@ -533,20 +568,24 @@ pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
     r3_ptr: *const u8,          // (n_r3, 6): [x0, x1, x2, y0, y1, y2]
     n_r3: usize,
     fp: usize,                  // 4 or 1
-    passes: usize,              // 1..=3
+    passes: usize,              // 1..=16
     env_mode: usize,            // 0 = normal, 1 = env_zero, 2 = env_roll
     nonrecurrent: usize,        // 0 or 1
+    guard_mode: usize,          // 0 = legacy, 1 = fable_len_guard, 2 = pr348_mask_guard, 3 = none
     weights_ptr: *const RelProvWeightsPtrs,
     out_q_ptr: *mut f32,        // (n_words, passes, L, 6, 20)
     out_b_ptr: *mut f32,        // (n_words, passes, L, 6, 20)
     out_bi_ptr: *mut f32,       // (n_words, passes, fp, L-1, 36, 4)
+    out_supp_bits_ptr: *mut u64,// (n_words, passes, fp + 1, L-1)
+    out_min_pos_ptr: *mut f32,  // (n_words, passes)
 ) -> u64 {
-    if n_words == 0 || word_len < 2 || (fp != 1 && fp != 4) || passes == 0 {
+    if n_words == 0 || word_len < 2 || word_len > 64 || (fp != 1 && fp != 4) || passes == 0 {
         return 0;
     }
     let l = word_len;
     let lm1 = l - 1;
     let use_prov = fp > 1;
+    let actual_max_rlen = if n_r3 > 0 { 3usize } else { 2usize };
     let wt = &*weights_ptr;
 
     let words = std::slice::from_raw_parts(words_ptr, n_words * l);
@@ -593,9 +632,14 @@ pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
 
     let pos_pass_sz = l * A6 * CE;
     let bi_pass_sz = fp * lm1 * A6_SQ * CB;
+    let supp_pass_sz = (fp + 1) * lm1;
     let out_q = std::slice::from_raw_parts_mut(out_q_ptr, n_words * passes * pos_pass_sz);
     let out_b = std::slice::from_raw_parts_mut(out_b_ptr, n_words * passes * pos_pass_sz);
     let out_bi = std::slice::from_raw_parts_mut(out_bi_ptr, n_words * passes * bi_pass_sz);
+    let out_supp = std::slice::from_raw_parts_mut(out_supp_bits_ptr, n_words * passes * supp_pass_sz);
+    let out_min_pos = std::slice::from_raw_parts_mut(out_min_pos_ptr, n_words * passes);
+    out_supp.fill(0);
+    out_min_pos.fill(1.0);
 
     // Precompute all 4 `h_res` trajectories across passes `k = 0..passes` ONCE per batch!
     // (Since `h_{k+1} = tanh(h_k + 0.25 * res_ff(h_k))` depends only on the 4 initial slot types!)
@@ -661,6 +705,93 @@ pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
         b_cur.fill(0.0);
         bi_cur.fill(0.0);
         bi_bits_cur.fill(0);
+
+        // Precompute root `u64` bitsets and Pass-1 origin lengths / changed-coordinate masks
+        // for pure-Boolean exact support (`Theorem B` independent of float32 brightness) & guarded transfer.
+        let mut root_bits = [0u64; 64];
+        for p in 0..lm1 {
+            root_bits[p] = 1u64 << ((w[p] as usize) * A6 + (w[p + 1] as usize));
+        }
+        let mut max_origin_len = [0usize; 64];
+        let mut changed_mask = [0u64; 4];
+        let mut exact_fib_bits = [[0u64; 64]; 4];
+        let mut exact_active = [false; 4];
+        let mut w1_tmp = [0u8; 64];
+
+        for e in 0..n_r2 {
+            let x0 = r2[e * 4];
+            let x1 = r2[e * 4 + 1];
+            let y0 = r2[e * 4 + 2];
+            let y1 = r2[e * 4 + 3];
+            for p in 0..lm1 {
+                if w[p] == x0 && w[p + 1] == x1 && (x0 != y0 || x1 != y1) {
+                    let f = if use_prov { p % fp } else { 0 };
+                    if 2 > max_origin_len[p] {
+                        max_origin_len[p] = 2;
+                    }
+                    if y0 != w[p] {
+                        changed_mask[f] |= 1u64 << p;
+                    }
+                    if y1 != w[p + 1] {
+                        changed_mask[f] |= 1u64 << (p + 1);
+                    }
+                    w1_tmp[..l].copy_from_slice(w);
+                    w1_tmp[p] = y0;
+                    w1_tmp[p + 1] = y1;
+                    for q in 0..lm1 {
+                        exact_fib_bits[f][q] |=
+                            1u64 << ((w1_tmp[q] as usize) * A6 + (w1_tmp[q + 1] as usize));
+                    }
+                    exact_active[f] = true;
+                }
+            }
+        }
+        if l >= 3 && n_r3 > 0 {
+            for e in 0..(n_r3) {
+                let x0 = r3[e * 6];
+                let x1 = r3[e * 6 + 1];
+                let x2 = r3[e * 6 + 2];
+                let y0 = r3[e * 6 + 3];
+                let y1 = r3[e * 6 + 4];
+                let y2 = r3[e * 6 + 5];
+                for p in 0..(l - 2) {
+                    if w[p] == x0 && w[p + 1] == x1 && w[p + 2] == x2
+                        && (x0 != y0 || x1 != y1 || x2 != y2)
+                    {
+                        let f = if use_prov { p % fp } else { 0 };
+                        if 3 > max_origin_len[p] {
+                            max_origin_len[p] = 3;
+                        }
+                        if y0 != w[p] {
+                            changed_mask[f] |= 1u64 << p;
+                        }
+                        if y1 != w[p + 1] {
+                            changed_mask[f] |= 1u64 << (p + 1);
+                        }
+                        if y2 != w[p + 2] {
+                            changed_mask[f] |= 1u64 << (p + 2);
+                        }
+                        w1_tmp[..l].copy_from_slice(w);
+                        w1_tmp[p] = y0;
+                        w1_tmp[p + 1] = y1;
+                        w1_tmp[p + 2] = y2;
+                        for q in 0..lm1 {
+                            exact_fib_bits[f][q] |=
+                                1u64 << ((w1_tmp[q] as usize) * A6 + (w1_tmp[q + 1] as usize));
+                        }
+                        exact_active[f] = true;
+                    }
+                }
+            }
+        }
+        let mut exact_pass1_bits = [[0u64; 64]; 4];
+        for f in 0..fp {
+            if exact_active[f] {
+                trellis_filter_u64(&mut exact_fib_bits[f][..lm1], A6);
+                exact_pass1_bits[f][..lm1].copy_from_slice(&exact_fib_bits[f][..lm1]);
+            }
+        }
+        let mut exact_cur_bits = [[0u64; 64]; 4];
 
         for k in 0..passes {
             rule_checks += win_per_word * (1 + (if k == 0 { 1 } else { fp as u64 }));
@@ -968,7 +1099,18 @@ pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
                             if k == 1 && use_prov && (p % fp == dst_f)
                                 && (w[p] as usize == y0) && (w[p + 1] as usize == y1)
                             {
-                                continue;
+                                let sup2 = match guard_mode {
+                                    0 => true,
+                                    1 => (fp >= actual_max_rlen) && (max_origin_len[p] <= 2),
+                                    2 => {
+                                        let win_m = 0b11u64 << p;
+                                        (changed_mask[dst_f] & !win_m) == 0
+                                    }
+                                    _ => false,
+                                };
+                                if sup2 {
+                                    continue;
+                                }
                             }
                             let pi2 = &qw_bi[((qf * lm1 + p) * A6_SQ + x_ab) * CB
                                 ..((qf * lm1 + p) * A6_SQ + x_ab + 1) * CB];
@@ -1079,7 +1221,18 @@ pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
                                 && (w[p + 1] as usize == y1)
                                 && (w[p + 2] as usize == y2)
                             {
-                                continue;
+                                let sup3 = match guard_mode {
+                                    0 => true,
+                                    1 => (fp >= actual_max_rlen) && (max_origin_len[p] <= 3),
+                                    2 => {
+                                        let win_m = 0b111u64 << p;
+                                        (changed_mask[dst_f] & !win_m) == 0
+                                    }
+                                    _ => false,
+                                };
+                                if sup3 {
+                                    continue;
+                                }
                             }
                             let m0 = &qw_bi[((qf * lm1 + p) * A6_SQ + xb0) * CB
                                 ..((qf * lm1 + p) * A6_SQ + xb0 + 1) * CB];
@@ -1178,7 +1331,146 @@ pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
                 }
             }
 
+            // Pure-Boolean exact `u64` transition for pass `k` (100% independent of float32!)
+            if k == 0 || nonrecurrent != 0 {
+                for f in 0..fp {
+                    exact_cur_bits[f][..lm1].copy_from_slice(&exact_pass1_bits[f][..lm1]);
+                }
+            } else if env_mode == 1 {
+                for f in 0..fp {
+                    exact_cur_bits[f][..lm1].fill(0);
+                }
+            } else {
+                let mut ex_in = [[0u64; 64]; 4];
+                for f in 0..fp {
+                    if env_mode == 2 {
+                        for p in 0..lm1 {
+                            ex_in[f][p] = exact_cur_bits[f][(p + lm1 - 1) % lm1];
+                        }
+                        trellis_filter_u64(&mut ex_in[f][..lm1], A6);
+                    } else {
+                        ex_in[f][..lm1].copy_from_slice(&exact_cur_bits[f][..lm1]);
+                        trellis_filter_u64(&mut ex_in[f][..lm1], A6);
+                    }
+                }
+                for f in 0..fp {
+                    let mut nxt_b = [0u64; 64];
+                    nxt_b[..lm1].copy_from_slice(&ex_in[f][..lm1]);
+                    if nxt_b[..lm1].iter().all(|&m| m == 0) {
+                        exact_cur_bits[f][..lm1].fill(0);
+                        continue;
+                    }
+                    for e in 0..n_r2 {
+                        let x0 = r2[e * 4] as usize;
+                        let x1 = r2[e * 4 + 1] as usize;
+                        let y0 = r2[e * 4 + 2] as usize;
+                        let y1 = r2[e * 4 + 3] as usize;
+                        let x_ab = x0 * A6 + x1;
+                        let y_ab = y0 * A6 + y1;
+                        for p in 0..lm1 {
+                            if ((ex_in[f][p] >> x_ab) & 1) == 0 {
+                                continue;
+                            }
+                            if k == 1 && use_prov && (p % fp == f)
+                                && (w[p] as usize == y0) && (w[p + 1] as usize == y1)
+                            {
+                                let sup2 = match guard_mode {
+                                    0 => true,
+                                    1 => (fp >= actual_max_rlen) && (max_origin_len[p] <= 2),
+                                    2 => {
+                                        let win_m = 0b11u64 << p;
+                                        (changed_mask[f] & !win_m) == 0
+                                    }
+                                    _ => false,
+                                };
+                                if sup2 {
+                                    continue;
+                                }
+                            }
+                            nxt_b[p] |= 1u64 << y_ab;
+                            if p > 0 {
+                                let pm = ex_in[f][p - 1];
+                                for s in 0..A6 {
+                                    if ((pm >> (s * A6 + x0)) & 1) != 0 {
+                                        nxt_b[p - 1] |= 1u64 << (s * A6 + y0);
+                                    }
+                                }
+                            }
+                            if p + 1 < lm1 {
+                                let rm = ex_in[f][p + 1];
+                                for s in 0..A6 {
+                                    if ((rm >> (x1 * A6 + s)) & 1) != 0 {
+                                        nxt_b[p + 1] |= 1u64 << (y1 * A6 + s);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if lm1 >= 2 && n_r3 > 0 {
+                        for e in 0..n_r3 {
+                            let x0 = r3[e * 6] as usize;
+                            let x1 = r3[e * 6 + 1] as usize;
+                            let x2 = r3[e * 6 + 2] as usize;
+                            let y0 = r3[e * 6 + 3] as usize;
+                            let y1 = r3[e * 6 + 4] as usize;
+                            let y2 = r3[e * 6 + 5] as usize;
+                            let xb0 = x0 * A6 + x1;
+                            let xb1 = x1 * A6 + x2;
+                            let yb0 = y0 * A6 + y1;
+                            let yb1 = y1 * A6 + y2;
+                            for p in 0..(lm1 - 1) {
+                                if ((ex_in[f][p] >> xb0) & 1) == 0
+                                    || ((ex_in[f][p + 1] >> xb1) & 1) == 0
+                                {
+                                    continue;
+                                }
+                                if k == 1 && use_prov && (p % fp == f)
+                                    && (w[p] as usize == y0)
+                                    && (w[p + 1] as usize == y1)
+                                    && (w[p + 2] as usize == y2)
+                                {
+                                    let sup3 = match guard_mode {
+                                        0 => true,
+                                        1 => (fp >= actual_max_rlen) && (max_origin_len[p] <= 3),
+                                        2 => {
+                                            let win_m = 0b111u64 << p;
+                                            (changed_mask[f] & !win_m) == 0
+                                        }
+                                        _ => false,
+                                    };
+                                    if sup3 {
+                                        continue;
+                                    }
+                                }
+                                nxt_b[p] |= 1u64 << yb0;
+                                nxt_b[p + 1] |= 1u64 << yb1;
+                                if p > 0 {
+                                    let pm = ex_in[f][p - 1];
+                                    for s in 0..A6 {
+                                        if ((pm >> (s * A6 + x0)) & 1) != 0 {
+                                            nxt_b[p - 1] |= 1u64 << (s * A6 + y0);
+                                        }
+                                    }
+                                }
+                                if p + 2 < lm1 {
+                                    let rm = ex_in[f][p + 2];
+                                    for s in 0..A6 {
+                                        if ((rm >> (x2 * A6 + s)) & 1) != 0 {
+                                            nxt_b[p + 2] |= 1u64 << (y2 * A6 + s);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    trellis_filter_u64(&mut nxt_b[..lm1], A6);
+                    exact_cur_bits[f][..lm1].copy_from_slice(&nxt_b[..lm1]);
+                }
+            }
+
             // Combine `rew_bi + 0.65 * relu(m_bi)`, build bitset, and run `trellis_arc_filter_soft_f32` per fiber!
+            let mut min_pos_pass = f32::INFINITY;
+            let mut any_exact_supp = false;
             for f in 0..fp {
                 let f_off = f * lm1 * A6_SQ * CB;
                 for p in 0..lm1 {
@@ -1203,7 +1495,9 @@ pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
                             pb |= 1u64 << ab;
                         }
                     }
-                    bi_bits_cur[f * lm1 + p] = pb;
+                    // In guarded modes (`guard_mode != 0`), drive the trellis mask from `exact_cur_bits`
+                    // so float32 underflow can NEVER prematurely prune a Boolean-supported arc!
+                    bi_bits_cur[f * lm1 + p] = if guard_mode == 0 { pb } else { exact_cur_bits[f][p] };
                 }
                 trellis_arc_filter_soft_f32(
                     &mut bi_cur[f_off..f_off + lm1 * A6_SQ * CB],
@@ -1213,14 +1507,43 @@ pub unsafe extern "C" fn lbf18_rel_prov_word_envelopes_f32(
                     &mut fwd_buf,
                     &mut bwd_buf,
                 );
+                for p in 0..lm1 {
+                    let em = exact_cur_bits[f][p];
+                    if em == 0 {
+                        continue;
+                    }
+                    for ab in 0..A6_SQ {
+                        if ((em >> ab) & 1) != 0 {
+                            any_exact_supp = true;
+                            let idx = f_off + (p * A6_SQ + ab) * CB;
+                            let mut cmax = 0.0f32;
+                            for c in 0..CB {
+                                if bi_cur[idx + c] > cmax {
+                                    cmax = bi_cur[idx + c];
+                                }
+                            }
+                            if cmax < min_pos_pass {
+                                min_pos_pass = cmax;
+                            }
+                        }
+                    }
+                }
             }
 
-            // Write pass-k outputs
+            // Write pass-k outputs + independent exact Boolean support + min_pos_f32 margin
             let q_dst_off = (wi * passes + k) * pos_pass_sz;
             out_q[q_dst_off..q_dst_off + pos_pass_sz].copy_from_slice(&q_pos);
             out_b[q_dst_off..q_dst_off + pos_pass_sz].copy_from_slice(&b_cur);
             let bi_dst_off = (wi * passes + k) * bi_pass_sz;
             out_bi[bi_dst_off..bi_dst_off + bi_pass_sz].copy_from_slice(&bi_cur);
+
+            let supp_dst_off = (wi * passes + k) * supp_pass_sz;
+            out_supp[supp_dst_off..supp_dst_off + lm1].copy_from_slice(&root_bits[..lm1]);
+            for f in 0..fp {
+                let sf_off = supp_dst_off + (f + 1) * lm1;
+                out_supp[sf_off..sf_off + lm1].copy_from_slice(&exact_cur_bits[f][..lm1]);
+            }
+            out_min_pos[wi * passes + k] = if any_exact_supp { min_pos_pass } else { 1.0 };
         }
     }
 

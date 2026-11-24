@@ -107,6 +107,74 @@ class IncrementalCacheAndCollisionTests(unittest.TestCase):
         hyb = m18.HybridSymRecFrescoNet()
         self.assertGreaterEqual(hyb.parameter_count(), 53000)
         self.assertLessEqual(hyb.parameter_count(), 53200)
+        cur_rss, peak_rss = m18.current_and_peak_rss_bytes()
+        self.assertGreater(cur_rss, 5 * 1024 * 1024)
+        self.assertGreaterEqual(peak_rss, cur_rss)
+
+    def test_referee_rstar_guards_and_decoupled_boolean_support(self):
+        # Referee R*: {abc <-> def, ab <-> de, bf <-> cc} on w0 = "abcaaaaaaa"
+        # Concrete 3-step witness: abcaaaaaaa -> defaaaaaaa -> abfaaaaaaa -> accaaaaaaa
+        w0 = "abcaaaaaaa"
+        rstar = (("abc", "def"), ("ab", "de"), ("bf", "cc"))
+        cset, trunc = m18.general_concrete_k_ball(rstar, w0, k_max=3)
+        self.assertFalse(trunc)
+        self.assertIn("accaaaaaaa", cset)
+        gt_pos1 = m17.alpha1_bool(sorted(cset), len(w0))
+
+        # Legacy unguarded root-suppression drops 'c' at index 1; both guarded modes are 100% sound
+        leg_supp = m18.general_prov_fp_adj2_pos_support(rstar, w0, alpha_str="abcdef", fp=4, k_max=3, guard_mode="legacy")
+        fab_supp = m18.general_prov_fp_adj2_pos_support(rstar, w0, alpha_str="abcdef", fp=4, k_max=3, guard_mode="fable_len_guard")
+        msk_supp = m18.general_prov_fp_adj2_pos_support(rstar, w0, alpha_str="abcdef", fp=4, k_max=3, guard_mode="pr348_mask_guard")
+        self.assertFalse(bool(leg_supp[1, m18.CHAR2ID["c"]]))
+        self.assertTrue(bool((gt_pos1 & ~leg_supp).any()))
+        self.assertFalse(bool((gt_pos1 & ~fab_supp).any()))
+        self.assertFalse(bool((gt_pos1 & ~msk_supp).any()))
+        self.assertTrue(torch.equal(fab_supp, msk_supp))
+
+        # Modulus fail-safe check: when fp=2 < ell_max=3 on {"abc"<->"efd", "dd"<->"cd"}, w="abcd" -> "efcd"
+        w_mod = "abcd"
+        r_mod = (("abc", "efd"), ("dd", "cd"))
+        c_mod, _ = m18.general_concrete_k_ball(r_mod, w_mod, k_max=2)
+        self.assertIn("efcd", c_mod)
+        gt_mod = m17.alpha1_bool(sorted(c_mod), len(w_mod))
+        fab_fp2 = m18.general_prov_fp_adj2_pos_support(r_mod, w_mod, alpha_str="abcdef", fp=2, k_max=2, guard_mode="fable_len_guard")
+        self.assertFalse(bool((gt_mod & ~fab_fp2).any()))
+
+        # Decoupled exact Boolean u64 support in IncrementalFrescoController (PyTorch & Rust)
+        case_rstar = m18.StressRewriteCase("rstar", "lin_rstar", "calibration", "equality", w0, "accaaaaaaa", rstar)
+        model_orig, ckpt_sha, _ = m18.load_frozen_lbf17_checkpoint(107, "rel_prov_opened")
+        for use_rs in ([False, True] if m18.RUST_BACKEND.available else [False]):
+            ctrl_fab = m18.IncrementalFrescoController(
+                model_orig, ckpt_sha, use_rust=use_rs, guard_mode="fable_len_guard"
+            )
+            b_supp = ctrl_fab.exact_boolean_pos1_support(case_rstar, w0, k=3)
+            self.assertTrue(torch.equal(b_supp, fab_supp))
+            self.assertFalse(bool((gt_pos1 & ~b_supp).any()))
+
+        # Prove support independence from float32 glyph brightness + margin floor alarm
+        model_dim, _ = m17.new_lbf17_model(107, "rel_prov_opened")
+        model_dim.load_state_dict(model_orig.state_dict())
+        model_dim.eval()
+        with torch.no_grad():
+            for p in model_dim.bi_cell.parameters():
+                p.zero_()
+            model_dim.bi_cell.rule2_mlp[-2].bias.fill_(-20.0)
+            model_dim.bi_cell.rule3_mlp[-2].bias.fill_(-20.0)
+        for use_rs in ([False, True] if m18.RUST_BACKEND.available else [False]):
+            ctrl_dim = m18.IncrementalFrescoController(
+                model_dim, "dimmed_test", use_rust=use_rs, guard_mode="fable_len_guard",
+                margin_floor=1e-4, fail_on_margin_underflow=False,
+            )
+            b_dim = ctrl_dim.exact_boolean_pos1_support(case_rstar, w0, k=3)
+            self.assertTrue(torch.equal(b_dim, fab_supp))
+            self.assertGreater(ctrl_dim.margin_floor_violations, 0)
+
+            ctrl_strict = m18.IncrementalFrescoController(
+                model_dim, "dimmed_strict", use_rust=use_rs, guard_mode="fable_len_guard",
+                margin_floor=1e-4, fail_on_margin_underflow=True,
+            )
+            with self.assertRaises(RuntimeError):
+                _ = ctrl_strict.exact_boolean_pos1_support(case_rstar, w0, k=3)
 
 
 @unittest.skipUnless(os.environ.get("LBF14_UPSTREAM"), "requires pinned rewrite source")
@@ -121,8 +189,8 @@ class UpstreamIncrementalEquivalenceAndLeanTests(unittest.TestCase):
         c0, c1 = self.cases[0], self.cases[1]
         model, ckpt_sha, _ = m18.load_frozen_lbf17_checkpoint(107, "rel_prov_opened")
 
-        ctrl_py = m18.IncrementalFrescoController(model, ckpt_sha, use_rust=False)
-        ctrl_rs = m18.IncrementalFrescoController(model, ckpt_sha, use_rust=True)
+        ctrl_py = m18.IncrementalFrescoController(model, ckpt_sha, use_rust=False, guard_mode="legacy")
+        ctrl_rs = m18.IncrementalFrescoController(model, ckpt_sha, use_rust=True, guard_mode="legacy")
 
         s = m15.FringeState.start(c0)
         for _ in range(4):
@@ -151,6 +219,17 @@ class UpstreamIncrementalEquivalenceAndLeanTests(unittest.TestCase):
                         torch.testing.assert_close(o_ref[k]["s0"], o_rs[k]["s0"], rtol=1e-5, atol=1e-5)
                         torch.testing.assert_close(o_ref[k]["s1"], o_rs[k]["s1"], rtol=1e-5, atol=1e-5)
 
+            # Also verify PyTorch == Rust across both guarded modes (`fable_len_guard` & `pr348_mask_guard`)
+            for gm in ("fable_len_guard", "pr348_mask_guard"):
+                g_py = m18.IncrementalFrescoController(model, ckpt_sha, use_rust=False, guard_mode=gm)
+                g_rs = m18.IncrementalFrescoController(model, ckpt_sha, use_rust=True, guard_mode=gm)
+                og_py = g_py.forward(c0, s, 96, mode="normal")
+                og_rs = g_rs.forward(c0, s, 96, mode="normal")
+                for k in range(3):
+                    torch.testing.assert_close(og_py[k]["pot"], og_rs[k]["pot"], rtol=1e-5, atol=1e-5)
+                    torch.testing.assert_close(og_py[k]["s0"], og_rs[k]["s0"], rtol=1e-5, atol=1e-5)
+                    torch.testing.assert_close(og_py[k]["s1"], og_rs[k]["s1"], rtol=1e-5, atol=1e-5)
+
             # Scramble modes must be rejected from cross-size cache reuse
             rej_before = ctrl_rs.cache_rejections
             _ = ctrl_rs.forward(c0, s, 96, mode="scramble_window")
@@ -158,7 +237,7 @@ class UpstreamIncrementalEquivalenceAndLeanTests(unittest.TestCase):
             self.assertEqual(ctrl_rs.cache_rejections, rej_before + 2)
 
             # Full search trajectory & witness equivalence across uncached, incremental PyTorch, and incremental Rust
-            ep_unc = m18.run_clean_episode(self.rg, c0, uncached_model=model, budget=64)
+            ep_unc = m18.run_clean_episode(self.rg, c0, uncached_model=model, uncached_guard_mode="legacy", budget=64)
             ep_py = m18.run_clean_episode(self.rg, c0, controller=ctrl_py, budget=64, cold_cache=True)
             ep_rs = m18.run_clean_episode(self.rg, c0, controller=ctrl_rs, budget=64, cold_cache=True)
             self.assertEqual(ep_unc["closed"], ep_py["closed"])
@@ -170,8 +249,15 @@ class UpstreamIncrementalEquivalenceAndLeanTests(unittest.TestCase):
             self.assertGreater(ep_rs["word_hits"], 0)
             self.assertGreater(ep_rs["pair_hits"], 0)
 
+            # Guarded uncached vs guarded incremental Rust trajectory equivalence
+            ctrl_grd_rs = m18.IncrementalFrescoController(model, ckpt_sha, use_rust=True, guard_mode="fable_len_guard")
+            ep_g_unc = m18.run_clean_episode(self.rg, c0, uncached_model=model, uncached_guard_mode="fable_len_guard", budget=64)
+            ep_g_rs = m18.run_clean_episode(self.rg, c0, controller=ctrl_grd_rs, budget=64, cold_cache=True)
+            self.assertEqual(ep_g_unc["path"], ep_g_rs["path"])
+            self.assertEqual(ep_g_unc["work"], ep_g_rs["work"])
+
             # Different rule system `c1` must never hit `c0` cache entries
-            ep_c1_unc = m18.run_clean_episode(self.rg, c1, uncached_model=model, budget=64)
+            ep_c1_unc = m18.run_clean_episode(self.rg, c1, uncached_model=model, uncached_guard_mode="legacy", budget=64)
             ep_c1_warm = m18.run_clean_episode(self.rg, c1, controller=ctrl_rs, budget=64, cold_cache=False)
             self.assertEqual(ep_c1_unc["path"], ep_c1_warm["path"])
 
@@ -191,15 +277,23 @@ class UpstreamIncrementalEquivalenceAndLeanTests(unittest.TestCase):
             (sd, ix), _, _ = m15.geom_mm_select(self.rg, c, s)
             m15.expand_node(self.rg, c, s, sd, ix)
 
-        # Verify IncrementalSymController matches frozen sym_prov_readout
+        # Verify IncrementalSymController(guard_mode="legacy") matches frozen sym_prov_readout
         sym_m, sym_sha, _ = m18.load_frozen_lbf17_checkpoint(107, "sym_prov_readout")
-        sym_ctrl = m18.IncrementalSymController(sym_m, sym_sha, use_rust=True)
+        sym_ctrl = m18.IncrementalSymController(sym_m, sym_sha, use_rust=True, guard_mode="legacy")
         with torch.no_grad():
             ref_o, _ = sym_m(c, s, 96)
             inc_o = sym_ctrl.forward(c, s, 96)
         torch.testing.assert_close(ref_o[-1]["pot"], inc_o[-1]["pot"], rtol=1e-5, atol=1e-5)
         torch.testing.assert_close(ref_o[-1]["s0"], inc_o[-1]["s0"], rtol=1e-5, atol=1e-5)
         torch.testing.assert_close(ref_o[-1]["s1"], inc_o[-1]["s1"], rtol=1e-5, atol=1e-5)
+
+        # Verify guarded IncrementalSymController PyTorch == Rust
+        sym_g_py = m18.IncrementalSymController(sym_m, sym_sha, use_rust=False, guard_mode="fable_len_guard")
+        sym_g_rs = m18.IncrementalSymController(sym_m, sym_sha, use_rust=True, guard_mode="fable_len_guard")
+        with torch.no_grad():
+            og_s_py = sym_g_py.forward(c, s, 96)
+            og_s_rs = sym_g_rs.forward(c, s, 96)
+        torch.testing.assert_close(og_s_py[-1]["pot"], og_s_rs[-1]["pot"], rtol=1e-5, atol=1e-5)
 
         # Verify HybridSymRecFrescoNet S6 alphabet equivariance and frontier-set equivariance
         torch.manual_seed(109)
@@ -232,11 +326,43 @@ class UpstreamIncrementalEquivalenceAndLeanTests(unittest.TestCase):
             torch.testing.assert_close(o_orig[-1]["pot"].flip(0, 1), o_rev[-1]["pot"], rtol=1e-5, atol=1e-5)
             torch.testing.assert_close(o_orig[-1]["s0"].flip(0), o_rev[-1]["s0"], rtol=1e-5, atol=1e-5)
 
+    def test_symbolic_controls_and_synthetic_cost_sweep(self):
+        c0 = self.cases[0]
+        for pol in ("absint1_mm", "absint_mm", "exact_mm", "bidir"):
+            ep = m18.run_unified_symbolic_episode(self.rg, c0, pol, budget=32, guard_mode="fable_len_guard")
+            self.assertGreaterEqual(ep["unique_succ_enumerated"], ep["work"])
+            self.assertGreater(ep["sim_rule_window_checks"], 0)
+            if pol in ("absint1_mm", "absint_mm", "exact_mm"):
+                self.assertGreater(ep["model_rule_window_checks"], 0)
+        ep_a = m18.run_unified_symbolic_episode(self.rg, c0, "absint_mm", budget=32)
+        ep_b = m18.run_unified_symbolic_episode(self.rg, c0, "bidir", budget=32)
+        sym_mock = {}
+        for nm, ep_x in (("absint_mm", ep_a), ("bidir_b128", ep_b)):
+            pw = float(ep_x["work"])
+            un = float(ep_x["unique_succ_enumerated"])
+            ms = ep_x["wall_clock_ms"]
+            sym_mock[nm] = {
+                "closure_rate": 1.0 if ep_x["closed"] else 0.0,
+                "mean_penalized_work": pw,
+                "mean_unique_succ_enumerated": un,
+                "mean_repeated_succ_enumerated": float(ep_x["repeated_succ_enumerated"]),
+                "mean_episode_ms": ms,
+                "synthetic_verifier_cost_ms": {str(cs): ms + cs * pw for cs in m18.SYNTHETIC_SUCC_COSTS_MS},
+                "synthetic_enumerated_cost_ms": {str(cs): ms + cs * un for cs in m18.SYNTHETIC_SUCC_COSTS_MS},
+            }
+        sweep = m18.compute_synthetic_cost_sweep({}, sym_mock)
+        self.assertIn("100.0", sweep["arms"]["absint_mm"]["verifier_cost_ms"])
+        self.assertAlmostEqual(
+            sweep["arms"]["absint_mm"]["verifier_cost_ms"]["100.0"],
+            ep_a["wall_clock_ms"] + 100.0 * float(ep_a["work"]),
+            places=5,
+        )
+
     def test_lean18_formalization_compiles_axiom_free(self):
         if m18.find_lean_exe() is None:
             self.skipTest("Lean 4 executable not installed in this environment")
         res = m18.verify_lbf18_lean_formalization()
-        self.assertEqual(res["compiled_axiom_free"], 12)
+        self.assertEqual(res["compiled_axiom_free"], 22)
 
 
 if __name__ == "__main__":

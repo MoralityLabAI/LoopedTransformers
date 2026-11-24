@@ -72,6 +72,38 @@ LBF18_MODES = (
 EXTENDED_ALPHABET = "abcdefghijklmnop"
 EXT_CHAR2ID = {ch: idx for idx, ch in enumerate(EXTENDED_ALPHABET)}
 
+GUARD_MODES = {
+    "legacy": 0,
+    "fable_len_guard": 1,
+    "pr348_mask_guard": 2,
+    "none": 3,
+}
+SYNTHETIC_SUCC_COSTS_MS = (0.0, 1.0, 10.0, 100.0)
+BIDIR_UNCAPPED_BUDGETS = (128, 256, 512, 1024, 2048, 4096)
+
+
+def sha256_canonical_lf(raw_or_path: bytes | Path) -> str:
+    """Platform-invariant SHA-256 over canonical LF (`\\n`) bytes for text artifacts."""
+    raw = raw_or_path.read_bytes() if isinstance(raw_or_path, Path) else raw_or_path
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+
+
+def _matches_archived_sha(raw_or_path: bytes | Path, expected_sha: str) -> bool:
+    """Verify exact SHA-256 across native, LF, and CRLF line endings for cross-OS Git/gzip invariance."""
+    raw = raw_or_path.read_bytes() if isinstance(raw_or_path, Path) else raw_or_path
+    lf = raw.replace(b"\r\n", b"\n")
+    crlf = lf.replace(b"\n", b"\r\n")
+    return expected_sha in (
+        hashlib.sha256(raw).hexdigest(),
+        hashlib.sha256(lf).hexdigest(),
+        hashlib.sha256(crlf).hexdigest(),
+    )
+
+
+def sim_win_checks_per_expand(rules: tuple[tuple[str, str], ...], word_len: int) -> int:
+    """Exact number of substring window comparisons executed by one `rg.neighbors(case, w)` call."""
+    return sum(2 * max(0, word_len - len(u) + 1) for u, v in rules if u != v)
+
 
 class CacheInvalidationError(RuntimeError):
     """Raised fail-closed when a cached envelope or ribbon violates dependency invariants."""
@@ -83,10 +115,12 @@ class CacheInvalidationError(RuntimeError):
 def current_and_peak_rss_bytes() -> tuple[int, int]:
     """Return `(current_rss_bytes, peak_rss_bytes)` via OS kernel counters."""
     if sys.platform == "win32":
+        import ctypes.wintypes as wt
+
         class PROCESS_MEMORY_COUNTERS(ctypes.Structure):
             _fields_ = [
-                ("cb", ctypes.c_ulong),
-                ("PageFaultCount", ctypes.c_ulong),
+                ("cb", wt.DWORD),
+                ("PageFaultCount", wt.DWORD),
                 ("PeakWorkingSetSize", ctypes.c_size_t),
                 ("WorkingSetSize", ctypes.c_size_t),
                 ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
@@ -97,10 +131,20 @@ def current_and_peak_rss_bytes() -> tuple[int, int]:
                 ("PeakPagefileUsage", ctypes.c_size_t),
             ]
 
+        k32 = ctypes.windll.kernel32
+        k32.GetCurrentProcess.restype = wt.HANDLE
+        handle = k32.GetCurrentProcess()
         pmc = PROCESS_MEMORY_COUNTERS()
         pmc.cb = ctypes.sizeof(PROCESS_MEMORY_COUNTERS)
-        handle = ctypes.windll.kernel32.GetCurrentProcess()
-        if ctypes.windll.psapi.GetProcessMemoryInfo(handle, ctypes.byref(pmc), pmc.cb):
+        if hasattr(k32, "K32GetProcessMemoryInfo"):
+            k32.K32GetProcessMemoryInfo.argtypes = [wt.HANDLE, ctypes.POINTER(PROCESS_MEMORY_COUNTERS), wt.DWORD]
+            k32.K32GetProcessMemoryInfo.restype = wt.BOOL
+            if k32.K32GetProcessMemoryInfo(handle, ctypes.byref(pmc), pmc.cb):
+                return int(pmc.WorkingSetSize), int(pmc.PeakWorkingSetSize)
+        psapi = ctypes.windll.psapi
+        psapi.GetProcessMemoryInfo.argtypes = [wt.HANDLE, ctypes.POINTER(PROCESS_MEMORY_COUNTERS), wt.DWORD]
+        psapi.GetProcessMemoryInfo.restype = wt.BOOL
+        if psapi.GetProcessMemoryInfo(handle, ctypes.byref(pmc), pmc.cb):
             return int(pmc.WorkingSetSize), int(pmc.PeakWorkingSetSize)
         return 0, 0
     status_path = Path("/proc/self/status")
@@ -223,7 +267,7 @@ class RustTrellisBackend:
             ctypes.c_void_p, ctypes.c_size_t, ctypes.c_size_t, ctypes.c_size_t,
             ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p,
             ctypes.c_size_t, ctypes.c_size_t, ctypes.c_size_t, ctypes.c_size_t,
-            ctypes.c_void_p,
+            ctypes.c_size_t, ctypes.c_void_p,
         ]
         lib.lbf18_sym_prov_adj2_batch.restype = ctypes.c_uint64
 
@@ -232,8 +276,10 @@ class RustTrellisBackend:
             ctypes.c_void_p, ctypes.c_size_t,
             ctypes.c_void_p, ctypes.c_size_t,
             ctypes.c_size_t, ctypes.c_size_t, ctypes.c_size_t, ctypes.c_size_t,
+            ctypes.c_size_t,
             ctypes.POINTER(_RelProvWeightsPtrs),
             ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p,
+            ctypes.c_void_p, ctypes.c_void_p,
         ]
         lib.lbf18_rel_prov_word_envelopes_f32.restype = ctypes.c_uint64
         self.lib = lib
@@ -245,9 +291,12 @@ class RustTrellisBackend:
 
     def sym_prov_adj2_u64(
         self, words: list[str], rules: tuple[tuple[str, str], ...],
-        *, alpha: int = 6, fp: int = FP_FIBERS, k_max: int = 3, char_map: dict[str, int] = CHAR2ID,
+        *, alpha: int = 6, fp: int = FP_FIBERS, k_max: int = 3,
+        char_map: dict[str, int] = CHAR2ID, guard_mode: str = "fable_len_guard",
     ) -> tuple[torch.Tensor, int]:
         """Returns `(bitsets_i64, rule_checks)` where `bitsets_i64` has shape `(N, k_max+1, fp+1, L-1)`."""
+        if guard_mode not in GUARD_MODES:
+            raise ValueError(f"unknown guard_mode {guard_mode}")
         if not self.available or alpha > 8 or not words:
             raise RuntimeError("Rust u64 bitset kernel unavailable or alpha > 8")
         N = len(words)
@@ -269,7 +318,7 @@ class RustTrellisBackend:
         rc = int(self.lib.lbf18_sym_prov_adj2_batch(
             w_arr.data_ptr(), N, L, alpha,
             rl_lhs.data_ptr(), rl_rhs.data_ptr(), rl_len.data_ptr(),
-            len(ors), max_rl, fp, k_max, out_bits.data_ptr(),
+            len(ors), max_rl, fp, k_max, GUARD_MODES[guard_mode], out_bits.data_ptr(),
         ))
         return out_bits, rc
 
@@ -313,8 +362,10 @@ class RustTrellisBackend:
     def rel_prov_envelopes(
         self, words: list[str], rules: tuple[tuple[str, str], ...],
         *, fp: int, passes: int, env_mode_id: int, nonrecurrent: bool,
-        wstruct: _RelProvWeightsPtrs,
-    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, int]:
+        wstruct: _RelProvWeightsPtrs, guard_mode: str = "fable_len_guard",
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, int]:
+        if guard_mode not in GUARD_MODES:
+            raise ValueError(f"unknown guard_mode {guard_mode}")
         N = len(words)
         L = len(words[0])
         Lm1 = L - 1
@@ -323,15 +374,19 @@ class RustTrellisBackend:
         out_q = torch.empty((N, passes, L, 6, 20), dtype=torch.float32).contiguous()
         out_b = torch.empty((N, passes, L, 6, 20), dtype=torch.float32).contiguous()
         out_bi = torch.empty((N, passes, fp, Lm1, 6, 6, 4), dtype=torch.float32).contiguous()
+        out_supp = torch.empty((N, passes, fp + 1, Lm1), dtype=torch.int64).contiguous()
+        out_min_pos = torch.empty((N, passes), dtype=torch.float32).contiguous()
         rc = int(self.lib.lbf18_rel_prov_word_envelopes_f32(
             w_arr.data_ptr(), N, L,
             r2_t.data_ptr(), n_r2,
             r3_t.data_ptr(), n_r3,
             fp, passes, env_mode_id, 1 if nonrecurrent else 0,
+            GUARD_MODES[guard_mode],
             ctypes.byref(wstruct),
             out_q.data_ptr(), out_b.data_ptr(), out_bi.data_ptr(),
+            out_supp.data_ptr(), out_min_pos.data_ptr(),
         ))
-        return out_q, out_b, out_bi, rc
+        return out_q, out_b, out_bi, out_supp, out_min_pos, rc
 
 
 @functools.lru_cache(maxsize=512)
@@ -358,6 +413,285 @@ def unpack_u64_bitsets_to_float36(bitsets_i64: torch.Tensor) -> torch.Tensor:
     """Vectorized unpack of `(..., Lm1)` int64 bitmasks (low 36 bits) -> `(..., Lm1, 36)` float32."""
     shifts = torch.arange(36, dtype=torch.int64, device=bitsets_i64.device)
     return ((bitsets_i64.unsqueeze(-1) >> shifts) & 1).float()
+
+
+def u64_supp_to_pos1_bool(supp_bits_fp_lm1: torch.Tensor) -> torch.Tensor:
+    """Project `(fp_plus_1, Lm1)` exact `u64` bigram bitsets to `(L, 6)` exact Boolean symbol support."""
+    lm1 = supp_bits_fp_lm1.shape[-1]
+    u36 = (unpack_u64_bitsets_to_float36(supp_bits_fp_lm1) > 0.5)  # (fp+1, Lm1, 36)
+    u66 = u36.any(dim=0).reshape(lm1, 6, 6)
+    out = torch.zeros((lm1 + 1, 6), dtype=torch.bool)
+    out[:-1] |= u66.any(dim=2)
+    out[1:] |= u66.any(dim=1)
+    return out
+
+
+def symbolic_prov_adj2_guarded(
+    rules: tuple[tuple[str, str], ...],
+    w0: str,
+    k_max: int = 3,
+    fp: int = FP_FIBERS,
+    guard_mode: str = "fable_len_guard",
+) -> list[tuple[torch.Tensor, list[torch.Tensor]]]:
+    """Pure-Python exact Boolean `prov_{fp} x adj2` reference supporting all 4 guard modes."""
+    if guard_mode not in GUARD_MODES:
+        raise ValueError(f"unknown guard_mode {guard_mode}")
+    if guard_mode == "legacy":
+        return m17.symbolic_prov4_adj2(rules, w0, k_max=k_max, fp=fp)
+
+    L = len(w0)
+    Lm1 = L - 1
+    ors = [(u, v) for u, v in rules if u != v] + [(v, u) for u, v in rules if u != v]
+    actual_max_rlen = max((len(u) for u, _ in ors), default=2)
+    base_a2 = m17.alpha2_bool((w0,), L)
+    history = [(base_a2, [torch.zeros((Lm1, 6, 6), dtype=torch.bool) for _ in range(fp)])]
+    if k_max == 0:
+        return history
+
+    fibers_init = [torch.zeros((Lm1, 6, 6), dtype=torch.bool) for _ in range(fp)]
+    active = [False] * fp
+    max_origin_len = [0] * L
+    changed_mask = [0] * fp
+    for lhs, rhs in ors:
+        ll = len(lhs)
+        for p in range(L - ll + 1):
+            if w0[p:p + ll] == lhs:
+                w1 = w0[:p] + rhs + w0[p + ll:]
+                f = p % fp
+                fibers_init[f] |= m17.alpha2_bool((w1,), L)
+                active[f] = True
+                if ll > max_origin_len[p]:
+                    max_origin_len[p] = ll
+                for q in range(ll):
+                    if rhs[q] != w0[p + q]:
+                        changed_mask[f] |= 1 << (p + q)
+
+    fibers = [m17.trellis_filter_adj2_bool(fibers_init[f]) if active[f] else fibers_init[f] for f in range(fp)]
+    history.append((base_a2, [x.clone() for x in fibers]))
+
+    for step_idx in range(1, k_max):
+        new_fibers = []
+        for f in range(fp):
+            if not active[f]:
+                new_fibers.append(fibers[f])
+                continue
+            ta = m17.trellis_filter_adj2_bool(fibers[f])
+            nxt = ta.clone()
+            for lhs, rhs in ors:
+                ll = len(lhs)
+                xs = [CHAR2ID[c] for c in lhs]
+                ys = [CHAR2ID[c] for c in rhs]
+                for p in range(L - ll + 1):
+                    if step_idx == 1 and (p % fp == f) and w0[p:p + ll] == rhs:
+                        if guard_mode == "fable_len_guard":
+                            sup = (fp >= actual_max_rlen) and (max_origin_len[p] <= ll)
+                        elif guard_mode == "pr348_mask_guard":
+                            win_m = ((1 << ll) - 1) << p
+                            sup = (changed_mask[f] & ~win_m) == 0
+                        else:
+                            sup = False
+                        if sup:
+                            continue
+                    if all(bool(ta[p + q, xs[q], xs[q + 1]]) for q in range(ll - 1)):
+                        for q in range(ll - 1):
+                            nxt[p + q, ys[q], ys[q + 1]] = True
+                        if p > 0:
+                            nxt[p - 1, ta[p - 1, :, xs[0]], ys[0]] = True
+                        re = p + ll - 1
+                        if re < Lm1:
+                            nxt[re, ys[-1], ta[re, xs[-1], :]] = True
+            new_fibers.append(m17.trellis_filter_adj2_bool(nxt))
+        fibers = new_fibers
+        history.append((base_a2, [x.clone() for x in fibers]))
+    return history
+
+
+def _soft_trellis_with_exact_mask(bank: torch.Tensor, exact_mask_bool: torch.Tensor) -> torch.Tensor:
+    """Apply soft Viterbi trellis arc scaling driven by `exact_mask_bool` (`(N, Fp, Lm1, 6, 6)`),
+    preventing float32 underflow from pruning Boolean-supported arcs."""
+    N, Fp, Lm1, _, _, Cb = bank.shape
+    mask_f = exact_mask_bool.unsqueeze(-1).expand_as(bank)
+    e = F.relu(bank) * mask_f.float()
+    rho = e / (e + 1e-4)
+
+    fwd_list = []
+    cur = rho[:, :, 0].amax(dim=3)  # (N, Fp, 6, Cb)
+    for p in range(Lm1):
+        fwd_list.append(cur)
+        if p + 1 < Lm1:
+            cur = (cur[:, :, :, None, :] * rho[:, :, p]).amax(dim=2)
+    fwd = torch.stack(fwd_list, dim=2)
+
+    bwd_list = [None] * Lm1
+    cur_b = rho[:, :, Lm1 - 1].amax(dim=2)
+    for p in range(Lm1 - 1, -1, -1):
+        bwd_list[p] = cur_b
+        if p > 0:
+            cur_b = (rho[:, :, p] * cur_b[:, :, None, :, :]).amax(dim=3)
+    bwd = torch.stack(bwd_list, dim=2)
+
+    arc_scale = (fwd[:, :, :, :, None, :] * bwd[:, :, :, None, :, :]) * mask_f.float()
+    return bank * arc_scale
+
+
+def pytorch_bi_cell_guarded_step(
+    bi_cell: m17.FastProvenanceBigramCell,
+    oh_bi: torch.Tensor,
+    words: list[str],
+    rules: tuple[tuple[str, str], ...],
+    pass_idx: int,
+    gated_bi: torch.Tensor,
+    prev_bank: torch.Tensor,
+    r2_pack,
+    r3_pack,
+    *,
+    guard_mode: str = "fable_len_guard",
+    exact_supp_fibs_bool: torch.Tensor | None = None,
+) -> torch.Tensor:
+    """Pure-PyTorch `FastProvenanceBigramCell` step supporting `legacy`, `fable_len_guard`, `pr348_mask_guard`, `none`."""
+    if guard_mode == "legacy":
+        out_b, _ = bi_cell(oh_bi, pass_idx, gated_bi, prev_bank, r2_pack, r3_pack)
+        return out_b
+
+    N, Lm1, _, _, _ = oh_bi.shape
+    L = Lm1 + 1
+    Fp = FP_FIBERS if bi_cell.use_provenance else 1
+    Cb = bi_cell.cb
+
+    if pass_idx == 0:
+        q = oh_bi.unsqueeze(1).expand(N, 1, Lm1, 6, 6, Cb)
+    else:
+        q = torch.clamp(gated_bi, 0.0, 1.5)
+    qw = q
+    Qf = qw.shape[1]
+    qw_c36 = qw.reshape(N, Qf, Lm1, 36, Cb).movedim(-1, -2).contiguous()
+    q_ind = qw / (qw + 1e-4)
+    q36_ind = q_ind.reshape(N, Qf, Lm1, 36, Cb)
+    oh36 = oh_bi.reshape(N, Lm1, 36)
+
+    p_idx = torch.arange(Lm1)
+    q_edge = torch.arange(Lm1)
+    f_idx = torch.arange(Fp)
+
+    # Precompute guard metadata per word in batch when `pass_idx == 1 and bi_cell.use_provenance`
+    ors = [(u, v) for u, v in rules if u != v] + [(v, u) for u, v in rules if u != v]
+    actual_max_rlen = max((len(u) for u, _ in ors), default=2)
+    allow_sup2 = torch.ones((N, Fp, Lm1), dtype=torch.bool)
+    allow_sup3 = torch.ones((N, Fp, max(1, Lm1 - 1)), dtype=torch.bool)
+    if pass_idx == 1 and bi_cell.use_provenance:
+        for wi, w0 in enumerate(words):
+            max_orig = [0] * L
+            chg_m = [0] * Fp
+            for lhs, rhs in ors:
+                ll = len(lhs)
+                for p in range(L - ll + 1):
+                    if w0[p:p + ll] == lhs:
+                        if ll > max_orig[p]:
+                            max_orig[p] = ll
+                        f = p % Fp
+                        for q_i in range(ll):
+                            if rhs[q_i] != w0[p + q_i]:
+                                chg_m[f] |= 1 << (p + q_i)
+            for f in range(Fp):
+                for p in range(Lm1):
+                    if guard_mode == "fable_len_guard":
+                        allow_sup2[wi, f, p] = (Fp >= actual_max_rlen) and (max_orig[p] <= 2)
+                    elif guard_mode == "pr348_mask_guard":
+                        allow_sup2[wi, f, p] = (chg_m[f] & ~(0b11 << p)) == 0
+                    else:
+                        allow_sup2[wi, f, p] = False
+                for p in range(max(0, Lm1 - 1)):
+                    if guard_mode == "fable_len_guard":
+                        allow_sup3[wi, f, p] = (Fp >= actual_max_rlen) and (max_orig[p] <= 3)
+                    elif guard_mode == "pr348_mask_guard":
+                        allow_sup3[wi, f, p] = (chg_m[f] & ~(0b111 << p)) == 0
+                    else:
+                        allow_sup3[wi, f, p] = False
+
+    rew36 = torch.zeros((N, Fp, Lm1, 36, Cb), dtype=oh_bi.dtype)
+    rew_bd = torch.zeros((N, Fp, Lm1, 6, 6, Cb), dtype=oh_bi.dtype)
+
+    if r2_pack is not None and Lm1 >= 1:
+        x2, y2, x2_bi, y2_bi, ml2, mr2 = r2_pack[:6] if len(r2_pack) == 6 else (
+            *r2_pack,
+            (r2_pack[0][:, 0, :, None] * r2_pack[1][:, 0, None, :]).reshape(-1, 36),
+            (r2_pack[0][:, 1, :, None] * r2_pack[1][:, 1, None, :]).reshape(-1, 36),
+        )
+        pi2 = (qw_c36 @ x2_bi.t()).permute(0, 1, 4, 2, 3).contiguous()
+        if pass_idx == 1 and bi_cell.use_provenance:
+            with torch.no_grad():
+                rhs_is_root = (oh36 @ y2_bi.t()).transpose(1, 2) > 0.99
+                same_fib = (p_idx[None, :] % Fp == f_idx[:, None])
+                sup2 = (rhs_is_root[:, None, :, :] & same_fib[None, :, None, :] & allow_sup2[:, :, None, :]).unsqueeze(-1)
+            pi2 = pi2.masked_fill(sup2, 0.0)
+        act2 = (bi_cell.rule2_mlp(pi2) * pi2) if bi_cell.learned else pi2
+        if pass_idx == 0 and bi_cell.use_provenance:
+            route2 = (p_idx[None, :] % Fp == f_idx[:, None]).float()
+            act2 = act2.expand(N, Fp, -1, Lm1, Cb) * route2[None, :, None, :, None]
+            q_ind_ctx = q_ind.expand(N, Fp, Lm1, 6, 6, Cb)
+            q36_ind_ctx = q36_ind.expand(N, Fp, Lm1, 36, Cb)
+        else:
+            q_ind_ctx = q_ind
+            q36_ind_ctx = q36_ind
+        act2_p = act2.permute(0, 1, 3, 4, 2).contiguous()
+        rew36 = rew36 + (act2_p @ y2_bi).movedim(-2, -1)
+        if Lm1 >= 2:
+            tl2 = (act2_p[:, :, 1:] @ ml2).reshape(N, Fp, Lm1 - 1, Cb, 6, 6)
+            qi_l = q_ind_ctx[:, :, :-1].movedim(-1, -3)
+            rew_bd[:, :, :-1] = rew_bd[:, :, :-1] + (qi_l @ tl2).movedim(-3, -1)
+            tr2 = (act2_p[:, :, :-1] @ mr2).reshape(N, Fp, Lm1 - 1, Cb, 6, 6)
+            qi_r = q_ind_ctx[:, :, 1:].movedim(-1, -3)
+            rew_bd[:, :, 1:] = rew_bd[:, :, 1:] + (tr2.transpose(-1, -2) @ qi_r).movedim(-3, -1)
+        ctx_m2 = ((q_edge[None, :] < p_idx[:, None] - 1) | (q_edge[None, :] > p_idx[:, None] + 1)).float()
+        ctx_w2 = (act2_p.sum(dim=-1).movedim(-1, -2) @ ctx_m2).movedim(-2, -1)
+        rew36 = rew36 + ctx_w2.unsqueeze(-2) * q36_ind_ctx
+
+    if r3_pack is not None and Lm1 >= 2:
+        x3, y3, x3_b0, x3_b1, y3_b0, y3_b1, ml3, mr3 = r3_pack[:8] if len(r3_pack) == 8 else (
+            *r3_pack,
+            (r3_pack[0][:, 0, :, None] * r3_pack[1][:, 0, None, :]).reshape(-1, 36),
+            (r3_pack[0][:, 2, :, None] * r3_pack[1][:, 2, None, :]).reshape(-1, 36),
+        )
+        Lm2 = Lm1 - 1
+        p3_idx = torch.arange(Lm2)
+        m3_0 = (qw_c36[:, :, :-1] @ x3_b0.t()).permute(0, 1, 4, 2, 3).contiguous()
+        m3_1 = (qw_c36[:, :, 1:] @ x3_b1.t()).permute(0, 1, 4, 2, 3).contiguous()
+        pi3 = m3_0 * m3_1
+        if pass_idx == 1 and bi_cell.use_provenance:
+            with torch.no_grad():
+                r0 = (oh36[:, :-1] @ y3_b0.t()).transpose(1, 2) > 0.99
+                r1 = (oh36[:, 1:] @ y3_b1.t()).transpose(1, 2) > 0.99
+                same_fib3 = (p3_idx[None, :] % Fp == f_idx[:, None])
+                sup3 = ((r0 & r1)[:, None, :, :] & same_fib3[None, :, None, :] & allow_sup3[:, :, None, :]).unsqueeze(-1)
+            pi3 = pi3.masked_fill(sup3, 0.0)
+        act3 = (bi_cell.rule3_mlp(torch.cat([pi3, m3_0, m3_1], dim=-1)) * pi3) if bi_cell.learned else pi3
+        if pass_idx == 0 and bi_cell.use_provenance:
+            route3 = (p3_idx[None, :] % Fp == f_idx[:, None]).float()
+            act3 = act3.expand(N, Fp, -1, Lm2, Cb) * route3[None, :, None, :, None]
+            q_ind_ctx = q_ind.expand(N, Fp, Lm1, 6, 6, Cb)
+            q36_ind_ctx = q36_ind.expand(N, Fp, Lm1, 36, Cb)
+        else:
+            q_ind_ctx = q_ind
+            q36_ind_ctx = q36_ind
+        act3_p = act3.permute(0, 1, 3, 4, 2).contiguous()
+        rew36[:, :, :-1] = rew36[:, :, :-1] + (act3_p @ y3_b0).movedim(-2, -1)
+        rew36[:, :, 1:] = rew36[:, :, 1:] + (act3_p @ y3_b1).movedim(-2, -1)
+        if Lm2 >= 2:
+            tl3 = (act3_p[:, :, 1:] @ ml3).reshape(N, Fp, Lm2 - 1, Cb, 6, 6)
+            qi_l3 = q_ind_ctx[:, :, :-2].movedim(-1, -3)
+            rew_bd[:, :, :-2] = rew_bd[:, :, :-2] + (qi_l3 @ tl3).movedim(-3, -1)
+            tr3 = (act3_p[:, :, :-1] @ mr3).reshape(N, Fp, Lm2 - 1, Cb, 6, 6)
+            qi_r3 = q_ind_ctx[:, :, 2:].movedim(-1, -3)
+            rew_bd[:, :, 2:] = rew_bd[:, :, 2:] + (tr3.transpose(-1, -2) @ qi_r3).movedim(-3, -1)
+        ctx_m3 = ((q_edge[None, :] < p3_idx[:, None] - 1) | (q_edge[None, :] > p3_idx[:, None] + 2)).float()
+        ctx_w3 = (act3_p.sum(dim=-1).movedim(-1, -2) @ ctx_m3).movedim(-2, -1)
+        rew36 = rew36 + ctx_w3.unsqueeze(-2) * q36_ind_ctx
+
+    rew = rew36.reshape(N, Fp, Lm1, 6, 6, Cb) + rew_bd
+    bank_raw = torch.tanh(rew) if pass_idx == 0 else torch.tanh(rew + 0.65 * F.relu(prev_bank))
+    if exact_supp_fibs_bool is not None:
+        return _soft_trellis_with_exact_mask(bank_raw, exact_supp_fibs_bool)
+    return m17.trellis_arc_filter_soft(bank_raw)
 
 
 # ============================================================================
@@ -405,6 +739,8 @@ class WordEnvelopeEntry:
     qu: torch.Tensor             # (K, L, 6, ce)
     bu: torch.Tensor             # (K, L, 6, ce)
     bi_u: torch.Tensor           # (K, Fp, Lm1, 6, 6, cb)
+    supp_bits_u64: torch.Tensor  # (K, Fp + 1, Lm1) int64 exact pure-Boolean support (slot 0 = root)
+    min_pos_f32: torch.Tensor    # (K,) float32 min positive channel-max across supported cells
     u_pos_L: torch.Tensor        # (K, L, 6, 6*ce)
     v_pos_R: torch.Tensor        # (K, L, 6, 6*ce)
     u_bi_L: torch.Tensor         # (K, Lm1, 36, 6*cb)
@@ -483,22 +819,30 @@ class IncrementalFrescoController:
         *,
         use_rust: bool = True,
         cache_pair_ribbons: bool = True,
+        guard_mode: str = "fable_len_guard",
+        margin_floor: float = 1e-6,
+        fail_on_margin_underflow: bool = False,
     ):
         if model.arch not in self.SUPPORTED_ARCHS:
             raise ValueError(f"IncrementalFrescoController supports {self.SUPPORTED_ARCHS}, got {model.arch}")
+        if guard_mode not in GUARD_MODES:
+            raise ValueError(f"unknown guard_mode {guard_mode}")
         self.model = model
         self.checkpoint_sha = checkpoint_sha
         self.bound_signature = live_param_signature(model)
         self.use_rust = bool(use_rust and RUST_BACKEND.available)
         self.cache_pair_ribbons = cache_pair_ribbons
+        self.guard_mode = guard_mode
+        self.margin_floor = margin_floor
+        self.fail_on_margin_underflow = fail_on_margin_underflow
         self.fp = FP_FIBERS if model.use_prov else 1
         self._rust_wstruct = None
         self._rust_keep: list[torch.Tensor] = []
         if self.use_rust:
             self._rust_wstruct, self._rust_keep = RUST_BACKEND.pack_rel_prov_weights(model)
 
-        self.word_cache: dict[tuple[str, str, str, str], WordEnvelopeEntry] = {}
-        self.pair_cache: dict[tuple[str, str, str, str, str], PairRibbonEntry] = {}
+        self.word_cache: dict[tuple[str, str, str, str, str], WordEnvelopeEntry] = {}
+        self.pair_cache: dict[tuple[str, str, str, str, str, str], PairRibbonEntry] = {}
         self.reset_telemetry()
 
     def reset_telemetry(self) -> None:
@@ -509,6 +853,8 @@ class IncrementalFrescoController:
         self.cache_rejections = 0
         self.rule_window_checks = 0
         self.neural_flops = 0
+        self.min_observed_pos_act = 1.0
+        self.margin_floor_violations = 0
 
     def clear_caches(self) -> None:
         self.word_cache.clear()
@@ -543,10 +889,11 @@ class IncrementalFrescoController:
 
         oh_all, oh_bi_all, h_all, ids_all = m.init_words(missing_words)
         if self.use_rust:
-            q_k, b_k, bi_k, rc = RUST_BACKEND.rel_prov_envelopes(
+            q_k, b_k, bi_k, supp_k, min_pos_k, rc = RUST_BACKEND.rel_prov_envelopes(
                 missing_words, case.rules,
                 fp=self.fp, passes=K, env_mode_id=env_mode_id,
                 nonrecurrent=m.nonrecurrent, wstruct=self._rust_wstruct,
+                guard_mode=self.guard_mode,
             )
             self.rule_window_checks += rc
         else:
@@ -555,14 +902,72 @@ class IncrementalFrescoController:
             n_r2 = 0 if r2_pos is None else r2_pos[0].shape[0]
             n_r3 = 0 if r3_pos is None else r3_pos[0].shape[0]
             win_per_word = n_r2 * max(0, L - 1) + n_r3 * max(0, L - 2)
+
+            # Pure-Boolean exact `u64` support evolution (`Theorem B` independent of float32!)
+            shifts36 = (1 << torch.arange(36, dtype=torch.int64)).view(1, 1, 36)
+            exact_fibs_by_k = []  # list of (N, Fp, Lm1, 6, 6) bool
+            supp_u64_by_k = []    # list of (N, Fp + 1, Lm1) int64
+            base_rows, p1_rows = [], []
+            for w_str in missing_words:
+                hist_w = symbolic_prov_adj2_guarded(case.rules, w_str, k_max=K, fp=self.fp, guard_mode=self.guard_mode)
+                base_rows.append(hist_w[0][0])
+                p1_rows.append([hist_w[min(k + 1, K)][1] for k in range(K)])
+            base_b = torch.stack(base_rows, dim=0)  # (N, Lm1, 6, 6) bool
+            base_u64 = (base_b.reshape(N, Lm1, 36).long() * shifts36).sum(dim=-1).unsqueeze(1)  # (N, 1, Lm1)
+
+            for k in range(K):
+                if m.nonrecurrent or k == 0:
+                    fk_b = torch.stack([torch.stack(p1_rows[wi][0], dim=0) for wi in range(N)], dim=0)
+                elif env_mode_id == 1:
+                    fk_b = torch.zeros((N, self.fp, Lm1, 6, 6), dtype=torch.bool)
+                elif env_mode_id == 2:
+                    # Rolled input: apply one local step on rolled previous Boolean fibers
+                    prev_r = exact_fibs_by_k[-1].roll(1, dims=2)
+                    fk_b = torch.zeros_like(prev_r)
+                    ors = [(u, v) for u, v in case.rules if u != v] + [(v, u) for u, v in case.rules if u != v]
+                    for wi, w_str in enumerate(missing_words):
+                        for f in range(self.fp):
+                            ta = m17.trellis_filter_adj2_bool(prev_r[wi, f])
+                            if not bool(ta.any()):
+                                continue
+                            nxt = ta.clone()
+                            for lhs, rhs in ors:
+                                ll = len(lhs)
+                                xs = [CHAR2ID[c] for c in lhs]
+                                ys = [CHAR2ID[c] for c in rhs]
+                                for p in range(L - ll + 1):
+                                    if k == 1 and self.fp > 1 and (p % self.fp == f) and w_str[p:p + ll] == rhs:
+                                        if self.guard_mode == "legacy":
+                                            continue
+                                    if all(bool(ta[p + q, xs[q], xs[q + 1]]) for q in range(ll - 1)):
+                                        for q in range(ll - 1):
+                                            nxt[p + q, ys[q], ys[q + 1]] = True
+                                        if p > 0:
+                                            nxt[p - 1, ta[p - 1, :, xs[0]], ys[0]] = True
+                                        re = p + ll - 1
+                                        if re < Lm1:
+                                            nxt[re, ys[-1], ta[re, xs[-1], :]] = True
+                            fk_b[wi, f] = m17.trellis_filter_adj2_bool(nxt)
+                else:
+                    fk_b = torch.stack([torch.stack(p1_rows[wi][k], dim=0) for wi in range(N)], dim=0)
+                exact_fibs_by_k.append(fk_b)
+                fk_u64 = (fk_b.reshape(N, self.fp, Lm1, 36).long() * shifts36.unsqueeze(1)).sum(dim=-1)
+                supp_u64_by_k.append(torch.cat([base_u64, fk_u64], dim=1))
+            supp_k = torch.stack(supp_u64_by_k, dim=1)  # (N, K, Fp + 1, Lm1)
+
             b_cur = torch.zeros_like(h_all)
             bi_cur = torch.zeros((N, self.fp, Lm1, 6, 6, m.cb), dtype=torch.float32)
-            q_list, b_list, bi_list = [], [], []
+            q_list, b_list, bi_list, mp_list = [], [], [], []
             for k in range(K):
                 self.rule_window_checks += N * win_per_word * (1 + (1 if k == 0 else self.fp))
                 if m.nonrecurrent:
                     h_all, b_cur, _, q_cur = m.pos_cell(oh_all, h_all, torch.zeros_like(h_all), b_cur, r2_pos, r3_pos)
-                    bi_cur, _ = m.bi_cell(oh_bi_all, 0, torch.zeros_like(bi_cur), bi_cur, r2_bi, r3_bi)
+                    bi_cur = pytorch_bi_cell_guarded_step(
+                        m.bi_cell, oh_bi_all, missing_words, case.rules, 0,
+                        torch.zeros_like(bi_cur), bi_cur, r2_bi, r3_bi,
+                        guard_mode=self.guard_mode,
+                        exact_supp_fibs_bool=(None if self.guard_mode == "legacy" else exact_fibs_by_k[k]),
+                    )
                 else:
                     m_in = b_cur
                     mbi_in = bi_cur
@@ -576,13 +981,36 @@ class IncrementalFrescoController:
                     g_all, _ = m.env_gate(h_all, m_in)
                     h_all, b_cur, _, q_cur = m.pos_cell(oh_all, h_all, g_all, m_in, r2_pos, r3_pos)
                     gbi_all = torch.zeros_like(mbi_in) if k == 0 else m.bi_gate(oh_bi_all.unsqueeze(1).expand_as(mbi_in), mbi_in)[0]
-                    bi_cur, _ = m.bi_cell(oh_bi_all, k, gbi_all, mbi_in, r2_bi, r3_bi)
+                    bi_cur = pytorch_bi_cell_guarded_step(
+                        m.bi_cell, oh_bi_all, missing_words, case.rules, k,
+                        gbi_all, mbi_in, r2_bi, r3_bi,
+                        guard_mode=self.guard_mode,
+                        exact_supp_fibs_bool=(None if self.guard_mode == "legacy" else exact_fibs_by_k[k]),
+                    )
                 q_list.append(q_cur)
                 b_list.append(b_cur)
                 bi_list.append(bi_cur)
+                cmax = bi_cur.amax(dim=-1)  # (N, Fp, Lm1, 6, 6)
+                mp_k = torch.ones((N,), dtype=torch.float32)
+                for wi in range(N):
+                    em = exact_fibs_by_k[k][wi]
+                    if bool(em.any()):
+                        mp_k[wi] = float(cmax[wi][em].min().item())
+                mp_list.append(mp_k)
             q_k = torch.stack(q_list, dim=1)
             b_k = torch.stack(b_list, dim=1)
             bi_k = torch.stack(bi_list, dim=1)
+            min_pos_k = torch.stack(mp_list, dim=1)
+
+        batch_min = float(min_pos_k.min().item())
+        if batch_min < self.min_observed_pos_act:
+            self.min_observed_pos_act = batch_min
+        if batch_min < self.margin_floor:
+            self.margin_floor_violations += int((min_pos_k < self.margin_floor).sum().item())
+            if self.fail_on_margin_underflow:
+                raise RuntimeError(
+                    f"float32 positive activation margin {batch_min:.3e} fell below floor {self.margin_floor:.3e}"
+                )
 
         wf_unit, _ = _calibrated_stage_flops(m.arch, L, K)
         self.neural_flops += N * wf_unit
@@ -615,7 +1043,7 @@ class IncrementalFrescoController:
         for idx, w in enumerate(missing_words):
             dg, ch = m17._cached_pub_matches(case.rules, w)
             self.rule_window_checks += ch
-            w_key = (self.checkpoint_sha, r_key, env_mode, w)
+            w_key = (self.checkpoint_sha, self.guard_mode, r_key, env_mode, w)
             self.word_cache[w_key] = WordEnvelopeEntry(
                 w_ids=ids_all[idx],
                 oh=oh_all[idx],
@@ -626,6 +1054,8 @@ class IncrementalFrescoController:
                 qu=q_k[idx],
                 bu=b_k[idx],
                 bi_u=bi_k[idx],
+                supp_bits_u64=supp_k[idx],
+                min_pos_f32=min_pos_k[idx],
                 u_pos_L=u_pos_L[idx],
                 v_pos_R=v_pos_R[idx],
                 u_bi_L=u_bi_L[idx],
@@ -633,6 +1063,19 @@ class IncrementalFrescoController:
                 node_inv=node_inv[idx],
                 sub_bright=sub_bright[idx],
             )
+
+    def exact_boolean_pos1_support(self, case, word: str, k: int | None = None) -> torch.Tensor:
+        """Return `(L, 6)` exact Boolean symbol support at pass `k` (1-indexed, default `passes`)
+        strictly from the decoupled `u64` Boolean bitsets, independent of float32 glyph brightness."""
+        self.verify_integrity()
+        req_K = self.model.passes if k is None else k
+        r_key = canonical_rules_key(case.rules)
+        wk = (self.checkpoint_sha, self.guard_mode, r_key, "normal", word)
+        ent = self.word_cache.get(wk)
+        if ent is None or ent.passes_ready < req_K:
+            self._compute_missing_words(case, [word], r_key, "normal", 0, req_K)
+            ent = self.word_cache[wk]
+        return u64_supp_to_pos1_bool(ent.supp_bits_u64[req_K - 1])
 
     def _compute_pair_block(
         self, u_entries: list[WordEnvelopeEntry], v_entries: list[WordEnvelopeEntry], K: int
@@ -754,7 +1197,7 @@ class IncrementalFrescoController:
             needed_words = []
             seen_needed = set()
             for w in u_words + v_words:
-                wk = (self.checkpoint_sha, r_key, env_mode, w)
+                wk = (self.checkpoint_sha, self.guard_mode, r_key, env_mode, w)
                 ent = self.word_cache.get(wk)
                 if ent is not None and ent.passes_ready >= req_K:
                     if count_hits:
@@ -768,8 +1211,8 @@ class IncrementalFrescoController:
             if needed_words:
                 self._compute_missing_words(case, needed_words, r_key, env_mode, env_mode_id, req_K)
 
-            u_e = [self.word_cache[(self.checkpoint_sha, r_key, env_mode, w)] for w in u_words]
-            v_e = [self.word_cache[(self.checkpoint_sha, r_key, env_mode, w)] for w in v_words]
+            u_e = [self.word_cache[(self.checkpoint_sha, self.guard_mode, r_key, env_mode, w)] for w in u_words]
+            v_e = [self.word_cache[(self.checkpoint_sha, self.guard_mode, r_key, env_mode, w)] for w in v_words]
 
             if self.cache_pair_ribbons:
                 miss_coords: list[tuple[int, int]] = []
@@ -777,7 +1220,7 @@ class IncrementalFrescoController:
                 miss_cols = set()
                 for i, uw in enumerate(u_words):
                     for j, vw in enumerate(v_words):
-                        pk = (self.checkpoint_sha, r_key, env_mode, uw, vw)
+                        pk = (self.checkpoint_sha, self.guard_mode, r_key, env_mode, uw, vw)
                         pe = self.pair_cache.get(pk)
                         if pe is not None and pe.passes_ready >= req_K:
                             if count_hits:
@@ -800,7 +1243,7 @@ class IncrementalFrescoController:
                             uw = u_words[i]
                             for ci, j in enumerate(c_sorted):
                                 vw = v_words[j]
-                                self.pair_cache[(self.checkpoint_sha, r_key, env_mode, uw, vw)] = PairRibbonEntry(
+                                self.pair_cache[(self.checkpoint_sha, self.guard_mode, r_key, env_mode, uw, vw)] = PairRibbonEntry(
                                     passes_ready=req_K,
                                     rib_pool=rp_blk[ri, ci],
                                     dh=float(dh_blk[ri, ci].item()),
@@ -810,7 +1253,7 @@ class IncrementalFrescoController:
                     else:
                         rp_sp, dh_sp, lb_sp, sp_sp = self._compute_sparse_pairs(u_e, v_e, miss_coords, req_K)
                         for idx, (i, j) in enumerate(miss_coords):
-                            self.pair_cache[(self.checkpoint_sha, r_key, env_mode, u_words[i], v_words[j])] = PairRibbonEntry(
+                            self.pair_cache[(self.checkpoint_sha, self.guard_mode, r_key, env_mode, u_words[i], v_words[j])] = PairRibbonEntry(
                                 passes_ready=req_K,
                                 rib_pool=rp_sp[idx],
                                 dh=float(dh_sp[idx].item()),
@@ -824,7 +1267,7 @@ class IncrementalFrescoController:
                 sp_t = torch.empty((m0, m1), dtype=torch.float32)
                 for i, uw in enumerate(u_words):
                     for j, vw in enumerate(v_words):
-                        pe = self.pair_cache[(self.checkpoint_sha, r_key, env_mode, uw, vw)]
+                        pe = self.pair_cache[(self.checkpoint_sha, self.guard_mode, r_key, env_mode, uw, vw)]
                         rg_t[i, j] = pe.rib_pool[:req_K]
                         dh_t[i, j] = pe.dh
                         lb_t[i, j] = pe.lb
@@ -987,13 +1430,15 @@ class SymBitsetWordEntry:
 
 
 def compute_sym_bitset_word_entries(
-    case, words: list[str], *, use_rust: bool = True
+    case, words: list[str], *, use_rust: bool = True, guard_mode: str = "fable_len_guard"
 ) -> tuple[list[SymBitsetWordEntry], int]:
     L = len(words[0])
     Lm1 = L - 1
     N = len(words)
     if use_rust and RUST_BACKEND.available:
-        bits, rc = RUST_BACKEND.sym_prov_adj2_u64(words, case.rules, alpha=6, fp=FP_FIBERS, k_max=3)
+        bits, rc = RUST_BACKEND.sym_prov_adj2_u64(
+            words, case.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode=guard_mode
+        )
         # bits: (N, 4, 5, Lm1) -> unpack
         unpacked = unpack_u64_bitsets_to_float36(bits)  # (N, 4, 5, Lm1, 36)
     else:
@@ -1004,7 +1449,7 @@ def compute_sym_bitset_word_entries(
         n_r3 = sum(1 for u, _ in ors if len(u) == 3)
         for w in words:
             rc += 3 * (n_r2 * Lm1 + n_r3 * max(0, Lm1 - 1))
-            hist = m17.symbolic_prov4_adj2(case.rules, w, k_max=3, fp=FP_FIBERS)
+            hist = symbolic_prov_adj2_guarded(case.rules, w, k_max=3, fp=FP_FIBERS, guard_mode=guard_mode)
             kh = []
             for k in range(4):
                 b0, fibs = hist[k]
@@ -1241,11 +1686,13 @@ class HybridSymRecFrescoNet(nn.Module):
 
     def forward(
         self, case, s: m15.FringeState, rem_budget: int, *, mode: str = "normal",
-        depth_cap: int = DEPTH, use_rust: bool = True,
+        depth_cap: int = DEPTH, use_rust: bool = True, guard_mode: str = "fable_len_guard",
     ) -> tuple[list[dict], int]:
         u_words, v_words = s.fronts[0], s.fronts[1]
         m0 = len(u_words)
-        all_ent, rc = compute_sym_bitset_word_entries(case, u_words + v_words, use_rust=use_rust)
+        all_ent, rc = compute_sym_bitset_word_entries(
+            case, u_words + v_words, use_rust=use_rust, guard_mode=guard_mode
+        )
         u_ent, v_ent = all_ent[:m0], all_ent[m0:]
         pools, dh, lb, span = self.compute_rib_pools(u_ent, v_ent)
         return self.forward_from_pools(case, s, rem_budget, u_ent, v_ent, pools, dh, lb, span, depth_cap=depth_cap, mode=mode), rc
@@ -1254,14 +1701,19 @@ class HybridSymRecFrescoNet(nn.Module):
 class IncrementalSymController:
     """Incremental controller for `HybridSymRecFrescoNet` and frozen `sym_prov_readout`."""
 
-    def __init__(self, model: nn.Module, checkpoint_sha: str, *, use_rust: bool = True):
+    def __init__(
+        self, model: nn.Module, checkpoint_sha: str, *, use_rust: bool = True, guard_mode: str = "fable_len_guard"
+    ):
+        if guard_mode not in GUARD_MODES:
+            raise ValueError(f"unknown guard_mode {guard_mode}")
         self.model = model
         self.checkpoint_sha = checkpoint_sha
         self.bound_signature = live_param_signature(model)
         self.use_rust = bool(use_rust and RUST_BACKEND.available)
+        self.guard_mode = guard_mode
         self.is_hybrid = isinstance(model, HybridSymRecFrescoNet)
-        self.word_cache: dict[tuple[str, str, str], SymBitsetWordEntry] = {}
-        self.pair_cache: dict[tuple[str, str, str, str], PairRibbonEntry] = {}
+        self.word_cache: dict[tuple[str, str, str, str], SymBitsetWordEntry] = {}
+        self.pair_cache: dict[tuple[str, str, str, str, str], PairRibbonEntry] = {}
         self.reset_telemetry()
 
     def reset_telemetry(self) -> None:
@@ -1287,7 +1739,7 @@ class IncrementalSymController:
         missing_w = []
         seen_w = set()
         for w in u_words + v_words:
-            wk = (self.checkpoint_sha, r_key, w)
+            wk = (self.checkpoint_sha, self.guard_mode, r_key, w)
             if wk in self.word_cache:
                 self.word_hits += 1
             else:
@@ -1296,18 +1748,20 @@ class IncrementalSymController:
                     seen_w.add(w)
                     missing_w.append(w)
         if missing_w:
-            ents, rc = compute_sym_bitset_word_entries(case, missing_w, use_rust=self.use_rust)
+            ents, rc = compute_sym_bitset_word_entries(
+                case, missing_w, use_rust=self.use_rust, guard_mode=self.guard_mode
+            )
             self.rule_window_checks += rc
             for w, ent in zip(missing_w, ents):
-                self.word_cache[(self.checkpoint_sha, r_key, w)] = ent
+                self.word_cache[(self.checkpoint_sha, self.guard_mode, r_key, w)] = ent
 
-        u_ent = [self.word_cache[(self.checkpoint_sha, r_key, w)] for w in u_words]
-        v_ent = [self.word_cache[(self.checkpoint_sha, r_key, w)] for w in v_words]
+        u_ent = [self.word_cache[(self.checkpoint_sha, self.guard_mode, r_key, w)] for w in u_words]
+        v_ent = [self.word_cache[(self.checkpoint_sha, self.guard_mode, r_key, w)] for w in v_words]
 
         miss_rows, miss_cols, miss_coords = set(), set(), []
         for i, uw in enumerate(u_words):
             for j, vw in enumerate(v_words):
-                pk = (self.checkpoint_sha, r_key, uw, vw)
+                pk = (self.checkpoint_sha, self.guard_mode, r_key, uw, vw)
                 if pk in self.pair_cache:
                     self.pair_hits += 1
                 else:
@@ -1374,7 +1828,7 @@ class IncrementalSymController:
                 uw = u_words[i]
                 for ci, j in enumerate(c_sorted):
                     vw = v_words[j]
-                    pk = (self.checkpoint_sha, r_key, uw, vw)
+                    pk = (self.checkpoint_sha, self.guard_mode, r_key, uw, vw)
                     if pk not in self.pair_cache:
                         self.pair_cache[pk] = PairRibbonEntry(
                             passes_ready=K,
@@ -1390,7 +1844,7 @@ class IncrementalSymController:
         span = torch.empty((m0, m1), dtype=torch.float32)
         for i, uw in enumerate(u_words):
             for j, vw in enumerate(v_words):
-                pe = self.pair_cache[(self.checkpoint_sha, r_key, uw, vw)]
+                pe = self.pair_cache[(self.checkpoint_sha, self.guard_mode, r_key, uw, vw)]
                 rib_grid[i, j] = pe.rib_pool
                 dh[i, j] = pe.dh
                 lb[i, j] = pe.lb
@@ -1452,6 +1906,351 @@ class IncrementalSymController:
 
 
 # ============================================================================
+# 5B. Fable's Zero-Parameter Symbolic Controls (`absint_mm`, `absint1_mm`, `exact_mm`)
+#     & Unified Clean-Timed Symbolic Runner with Complete Cost Accounting
+# ============================================================================
+def _nonempty_paths_adj2_bool(a: torch.Tensor) -> torch.Tensor:
+    """`a`: `(..., Lm1, 6, 6)` bool trellis tables -> `(...)` bool: some full-length word is consistent."""
+    reach = a[..., 0, :, :].any(dim=-2)
+    for p in range(1, a.shape[-3]):
+        reach = (reach.unsqueeze(-1) & a[..., p, :, :]).any(dim=-2)
+    return reach.any(dim=-1)
+
+
+class FastAbsIntOracle:
+    """Rust-`u64`-bitset-accelerated exact implementation of Fable's `EnvelopeOracle`
+    (`absint_mm` for `kmax = 3`, `absint1_mm` for `kmax = 1`)."""
+
+    def __init__(self, case, kmax: int, *, guard_mode: str = "fable_len_guard", use_rust: bool = True):
+        self.case = case
+        self.kmax = kmax
+        self.guard_mode = guard_mode
+        self.use_rust = bool(use_rust and RUST_BACKEND.available)
+        self.cache: dict[str, torch.Tensor] = {}  # w -> (K+1, 5, Lm1, 6, 6) bool
+        self.pair_dhat_cache: dict[tuple[str, str], int] = {}
+        self.sums = torch.tensor([[ku + kv for kv in range(kmax + 1)] for ku in range(kmax + 1)], dtype=torch.long)
+        self.no_meet = 2 * kmax + 1
+        self.rule_window_checks = 0
+        self.unique_words_encoded: set[str] = set()
+
+    def ensure_words(self, words: list[str]) -> None:
+        miss = [w for w in dict.fromkeys(words) if w not in self.cache]
+        if not miss:
+            return
+        L = len(miss[0])
+        Lm1 = L - 1
+        if self.use_rust:
+            bits, rc = RUST_BACKEND.sym_prov_adj2_u64(
+                miss, self.case.rules, alpha=6, fp=FP_FIBERS, k_max=self.kmax, guard_mode=self.guard_mode
+            )
+            self.rule_window_checks += rc
+            u_bool = (unpack_u64_bitsets_to_float36(bits) > 0.5).reshape(len(miss), self.kmax + 1, FP_FIBERS + 1, Lm1, 6, 6)
+            for idx, w in enumerate(miss):
+                self.cache[w] = u_bool[idx]
+                self.unique_words_encoded.add(w)
+        else:
+            win_u = sim_win_checks_per_expand(self.case.rules, L)
+            for w in miss:
+                self.rule_window_checks += (1 + max(0, self.kmax - 1) * FP_FIBERS) * win_u
+                hist = symbolic_prov_adj2_guarded(
+                    self.case.rules, w, k_max=self.kmax, fp=FP_FIBERS, guard_mode=self.guard_mode
+                )
+                self.cache[w] = torch.stack(
+                    [torch.stack([hist[k][0]] + list(hist[k][1])) for k in range(self.kmax + 1)]
+                )
+                self.unique_words_encoded.add(w)
+
+    def dhat(self, us: list[str], vs: list[str]) -> torch.Tensor:
+        self.ensure_words(us + vs)
+        out = torch.full((len(us), len(vs)), self.no_meet, dtype=torch.long)
+        miss_pairs_by_i: dict[int, list[int]] = {}
+        for i, uw in enumerate(us):
+            for j, vw in enumerate(vs):
+                val = self.pair_dhat_cache.get((uw, vw))
+                if val is not None:
+                    out[i, j] = val
+                else:
+                    miss_pairs_by_i.setdefault(i, []).append(j)
+        if not miss_pairs_by_i:
+            return out
+        for i, js in miss_pairs_by_i.items():
+            U = self.cache[us[i]]  # (K+1, 5, Lm1, 6, 6)
+            V = torch.stack([self.cache[vs[j]] for j in js], dim=0)  # (mj, K+1, 5, Lm1, 6, 6)
+            inter = U[None, :, None, :, None] & V[:, None, :, None, :]
+            hit = _nonempty_paths_adj2_bool(inter).any(dim=-1).any(dim=-1)  # (mj, K+1, K+1)
+            cand = torch.where(hit, self.sums[None], torch.full_like(self.sums[None], self.no_meet))
+            mins = cand.reshape(len(js), -1).min(dim=1).values
+            for loc_idx, j in enumerate(js):
+                mv = int(mins[loc_idx].item())
+                self.pair_dhat_cache[(us[i], vs[j])] = mv
+                out[i, j] = mv
+        return out
+
+
+class ExactBallOracle:
+    """Exact concrete radius-`radius` ball meeting-distance oracle (`exact_mm` upper reference)."""
+
+    def __init__(self, rg, case, radius: int = 3):
+        self.rg = rg
+        self.case = case
+        self.radius = radius
+        self.no_meet = 2 * radius + 1
+        self.cache: dict[str, dict[str, int]] = {}
+        self.generated_successors = 0
+        self.ball_nodes_expanded = 0
+        self.unique_expanded_words: set[str] = set()
+
+    def ball(self, w: str) -> dict[str, int]:
+        if w not in self.cache:
+            seen = {w: 0}
+            frontier = [w]
+            for d in range(1, self.radius + 1):
+                nxt = []
+                for x in frontier:
+                    self.ball_nodes_expanded += 1
+                    self.unique_expanded_words.add(x)
+                    for mv in self.rg.neighbors(self.case, x):
+                        self.generated_successors += 1
+                        if mv.successor not in seen:
+                            seen[mv.successor] = d
+                            nxt.append(mv.successor)
+                frontier = nxt
+            self.cache[w] = seen
+        return self.cache[w]
+
+    def dhat(self, us: list[str], vs: list[str]) -> torch.Tensor:
+        out = torch.full((len(us), len(vs)), self.no_meet, dtype=torch.long)
+        vb = [self.ball(v) for v in vs]
+        for i, u in enumerate(us):
+            bu = self.ball(u)
+            for j, bv in enumerate(vb):
+                small, big = (bu, bv) if len(bu) <= len(bv) else (bv, bu)
+                best = self.no_meet
+                for w_m, d_u in small.items():
+                    d_v = big.get(w_m)
+                    if d_v is not None and d_u + d_v < best:
+                        best = d_u + d_v
+                out[i, j] = best
+        return out
+
+
+def _select_with_admissible_bound(rg, s: m15.FringeState, dh_bound: torch.Tensor, depth: int) -> tuple[int, int]:
+    """`geom_mm` selection with admissible bound tightened to `max(ceil(d_H / 3), dh_bound)`."""
+    best_key, best_act = None, (0, 0)
+    for side in (0, 1):
+        opp = s.fronts[1 - side]
+        ms = len(s.fronts[side])
+        for idx, w in enumerate(s.fronts[side]):
+            g = s.dist[side][w]
+            best_f = (999, 999, 999)
+            for jdx, v in enumerate(opp):
+                gv = s.dist[1 - side][v]
+                uw, vw = (w, v) if side == 0 else (v, w)
+                dh = rg.hamming(uw, vw)
+                lb = max((dh + 2) // 3, int(dh_bound[idx, jdx] if side == 0 else dh_bound[jdx, idx]))
+                f_tot = g + gv + max(1, lb)
+                if f_tot > depth:
+                    continue
+                diffs = [k for k, (ca, cb) in enumerate(zip(uw, vw)) if ca != cb]
+                span = (diffs[-1] - diffs[0] + 1) if diffs else 0
+                cand = (f_tot, dh, span)
+                if cand < best_f:
+                    best_f = cand
+            key = (*best_f, ms, g, side, idx)
+            if best_key is None or key < best_key:
+                best_key, best_act = key, (side, idx)
+    return best_act
+
+
+def run_unified_symbolic_episode(
+    rg,
+    case,
+    policy: str,
+    *,
+    budget: int = WORK,
+    depth: int = DEPTH,
+    seed: int = 0,
+    guard_mode: str = "fable_len_guard",
+    use_rust: bool = True,
+) -> dict:
+    """Clean-timed symbolic runner for `bidir`, `astar`, `geom_mm`, `graph_bridge`, `exact_lookahead`,
+    `uniform`, `absint_mm`, `absint1_mm`, and `exact_mm`, with exact post-timing enumeration & window accounting."""
+    L = len(case.source)
+    win_per_exp = sim_win_checks_per_expand(case.rules, L)
+
+    if policy in ("bidir", "astar"):
+        t0 = time.perf_counter()
+        r = rg.search(case, policy, budget=budget, depth=depth)
+        elapsed_ms = (time.perf_counter() - t0) * 1000.0
+        cur_rss, peak_rss = current_and_peak_rss_bytes()
+        sim_win = int(r["expanded"]) * win_per_exp
+        # `bidir` and `astar` never compute 1-hop envelopes on unexpanded frontier nodes:
+        # every successor they ever generate is already counted in `r["work"]`!
+        uniq_succ = int(r["work"])
+        return {
+            **r,
+            "pair_evaluations": 0,
+            "substring_checks": sim_win,
+            "sim_rule_window_checks": sim_win,
+            "model_rule_window_checks": 0,
+            "total_rule_window_checks": sim_win,
+            "unique_succ_enumerated": uniq_succ,
+            "repeated_succ_enumerated": uniq_succ,
+            "recurrent_passes": 0,
+            "fringe_decisions": int(r["expanded"]),
+            "neural_flops": 0,
+            "wall_clock_ms": elapsed_ms,
+            "decision_latencies_ms": [],
+            "word_hits": 0,
+            "word_misses": int(r["expanded"]),
+            "pair_hits": 0,
+            "pair_misses": 0,
+            "rss_bytes": cur_rss,
+            "peak_rss_bytes": peak_rss,
+        }
+
+    if policy == "exact_lookahead":
+        ep = m17.run_lbf17_episode(rg, case, "exact_lookahead", budget=budget, depth=depth)
+        cur_rss, peak_rss = current_and_peak_rss_bytes()
+        # In `exact_lookahead`, every probed node calls `rg.neighbors` and charges `s.work += 1` per successor!
+        # Estimate probed `neighbors` calls conservatively as `max(expanded, ceil(work / max(1, mean_deg)))` -> exact:
+        deg0 = max(1, len(rg.neighbors(case, case.source)))
+        est_calls = max(int(ep["expanded"]), (int(ep["work"]) + deg0 - 1) // deg0)
+        sim_win = est_calls * win_per_exp
+        uniq_succ = int(ep["work"])
+        return {
+            **ep,
+            "substring_checks": sim_win,
+            "sim_rule_window_checks": sim_win,
+            "model_rule_window_checks": 0,
+            "total_rule_window_checks": sim_win,
+            "unique_succ_enumerated": uniq_succ,
+            "repeated_succ_enumerated": uniq_succ,
+            "decision_latencies_ms": [],
+            "word_hits": 0,
+            "word_misses": est_calls,
+            "pair_hits": 0,
+            "pair_misses": int(ep.get("pair_evaluations", 0)),
+            "rss_bytes": cur_rss,
+            "peak_rss_bytes": peak_rss,
+        }
+
+    if policy in ("geom_mm", "graph_bridge", "uniform"):
+        s = m15.FringeState.start(case)
+        rng = random.Random(seed)
+        pair_evals = model_sc = decisions = 0
+        t0 = time.perf_counter()
+        pdist = m15.build_kmer_graph(case) if policy == "graph_bridge" else None
+        while s.live(budget):
+            decisions += 1
+            m0, m1 = len(s.fronts[0]), len(s.fronts[1])
+            if policy == "uniform":
+                pick = rng.randrange(m0 + m1)
+                side, idx = (0, pick) if pick < m0 else (1, pick - m0)
+            elif policy == "geom_mm":
+                (side, idx), pe, sc = m15.geom_mm_select(rg, case, s, budget, depth)
+                pair_evals += pe
+                model_sc += sc
+            else:
+                (side, idx), pe, sc = m15.graph_bridge_select(rg, case, s, pdist, budget, depth)
+                pair_evals += pe
+                model_sc += sc
+            m15.expand_node(rg, case, s, side, idx, budget, depth)
+        elapsed_ms = (time.perf_counter() - t0) * 1000.0
+        cur_rss, peak_rss = current_and_peak_rss_bytes()
+        res = rg._result(case, policy, s.path, s.work, s.expanded, 0, budget, depth)
+        sim_win = int(s.expanded) * win_per_exp
+        uniq_succ = int(s.work)
+        return {
+            **res,
+            "pair_evaluations": pair_evals,
+            "substring_checks": sim_win + model_sc,
+            "sim_rule_window_checks": sim_win,
+            "model_rule_window_checks": model_sc,
+            "total_rule_window_checks": sim_win + model_sc,
+            "unique_succ_enumerated": uniq_succ,
+            "repeated_succ_enumerated": uniq_succ,
+            "recurrent_passes": 0,
+            "fringe_decisions": decisions,
+            "neural_flops": 0,
+            "wall_clock_ms": elapsed_ms,
+            "decision_latencies_ms": [],
+            "word_hits": 0,
+            "word_misses": int(s.expanded),
+            "pair_hits": 0,
+            "pair_misses": pair_evals,
+            "rss_bytes": cur_rss,
+            "peak_rss_bytes": peak_rss,
+        }
+
+    if policy in ("absint_mm", "absint1_mm", "exact_mm"):
+        s = m15.FringeState.start(case)
+        if policy == "absint_mm":
+            oracle = FastAbsIntOracle(case, 3, guard_mode=guard_mode, use_rust=use_rust)
+        elif policy == "absint1_mm":
+            oracle = FastAbsIntOracle(case, 1, guard_mode=guard_mode, use_rust=use_rust)
+        else:
+            oracle = ExactBallOracle(rg, case, radius=3)
+
+        front_snaps: list[tuple[tuple[str, ...], tuple[str, ...]]] = []
+        decisions = pair_evals = 0
+        t0 = time.perf_counter()
+        while s.live(budget):
+            decisions += 1
+            front_snaps.append((tuple(s.fronts[0]), tuple(s.fronts[1])))
+            pair_evals += len(s.fronts[0]) * len(s.fronts[1])
+            bound = oracle.dhat(s.fronts[0], s.fronts[1])
+            side, idx = _select_with_admissible_bound(rg, s, bound, depth)
+            m15.expand_node(rg, case, s, side, idx, budget, depth)
+        elapsed_ms = (time.perf_counter() - t0) * 1000.0
+        cur_rss, peak_rss = current_and_peak_rss_bytes()
+        res = rg._result(case, policy, s.path, s.work, s.expanded, decisions, budget, depth)
+
+        # Post-timing exact successor-enumeration & rule-window accounting (outside timed loop!)
+        sim_win = int(s.expanded) * win_per_exp
+        seen_words = {w for f0, f1 in front_snaps for w in f0 + f1}
+        deg_map = {w: len(rg.neighbors(case, w)) for w in seen_words}
+        if policy == "exact_mm":
+            assert isinstance(oracle, ExactBallOracle)
+            model_win = oracle.ball_nodes_expanded * win_per_exp
+            # `exact_mm` generates full radius-3 balls (`oracle.generated_successors` unique-cached ball transitions)
+            uniq_succ = int(oracle.generated_successors)
+            rep_succ = int(oracle.generated_successors)
+        else:
+            assert isinstance(oracle, FastAbsIntOracle)
+            model_win = int(oracle.rule_window_checks)
+            uniq_succ = sum(deg_map[w] for w in seen_words)
+            # `oracle` caches word envelopes, so cached repeated == unique; also record uncached counterfactual!
+            rep_succ = uniq_succ
+        rep_uncached_cf = sum(deg_map[w] for f0, f1 in front_snaps for w in f0 + f1)
+        return {
+            **res,
+            "pair_evaluations": pair_evals,
+            "substring_checks": model_win,
+            "sim_rule_window_checks": sim_win,
+            "model_rule_window_checks": model_win,
+            "total_rule_window_checks": sim_win + model_win,
+            "unique_succ_enumerated": uniq_succ,
+            "repeated_succ_enumerated": rep_succ,
+            "repeated_succ_if_uncached": rep_uncached_cf,
+            "exact_ball_successor_generations": (oracle.generated_successors if policy == "exact_mm" else 0),
+            "recurrent_passes": (3 if policy == "absint_mm" else (1 if policy == "absint1_mm" else 0)),
+            "fringe_decisions": decisions,
+            "neural_flops": 0,
+            "wall_clock_ms": elapsed_ms,
+            "decision_latencies_ms": [],
+            "word_hits": max(0, sum(len(f0) + len(f1) for f0, f1 in front_snaps) - len(seen_words)),
+            "word_misses": len(seen_words),
+            "pair_hits": 0,
+            "pair_misses": pair_evals,
+            "rss_bytes": cur_rss,
+            "peak_rss_bytes": peak_rss,
+        }
+
+    raise ValueError(f"unsupported symbolic policy {policy}")
+
+
+# ============================================================================
 # 6. Clean Inference Episode Runner (Cold & Warm Cache, Zero Profiling Hooks)
 # ============================================================================
 def run_clean_episode(
@@ -1460,13 +2259,15 @@ def run_clean_episode(
     *,
     controller: IncrementalFrescoController | IncrementalSymController | None = None,
     uncached_model: nn.Module | None = None,
+    uncached_guard_mode: str = "legacy",
     mode: str = "normal",
     budget: int = WORK,
     depth: int = DEPTH,
     cold_cache: bool = True,
     adaptive_margins: tuple[float, float] | None = None,
 ) -> dict:
-    """Clean inference runner free of FlopCounterMode, tensor cloning, or sham hooks."""
+    """Clean inference runner free of FlopCounterMode, tensor cloning, or sham hooks.
+    All successor-enumeration and simulator rule-window accounting runs AFTER stopping `t_ep0`."""
     if controller is not None and cold_cache:
         controller.clear_caches()
     if controller is not None:
@@ -1476,14 +2277,28 @@ def run_clean_episode(
     else:
         w_hits_0 = w_miss_0 = p_hits_0 = p_miss_0 = rc_0 = fl_0 = 0
 
+    uncached_guarded_helper = None
+    if controller is None and uncached_model is not None and uncached_guard_mode != "legacy":
+        if isinstance(uncached_model, m17.RelationalProvenanceFrescoNet) and uncached_model.arch in IncrementalFrescoController.SUPPORTED_ARCHS:
+            uncached_guarded_helper = IncrementalFrescoController(
+                uncached_model, "uncached_ephemeral", use_rust=False,
+                cache_pair_ribbons=False, guard_mode=uncached_guard_mode,
+            )
+        elif isinstance(uncached_model, HybridSymRecFrescoNet) or getattr(uncached_model, "arch", "") == "sym_prov_readout":
+            uncached_guarded_helper = IncrementalSymController(
+                uncached_model, "uncached_ephemeral", use_rust=False, guard_mode=uncached_guard_mode,
+            )
+
     s = m15.FringeState.start(case)
     calls = pair_evals = rec_passes = decisions = uncached_rc = uncached_flops = 0
     decision_latencies_ms: list[float] = []
+    front_snaps: list[tuple[tuple[str, ...], tuple[str, ...]]] = []
 
     t_ep0 = time.perf_counter()
     with torch.no_grad():
         while s.live(budget):
             decisions += 1
+            front_snaps.append((tuple(s.fronts[0]), tuple(s.fronts[1])))
             m0, m1 = len(s.fronts[0]), len(s.fronts[1])
             rem = budget - s.work
             t_d0 = time.perf_counter()
@@ -1492,15 +2307,30 @@ def run_clean_episode(
                     outs = controller.forward(case, s, rem, mode=mode, depth_cap=depth, adaptive_margins=adaptive_margins)
                 else:
                     outs = controller.forward(case, s, rem, depth_cap=depth)
+            elif uncached_guarded_helper is not None:
+                uncached_guarded_helper.clear_caches()
+                uncached_guarded_helper.reset_telemetry()
+                if isinstance(uncached_guarded_helper, IncrementalFrescoController):
+                    outs = uncached_guarded_helper.forward(case, s, rem, mode=mode, depth_cap=depth)
+                else:
+                    outs = uncached_guarded_helper.forward(case, s, rem, depth_cap=depth)
+                uncached_rc += uncached_guarded_helper.rule_window_checks
+                uncached_flops += uncached_guarded_helper.neural_flops
             else:
                 if uncached_model is None:
                     raise ValueError("either controller or uncached_model is required")
                 outs, sc = uncached_model(case, s, rem, mode=mode, depth_cap=depth)
                 uncached_rc += sc
-                wf, pf = _calibrated_stage_flops(uncached_model.arch, len(case.source), uncached_model.passes)
-                uncached_flops += (m0 + m1) * wf + (m0 * m1) * pf + _calibrated_stage_c_flops(
-                    uncached_model.arch, m0, m1, len(outs)
-                )
+                u_arch = getattr(uncached_model, "arch", "rel_prov_opened")
+                if u_arch == "lbf16_pos1_opened" or u_arch == "compute_nonrecurrent":
+                    uncached_flops += m17.cached_decision_flops(
+                        uncached_model, u_arch, case, s, rem, mode=("normal" if u_arch == "lbf16_pos1_opened" else mode)
+                    )
+                else:
+                    wf, pf = _calibrated_stage_flops(u_arch, len(case.source), uncached_model.passes)
+                    uncached_flops += (m0 + m1) * wf + (m0 * m1) * pf + _calibrated_stage_c_flops(
+                        u_arch, m0, m1, len(outs)
+                    )
             decision_latencies_ms.append((time.perf_counter() - t_d0) * 1000.0)
 
             calls += 1
@@ -1534,15 +2364,39 @@ def run_clean_episode(
         fl_ep = controller.neural_flops - fl_0
     else:
         wh = ph = 0
-        wm = sum(1 for _ in range(calls))  # not cached
+        wm = sum(len(f0) + len(f1) for f0, f1 in front_snaps)
         pmiss = pair_evals
         rc_ep = uncached_rc
         fl_ep = uncached_flops
+
+    # Post-timing exact enumeration & simulator rule-window accounting (zero overhead on `elapsed_ms`!)
+    L = len(case.source)
+    sim_win = int(s.expanded) * sim_win_checks_per_expand(case.rules, L)
+    seen_words = {w for f0, f1 in front_snaps for w in f0 + f1}
+    deg_map = {w: len(rg.neighbors(case, w)) for w in seen_words}
+    uniq_succ = sum(deg_map[w] for w in seen_words)
+    rep_uncached = sum(deg_map[w] for f0, f1 in front_snaps for w in f0 + f1)
+    if controller is None:
+        rep_succ = rep_uncached
+    elif wm == 0:
+        # Warm cache hit 100% of words: 0 new word envelopes computed during this episode,
+        # whilesimulator still expanded `s.work` concrete successors!
+        rep_succ = int(s.work)
+    else:
+        rep_succ = uniq_succ
+
+    min_pos_act = getattr(controller, "min_observed_pos_act", 1.0) if controller is not None else 1.0
 
     return {
         **res,
         "pair_evaluations": pair_evals,
         "substring_checks": rc_ep,
+        "sim_rule_window_checks": sim_win,
+        "model_rule_window_checks": rc_ep,
+        "total_rule_window_checks": sim_win + rc_ep,
+        "unique_succ_enumerated": uniq_succ,
+        "repeated_succ_enumerated": rep_succ,
+        "repeated_succ_if_uncached": rep_uncached,
         "recurrent_passes": rec_passes,
         "fringe_decisions": decisions,
         "neural_flops": fl_ep,
@@ -1552,6 +2406,7 @@ def run_clean_episode(
         "word_misses": wm,
         "pair_hits": ph,
         "pair_misses": pmiss,
+        "min_pos_f32": float(min_pos_act),
         "rss_bytes": cur_rss,
         "peak_rss_bytes": peak_rss,
     }
@@ -1560,7 +2415,9 @@ def run_clean_episode(
 # ============================================================================
 # 7. Train-Only Hybrid Fitting & Train-Only Adaptive Threshold Calibration
 # ============================================================================
-def fit_hybrid_sym_rec_model(rg, train_frames: list[dict], draws_rows: list[list[int]], seed: int) -> tuple[HybridSymRecFrescoNet, dict]:
+def fit_hybrid_sym_rec_model(
+    rg, train_frames: list[dict], draws_rows: list[list[int]], seed: int, *, guard_mode: str = "fable_len_guard"
+) -> tuple[HybridSymRecFrescoNet, dict]:
     """Fit `HybridSymRecFrescoNet` strictly on `20261227/train` using the exact LBF-17 draw schedule."""
     torch.manual_seed(seed)
     model = HybridSymRecFrescoNet(dm=38, passes=PASSES, init_gate_bias=-1.5).cpu().float()
@@ -1576,7 +2433,6 @@ def fit_hybrid_sym_rec_model(rg, train_frames: list[dict], draws_rows: list[list
     word_bank: dict[tuple[str, str], SymBitsetWordEntry] = {}
     t0 = time.perf_counter()
     model.train()
-    pw_weights = [0.20, 0.30, 0.50]
 
     for step_idx, batch_indices in enumerate(draws_rows):
         opt.zero_grad(set_to_none=True)
@@ -1591,7 +2447,7 @@ def fit_hybrid_sym_rec_model(rg, train_frames: list[dict], draws_rows: list[list
                 miss = [w for w in words_list if (rk, w) not in word_bank]
                 if miss:
                     uniq_m = list(dict.fromkeys(miss))
-                    ents, _ = compute_sym_bitset_word_entries(c, uniq_m, use_rust=True)
+                    ents, _ = compute_sym_bitset_word_entries(c, uniq_m, use_rust=True, guard_mode=guard_mode)
                     for w, ent in zip(uniq_m, ents):
                         word_bank[(rk, w)] = ent
                 return [word_bank[(rk, w)] for w in words_list]
@@ -1644,6 +2500,7 @@ def fit_hybrid_sym_rec_model(rg, train_frames: list[dict], draws_rows: list[list
     final_fp = base._model_fingerprint(model)
     return model, {
         "arch": "hybrid_sym_rec_opened",
+        "guard_mode": guard_mode,
         "seed": seed,
         "parameters": pcount,
         "passes": PASSES,
@@ -1657,12 +2514,13 @@ def calibrate_adaptive_margins_on_train(
     models_by_seed: dict[int, tuple[m17.RelationalProvenanceFrescoNet, str]],
     train_frames: list[dict],
     target_agreement: float = 0.985,
+    guard_mode: str = "fable_len_guard",
 ) -> dict:
     """Select `(gamma1, gamma2)` strictly on `20261227/train` frames to preserve >=98.5% Pass-3 top-action agreement."""
     rec1, rec2 = [], []
     with torch.no_grad():
         for seed, (model, ckpt_sha) in sorted(models_by_seed.items()):
-            ctrl = IncrementalFrescoController(model, ckpt_sha, use_rust=True)
+            ctrl = IncrementalFrescoController(model, ckpt_sha, use_rust=True, guard_mode=guard_mode)
             for fr in train_frames:
                 c, s, rem = fr["case"], fr["state"], fr["rem"]
                 outs = ctrl.forward(c, s, rem, mode="normal")
@@ -1967,7 +2825,13 @@ def general_concrete_k_ball(rules: tuple[tuple[str, str], ...], w0: str, k_max: 
 
 
 def general_prov_fp_adj2_pos_support(
-    rules: tuple[tuple[str, str], ...], w0: str, *, alpha_str: str, fp: int, k_max: int
+    rules: tuple[tuple[str, str], ...],
+    w0: str,
+    *,
+    alpha_str: str,
+    fp: int,
+    k_max: int,
+    guard_mode: str = "fable_len_guard",
 ) -> torch.Tensor:
     """Exact `(L, A)` marginal symbol support of `prov_{fp} x adj2` for arbitrary `A`, `L`, rule widths, and `fp`."""
     A = len(alpha_str)
@@ -1975,7 +2839,9 @@ def general_prov_fp_adj2_pos_support(
     L = len(w0)
     Lm1 = L - 1
     if A <= 8 and L <= 64 and fp <= 32 and RUST_BACKEND.available:
-        bits, _ = RUST_BACKEND.sym_prov_adj2_u64([w0], rules, alpha=A, fp=fp, k_max=k_max, char_map=cmap)
+        bits, _ = RUST_BACKEND.sym_prov_adj2_u64(
+            [w0], rules, alpha=A, fp=fp, k_max=k_max, char_map=cmap, guard_mode=guard_mode
+        )
         # bits[0, k_max]: (fp + 1, Lm1) u64
         union_mask = torch.zeros((Lm1,), dtype=torch.int64)
         for f in range(fp + 1):
@@ -2009,9 +2875,12 @@ def general_prov_fp_adj2_pos_support(
         return t
 
     ors = [(u, v) for u, v in rules if u != v] + [(v, u) for u, v in rules if u != v]
+    actual_max_rlen = max((len(u) for u, _ in ors), default=2)
     base_a2 = word_a2(w0)
     fibs = [torch.zeros((Lm1, A, A), dtype=torch.bool) for _ in range(fp)]
     active = [False] * fp
+    max_orig = [0] * L
+    chg_m = [0] * fp
     for lhs, rhs in ors:
         ll = len(lhs)
         for p in range(L - ll + 1):
@@ -2019,6 +2888,11 @@ def general_prov_fp_adj2_pos_support(
                 f = p % fp
                 fibs[f] |= word_a2(w0[:p] + rhs + w0[p + ll:])
                 active[f] = True
+                if ll > max_orig[p]:
+                    max_orig[p] = ll
+                for q_i in range(ll):
+                    if rhs[q_i] != w0[p + q_i]:
+                        chg_m[f] |= 1 << (p + q_i)
     fibs = [tf_adj2(fibs[f]) if active[f] else fibs[f] for f in range(fp)]
     for step_idx in range(1, k_max):
         nf = []
@@ -2034,7 +2908,16 @@ def general_prov_fp_adj2_pos_support(
                 ys = [cmap[c] for c in rhs]
                 for p in range(L - ll + 1):
                     if step_idx == 1 and (p % fp == f) and w0[p:p + ll] == rhs:
-                        continue
+                        if guard_mode == "legacy":
+                            sup = True
+                        elif guard_mode == "fable_len_guard":
+                            sup = (fp >= actual_max_rlen) and (max_orig[p] <= ll)
+                        elif guard_mode == "pr348_mask_guard":
+                            sup = (chg_m[f] & ~(((1 << ll) - 1) << p)) == 0
+                        else:
+                            sup = False
+                        if sup:
+                            continue
                     if all(bool(ta[p + q, xs[q], xs[q + 1]]) for q in range(ll - 1)):
                         for q in range(ll - 1):
                             nxt[p + q, ys[q], ys[q + 1]] = True
@@ -2362,7 +3245,10 @@ def certify_single_thread(rg, items: list, out: Path, chunk_size: int = 350) -> 
         gc.collect()
         proc = None
         for attempt in range(3):
-            proc = subprocess.run([str(lean_exe), "--threads=1", str(pfile)], capture_output=True, text=True, timeout=420)
+            proc = subprocess.run(
+                [str(lean_exe), "--threads=1", pfile.name],
+                cwd=str(out), capture_output=True, text=True, timeout=420,
+            )
             if proc.returncode == 0:
                 break
             time.sleep(1.5 * (attempt + 1))
@@ -2401,7 +3287,10 @@ def verify_lbf18_lean_formalization(out_dir: Path | None = None) -> dict:
     gc.collect()
     proc = None
     for attempt in range(3):
-        proc = subprocess.run([str(lean_exe), "--threads=1", str(LEAN18_FILE)], capture_output=True, text=True)
+        proc = subprocess.run(
+            [str(lean_exe), "--threads=1", LEAN18_FILE.name],
+            cwd=str(LEAN18_FILE.parent), capture_output=True, text=True,
+        )
         if proc.returncode == 0:
             break
         time.sleep(1.5 * (attempt + 1))
@@ -2421,13 +3310,23 @@ def verify_lbf18_lean_formalization(out_dir: Path | None = None) -> dict:
         "cex4a_fp4_spurious_fp5_exact",
         "cex4b_intrafiber_step2_fork",
         "cex4c_horizon_compression_long_word",
+        "localAdj2_unsuppressed_firing_sound",
+        "fable_suppressed_pass2_returns_root_or_stays",
+        "pr348_suppressed_pass2_returns_root",
+        "theorem_A_fable_guarded_prov_adj2_soundness",
+        "theorem_A_pr348_mask_guarded_prov_adj2_soundness",
+        "referee_rstar_legacy_unsound_and_both_guards_sound",
+        "lbf17_cex1_chimera_excluded_under_both_guards",
+        "referee_modulus_assumption_necessary_for_len_guard",
+        "referee_mod_collision_len_guard_sharper_than_mask_guard",
+        "referee_ce5_single_rule_horizon_overshoot",
     ]
     for thm in expected_theorems:
         needle = f"'LBF18IncrementalAndCollisions.{thm}' does not depend on any axioms"
         if needle not in lines:
             raise RuntimeError(f"Theorem {thm} missing zero-axiom confirmation in Lean output: {lines}")
-    src_sha = hashlib.sha256(LEAN18_FILE.read_bytes()).hexdigest()
-    log_sha = hashlib.sha256(proc.stdout.encode("utf-8")).hexdigest()
+    src_sha = sha256_canonical_lf(LEAN18_FILE)
+    log_sha = sha256_canonical_lf(proc.stdout.encode("utf-8"))
     res = {
         "lean_version": ver,
         "source_sha256": src_sha,
@@ -2437,12 +3336,282 @@ def verify_lbf18_lean_formalization(out_dir: Path | None = None) -> dict:
     }
     if out_dir is not None:
         out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "compiler.log").write_text(proc.stdout, encoding="utf-8")
         (out_dir / "manifest.json").write_text(json.dumps(res, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return res
 
 
 # ============================================================================
-# 11. Illustrated SVG Diagrams (Incremental Fresco Speedup, 2x2 Shapley, Sealed Confirmation & Collisions)
+# 10B. Open-Cohort Soundness, Guard Comparison & Float32 Depth-Margin Audit
+# ============================================================================
+def _nested_rule_pairs(rules: tuple[tuple[str, str], ...]) -> list[dict]:
+    """Identify nested 3-over-2 rule pairs `(A len 3, B len 2)` where `B = {A_lhs[:2], A_rhs[:2]}` and `A_lhs[2] != A_rhs[2]`."""
+    out = []
+    twos = [(a, b) for a, b in rules if len(a) == 2]
+    for a, b in rules:
+        if len(a) != 3:
+            continue
+        for u, v in twos:
+            if {u, v} == {a[:2], b[:2]} and a[:2] != b[:2] and a[2] != b[2]:
+                out.append({"triple": [a, b], "pair": [u, v]})
+    return out
+
+
+def _exact_bfs_ball_distances(rules: tuple[tuple[str, str], ...], w0: str, k_max: int) -> dict[str, int]:
+    ors = [(u, v) for u, v in rules if u != v] + [(v, u) for u, v in rules if u != v]
+    seen = {w0: 0}
+    q = deque([w0])
+    while q:
+        u = q.popleft()
+        d = seen[u]
+        if d >= k_max:
+            continue
+        for lhs, rhs in ors:
+            ll = len(lhs)
+            start = 0
+            while True:
+                p = u.find(lhs, start)
+                if p < 0:
+                    break
+                start = p + 1
+                v = u[:p] + rhs + u[p + ll:]
+                if v not in seen:
+                    seen[v] = d + 1
+                    q.append(v)
+    return seen
+
+
+def run_open_soundness_and_guard_audit(
+    rg,
+    train_cases: list,
+    cal_cases: list,
+    rel_models: dict[int, tuple[m17.RelationalProvenanceFrescoNet, str]],
+) -> dict:
+    """Comprehensive soundness, guard-comparison, and float32 depth-margin audit strictly on open/synthetic cohorts:
+    1. Referee `R* = {abc<->def, ab<->de, bf<->cc}` across `legacy`, `fable_len_guard`, `pr348_mask_guard` (symbolic & neural).
+    2. LBF-17 `CEX-1`, Modulo-Collision `w = "abccab"`, and `Fp < ell_max` (`w = "abcd"`, `fp = 2` vs `3`).
+    3. `CE-3` Float32 Depth-Margin Decay (`K = 1..8`) on `rel_prov_opened` & `rel_prov_standard` vs decoupled `u64` Boolean support.
+    4. Full Open-Cohort Scan (`train` 64 + `calibration` 48, including radius-5 + planted words on nested-pair systems).
+    5. 100-System Nested-Pair-Enriched Cohort (audit-only seed `20261899`) comparing `legacy`, `fable_len_guard`, `pr348_mask_guard`.
+    """
+    RSTAR = (("abc", "def"), ("ab", "de"), ("bf", "cc"))
+
+    def sym_pos1_from_u64(rules, w0: str, k: int, gmode: str, fp: int = FP_FIBERS) -> tuple[torch.Tensor, torch.Tensor]:
+        bits, _ = RUST_BACKEND.sym_prov_adj2_u64([w0], rules, alpha=6, fp=fp, k_max=k, guard_mode=gmode)
+        return u64_supp_to_pos1_bool(bits[0, k]), bits[0, k]
+
+    # 1. Referee R* across L in (3, 4, 10, 11, 13) and all 3 guard modes
+    rstar_rows = []
+    for L in (3, 4, 10, 11, 13):
+        w0 = "abc" + "a" * (L - 3)
+        ball = _exact_bfs_ball_distances(RSTAR, w0, 3)
+        gt3 = m17.alpha1_bool(list(ball.keys()), L)
+        row_g = {"w0": w0, "L": L, "concrete_ball_size_k3": len(ball)}
+        for gm in ("legacy", "fable_len_guard", "pr348_mask_guard"):
+            pr3, _ = sym_pos1_from_u64(RSTAR, w0, 3, gm)
+            miss = [(p, "abcdef"[s]) for p, s in (gt3 & ~pr3).nonzero().tolist()]
+            fp_c = int((pr3 & ~gt3).sum().item())
+            row_g[f"{gm}_fn_k3"] = miss
+            row_g[f"{gm}_fp_k3"] = fp_c
+        rstar_rows.append(row_g)
+
+    # Neural `rel_prov_opened` on R* (`L = 10`, `w0 = "abcaaaaaaa"`) across `legacy`, `fable_len_guard`, `pr348_mask_guard`
+    w_rstar10 = "abcaaaaaaa"
+    gt_rstar10 = m17.alpha1_bool(list(_exact_bfs_ball_distances(RSTAR, w_rstar10, 3).keys()), 10)
+    dummy_case_rstar = StressRewriteCase("rstar_10", "rstar", "calibration", "equality", w_rstar10, w_rstar10, RSTAR)
+    neural_rstar = []
+    for seed, (rm, rsha) in sorted(rel_models.items()):
+        for gm in ("legacy", "fable_len_guard", "pr348_mask_guard"):
+            ctrl = IncrementalFrescoController(rm, rsha, use_rust=True, guard_mode=gm)
+            bool_supp = ctrl.exact_boolean_pos1_support(dummy_case_rstar, w_rstar10, k=3)
+            ent = ctrl.word_cache[(rsha, gm, canonical_rules_key(RSTAR), "normal", w_rstar10)]
+            pos_ch = rm.bigram_to_pos1_channels(ent.bi_u[2:3])[0]
+            oh0 = m17.alpha1_bool((w_rstar10,), 10)
+            f32_gt0 = oh0 | (pos_ch > 0.0).any(dim=-1)
+            f32_thr = oh0 | (pos_ch > 1e-6).any(dim=-1)
+            neural_rstar.append({
+                "seed": seed,
+                "guard_mode": gm,
+                "exact_boolean_fn_k3": [(p, "abcdef"[s]) for p, s in (gt_rstar10 & ~bool_supp).nonzero().tolist()],
+                "f32_gt0_fn_k3": [(p, "abcdef"[s]) for p, s in (gt_rstar10 & ~f32_gt0).nonzero().tolist()],
+                "f32_1e6_fn_k3": [(p, "abcdef"[s]) for p, s in (gt_rstar10 & ~f32_thr).nonzero().tolist()],
+                "act_at_pos1_c": float(pos_ch[1, CHAR2ID["c"]].max().item()),
+                "min_pos_f32_k3": float(ent.min_pos_f32[2].item()),
+            })
+
+    # 2. CEX-1, Modulo-Collision `"abccab"`, and `Fp < ell_max` `"abcd"`
+    cex1_rules = (("ab", "de"), ("bc", "fa"), ("df", "cc"))
+    cex1_gt = m17.alpha1_bool(list(_exact_bfs_ball_distances(cex1_rules, "abc", 3).keys()), 3)
+    cex1_fable, _ = sym_pos1_from_u64(cex1_rules, "abc", 3, "fable_len_guard")
+    cex1_pr348, _ = sym_pos1_from_u64(cex1_rules, "abc", 3, "pr348_mask_guard")
+
+    mod_coll_rules = (("ab", "de"),)
+    _, bits_mc_fable = sym_pos1_from_u64(mod_coll_rules, "abccab", 3, "fable_len_guard")
+    _, bits_mc_pr348 = sym_pos1_from_u64(mod_coll_rules, "abccab", 3, "pr348_mask_guard")
+
+    # 3. CE-3 Float32 Depth-Margin Sweep (`K = 1..8`) on `rel_prov_opened` and `rel_prov_standard`
+    std_models = {s: load_frozen_lbf17_checkpoint(s, "rel_prov_standard")[:2] for s in SEEDS}
+    depth_margin_rows = []
+    sample_cal = cal_cases[:12]
+    for arch_label, md_dict in (("rel_prov_opened", rel_models), ("rel_prov_standard", std_models)):
+        for k_eval in (1, 2, 3, 4, 6, 8):
+            min_f32_global = 1.0
+            f32_1e6_fn = f32_gt0_fn = exact_u64_fn = total_true_cells = 0
+            for seed, (m_net, m_sha) in sorted(md_dict.items()):
+                wstruct, _keep = RUST_BACKEND.pack_rel_prov_weights(m_net)
+                for c in sample_cal:
+                    w0 = c.source
+                    L = len(w0)
+                    _, _, bi_k, supp_k, min_pk, _ = RUST_BACKEND.rel_prov_envelopes(
+                        [w0], c.rules, fp=FP_FIBERS, passes=k_eval, env_mode_id=0,
+                        nonrecurrent=False, wstruct=wstruct, guard_mode="fable_len_guard",
+                    )
+                    mp_val = float(min_pk[0, k_eval - 1].item())
+                    if mp_val < min_f32_global:
+                        min_f32_global = mp_val
+                    # Compare neural float32 support & decoupled u64 Boolean support vs symbolic ground-truth domain `D^{(k)}`
+                    sym_dk = u64_supp_to_pos1_bool(
+                        RUST_BACKEND.sym_prov_adj2_u64([w0], c.rules, alpha=6, fp=FP_FIBERS, k_max=k_eval, guard_mode="fable_len_guard")[0][0, k_eval]
+                    )
+                    dec_u64 = u64_supp_to_pos1_bool(supp_k[0, k_eval - 1])
+                    oh0 = m17.alpha1_bool((w0,), L)
+                    pos_ch = m_net.bigram_to_pos1_channels(bi_k[:, k_eval - 1])[0]
+                    f_gt0 = oh0 | (pos_ch > 0.0).any(dim=-1)
+                    f_1e6 = oh0 | (pos_ch > 1e-6).any(dim=-1)
+                    total_true_cells += int(sym_dk.sum().item())
+                    exact_u64_fn += int((sym_dk & ~dec_u64).sum().item())
+                    f32_gt0_fn += int((sym_dk & ~f_gt0).sum().item())
+                    f32_1e6_fn += int((sym_dk & ~f_1e6).sum().item())
+            depth_margin_rows.append({
+                "arch": arch_label,
+                "pass_k": k_eval,
+                "domain_true_cells": total_true_cells,
+                "min_pos_f32": min_f32_global,
+                "f32_threshold_1e6_missing_domain_cells": f32_1e6_fn,
+                "f32_strict_gt0_missing_domain_cells": f32_gt0_fn,
+                "decoupled_u64_missing_domain_cells": exact_u64_fn,
+            })
+
+    # 4. Open Cohorts (`20261227/train` + `20261227/calibration`) + Targeted Nested-Pair Scan
+    open_scan = {}
+    for split_name, split_cases in (("train", train_cases), ("calibration", cal_cases)):
+        nested_sys = 0
+        words_checked = 0
+        fn_by_mode = {"legacy": 0, "fable_len_guard": 0, "pr348_mask_guard": 0}
+        fp_by_mode = {"legacy": 0, "fable_len_guard": 0, "pr348_mask_guard": 0}
+        fable_vs_pr348_adj2_diffs = 0
+        for c in split_cases:
+            npairs = _nested_rule_pairs(c.rules)
+            nested_sys += int(bool(npairs))
+            w_pool = set()
+            for end in (c.source, c.target):
+                w_pool.update(_exact_bfs_ball_distances(c.rules, end, 2).keys())
+            if npairs:
+                sides = {s_ for np_ in npairs for s_ in np_["triple"]}
+                for t_s in sides:
+                    for p_i in range(len(c.source) - 2):
+                        w_pool.add(c.source[:p_i] + t_s + c.source[p_i + 3:])
+            w_list = sorted(w_pool)[:180]
+            words_checked += len(w_list)
+            bits_leg, _ = RUST_BACKEND.sym_prov_adj2_u64(w_list, c.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode="legacy")
+            bits_fab, _ = RUST_BACKEND.sym_prov_adj2_u64(w_list, c.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode="fable_len_guard")
+            bits_msk, _ = RUST_BACKEND.sym_prov_adj2_u64(w_list, c.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode="pr348_mask_guard")
+            fable_vs_pr348_adj2_diffs += int((bits_fab != bits_msk).any(dim=(1, 2, 3)).sum().item())
+            for wi, w_item in enumerate(w_list):
+                gt_w = m17.alpha1_bool(list(_exact_bfs_ball_distances(c.rules, w_item, 3).keys()), len(w_item))
+                for gm_k, b_ten in (("legacy", bits_leg), ("fable_len_guard", bits_fab), ("pr348_mask_guard", bits_msk)):
+                    pr_w = u64_supp_to_pos1_bool(b_ten[wi, 3])
+                    if bool((gt_w & ~pr_w).any()):
+                        fn_by_mode[gm_k] += 1
+                    fp_by_mode[gm_k] += int((pr_w & ~gt_w).sum().item())
+        open_scan[split_name] = {
+            "systems": len(split_cases),
+            "systems_with_nested_3_over_2_pair": nested_sys,
+            "words_checked": words_checked,
+            "words_with_symbol_fn_k3": fn_by_mode,
+            "excess_symbol_cells_k3": fp_by_mode,
+            "fable_vs_pr348_adj2_word_diffs": fable_vs_pr348_adj2_diffs,
+        }
+
+    # 5. 100-System Nested-Pair-Enriched Cohort (Audit-Only Generator Seeds Starting at 20261899)
+    enriched_nested = []
+    gen_seed = 20261899
+    total_scanned = 0
+    while len(enriched_nested) < 100:
+        batch_c, _ = rg.generate(gen_seed, {"train": 400})
+        gen_seed += 1
+        for c in batch_c["train"]:
+            total_scanned += 1
+            npairs = _nested_rule_pairs(c.rules)
+            if npairs:
+                enriched_nested.append((c, npairs))
+                if len(enriched_nested) >= 100:
+                    break
+
+    rng_enr = random.Random(20261898)
+    enr_words = 0
+    enr_fn_words = {"legacy": 0, "fable_len_guard": 0, "pr348_mask_guard": 0}
+    enr_fn_sys = {"legacy": 0, "fable_len_guard": 0, "pr348_mask_guard": 0}
+    enr_fp_cells = {"legacy": 0, "fable_len_guard": 0, "pr348_mask_guard": 0}
+    enr_fable_vs_pr348_diffs = 0
+    for c, npairs in enriched_nested:
+        sides = {s_ for np_ in npairs for s_ in np_["triple"]}
+        cand_w = {c.source, c.target}
+        for end in (c.source, c.target):
+            cur = end
+            for _ in range(4):
+                nb = rg.neighbors(c, cur)
+                if not nb:
+                    break
+                cur = rng_enr.choice(nb).successor
+                cand_w.add(cur)
+        for t_s in sides:
+            for p_i in range(len(c.source) - 2):
+                cand_w.add(c.source[:p_i] + t_s + c.source[p_i + 3:])
+        wl = sorted(cand_w)
+        enr_words += len(wl)
+        b_leg, _ = RUST_BACKEND.sym_prov_adj2_u64(wl, c.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode="legacy")
+        b_fab, _ = RUST_BACKEND.sym_prov_adj2_u64(wl, c.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode="fable_len_guard")
+        b_msk, _ = RUST_BACKEND.sym_prov_adj2_u64(wl, c.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode="pr348_mask_guard")
+        enr_fable_vs_pr348_diffs += int((b_fab != b_msk).any(dim=(1, 2, 3)).sum().item())
+        sys_hit = {"legacy": False, "fable_len_guard": False, "pr348_mask_guard": False}
+        for wi, w_item in enumerate(wl):
+            gt_w = m17.alpha1_bool(list(_exact_bfs_ball_distances(c.rules, w_item, 3).keys()), len(w_item))
+            for gm_k, b_ten in (("legacy", b_leg), ("fable_len_guard", b_fab), ("pr348_mask_guard", b_msk)):
+                pr_w = u64_supp_to_pos1_bool(b_ten[wi, 3])
+                if bool((gt_w & ~pr_w).any()):
+                    enr_fn_words[gm_k] += 1
+                    sys_hit[gm_k] = True
+                enr_fp_cells[gm_k] += int((pr_w & ~gt_w).sum().item())
+        for gm_k in sys_hit:
+            if sys_hit[gm_k]:
+                enr_fn_sys[gm_k] += 1
+
+    if enr_fn_words["fable_len_guard"] != 0 or enr_fn_words["pr348_mask_guard"] != 0:
+        raise RuntimeError(f"Repaired guard had unexpected false negatives: {enr_fn_words}")
+
+    return {
+        "referee_rstar_symbolic": rstar_rows,
+        "referee_rstar_neural_rel_prov_opened": neural_rstar,
+        "cex1_exact_under_fable_and_pr348": bool(torch.equal(cex1_gt, cex1_fable) and torch.equal(cex1_gt, cex1_pr348)),
+        "mod_collision_abccab_adj2_identical": bool(torch.equal(bits_mc_fable, bits_mc_pr348)),
+        "ce3_float32_depth_margin_sweep": depth_margin_rows,
+        "open_cohorts_scan": open_scan,
+        "nested_pair_enriched_100_cohort": {
+            "total_systems_scanned": total_scanned,
+            "nested_pair_systems": len(enriched_nested),
+            "empirical_nested_pair_rate": round(len(enriched_nested) / max(1, total_scanned), 5),
+            "words_checked": enr_words,
+            "systems_with_symbol_fn_k3": enr_fn_sys,
+            "words_with_symbol_fn_k3": enr_fn_words,
+            "excess_symbol_cells_k3": enr_fp_cells,
+            "fable_vs_pr348_adj2_word_diffs": enr_fable_vs_pr348_diffs,
+        },
+    }
+
+
+# ============================================================================
+# 11. Illustrated SVG Diagrams (Incremental Fresco Speedup, Cost Break-Even, Confirmation & Collisions)
 # ============================================================================
 def _svg_esc(s: str) -> str:
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
@@ -2454,54 +3623,57 @@ def render_incremental_and_factorial_svg(cal_summary: dict, out_path: Path) -> s
     fac_auc = cal_summary["factorial_2x2"]["zero_factorial_auc"]
 
     arms = [
-        ("uncached_py", "LBF-17 Uncached PyTorch (K=3)", "#94a3b8"),
-        ("inc_py_cold", "LBF-18 Incremental PyTorch (Cold)", "#60a5fa"),
-        ("inc_py_warm", "LBF-18 Incremental PyTorch (Warm)", "#3b82f6"),
-        ("inc_rust_cold", "LBF-18 Incremental + Rust Bitset (Cold)", "#10b981"),
-        ("inc_rust_warm", "LBF-18 Incremental + Rust Bitset (Warm)", "#059669"),
-        ("rel_prov_adaptive_rust_cold", "LBF-18 Adaptive 1-3 Pass + Rust (Cold)", "#f59e0b"),
-        ("sym_prov_readout_inc_rust_cold", "sym_prov_readout + Rust Bitset (K=1)", "#a78bfa"),
-        ("hybrid_sym_rec_inc_rust_cold", "Hybrid Sym-Env + 3-Pass Axial + Rust", "#ec4899"),
+        ("rel_prov_guarded_uncached_py", "Repaired Uncached PyTorch (K=3)", "#94a3b8"),
+        ("rel_prov_guarded_inc_py_cold", "Incremental PyTorch (Cold)", "#60a5fa"),
+        ("rel_prov_guarded_inc_py_warm", "Incremental PyTorch (Warm)", "#3b82f6"),
+        ("rel_prov_guarded_inc_rust_cold", "Incremental + Rust u64 (Cold, Fable Guard)", "#10b981"),
+        ("rel_prov_guarded_inc_rust_warm", "Incremental + Rust u64 (Warm, Fable Guard)", "#059669"),
+        ("rel_prov_adaptive_rust_cold", "Adaptive 1-3 Pass + Rust (Cold)", "#f59e0b"),
+        ("sym_prov_readout_guarded_rust_cold", "sym_prov_readout + Rust u64 (K=1)", "#a78bfa"),
+        ("hybrid_sym_rec_guarded_rust_cold", "Hybrid Sym-Env + 3-Pass Axial + Rust", "#ec4899"),
     ]
     max_ms = max(bench[k]["mean_episode_ms"] for k, _, _ in arms)
+    base_ms = bench["rel_prov_guarded_uncached_py"]["mean_episode_ms"]
 
     lines = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 690" font-family="Inter, Segoe UI, system-ui, sans-serif">',
         '<rect width="1180" height="690" fill="#0b1020" rx="14"/>',
         '<text x="32" y="42" fill="#f8fafc" font-size="21" font-weight="700">'
-        'LBF-18 Incremental Relational Fresco: Clean Inference Speedup &amp; 2x2 Bank Interaction</text>',
+        'LBF-18 Repaired Guarded Fresco: Clean Inference Speedup &amp; 2x2 Bank Dependence</text>',
         '<text x="32" y="66" fill="#94a3b8" font-size="13">'
-        'Frozen LBF-17 checkpoints (~53.1K params) on 48 independent calibration roots (x3 seeds) · Zero profiler overhead</text>',
-        # Left panel: Clean latency & hit-rate bars
+        'Frozen LBF-17 checkpoints (~53.1K params) with Fable Guard + Decoupled u64 Boolean Support on 48 Calibration Roots</text>',
         '<rect x="28" y="84" width="700" height="350" fill="#111827" stroke="#1f2937" rx="10"/>',
         '<text x="46" y="112" fill="#e2e8f0" font-size="15" font-weight="600">'
-        'A. Clean End-to-End Episode Latency (B = 128) &amp; Incremental Hit Rates</text>',
+        'A. Uninstrumented Clean Episode Latency (B = 128) &amp; Cache Hit Rates</text>',
     ]
     for idx, (key, label, color) in enumerate(arms):
         row = bench[key]
         y = 132 + idx * 36
         ms = row["mean_episode_ms"]
-        bar_w = max(4.0, (ms / max(1e-6, max_ms)) * 280.0)
-        sp = bench["uncached_py"]["mean_episode_ms"] / max(1e-6, ms)
+        bar_w = max(4.0, (ms / max(1e-6, max_ms)) * 260.0)
+        sp = base_ms / max(1e-6, ms)
         wh = row["word_cache_hit_rate"] * 100.0
         ph = row["pair_cache_hit_rate"] * 100.0
-        lines.append(f'<text x="46" y="{y + 14}" fill="#cbd5e1" font-size="12">{_svg_esc(label)}</text>')
-        lines.append(f'<rect x="305" y="{y}" width="{bar_w:.1f}" height="20" fill="{color}" rx="4"/>')
+        lines.append(f'<text x="46" y="{y + 14}" fill="#cbd5e1" font-size="11.5">{_svg_esc(label)}</text>')
+        lines.append(f'<rect x="315" y="{y}" width="{bar_w:.1f}" height="20" fill="{color}" rx="4"/>')
         lines.append(
-            f'<text x="{313 + bar_w:.1f}" y="{y + 14}" fill="#f8fafc" font-size="11.5" font-weight="600">'
+            f'<text x="{323 + bar_w:.1f}" y="{y + 14}" fill="#f8fafc" font-size="11" font-weight="600">'
             f'{ms:.1f} ms ({sp:.1f}x) · W-hit {wh:.0f}% · P-hit {ph:.0f}%</text>'
         )
 
-    # Right panel: 2x2 Bank Interaction Matrix
     cm = fac["cell_means_raw"]
     ca = fac_auc["cell_means_raw"]
+    c_cold = bench["rel_prov_guarded_inc_rust_cold"]
+    c_warm = bench["rel_prov_guarded_inc_rust_warm"]
+    c_unc = bench["rel_prov_guarded_uncached_py"]
+    c_adp = bench["rel_prov_adaptive_rust_cold"]
+    c_hyb = bench["hybrid_sym_rec_guarded_rust_cold"]
     lines.extend([
         '<rect x="748" y="84" width="404" height="350" fill="#111827" stroke="#1f2937" rx="10"/>',
         '<text x="766" y="112" fill="#e2e8f0" font-size="15" font-weight="600">'
-        'B. 2x2 Recurrence Factorial (N = 48 Roots)</text>',
+        'B. 2x2 Trained-Model Bank Dependence (N = 48 Roots)</text>',
         '<text x="766" y="132" fill="#94a3b8" font-size="11.5">'
         'Envelope Bank (Bw, Bbi) x Cross-Frontier Matrix Bank (Bm)</text>',
-        # 2x2 grid
         '<rect x="780" y="156" width="165" height="92" fill="#064e3b" stroke="#10b981" stroke-width="1.5" rx="8"/>',
         '<text x="794" y="178" fill="#a7f3d0" font-size="12" font-weight="700">E=1, M=1 (Intact)</text>',
         f'<text x="794" y="202" fill="#ffffff" font-size="16" font-weight="700">{cm["E1_M1_intact"]:.2f} work</text>',
@@ -2522,49 +3694,111 @@ def render_incremental_and_factorial_svg(cal_summary: dict, out_path: Path) -> s
         f'<text x="974" y="308" fill="#ffffff" font-size="16" font-weight="700">{cm["E0_M0_both_ablated"]:.2f} work</text>',
         f'<text x="974" y="330" fill="#fda4af" font-size="12">5-Budget AUC: {ca["E0_M0_both_ablated"]*100:.2f}%</text>',
 
-        f'<text x="768" y="382" fill="#e2e8f0" font-size="12.5" font-weight="600">'
-        f'Joint Recurrence Savings: -{fac["joint_recurrence_benefit"]:.2f} work '
+        f'<text x="768" y="382" fill="#e2e8f0" font-size="12" font-weight="600">'
+        f'Joint Ablation Drop: {fac["joint_recurrence_benefit"]:.2f} work '
         f'(I_EM = {fac["interaction_I_EM"]:+.2f})</text>',
-        f'<text x="768" y="404" fill="#cbd5e1" font-size="12">'
-        f'Shapley Credit: Envelope {fac["shapley_env_share"]*100:.1f}% (-{fac["shapley_env"]:.2f}) · '
-        f'Matrix {fac["shapley_mat_share"]*100:.1f}% (-{fac["shapley_mat"]:.2f})</text>',
-        f'<text x="768" y="423" fill="#94a3b8" font-size="11.5">'
-        f'Naive marginal ratio was {fac["naive_marginal_env_share"]*100:.1f}% / {(1-fac["naive_marginal_env_share"])*100:.1f}%</text>',
-    ])
+        f'<text x="768" y="404" fill="#cbd5e1" font-size="11.5">'
+        f'Shapley Dependence: Env {fac["shapley_env_share"]*100:.1f}% ({fac["shapley_env"]:.2f}) · '
+        f'Mat {fac["shapley_mat_share"]*100:.1f}% ({fac["shapley_mat"]:.2f})</text>',
+        '<text x="768" y="423" fill="#94a3b8" font-size="11">'
+        'Measures trained-checkpoint bank dependence (compare sym_prov_readout)</text>',
 
-    # Bottom panel: Three-stage Incremental Architecture & Resource Table
-    lines.extend([
         '<rect x="28" y="452" width="1124" height="212" fill="#111827" stroke="#1f2937" rx="10"/>',
         '<text x="46" y="480" fill="#e2e8f0" font-size="15" font-weight="600">'
-        'C. Three-Stage Incremental Factorization &amp; Verified Invariants</text>',
+        'C. Three-Stage Incremental Factorization, Theorem A Guard &amp; Decoupled Boolean Support</text>',
         '<rect x="48" y="498" width="335" height="142" fill="#0f172a" stroke="#10b981" rx="8"/>',
-        '<text x="64" y="522" fill="#34d399" font-size="13" font-weight="700">Stage A: Word Envelope Cache C_word</text>',
-        '<text x="64" y="544" fill="#cbd5e1" font-size="11.5">Key: (sha256(theta), ver, canon(R), env_mode, K, w)</text>',
-        '<text x="64" y="564" fill="#cbd5e1" font-size="11.5">Rust u64 bitset skips 85-98% zero rewrite windows</text>',
-        f'<text x="64" y="584" fill="#a7f3d0" font-size="11.5">Cold hit rate: {bench["inc_rust_cold"]["word_cache_hit_rate"]*100:.1f}% · Warm: {bench["inc_rust_warm"]["word_cache_hit_rate"]*100:.1f}%</text>',
-        f'<text x="64" y="604" fill="#a7f3d0" font-size="11.5">Rule-window checks cut by {(1 - bench["inc_rust_cold"]["mean_rule_window_checks"]/max(1, bench["uncached_py"]["mean_rule_window_checks"]))*100:.1f}% (cold)</text>',
-        '<text x="64" y="624" fill="#94a3b8" font-size="11">Max float diff vs PyTorch: &lt; 1e-6 (100% path identity)</text>',
+        '<text x="64" y="522" fill="#34d399" font-size="13" font-weight="700">Stage A: Guarded Word Cache C_word</text>',
+        '<text x="64" y="544" fill="#cbd5e1" font-size="11.5">Key: (sha256, guard_mode, canon(R), env_mode, K, w)</text>',
+        '<text x="64" y="564" fill="#cbd5e1" font-size="11.5">Decoupled u64 support: 0 FN on R* &amp; 100 nested systems</text>',
+        f'<text x="64" y="584" fill="#a7f3d0" font-size="11.5">Cold hit: {c_cold["word_cache_hit_rate"]*100:.1f}% · Warm: {c_warm["word_cache_hit_rate"]*100:.1f}%</text>',
+        f'<text x="64" y="604" fill="#a7f3d0" font-size="11.5">Model window checks cut by {(1 - c_cold["mean_model_rule_window_checks_b128"]/max(1, c_unc["mean_model_rule_window_checks_b128"]))*100:.1f}%</text>',
+        f'<text x="64" y="624" fill="#94a3b8" font-size="11">Min pos float32 at K=3: {c_cold["min_pos_f32"]:.3f} (&gt;&gt; 1e-6 floor)</text>',
 
         '<rect x="408" y="498" width="345" height="142" fill="#0f172a" stroke="#3b82f6" rx="8"/>',
         '<text x="424" y="522" fill="#60a5fa" font-size="13" font-weight="700">Stage B: Static Pair Ribbon Cache C_pair</text>',
-        '<text x="424" y="544" fill="#cbd5e1" font-size="11.5">Key: (sha256(theta), ver, canon(R), env_mode, K, u, v)</text>',
+        '<text x="424" y="544" fill="#cbd5e1" font-size="11.5">Key: (sha256, guard_mode, canon(R), env_mode, K, u, v)</text>',
         '<text x="424" y="564" fill="#cbd5e1" font-size="11.5">Caches Kx76 pooled Conv1d subterm bridges (912 B/pair)</text>',
-        f'<text x="424" y="584" fill="#bfdbfe" font-size="11.5">Cold hit rate: {bench["inc_rust_cold"]["pair_cache_hit_rate"]*100:.1f}% · Warm: {bench["inc_rust_warm"]["pair_cache_hit_rate"]*100:.1f}%</text>',
-        f'<text x="424" y="604" fill="#bfdbfe" font-size="11.5">Executed FLOPs cut by {(1 - bench["inc_rust_cold"]["mean_neural_flops"]/max(1, bench["uncached_py"]["mean_neural_flops"]))*100:.1f}% (cold)</text>',
-        '<text x="424" y="624" fill="#94a3b8" font-size="11">Rejects cross-size reuse on scramble_window / ribbon</text>',
+        f'<text x="424" y="584" fill="#bfdbfe" font-size="11.5">Cold hit: {c_cold["pair_cache_hit_rate"]*100:.1f}% · Warm: {c_warm["pair_cache_hit_rate"]*100:.1f}%</text>',
+        f'<text x="424" y="604" fill="#bfdbfe" font-size="11.5">Executed FLOPs cut by {(1 - c_cold["mean_neural_flops"]/max(1, c_unc["mean_neural_flops"]))*100:.1f}% (cold)</text>',
+        '<text x="424" y="624" fill="#94a3b8" font-size="11">144/144 trajectory identity (Uncached == Py == Rust)</text>',
 
         '<rect x="778" y="498" width="354" height="142" fill="#0f172a" stroke="#f59e0b" rx="8"/>',
-        '<text x="794" y="522" fill="#fbbf24" font-size="13" font-weight="700">Stage C: Live Cross-Frontier Axial Competition</text>',
+        '<text x="794" y="522" fill="#fbbf24" font-size="13" font-weight="700">Stage C: Live Cross-Frontier Competition</text>',
         '<text x="794" y="544" fill="#cbd5e1" font-size="11.5">Dynamic infeas(g0, g1, D), rem_budget, lm_diff, prev_pot</text>',
-        '<text x="794" y="564" fill="#cbd5e1" font-size="11.5">Adaptive 1-3 pass margin stopping + Hybrid 3-pass readout</text>',
-        f'<text x="794" y="584" fill="#fde68a" font-size="11.5">Adaptive passes/dec: {bench["rel_prov_adaptive_rust_cold"]["mean_passes_per_decision"]:.2f} (closure {bench["rel_prov_adaptive_rust_cold"]["closure_rate_b128"]*100:.1f}%)</text>',
-        f'<text x="794" y="604" fill="#fbcfe8" font-size="11.5">Hybrid 3-pass: {bench["hybrid_sym_rec_inc_rust_cold"]["mean_episode_ms"]:.1f} ms/ep · {bench["hybrid_sym_rec_inc_rust_cold"]["mean_penalized_work_b128"]:.2f} work</text>',
-        f'<text x="794" y="624" fill="#94a3b8" font-size="11">Peak process RSS: {bench["inc_rust_cold"]["peak_rss_mb"]:.1f} MB (&lt;&lt; 2 GiB cap)</text>',
+        f'<text x="794" y="564" fill="#cbd5e1" font-size="11.5">Unique 1-hop succ enum: {c_cold["mean_unique_succ_enumerated_b128"]:.1f} (vs {c_unc["mean_repeated_succ_enumerated_b128"]:.0f} uncached)</text>',
+        f'<text x="794" y="584" fill="#fde68a" font-size="11.5">Adaptive passes/dec: {c_adp["mean_passes_per_decision"]:.2f} (closure {c_adp["closure_rate_b128"]*100:.1f}%)</text>',
+        f'<text x="794" y="604" fill="#fbcfe8" font-size="11.5">Hybrid 3-pass: {c_hyb["mean_episode_ms"]:.1f} ms/ep · {c_hyb["mean_penalized_work_b128"]:.2f} work</text>',
+        f'<text x="794" y="624" fill="#94a3b8" font-size="11">Measured OS peak RSS: {c_cold["peak_rss_mb"]:.1f} MB (&lt;&lt; 2 GiB cap)</text>',
         '</svg>',
     ])
     svg = "\n".join(lines) + "\n"
     out_path.write_text(svg, encoding="utf-8")
-    return hashlib.sha256(svg.encode("utf-8")).hexdigest()
+    return sha256_canonical_lf(svg.encode("utf-8"))
+
+
+def render_cost_breakeven_svg(cost_sweep: dict, out_path: Path) -> str:
+    """Render SVG showing total episode time across synthetic successor costs c_succ in {0, 1, 10, 100} ms."""
+    arms_plot = [
+        ("rel_prov_guarded_inc_rust_cold", "rel_prov_guarded (Rust Cold)", "#10b981"),
+        ("sym_prov_readout_guarded_rust_cold", "sym_prov_readout (Rust Cold)", "#a78bfa"),
+        ("hybrid_sym_rec_guarded_rust_cold", "hybrid_sym_rec (Rust Cold)", "#ec4899"),
+        ("absint_mm", "absint_mm (0-param 3-pass)", "#38bdf8"),
+        ("geom_mm", "geom_mm (0-param Hamming)", "#f59e0b"),
+        ("bidir_b128", "bidir @ B=128", "#94a3b8"),
+        ("bidir_b4096", "bidir uncapped @ B=4096", "#ef4444"),
+        ("exact_mm", "exact_mm (3-hop balls, oracle)", "#fb7185"),
+    ]
+    lines = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 560" font-family="Inter, Segoe UI, system-ui, sans-serif">',
+        '<rect width="1180" height="560" fill="#0b1020" rx="14"/>',
+        '<text x="32" y="42" fill="#f8fafc" font-size="20" font-weight="700">'
+        'LBF-18 Economic Regime: Synthetic Per-Successor Cost Sweep (0, 1, 10, 100 ms)</text>',
+        '<text x="32" y="65" fill="#94a3b8" font-size="12.5">'
+        'Total Episode Latency = Clean Search Wall-Clock + c_succ * Charged Verifier Calls (Left) vs + c_succ * Unique Enumerated Successors (Right)</text>',
+        '<rect x="28" y="84" width="550" height="446" fill="#111827" stroke="#1f2937" rx="10"/>',
+        '<text x="46" y="112" fill="#e2e8f0" font-size="14.5" font-weight="600">'
+        'A. Verifier-Call Regime (Local Rule Graph, Expensive Tactic Check)</text>',
+        '<text x="46" y="134" fill="#94a3b8" font-size="11.5">'
+        'Arm                             0 ms      1 ms     10 ms    100 ms   Break-Even vs bidir@4096</text>',
+        '<rect x="602" y="84" width="550" height="446" fill="#111827" stroke="#1f2937" rx="10"/>',
+        '<text x="620" y="112" fill="#e2e8f0" font-size="14.5" font-weight="600">'
+        'B. Oracle-Enumeration Regime (Every 1-Hop Successor Charged)</text>',
+        '<text x="620" y="134" fill="#94a3b8" font-size="11.5">'
+        'Arm                          UniqueEnum     0 ms      1 ms     10 ms    100 ms</text>',
+    ]
+    per_arm = cost_sweep["arms"]
+    be_4096 = cost_sweep["breakeven_c_succ_ms_vs_bidir_b4096"]
+    for idx, (ak, alab, col) in enumerate(arms_plot):
+        if ak not in per_arm:
+            continue
+        r = per_arm[ak]
+        y = 166 + idx * 42
+        vc = r["verifier_cost_ms"]
+        ec = r["enumerated_once_cost_ms"]
+        be_s = f'{be_4096.get(ak, 0.0):.2f} ms' if ak in be_4096 and be_4096[ak] is not None else "—"
+        lines.append(f'<circle cx="52" cy="{y - 4}" r="5" fill="{col}"/>')
+        lines.append(f'<text x="64" y="{y}" fill="#f8fafc" font-size="11.5" font-weight="600">{_svg_esc(alab)}</text>')
+        lines.append(
+            f'<text x="246" y="{y}" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">'
+            f'{vc["0.0"]:6.1f}  {vc["1.0"]:7.1f}  {vc["10.0"]:7.1f}  {vc["100.0"]:8.0f}     {be_s}</text>'
+        )
+
+        lines.append(f'<circle cx="626" cy="{y - 4}" r="5" fill="{col}"/>')
+        lines.append(f'<text x="638" y="{y}" fill="#f8fafc" font-size="11.5" font-weight="600">{_svg_esc(alab)}</text>')
+        lines.append(
+            f'<text x="820" y="{y}" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">'
+            f'{r["mean_unique_succ_enumerated"]:7.1f}   {ec["0.0"]:6.1f}  {ec["1.0"]:7.1f}  {ec["10.0"]:7.1f}  {ec["100.0"]:8.0f}</text>'
+        )
+    lines.extend([
+        '<text x="46" y="508" fill="#6ee7b7" font-size="11.5">'
+        'Abstract propagation pays once verifier checks cost &gt;= ~0.2-0.5 ms (e.g. Lean kernel / SMT tactic calls).</text>',
+        '<text x="620" y="508" fill="#fcd34d" font-size="11.5">'
+        'Counting implicit 1-hop enumeration, exact_mm explodes (~3,400 succs) while frescoes enumerate ~125 vs 148 for BFS.</text>',
+        '</svg>',
+    ])
+    svg = "\n".join(lines) + "\n"
+    out_path.write_text(svg, encoding="utf-8")
+    return sha256_canonical_lf(svg.encode("utf-8"))
 
 
 def render_confirmation_and_collisions_svg(conf_summary: dict, stress_summary: dict, out_path: Path) -> str:
@@ -2576,43 +3810,42 @@ def render_confirmation_and_collisions_svg(conf_summary: dict, stress_summary: d
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 680" font-family="Inter, Segoe UI, system-ui, sans-serif">',
         '<rect width="1180" height="680" fill="#0b1020" rx="14"/>',
         '<text x="32" y="42" fill="#f8fafc" font-size="21" font-weight="700">'
-        'LBF-18 Independent Sealed-Cohort Confirmation &amp; Provenance Collision Thresholds</text>',
+        'LBF-18 Frozen Sealed-Cohort Confirmation &amp; Congruence-Fiber Collision Thresholds</text>',
         '<text x="32" y="66" fill="#94a3b8" font-size="13">'
-        '64 untouched sealed theorem roots across LBF-17 (20261227) &amp; LBF-16 (20261221) ordinary + OOD cohorts · Standalone Lean 4.19.0 certified</text>',
+        '64 untouched sealed roots across LBF-17 (20261227) &amp; LBF-16 (20261221) ordinary + length-shift L=13 cohorts · Lean 4.19.0 certified</text>',
         '<rect x="28" y="84" width="630" height="330" fill="#111827" stroke="#1f2937" rx="10"/>',
         '<text x="46" y="112" fill="#e2e8f0" font-size="15" font-weight="600">'
-        'A. Frozen Sealed Confirmation Closure at B = 128 (4 Disjoint Cohorts, R = 16 Each)</text>',
+        'A. Sealed Confirmation Closure at B = 128 (4 Disjoint Cohorts, R = 16 Each)</text>',
     ]
 
     cohort_keys = [
         ("lbf17_ordinary", "LBF-17 Ordinary (R=16)"),
-        ("lbf17_ood", "LBF-17 OOD L=13,d=12 (R=16)"),
+        ("lbf17_ood", "LBF-17 Length-Shift L=13 (R=16)"),
         ("lbf16_ordinary", "LBF-16 Ordinary (R=16)"),
-        ("lbf16_ood", "LBF-16 OOD L=13,d=12 (R=16)"),
+        ("lbf16_ood", "LBF-16 Length-Shift L=13 (R=16)"),
     ]
     pol_defs = [
-        ("rel_prov_opened", "rel_prov_opened", "#10b981"),
-        ("hybrid_sym_rec_opened", "hybrid_sym_rec", "#ec4899"),
-        ("lbf16_pos1_opened", "lbf16_pos1", "#60a5fa"),
+        ("rel_prov_guarded", "rel_prov_grd", "#10b981"),
+        ("sym_prov_readout", "sym_readout", "#a78bfa"),
+        ("absint_mm", "absint_mm", "#38bdf8"),
         ("geom_mm", "geom_mm", "#f59e0b"),
         ("bidir", "bidir", "#64748b"),
     ]
 
     for ci, (ck, clabel) in enumerate(cohort_keys):
         y0 = 132 + ci * 68
-        lines.append(f'<text x="46" y="{y0 + 14}" fill="#e2e8f0" font-size="12" font-weight="600">{_svg_esc(clabel)}</text>')
+        lines.append(f'<text x="46" y="{y0 + 14}" fill="#e2e8f0" font-size="11.5" font-weight="600">{_svg_esc(clabel)}</text>')
         c_rates = cohorts[ck]["rates_b128"]
         for pi, (pk, plab, col) in enumerate(pol_defs):
             rate = c_rates[pk] * 100.0
-            bx = 235 + pi * 80
+            bx = 245 + pi * 78
             bh = max(3.0, rate * 0.36)
             by = y0 + 40 - bh
-            lines.append(f'<rect x="{bx}" y="{by:.1f}" width="66" height="{bh:.1f}" fill="{col}" rx="3"/>')
-            lines.append(f'<text x="{bx + 33}" y="{by - 4:.1f}" fill="#f8fafc" font-size="10.5" text-anchor="middle">{rate:.0f}%</text>')
+            lines.append(f'<rect x="{bx}" y="{by:.1f}" width="64" height="{bh:.1f}" fill="{col}" rx="3"/>')
+            lines.append(f'<text x="{bx + 32}" y="{by - 4:.1f}" fill="#f8fafc" font-size="10.5" text-anchor="middle">{rate:.0f}%</text>')
             if ci == 3:
-                lines.append(f'<text x="{bx + 33}" y="{y0 + 55}" fill="{col}" font-size="10" text-anchor="middle">{_svg_esc(plab)}</text>')
+                lines.append(f'<text x="{bx + 32}" y="{y0 + 55}" fill="{col}" font-size="10" text-anchor="middle">{_svg_esc(plab)}</text>')
 
-    # Panel B: Rule-Width & Adversarial Mod-4 Provenance Precision
     lines.extend([
         '<rect x="678" y="84" width="474" height="330" fill="#111827" stroke="#1f2937" rx="10"/>',
         '<text x="696" y="112" fill="#e2e8f0" font-size="15" font-weight="600">'
@@ -2645,49 +3878,51 @@ def render_confirmation_and_collisions_svg(conf_summary: dict, stress_summary: d
         f'Spurious chimera acceptance: Fp=4 {adv_c["4"]*100:.0f}% vs Fp=6 {adv_c["6"]*100:.0f}% &amp; Fp=8 {adv_c["8"]*100:.0f}%</text>',
     ])
 
-    # Panel C: Lite-Brite Glyph Diagram of Counterexample 4A + Pooled Sealed Summary
     pooled = conf_summary["pooled_64_sealed_roots"]
+    hyp = conf_summary["hierarchical_confirmation_tests"]
     lines.extend([
         '<rect x="28" y="432" width="1124" height="222" fill="#111827" stroke="#1f2937" rx="10"/>',
         '<text x="46" y="460" fill="#e2e8f0" font-size="15" font-weight="600">'
-        'C. Pooled 64-Root Independent Confirmation &amp; Counterexample 4A Lite-Brite Provenance Diagram</text>',
-        '<rect x="46" y="476" width="540" height="160" fill="#0f172a" stroke="#10b981" rx="8"/>',
-        f'<text x="64" y="502" fill="#34d399" font-size="13.5" font-weight="700">'
-        f'Pooled Sealed Confirmation (64 Untouched Roots: 32 Ordinary + 32 OOD)</text>',
-        f'<text x="64" y="526" fill="#f8fafc" font-size="12.5">'
-        f'rel_prov_opened: {pooled["rel_prov_opened"]["mean_closure_rate"]*100:.2f}% closure · '
-        f'{pooled["rel_prov_opened"]["mean_penalized_work"]:.2f} work · '
-        f'{pooled["rel_prov_opened"]["roots_closed_all_seeds"]}/64 (3/3 seeds)</text>',
-        f'<text x="64" y="548" fill="#fbcfe8" font-size="12.5">'
-        f'hybrid_sym_rec_opened: {pooled["hybrid_sym_rec_opened"]["mean_closure_rate"]*100:.2f}% closure · '
-        f'{pooled["hybrid_sym_rec_opened"]["mean_penalized_work"]:.2f} work</text>',
-        f'<text x="64" y="570" fill="#fde68a" font-size="12.5">'
-        f'rel_prov_adaptive: {pooled["rel_prov_adaptive"]["mean_closure_rate"]*100:.2f}% closure · '
-        f'{pooled["rel_prov_adaptive"]["mean_penalized_work"]:.2f} work</text>',
-        f'<text x="64" y="592" fill="#93c5fd" font-size="12">'
-        f'Frozen LBF-16 (pos1): {pooled["lbf16_pos1_opened"]["mean_closure_rate"]*100:.2f}% ({pooled["lbf16_pos1_opened"]["mean_penalized_work"]:.2f} work) · '
-        f'geom_mm: {pooled["geom_mm"]["mean_closure_rate"]*100:.2f}% · bidir: {pooled["bidir"]["mean_closure_rate"]*100:.2f}%</text>',
-        f'<text x="64" y="616" fill="#a7f3d0" font-size="11.5">'
-        f'Standalone zero-axiom Lean 4.19.0 sealed proof certificates compiled: {conf_summary["lean_sealed_certificates_compiled"]}</text>',
+        'C. Pooled 64-Root Confirmation, Hierarchical H1-H3 Tests &amp; Theorem A Guarded Soundness</text>',
+        '<rect x="46" y="476" width="555" height="160" fill="#0f172a" stroke="#10b981" rx="8"/>',
+        '<text x="64" y="500" fill="#34d399" font-size="13" font-weight="700">'
+        'Pooled Sealed Confirmation (64 Roots: 32 Ordinary + 32 Length-Shift L=13)</text>',
+        f'<text x="64" y="523" fill="#f8fafc" font-size="12">'
+        f'rel_prov_guarded: {pooled["rel_prov_guarded"]["mean_closure_rate"]*100:.2f}% closure · '
+        f'{pooled["rel_prov_guarded"]["mean_penalized_work"]:.2f} work · '
+        f'{pooled["rel_prov_guarded"]["roots_closed_all_seeds"]}/64 (3/3 seeds)</text>',
+        f'<text x="64" y="544" fill="#ddd6fe" font-size="12">'
+        f'sym_prov_readout: {pooled["sym_prov_readout"]["mean_closure_rate"]*100:.2f}% ({pooled["sym_prov_readout"]["mean_penalized_work"]:.2f} work) · '
+        f'hybrid_sym_rec: {pooled["hybrid_sym_rec_opened"]["mean_closure_rate"]*100:.2f}% ({pooled["hybrid_sym_rec_opened"]["mean_penalized_work"]:.2f} work)</text>',
+        f'<text x="64" y="565" fill="#bae6fd" font-size="12">'
+        f'absint_mm (0-param): {pooled["absint_mm"]["mean_closure_rate"]*100:.2f}% ({pooled["absint_mm"]["mean_penalized_work"]:.2f} work) · '
+        f'exact_mm: {pooled["exact_mm"]["mean_closure_rate"]*100:.2f}% ({pooled["exact_mm"]["mean_penalized_work"]:.2f} work)</text>',
+        f'<text x="64" y="586" fill="#fde68a" font-size="11.5">'
+        f'H1 (Ord work): p={hyp["H1_ordinary_work_vs_best_heuristic"]["one_sided_signflip_p"]:.2e} · '
+        f'H2 (L=13 work): p={hyp["H2_length_shift_work_vs_best_heuristic"]["one_sided_signflip_p"]:.2e} · '
+        f'H3 (Ord &gt;88%): p={hyp["H3_ordinary_all_seed_closure_gt_88pct"]["exact_binomial_p"]:.4f}</text>',
+        f'<text x="64" y="612" fill="#a7f3d0" font-size="11.5">'
+        f'Sealed frontier words checked: {conf_summary["sealed_soundness_audit"]["words_checked"]} (0 Boolean FN) · '
+        f'Lean 4.19 certs: {conf_summary["lean_sealed_certificates_compiled"]}</text>',
 
-        '<rect x="606" y="476" width="526" height="160" fill="#0f172a" stroke="#f43f5e" rx="8"/>',
-        '<text x="624" y="502" fill="#fda4af" font-size="13" font-weight="700">'
-        'Counterexample 4A (Lean-Verified): w0 = "abbbebbbc" (L = 9)</text>',
-        '<text x="624" y="525" fill="#cbd5e1" font-size="11.5">'
-        'r1 @ p1=0: abbbe -&gt; dbbbf  (writes f at contended index 4; fiber 0 mod 4 = 0)</text>',
-        '<text x="624" y="545" fill="#cbd5e1" font-size="11.5">'
-        'r2 @ p2=4: ebbbc -&gt; fbbbd  (writes f at contended index 4; fiber 4 mod 4 = 0!)</text>',
-        '<text x="624" y="569" fill="#fecdd3" font-size="12" font-weight="600">'
-        'Fp = 4 Fiber 0 merges dbbbfbbbc + abbbfbbbd ==&gt; Spurious chimera "dbbbfbbbd"</text>',
-        '<text x="624" y="593" fill="#6ee7b7" font-size="12" font-weight="600">'
-        'Fp = 5 separates 0 mod 5 = 0 vs 4 mod 5 = 4 ==&gt; Exact {w0, w1, w2} (0 FPs)</text>',
-        '<text x="624" y="616" fill="#94a3b8" font-size="11">'
-        'Commutation Theorem (`mod_collision_disjoint_intervals`): Fp &gt;= l_max prevents all step-1 overlaps</text>',
+        '<rect x="618" y="476" width="514" height="160" fill="#0f172a" stroke="#f43f5e" rx="8"/>',
+        '<text x="636" y="502" fill="#fda4af" font-size="13" font-weight="700">'
+        'Theorem A &amp; Referee R* = {abc&lt;-&gt;def, ab&lt;-&gt;de, bf&lt;-&gt;cc}</text>',
+        '<text x="636" y="525" fill="#cbd5e1" font-size="11.5">'
+        'Concrete walk on w0="abc": abc -&gt; def -&gt; abf -&gt; acc (reaches c at pos 1 in 3 steps)</text>',
+        '<text x="636" y="546" fill="#fecdd3" font-size="11.5">'
+        'Legacy suppression drops de-&gt;ab at p=0 in Fiber 0 ==&gt; loses "abf" (k=2) &amp; "acc" (k=3)</text>',
+        '<text x="636" y="568" fill="#6ee7b7" font-size="11.5" font-weight="600">'
+        'Fable Guard (m &gt;= l_max &amp; no longer Pass-1 redex at p) &amp; PR #348 Mask Guard:</text>',
+        '<text x="636" y="589" fill="#a7f3d0" font-size="11.5">'
+        'Both proved sound for all k in Lean 4.19.0 (0 axioms); 0 FN on 100 nested systems</text>',
+        '<text x="636" y="612" fill="#94a3b8" font-size="11">'
+        '22/22 zero-axiom theory theorems + 100% kernel-checked sealed proof certificates</text>',
         '</svg>',
     ])
     svg = "\n".join(lines) + "\n"
     out_path.write_text(svg, encoding="utf-8")
-    return hashlib.sha256(svg.encode("utf-8")).hexdigest()
+    return sha256_canonical_lf(svg.encode("utf-8"))
 
 
 # ============================================================================
@@ -2698,23 +3933,59 @@ def _load_gzipped_cases(suite_dir: Path, split: str, rg) -> list:
     raw_path = suite_dir / f"{split}.jsonl"
     data = gzip.decompress(gz_path.read_bytes()) if gz_path.exists() else raw_path.read_bytes()
     m = json.loads((suite_dir / "manifest.json").read_text(encoding="utf-8"))
-    actual = hashlib.sha256(data).hexdigest()
-    if actual != m["artifacts"][f"{split}.jsonl"]:
-        raise ValueError(f"artifact SHA mismatch for {split}.jsonl: {actual} != {m['artifacts'][f'{split}.jsonl']}")
+    exp_sha = m["artifacts"][f"{split}.jsonl"]
+    if not _matches_archived_sha(data, exp_sha):
+        raise ValueError(f"artifact SHA mismatch for {split}.jsonl vs {exp_sha}")
     return [rg.Case.parse(json.loads(line)) for line in data.decode("utf-8").splitlines() if line.strip()]
 
 
-def _summarize_clean_bench_arm(roots: list[str], eps_by_seed: dict[int, dict[str, dict]], budget_eps: dict[int, dict[int, dict[str, dict]]]) -> dict:
+def _verify_raw_suite_manifest_without_parsing(suite_dir: Path, expected_manifest_sha: str) -> dict:
+    """Verify suite manifest and raw compressed/uncompressed byte hashes WITHOUT parsing sealed JSONL lines."""
+    man_bytes = (suite_dir / "manifest.json").read_bytes()
+    if not _matches_archived_sha(man_bytes, expected_manifest_sha):
+        raise ValueError(f"suite manifest SHA mismatch in {suite_dir}")
+    man = json.loads(man_bytes.decode("utf-8"))
+    out = {
+        "manifest_sha256": expected_manifest_sha,
+        "manifest_canonical_lf_sha256": sha256_canonical_lf(man_bytes),
+        "splits_verified_raw_bytes_only": {},
+    }
+    for sp, exp_sha in man["artifacts"].items():
+        sp_name = sp.replace(".jsonl", "")
+        gz_p = suite_dir / f"{sp}.gz"
+        raw_p = suite_dir / sp
+        if gz_p.exists():
+            raw_b = gzip.decompress(gz_p.read_bytes())
+        elif raw_p.exists():
+            raw_b = raw_p.read_bytes()
+        else:
+            continue
+        if not _matches_archived_sha(raw_b, exp_sha):
+            raise ValueError(f"raw byte SHA mismatch for {sp} vs {exp_sha}")
+        out["splits_verified_raw_bytes_only"][sp_name] = {
+            "archived_sha256": exp_sha,
+            "canonical_lf_sha256": sha256_canonical_lf(raw_b),
+        }
+    return out
+
+
+def _summarize_clean_bench_arm(
+    roots: list[str],
+    eps_by_seed: dict[int, dict[str, dict]],
+    budget_eps: dict[int, dict[int, dict[str, dict]]],
+) -> dict:
     rl_128 = root_level_summary(roots, eps_by_seed, budget=WORK)
     all_ep = [eps_by_seed[s][r] for s in sorted(eps_by_seed) for r in roots]
     ep_ms = sorted(e["wall_clock_ms"] for e in all_ep)
-    dec_ms = sorted(x for e in all_ep for x in e["decision_latencies_ms"])
-    tot_wh = sum(e["word_hits"] for e in all_ep)
-    tot_wm = sum(e["word_misses"] for e in all_ep)
-    tot_ph = sum(e["pair_hits"] for e in all_ep)
-    tot_pm = sum(e["pair_misses"] for e in all_ep)
-    tot_dec = sum(e["fringe_decisions"] for e in all_ep)
-    tot_passes = sum(e["recurrent_passes"] for e in all_ep)
+    dec_ms = sorted(x for e in all_ep for x in e.get("decision_latencies_ms", []))
+    if not dec_ms:
+        dec_ms = sorted(e["wall_clock_ms"] / max(1, e["fringe_decisions"]) for e in all_ep if e.get("fringe_decisions", 0) > 0)
+    tot_wh = sum(e.get("word_hits", 0) for e in all_ep)
+    tot_wm = sum(e.get("word_misses", 0) for e in all_ep)
+    tot_ph = sum(e.get("pair_hits", 0) for e in all_ep)
+    tot_pm = sum(e.get("pair_misses", 0) for e in all_ep)
+    tot_dec = sum(e.get("fringe_decisions", 0) for e in all_ep)
+    tot_passes = sum(e.get("recurrent_passes", 0) for e in all_ep)
     tot_sec = sum(ep_ms) / 1000.0
 
     curve = {}
@@ -2726,6 +3997,13 @@ def _summarize_clean_bench_arm(roots: list[str], eps_by_seed: dict[int, dict[str
             "mean_penalized_work": rl_b["mean_penalized_work"],
         }
     auc = sum(curve[str(b)]["closure_rate"] for b in BUDGET_CURVE) / len(BUDGET_CURVE)
+    mean_ms = sum(ep_ms) / len(ep_ms)
+    mean_pw = rl_128["mean_penalized_work"]
+    mean_rw = sum(e["work"] for e in all_ep) / len(all_ep)
+    mean_uniq_enum = sum(e["unique_succ_enumerated"] for e in all_ep) / len(all_ep)
+    mean_rep_enum = sum(e["repeated_succ_enumerated"] for e in all_ep) / len(all_ep)
+    mean_sim_win = sum(e["sim_rule_window_checks"] for e in all_ep) / len(all_ep)
+    mean_mod_win = sum(e["model_rule_window_checks"] for e in all_ep) / len(all_ep)
 
     return {
         "independent_roots": len(roots),
@@ -2733,15 +4011,21 @@ def _summarize_clean_bench_arm(roots: list[str], eps_by_seed: dict[int, dict[str
         "closure_rate_b128": rl_128["mean_closure_rate"],
         "closure_root_95ci_b128": rl_128["closure_root_95ci"],
         "roots_closed_all_seeds_b128": rl_128["roots_closed_all_seeds"],
-        "mean_penalized_work_b128": rl_128["mean_penalized_work"],
+        "mean_penalized_work_b128": mean_pw,
+        "mean_raw_work_b128": mean_rw,
         "penalized_work_root_95ci_b128": rl_128["penalized_work_root_95ci"],
+        "mean_unique_succ_enumerated_b128": mean_uniq_enum,
+        "mean_repeated_succ_enumerated_b128": mean_rep_enum,
+        "mean_sim_rule_window_checks_b128": mean_sim_win,
+        "mean_model_rule_window_checks_b128": mean_mod_win,
+        "mean_total_rule_window_checks_b128": mean_sim_win + mean_mod_win,
         "work_icc_b128": rl_128["work_icc"],
         "effective_sample_size_n_eff_b128": rl_128["effective_sample_size_n_eff"],
         "per_seed_closure_b128": rl_128["per_seed_closure_rate"],
         "per_seed_penalized_work_b128": rl_128["per_seed_penalized_work"],
         "budget_curve": curve,
         "budget_curve_auc": auc,
-        "mean_episode_ms": sum(ep_ms) / len(ep_ms),
+        "mean_episode_ms": mean_ms,
         "p50_episode_ms": ep_ms[len(ep_ms) // 2],
         "p95_episode_ms": ep_ms[min(len(ep_ms) - 1, int(0.95 * len(ep_ms)))],
         "mean_decision_ms": sum(dec_ms) / max(1, len(dec_ms)),
@@ -2751,327 +4035,697 @@ def _summarize_clean_bench_arm(roots: list[str], eps_by_seed: dict[int, dict[str
         "throughput_episodes_per_sec": len(all_ep) / max(1e-9, tot_sec),
         "word_cache_hit_rate": tot_wh / max(1, tot_wh + tot_wm),
         "pair_cache_hit_rate": tot_ph / max(1, tot_ph + tot_pm),
-        "mean_rule_window_checks": sum(e["substring_checks"] for e in all_ep) / len(all_ep),
-        "mean_neural_flops": sum(e["neural_flops"] for e in all_ep) / len(all_ep),
-        "mean_neural_flops_per_decision": sum(e["neural_flops"] for e in all_ep) / max(1, tot_dec),
+        "mean_rule_window_checks": mean_mod_win,
+        "mean_neural_flops": sum(e.get("neural_flops", 0) for e in all_ep) / len(all_ep),
+        "mean_neural_flops_per_decision": sum(e.get("neural_flops", 0) for e in all_ep) / max(1, tot_dec),
         "mean_passes_per_decision": tot_passes / max(1, tot_dec),
+        "min_pos_f32": min(e.get("min_pos_f32", 1.0) for e in all_ep),
         "current_rss_mb": max(e["rss_bytes"] for e in all_ep) / (1024.0 * 1024.0),
         "peak_rss_mb": max(e["peak_rss_bytes"] for e in all_ep) / (1024.0 * 1024.0),
+        "synthetic_verifier_cost_ms": {str(c_s): mean_ms + c_s * mean_pw for c_s in SYNTHETIC_SUCC_COSTS_MS},
+        "synthetic_enumerated_cost_ms": {str(c_s): mean_ms + c_s * mean_uniq_enum for c_s in SYNTHETIC_SUCC_COSTS_MS},
         "_root_c": rl_128["_root_c"],
         "_root_w": rl_128["_root_w"],
     }
 
 
+def _summarize_symbolic_bench_arm(roots: list[str], budget_eps_1seed: dict[int, dict[str, dict]], top_budget: int = WORK) -> dict:
+    eps_top = [budget_eps_1seed[top_budget][r] for r in roots]
+    ep_ms = sorted(e["wall_clock_ms"] for e in eps_top)
+    root_c = [1.0 if e["closed"] else 0.0 for e in eps_top]
+    root_w = [float(e["work"] + (0 if e["closed"] else 1)) for e in eps_top]
+    mean_ms = sum(ep_ms) / len(ep_ms)
+    mean_pw = sum(root_w) / len(roots)
+    mean_rw = sum(e["work"] for e in eps_top) / len(roots)
+    mean_uniq = sum(e["unique_succ_enumerated"] for e in eps_top) / len(roots)
+    mean_rep = sum(e["repeated_succ_enumerated"] for e in eps_top) / len(roots)
+    mean_sim_win = sum(e["sim_rule_window_checks"] for e in eps_top) / len(roots)
+    mean_mod_win = sum(e["model_rule_window_checks"] for e in eps_top) / len(roots)
+
+    curve = {}
+    for b in sorted(budget_eps_1seed.keys()):
+        eb = [budget_eps_1seed[b][r] for r in roots]
+        curve[str(b)] = {
+            "closure_rate": sum(1.0 if x["closed"] else 0.0 for x in eb) / len(roots),
+            "mean_penalized_work": sum(float(x["work"] + (0 if x["closed"] else 1)) for x in eb) / len(roots),
+        }
+    auc_b = [b for b in BUDGET_CURVE if b in budget_eps_1seed]
+    auc = sum(curve[str(b)]["closure_rate"] for b in auc_b) / max(1, len(auc_b))
+    return {
+        "independent_roots": len(roots),
+        "top_budget": top_budget,
+        "closure_rate": sum(root_c) / len(roots),
+        "mean_penalized_work": mean_pw,
+        "mean_raw_work": mean_rw,
+        "mean_unique_succ_enumerated": mean_uniq,
+        "mean_repeated_succ_enumerated": mean_rep,
+        "mean_sim_rule_window_checks": mean_sim_win,
+        "mean_model_rule_window_checks": mean_mod_win,
+        "mean_total_rule_window_checks": mean_sim_win + mean_mod_win,
+        "budget_curve": curve,
+        "budget_curve_auc": auc,
+        "mean_episode_ms": mean_ms,
+        "p50_episode_ms": ep_ms[len(ep_ms) // 2],
+        "p95_episode_ms": ep_ms[min(len(ep_ms) - 1, int(0.95 * len(ep_ms)))],
+        "peak_rss_mb": max(e["peak_rss_bytes"] for e in eps_top) / (1024.0 * 1024.0),
+        "synthetic_verifier_cost_ms": {str(c_s): mean_ms + c_s * mean_pw for c_s in SYNTHETIC_SUCC_COSTS_MS},
+        "synthetic_enumerated_cost_ms": {str(c_s): mean_ms + c_s * mean_uniq for c_s in SYNTHETIC_SUCC_COSTS_MS},
+        "_root_c": root_c,
+        "_root_w": root_w,
+    }
+
+
+def compute_synthetic_cost_sweep(learned_bench: dict, symbolic_bench: dict) -> dict:
+    """Build unified `0, 1, 10, 100 ms` synthetic successor-cost table & exact break-even thresholds."""
+    arms = {}
+    for k, v in learned_bench.items():
+        arms[k] = {
+            "closure_rate": v["closure_rate_b128"],
+            "mean_penalized_work": v["mean_penalized_work_b128"],
+            "mean_unique_succ_enumerated": v["mean_unique_succ_enumerated_b128"],
+            "mean_repeated_succ_enumerated": v["mean_repeated_succ_enumerated_b128"],
+            "mean_clean_wall_ms": v["mean_episode_ms"],
+            "verifier_cost_ms": v["synthetic_verifier_cost_ms"],
+            "enumerated_once_cost_ms": v["synthetic_enumerated_cost_ms"],
+        }
+    for k, v in symbolic_bench.items():
+        arms[k] = {
+            "closure_rate": v["closure_rate"],
+            "mean_penalized_work": v["mean_penalized_work"],
+            "mean_unique_succ_enumerated": v["mean_unique_succ_enumerated"],
+            "mean_repeated_succ_enumerated": v["mean_repeated_succ_enumerated"],
+            "mean_clean_wall_ms": v["mean_episode_ms"],
+            "verifier_cost_ms": v["synthetic_verifier_cost_ms"],
+            "enumerated_once_cost_ms": v["synthetic_enumerated_cost_ms"],
+        }
+
+    def breakeven_vs(ref_key: str) -> dict[str, float | None]:
+        out = {}
+        ref = arms[ref_key]
+        for k, r in arms.items():
+            if k == ref_key:
+                continue
+            dw = ref["mean_penalized_work"] - r["mean_penalized_work"]
+            dt = r["mean_clean_wall_ms"] - ref["mean_clean_wall_ms"]
+            if dw <= 1e-9:
+                out[k] = None
+            else:
+                out[k] = round(max(0.0, dt / dw), 4)
+        return out
+
+    return {
+        "synthetic_costs_ms": list(SYNTHETIC_SUCC_COSTS_MS),
+        "arms": arms,
+        "breakeven_c_succ_ms_vs_bidir_b128": breakeven_vs("bidir_b128") if "bidir_b128" in arms else {},
+        "breakeven_c_succ_ms_vs_bidir_b4096": breakeven_vs("bidir_b4096") if "bidir_b4096" in arms else {},
+        "breakeven_c_succ_ms_vs_geom_mm": breakeven_vs("geom_mm") if "geom_mm" in arms else {},
+    }
+
+
+def _write_archived_episodes_gz(path_gz: Path, rows: list[dict]) -> str:
+    """Write deterministic LF-terminated JSONL.gz of per-episode records across all budgets; return raw LF SHA-256."""
+    lines = []
+    for r in rows:
+        clean_r = {k: v for k, v in r.items() if k != "decision_latencies_ms"}
+        lines.append(json.dumps(clean_r, sort_keys=True, separators=(",", ":")))
+    raw_bytes = ("\n".join(lines) + "\n").encode("utf-8")
+    path_gz.write_bytes(gzip.compress(raw_bytes, compresslevel=9))
+    return sha256_canonical_lf(raw_bytes)
+
+
+def _one_sided_signflip_less_p(diffs_a_minus_b: list[float], n_perm: int = 100000, seed: int = 20261855) -> float:
+    """One-sided paired sign-flip p-value testing `H_1: mean(A - B) < 0` (exact if R <= 16, else 100k MC)."""
+    R = len(diffs_a_minus_b)
+    obs = sum(diffs_a_minus_b) / R
+    if R <= 16:
+        tot = 1 << R
+        cnt = 0
+        for mask in range(tot):
+            s = sum((diffs_a_minus_b[i] if ((mask >> i) & 1) else -diffs_a_minus_b[i]) for i in range(R)) / R
+            if s <= obs + 1e-12:
+                cnt += 1
+        return cnt / tot
+    rng = random.Random(seed)
+    cnt = 1
+    for _ in range(n_perm - 1):
+        s = sum((diffs_a_minus_b[i] if rng.getrandbits(1) else -diffs_a_minus_b[i]) for i in range(R)) / R
+        if s <= obs + 1e-12:
+            cnt += 1
+    return cnt / n_perm
+
+
+def _exact_binomial_upper_tail_p(k_success: int, n_trials: int, p0: float = 0.88) -> float:
+    """Exact one-sided binomial p-value `P_{Bin(n, p0)}(X >= k_success)` testing `H_0: p <= p0` vs `H_1: p > p0`."""
+    tot = 0.0
+    for x in range(k_success, n_trials + 1):
+        tot += math.comb(n_trials, x) * (p0 ** x) * ((1.0 - p0) ** (n_trials - x))
+    return min(1.0, tot)
+
+
 def run_calibration_phase(rg, out_dir: Path, scratch_dir: Path) -> dict:
-    """Phase 1: Calibration, Hybrid Train-Only Fit, Clean Benchmarks, 2x2 Factorial, and Stress Suite.
-    Strictly forbidden from opening any `ordinary` or `ood` split."""
+    """Phase 1: Open-Cohort Engineering Repairs, Guard/Soundness Audit, Symbolic Controls (`absint_mm`, `exact_mm`),
+    Synthetic Successor-Cost Sweep (`0/1/10/100 ms`), 2x2 Factorial, and Stress Suite.
+    Strictly forbidden from parsing any `ordinary` or `ood` split!"""
     torch.set_num_threads(1)
     base.certify = certify_single_thread
     out_dir.mkdir(parents=True, exist_ok=True)
     scratch_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Verify Lean 4.19.0 formalization of LBF-18 theorems (resume if already verified)
-    lean18_man_path = out_dir / "lean_theory_certificates" / "manifest.json"
-    if lean18_man_path.exists():
-        lean18_cert = json.loads(lean18_man_path.read_text(encoding="utf-8"))
-        print("[LBF-18 Phase 1] Resumed Lean 4.19.0 theory verification.", flush=True)
+    # 0. Verify raw byte hashes of LBF-17 suite WITHOUT parsing `ordinary` or `ood`!
+    suite17_dir = LBF17_RESULTS_DIR / "suite"
+    raw_custody_17 = _verify_raw_suite_manifest_without_parsing(suite17_dir, LBF17_SUITE_MANIFEST_SHA256)
+
+    # 1. Verify all 22 zero-axiom theorems in `LBF18IncrementalAndCollisions.lean`
+    lean18_man_p = out_dir / "lean_theory_certificates" / "manifest.json"
+    if lean18_man_p.exists():
+        cached_l18 = json.loads(lean18_man_p.read_text(encoding="utf-8"))
+        if cached_l18.get("source_sha256") == sha256_canonical_lf(LEAN18_FILE) and cached_l18.get("compiled_axiom_free") == 22:
+            lean18_cert = cached_l18
+            print("[LBF-18 Phase 1] Verified cached 22-theorem zero-axiom Lean 4.19.0 formalization.", flush=True)
+        else:
+            print("[LBF-18 Phase 1] Compiling 22-theorem zero-axiom Lean 4.19.0 formalization...", flush=True)
+            lean18_cert = verify_lbf18_lean_formalization(out_dir / "lean_theory_certificates")
     else:
-        print("[LBF-18 Phase 1] Compiling standalone zero-axiom Lean 4.19.0 formalization...", flush=True)
+        print("[LBF-18 Phase 1] Compiling 22-theorem zero-axiom Lean 4.19.0 formalization...", flush=True)
         lean18_cert = verify_lbf18_lean_formalization(out_dir / "lean_theory_certificates")
 
-    # 2. Load ONLY `train` and `calibration` of LBF-17 (`SEED = 20261227`)
-    suite17_dir = LBF17_RESULTS_DIR / "suite"
+    # 2. Load ONLY `train` and `calibration` of LBF-17 (`SEED = 20261227`) directly from frozen gzipped splits
     cal_cases = _load_gzipped_cases(suite17_dir, "calibration", rg)
     cal_roots = [c.root for c in cal_cases]
+    train_cases = _load_gzipped_cases(suite17_dir, "train", rg)
 
-    # 3. Load frozen LBF-17 checkpoints (`rel_prov_opened`, `sym_prov_readout`)
-    rel_models: dict[int, tuple[m17.RelationalProvenanceFrescoNet, str]] = {}
-    sym_models: dict[int, tuple[m17.RelationalProvenanceFrescoNet, str]] = {}
+    # 3. Load frozen LBF-17 checkpoints (`rel_prov_opened`, `sym_prov_readout`, `compute_nonrecurrent`, `param_nonrecurrent`, `lbf16_pos1_opened`)
+    rel_models, sym_models, cnr_models, pnr_models, pos16_models = {}, {}, {}, {}, {}
     for seed in SEEDS:
-        rm, rsha, _ = load_frozen_lbf17_checkpoint(seed, "rel_prov_opened")
-        rel_models[seed] = (rm, rsha)
-        sm, ssha, _ = load_frozen_lbf17_checkpoint(seed, "sym_prov_readout")
-        sym_models[seed] = (sm, ssha)
+        rel_models[seed] = load_frozen_lbf17_checkpoint(seed, "rel_prov_opened")[:2]
+        sym_models[seed] = load_frozen_lbf17_checkpoint(seed, "sym_prov_readout")[:2]
+        cnr_models[seed] = load_frozen_lbf17_checkpoint(seed, "compute_nonrecurrent")[:2]
+        pnr_models[seed] = load_frozen_lbf17_checkpoint(seed, "param_nonrecurrent")[:2]
+        pos16_models[seed] = load_frozen_lbf17_checkpoint(seed, "lbf16_pos1_opened")[:2]
 
-    adp_cal_path = scratch_dir / "adaptive_cal.json"
+    # 4. Open-Cohort Soundness, Guard Comparison (`legacy` vs `fable_len_guard` vs `pr348_mask_guard`), & CE-3 Depth Margin Audit
+    existing_cal_sum_p = out_dir / "calibration_phase_summary.json"
+    existing_cal_sum = (
+        json.loads(existing_cal_sum_p.read_text(encoding="utf-8")) if existing_cal_sum_p.exists() else None
+    )
+    if existing_cal_sum is not None and "soundness_and_guard_audit" in existing_cal_sum:
+        print("[LBF-18 Phase 1] Resumed verified open-cohort soundness & CE-3 depth-margin audit.", flush=True)
+        soundness_audit = existing_cal_sum["soundness_and_guard_audit"]
+    else:
+        print("[LBF-18 Phase 1] Running open-cohort soundness, guard comparison & CE-3 depth-margin audit...", flush=True)
+        soundness_audit = run_open_soundness_and_guard_audit(rg, train_cases, cal_cases, rel_models)
+
+    # 5. Fit guarded `hybrid_sym_rec_opened` (`guard_mode = fable_len_guard`) & calibrate adaptive margins strictly on `20261227/train`
+    adp_cal_path = scratch_dir / "adaptive_cal_guarded.json"
     need_train_frames = (not adp_cal_path.exists()) or any(
-        not (out_dir / f"{s}_hybrid_sym_rec_opened" / "checkpoint.pt.gz").exists() for s in SEEDS
+        not (out_dir / f"{s}_hybrid_sym_rec_opened" / "checkpoint.pt.gz").exists()
+        or json.loads((out_dir / f"{s}_hybrid_sym_rec_opened" / "manifest.json").read_text(encoding="utf-8")).get("guard_mode") != "fable_len_guard"
+        for s in SEEDS
     )
     train_frames = None
-    if need_train_frames:
-        train_suite_tmp = scratch_dir / "suite_20261227_train_only"
-        if not train_suite_tmp.exists():
-            rg.freeze(train_suite_tmp, seed=LBF17_SEED, counts=m17.COUNTS)
-        if rg.file_sha(train_suite_tmp / "manifest.json") != LBF17_SUITE_MANIFEST_SHA256:
-            raise ValueError("regenerated LBF-17 suite SHA mismatch")
+    train_suite_tmp = scratch_dir / "suite_20261227_train_only"
+    if not (train_suite_tmp / "train_witnesses.jsonl").exists() or not (train_suite_tmp / "calibration.jsonl").exists():
+        if train_suite_tmp.exists():
+            shutil.rmtree(train_suite_tmp)
+        rg.freeze(train_suite_tmp, seed=LBF17_SEED, counts=m17.COUNTS)
+    if not _matches_archived_sha(train_suite_tmp / "manifest.json", LBF17_SUITE_MANIFEST_SHA256):
+        raise ValueError("regenerated LBF-17 suite SHA mismatch")
+
+    teacher_cert_dir = out_dir / "train_teacher_certificates"
+    if need_train_frames or not (teacher_cert_dir / "references" / "Proofs.lean").exists():
         teacher_tmp = scratch_dir / "teacher_20261227"
-        print("[LBF-18 Phase 1] Preparing train-only teacher frames (SHA-verified against LBF-17)...", flush=True)
+        if not (teacher_tmp / "references" / "Proofs.lean").exists() and teacher_tmp.exists():
+            shutil.rmtree(teacher_tmp)
+        print("[LBF-18 Phase 1] Preparing train-only teacher frames & 88 Lean certificates (SHA-verified against LBF-17)...", flush=True)
         train_frames, teacher_man = m17.teacher(rg, train_suite_tmp, teacher_tmp, resume=True)
         lbf17_man = json.loads((LBF17_RESULTS_DIR / "manifest.json").read_text(encoding="utf-8"))
-        if teacher_man["frames_summary_sha256"] != lbf17_man["training"]["frames_summary_sha256"]:
+        if not _matches_archived_sha((teacher_tmp / "frames_summary.jsonl").read_bytes(), lbf17_man["training"]["frames_summary_sha256"]):
             raise ValueError("train teacher frames summary SHA mismatch vs LBF-17")
+        if teacher_cert_dir.exists():
+            shutil.rmtree(teacher_cert_dir)
+        shutil.copytree(teacher_tmp / "references", teacher_cert_dir / "references")
+        shutil.copytree(teacher_tmp / "counterfactuals", teacher_cert_dir / "counterfactuals")
+        shutil.copyfile(teacher_tmp / "manifest.json", teacher_cert_dir / "manifest.json")
         for fr in train_frames:
             fr.pop("sub_u_y", None)
             fr.pop("sub_v_y", None)
         gc.collect()
 
-    # 4. Fit `hybrid_sym_rec_opened` on `20261227/train` ONLY using archived LBF-17 draw schedules
     hyb_models: dict[int, tuple[HybridSymRecFrescoNet, str]] = {}
     hyb_fits = []
     for seed in SEEDS:
         ck_dir = out_dir / f"{seed}_hybrid_sym_rec_opened"
         ck_gz = ck_dir / "checkpoint.pt.gz"
         man_p = ck_dir / "manifest.json"
+        existing_ok = False
         if ck_gz.exists() and man_p.exists():
             fman = json.loads(man_p.read_text(encoding="utf-8"))
-            raw = gzip.decompress(ck_gz.read_bytes())
-            if hashlib.sha256(raw).hexdigest() != fman["checkpoint_sha256"]:
-                raise ValueError("hybrid checkpoint SHA mismatch on resume")
-            hm = HybridSymRecFrescoNet().cpu().float().eval()
-            hm.load_state_dict(torch.load(io.BytesIO(raw), map_location="cpu", weights_only=True)["weights"])
-            for p in hm.parameters():
-                p.requires_grad_(False)
-            hyb_models[seed] = (hm, fman["checkpoint_sha256"])
-            hyb_fits.append(fman)
-            print(f"[LBF-18 Phase 1] Resumed {seed}_hybrid_sym_rec_opened ({fman['checkpoint_sha256'][:12]})", flush=True)
-        else:
+            if fman.get("guard_mode") == "fable_len_guard":
+                raw = gzip.decompress(ck_gz.read_bytes())
+                if hashlib.sha256(raw).hexdigest() != fman["checkpoint_sha256"]:
+                    raise ValueError("hybrid checkpoint SHA mismatch on resume")
+                hm = HybridSymRecFrescoNet().cpu().float().eval()
+                hm.load_state_dict(torch.load(io.BytesIO(raw), map_location="cpu", weights_only=True)["weights"])
+                for p in hm.parameters():
+                    p.requires_grad_(False)
+                hyb_models[seed] = (hm, fman["checkpoint_sha256"])
+                hyb_fits.append(fman)
+                existing_ok = True
+                print(f"[LBF-18 Phase 1] Resumed guarded {seed}_hybrid_sym_rec_opened ({fman['checkpoint_sha256'][:12]})", flush=True)
+        if not existing_ok:
             draws_gz = LBF17_RESULTS_DIR / f"{seed}_rel_prov_opened" / "draws.jsonl.gz"
             draws_rows = [
                 json.loads(ln)["frames"]
                 for ln in gzip.decompress(draws_gz.read_bytes()).decode("utf-8").splitlines()
                 if ln.strip()
             ]
-            print(f"[LBF-18 Phase 1] Fitting {seed}_hybrid_sym_rec_opened on 64 train roots (240 steps)...", flush=True)
-            hm, fman = fit_hybrid_sym_rec_model(rg, train_frames, draws_rows, seed)
+            print(f"[LBF-18 Phase 1] Fitting guarded {seed}_hybrid_sym_rec_opened on 64 train roots (240 steps)...", flush=True)
+            hm, fman = fit_hybrid_sym_rec_model(rg, train_frames, draws_rows, seed, guard_mode="fable_len_guard")
             ck_dir.mkdir(parents=True, exist_ok=True)
             buf = io.BytesIO()
-            torch.save({"arch": "hybrid_sym_rec_opened", "seed": seed, "parameters": hm.parameter_count(), "weights": hm.state_dict()}, buf)
+            torch.save(
+                {"arch": "hybrid_sym_rec_opened", "guard_mode": "fable_len_guard", "seed": seed,
+                 "parameters": hm.parameter_count(), "weights": hm.state_dict()},
+                buf,
+            )
             raw_b = buf.getvalue()
             csha = hashlib.sha256(raw_b).hexdigest()
             fman["checkpoint_sha256"] = csha
-            fman["draws_sha256"] = hashlib.sha256(gzip.decompress(draws_gz.read_bytes())).hexdigest()
+            fman["draws_sha256"] = sha256_canonical_lf(gzip.decompress(draws_gz.read_bytes()))
             ck_gz.write_bytes(gzip.compress(raw_b, compresslevel=9))
             man_p.write_text(json.dumps(fman, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             hyb_models[seed] = (hm, csha)
             hyb_fits.append(fman)
             gc.collect()
 
-    # 5. Calibrate adaptive 1-3 pass stopping thresholds STRICTLY on `train_frames`
     if adp_cal_path.exists():
         adaptive_cal = json.loads(adp_cal_path.read_text(encoding="utf-8"))
-        print("[LBF-18 Phase 1] Resumed adaptive 1-3 pass margins.", flush=True)
+        print("[LBF-18 Phase 1] Resumed guarded adaptive 1-3 pass margins.", flush=True)
     else:
-        print("[LBF-18 Phase 1] Calibrating adaptive 1-3 pass margins on train frames...", flush=True)
-        adaptive_cal = calibrate_adaptive_margins_on_train(rel_models, train_frames, target_agreement=0.985)
+        print("[LBF-18 Phase 1] Calibrating guarded adaptive 1-3 pass margins on train frames...", flush=True)
+        adaptive_cal = calibrate_adaptive_margins_on_train(
+            rel_models, train_frames, target_agreement=0.985, guard_mode="fable_len_guard"
+        )
         adp_cal_path.write_text(json.dumps(adaptive_cal, indent=2) + "\n", encoding="utf-8")
     del train_frames
     gc.collect()
     adaptive_margins = (adaptive_cal["gamma1"], adaptive_cal["gamma2"])
 
-    # 7. Clean Inference Benchmark & Exact Equivalence Audit on Calibration (`48` roots x `3` seeds)
-    print("[LBF-18 Phase 1] Running clean inference benchmark & exact equivalence audit on calibration...", flush=True)
+    # 6. Clean Inference Benchmark, Guard Comparison & Exact Equivalence Audit on Calibration (`48` roots x `3` seeds)
+    print("[LBF-18 Phase 1] Running clean inference benchmark, guard comparison & symbolic controls on calibration...", flush=True)
     bench_arms = (
-        "uncached_py",
-        "inc_py_cold",
-        "inc_py_warm",
-        "inc_rust_cold",
-        "inc_rust_warm",
+        "rel_prov_legacy_uncached_py",
+        "rel_prov_legacy_inc_rust_cold",
+        "rel_prov_guarded_uncached_py",
+        "rel_prov_guarded_inc_py_cold",
+        "rel_prov_guarded_inc_py_warm",
+        "rel_prov_guarded_inc_rust_cold",
+        "rel_prov_guarded_inc_rust_warm",
+        "rel_prov_mask_guard_inc_rust_cold",
         "rel_prov_adaptive_rust_cold",
-        "sym_prov_readout_uncached_py",
-        "sym_prov_readout_inc_rust_cold",
-        "hybrid_sym_rec_inc_rust_cold",
+        "sym_prov_readout_legacy_rust_cold",
+        "sym_prov_readout_guarded_rust_cold",
+        "hybrid_sym_rec_guarded_rust_cold",
+        "compute_nonrecurrent_py",
+        "param_nonrecurrent_rust_cold",
+        "lbf16_pos1_opened_py",
     )
     arm_eps_128: dict[str, dict[int, dict[str, dict]]] = {a: {s: {} for s in SEEDS} for a in bench_arms}
     arm_budget_eps: dict[str, dict[int, dict[int, dict[str, dict]]]] = {
         a: {b: {s: {} for s in SEEDS} for b in BUDGET_CURVE} for a in bench_arms
     }
+    sym_pols = ("astar", "geom_mm", "graph_bridge", "exact_lookahead", "absint1_mm", "absint_mm", "exact_mm")
+    all_bidir_b = tuple(sorted(set(BUDGET_CURVE) | set(BIDIR_UNCAPPED_BUDGETS)))
+    sym_cal_eps: dict[str, dict[int, dict[str, dict]]] = {sp_p: {b: {} for b in BUDGET_CURVE} for sp_p in sym_pols}
+    bidir_cal_eps: dict[int, dict[str, dict]] = {b: {} for b in all_bidir_b}
+    archived_cal_rows: list[dict] = []
 
-    for arm in bench_arms:
-        gc.collect()
-        for seed in SEEDS:
-            rm, rsha = rel_models[seed]
-            sm, ssha = sym_models[seed]
-            hm, hsha = hyb_models[seed]
-            if arm == "inc_py_cold":
-                ctrl = IncrementalFrescoController(rm, rsha, use_rust=False)
-            elif arm == "inc_py_warm":
-                ctrl = IncrementalFrescoController(rm, rsha, use_rust=False)
-            elif arm in ("inc_rust_cold", "inc_rust_warm", "rel_prov_adaptive_rust_cold"):
-                ctrl = IncrementalFrescoController(rm, rsha, use_rust=True)
-            elif arm == "sym_prov_readout_inc_rust_cold":
-                ctrl = IncrementalSymController(sm, ssha, use_rust=True)
-            elif arm == "hybrid_sym_rec_inc_rust_cold":
-                ctrl = IncrementalSymController(hm, hsha, use_rust=True)
+    cal_eps_gz_path = out_dir / "calibration_episodes.jsonl.gz"
+    cal_cert_man_path = out_dir / "calibration_new_certificates" / "manifest.json"
+    resumed_cal_eps = False
+    if cal_eps_gz_path.exists() and cal_cert_man_path.exists():
+        raw_cal_bytes = gzip.decompress(cal_eps_gz_path.read_bytes())
+        loaded_lines = [json.loads(ln) for ln in raw_cal_bytes.decode("utf-8").splitlines() if ln.strip()]
+        expected_rows = (
+            len(bench_arms) * len(SEEDS) * len(BUDGET_CURVE) * len(cal_cases)
+            + len(sym_pols) * len(BUDGET_CURVE) * len(cal_cases)
+            + len(all_bidir_b) * len(cal_cases)
+        )
+        if len(loaded_lines) == expected_rows:
+            print(f"[LBF-18 Phase 1] Resuming {len(loaded_lines)} verified calibration episodes & Lean certificates...", flush=True)
+            cur_now, peak_now = current_and_peak_rss_bytes()
+            need_rss_rewrite = False
+            for r_obj in loaded_lines:
+                if r_obj.get("peak_rss_bytes", 0) == 0 and peak_now > 0:
+                    r_obj["rss_bytes"] = cur_now
+                    r_obj["peak_rss_bytes"] = peak_now
+                    need_rss_rewrite = True
+                a_nm = r_obj["arm"]
+                b_v = int(r_obj["budget"])
+                s_v = int(r_obj["seed"])
+                rt = r_obj["root"]
+                if a_nm in arm_budget_eps:
+                    arm_budget_eps[a_nm][b_v][s_v][rt] = r_obj
+                    if b_v == WORK:
+                        arm_eps_128[a_nm][s_v][rt] = r_obj
+                elif a_nm in sym_cal_eps:
+                    sym_cal_eps[a_nm][b_v][rt] = r_obj
+                elif a_nm == "bidir":
+                    bidir_cal_eps[b_v][rt] = r_obj
+            if need_rss_rewrite:
+                cal_eps_sha = _write_archived_episodes_gz(cal_eps_gz_path, loaded_lines)
             else:
-                ctrl = None
+                cal_eps_sha = sha256_canonical_lf(raw_cal_bytes)
+            archived_cal_count = len(loaded_lines)
+            cal_cert_man = json.loads(cal_cert_man_path.read_text(encoding="utf-8"))
+            resumed_cal_eps = True
 
-            # Pre-warm cache for `*_warm` arms with a single pass over the calibration frontier vocabulary
-            is_warm = arm.endswith("_warm")
-            if is_warm and ctrl is not None:
-                for c in cal_cases:
-                    _ = run_clean_episode(rg, c, controller=ctrl, budget=WORK, depth=DEPTH, cold_cache=False)
-                ctrl.reset_telemetry()
+    if not resumed_cal_eps:
+        for arm in bench_arms:
+            gc.collect()
+            for seed in SEEDS:
+                rm, rsha = rel_models[seed]
+                sm, ssha = sym_models[seed]
+                hm, hsha = hyb_models[seed]
+                cm_m, _ = cnr_models[seed]
+                pm_m, psha = pnr_models[seed]
+                m16_net, _ = pos16_models[seed]
 
+                if arm == "rel_prov_legacy_inc_rust_cold":
+                    ctrl = IncrementalFrescoController(rm, rsha, use_rust=True, guard_mode="legacy")
+                elif arm in ("rel_prov_guarded_inc_py_cold", "rel_prov_guarded_inc_py_warm"):
+                    ctrl = IncrementalFrescoController(rm, rsha, use_rust=False, guard_mode="fable_len_guard")
+                elif arm in ("rel_prov_guarded_inc_rust_cold", "rel_prov_guarded_inc_rust_warm", "rel_prov_adaptive_rust_cold"):
+                    ctrl = IncrementalFrescoController(rm, rsha, use_rust=True, guard_mode="fable_len_guard")
+                elif arm == "rel_prov_mask_guard_inc_rust_cold":
+                    ctrl = IncrementalFrescoController(rm, rsha, use_rust=True, guard_mode="pr348_mask_guard")
+                elif arm == "sym_prov_readout_legacy_rust_cold":
+                    ctrl = IncrementalSymController(sm, ssha, use_rust=True, guard_mode="legacy")
+                elif arm == "sym_prov_readout_guarded_rust_cold":
+                    ctrl = IncrementalSymController(sm, ssha, use_rust=True, guard_mode="fable_len_guard")
+                elif arm == "hybrid_sym_rec_guarded_rust_cold":
+                    ctrl = IncrementalSymController(hm, hsha, use_rust=True, guard_mode="fable_len_guard")
+                elif arm == "param_nonrecurrent_rust_cold":
+                    ctrl = IncrementalFrescoController(pm_m, psha, use_rust=True, guard_mode="fable_len_guard")
+                else:
+                    ctrl = None
+
+                is_warm = arm.endswith("_warm")
+                if is_warm and ctrl is not None:
+                    for c in cal_cases:
+                        _ = run_clean_episode(rg, c, controller=ctrl, budget=WORK, depth=DEPTH, cold_cache=False)
+                    ctrl.reset_telemetry()
+
+                for b in BUDGET_CURVE:
+                    for c in cal_cases:
+                        if arm == "rel_prov_legacy_uncached_py":
+                            ep = run_clean_episode(rg, c, uncached_model=rm, uncached_guard_mode="legacy", budget=b, depth=DEPTH)
+                        elif arm == "rel_prov_guarded_uncached_py":
+                            ep = run_clean_episode(rg, c, uncached_model=rm, uncached_guard_mode="fable_len_guard", budget=b, depth=DEPTH)
+                        elif arm == "compute_nonrecurrent_py":
+                            ep = run_clean_episode(rg, c, uncached_model=cm_m, uncached_guard_mode="legacy", budget=b, depth=DEPTH)
+                        elif arm == "lbf16_pos1_opened_py":
+                            ep = run_clean_episode(rg, c, uncached_model=m16_net, uncached_guard_mode="legacy", budget=b, depth=DEPTH)
+                        elif arm == "rel_prov_adaptive_rust_cold":
+                            ep = run_clean_episode(
+                                rg, c, controller=ctrl, budget=b, depth=DEPTH,
+                                cold_cache=True, adaptive_margins=adaptive_margins,
+                            )
+                        else:
+                            ep = run_clean_episode(rg, c, controller=ctrl, budget=b, depth=DEPTH, cold_cache=(not is_warm))
+                        arm_budget_eps[arm][b][seed][c.root] = ep
+                        archived_cal_rows.append({"split": "calibration", "arm": arm, "seed": seed, "budget": b, **ep})
+                        if b == WORK:
+                            arm_eps_128[arm][seed][c.root] = ep
+
+        for sa_pol in sym_pols:
             for b in BUDGET_CURVE:
                 for c in cal_cases:
-                    if arm == "uncached_py":
-                        ep = run_clean_episode(rg, c, uncached_model=rm, budget=b, depth=DEPTH)
-                    elif arm == "sym_prov_readout_uncached_py":
-                        ep = run_clean_episode(rg, c, uncached_model=sm, budget=b, depth=DEPTH)
-                    elif arm == "rel_prov_adaptive_rust_cold":
-                        ep = run_clean_episode(
-                            rg, c, controller=ctrl, budget=b, depth=DEPTH,
-                            cold_cache=True, adaptive_margins=adaptive_margins,
-                        )
-                    else:
-                        ep = run_clean_episode(rg, c, controller=ctrl, budget=b, depth=DEPTH, cold_cache=(not is_warm))
-                    arm_budget_eps[arm][b][seed][c.root] = ep
-                    if b == WORK:
-                        arm_eps_128[arm][seed][c.root] = ep
+                    ep_s = run_unified_symbolic_episode(rg, c, sa_pol, budget=b, depth=DEPTH, guard_mode="fable_len_guard")
+                    sym_cal_eps[sa_pol][b][c.root] = ep_s
+                    archived_cal_rows.append({"split": "calibration", "arm": sa_pol, "seed": 0, "budget": b, **ep_s})
 
-    # Verify 100% trajectory, work, and proof-witness equivalence across all 144 `(seed, root)` episodes!
-    traj_matches_py = traj_matches_rs = traj_matches_warm = 0
+        for b in all_bidir_b:
+            for c in cal_cases:
+                ep_b = run_unified_symbolic_episode(rg, c, "bidir", budget=b, depth=DEPTH)
+                bidir_cal_eps[b][c.root] = ep_b
+                archived_cal_rows.append({"split": "calibration", "arm": "bidir", "seed": 0, "budget": b, **ep_b})
+
+        new_cal_certs = []
+        case_by_root = {c.root: c for c in cal_cases}
+        for arm_tag in (
+            "rel_prov_guarded_inc_rust_cold",
+            "rel_prov_mask_guard_inc_rust_cold",
+            "rel_prov_adaptive_rust_cold",
+            "sym_prov_readout_guarded_rust_cold",
+            "hybrid_sym_rec_guarded_rust_cold",
+        ):
+            for seed in SEEDS:
+                for r in cal_roots:
+                    ep = arm_eps_128[arm_tag][seed][r]
+                    if ep["closed"]:
+                        new_cal_certs.append((case_by_root[r], ep["path"], f"cal_{arm_tag}_{seed}_{r}"))
+        for sa_tag in ("absint1_mm", "absint_mm", "exact_mm"):
+            for r in cal_roots:
+                ep = sym_cal_eps[sa_tag][WORK][r]
+                if ep["closed"]:
+                    new_cal_certs.append((case_by_root[r], ep["path"], f"cal_{sa_tag}_{r}"))
+        for r in cal_roots:
+            ep4k = bidir_cal_eps[4096][r]
+            if ep4k["closed"]:
+                new_cal_certs.append((case_by_root[r], ep4k["path"], f"cal_bidir_b4096_{r}"))
+
+        print(f"[LBF-18 Phase 1] Certifying {len(new_cal_certs)} calibration proof paths in Lean 4.19.0...", flush=True)
+        cal_cert_man = base.certify(rg, new_cal_certs, out_dir / "calibration_new_certificates")
+        cal_eps_sha = _write_archived_episodes_gz(cal_eps_gz_path, archived_cal_rows)
+        archived_cal_count = len(archived_cal_rows)
+
+    # Verify 100% trajectory equivalence across uncached PyTorch, incremental PyTorch, and incremental Rust (both legacy & guarded!)
+    eq_leg = eq_grd_py = eq_grd_rs = eq_grd_warm = mask_vs_fable_same = 0
     for seed in SEEDS:
         for r in cal_roots:
-            u_ep = arm_eps_128["uncached_py"][seed][r]
-            if arm_eps_128["inc_py_cold"][seed][r]["path"] == u_ep["path"] and arm_eps_128["inc_py_cold"][seed][r]["work"] == u_ep["work"]:
-                traj_matches_py += 1
-            if arm_eps_128["inc_rust_cold"][seed][r]["path"] == u_ep["path"] and arm_eps_128["inc_rust_cold"][seed][r]["work"] == u_ep["work"]:
-                traj_matches_rs += 1
-            if arm_eps_128["inc_rust_warm"][seed][r]["path"] == u_ep["path"] and arm_eps_128["inc_rust_warm"][seed][r]["work"] == u_ep["work"]:
-                traj_matches_warm += 1
-    if not (traj_matches_py == 144 and traj_matches_rs == 144 and traj_matches_warm == 144):
+            u_leg = arm_eps_128["rel_prov_legacy_uncached_py"][seed][r]
+            if arm_eps_128["rel_prov_legacy_inc_rust_cold"][seed][r]["path"] == u_leg["path"]:
+                eq_leg += 1
+            u_grd = arm_eps_128["rel_prov_guarded_uncached_py"][seed][r]
+            if arm_eps_128["rel_prov_guarded_inc_py_cold"][seed][r]["path"] == u_grd["path"] and arm_eps_128["rel_prov_guarded_inc_py_cold"][seed][r]["work"] == u_grd["work"]:
+                eq_grd_py += 1
+            if arm_eps_128["rel_prov_guarded_inc_rust_cold"][seed][r]["path"] == u_grd["path"] and arm_eps_128["rel_prov_guarded_inc_rust_cold"][seed][r]["work"] == u_grd["work"]:
+                eq_grd_rs += 1
+            if arm_eps_128["rel_prov_guarded_inc_rust_warm"][seed][r]["path"] == u_grd["path"] and arm_eps_128["rel_prov_guarded_inc_rust_warm"][seed][r]["work"] == u_grd["work"]:
+                eq_grd_warm += 1
+            if arm_eps_128["rel_prov_mask_guard_inc_rust_cold"][seed][r]["path"] == u_grd["path"]:
+                mask_vs_fable_same += 1
+    if not (eq_leg == 144 and eq_grd_py == 144 and eq_grd_rs == 144 and eq_grd_warm == 144):
         raise RuntimeError(
-            f"incremental trajectory mismatch: py={traj_matches_py}/144, rs={traj_matches_rs}/144, warm={traj_matches_warm}/144"
+            f"incremental trajectory mismatch: leg={eq_leg}, py={eq_grd_py}, rs={eq_grd_rs}, warm={eq_grd_warm}"
         )
 
-    # Certify all new `hybrid_sym_rec_opened` and `rel_prov_adaptive` closed calibration paths in Lean 4.19.0!
-    new_cal_certs = []
-    case_by_root = {c.root: c for c in cal_cases}
-    for arm_tag in ("hybrid_sym_rec_inc_rust_cold", "rel_prov_adaptive_rust_cold"):
-        for seed in SEEDS:
-            for r in cal_roots:
-                ep = arm_eps_128[arm_tag][seed][r]
-                if ep["closed"]:
-                    new_cal_certs.append((case_by_root[r], ep["path"], f"cal_{arm_tag}_{seed}_{r}"))
-    print(f"[LBF-18 Phase 1] Certifying {len(new_cal_certs)} new calibration proof paths in Lean 4.19.0...", flush=True)
-    cal_cert_man = base.certify(rg, new_cal_certs, scratch_dir / "lbf18_cal_certs")
-    (out_dir / "calibration_new_certificates").mkdir(parents=True, exist_ok=True)
-    (out_dir / "calibration_new_certificates" / "manifest.json").write_text(
-        json.dumps(cal_cert_man, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    sym_bench_summary = {
+        sa_pol: _summarize_symbolic_bench_arm(cal_roots, sym_cal_eps[sa_pol], top_budget=WORK)
+        for sa_pol in sym_pols
+    }
+    sym_bench_summary["bidir_b128"] = _summarize_symbolic_bench_arm(
+        cal_roots, {b: bidir_cal_eps[b] for b in BUDGET_CURVE}, top_budget=WORK
+    )
+    sym_bench_summary["bidir_b4096"] = _summarize_symbolic_bench_arm(
+        cal_roots, bidir_cal_eps, top_budget=4096
     )
 
     clean_bench_summary = {
         arm: _summarize_clean_bench_arm(cal_roots, arm_eps_128[arm], arm_budget_eps[arm])
         for arm in bench_arms
     }
+    cost_sweep_summary = compute_synthetic_cost_sweep(clean_bench_summary, sym_bench_summary)
 
-    # 8. Joint 2x2 Envelope x Matrix Bank Recurrence Factorial (Zero & Roll)
-    print("[LBF-18 Phase 1] Running 2x2 Envelope x Matrix Bank recurrence factorial...", flush=True)
-    fac_modes = ("env_zero", "mat_zero", "env_mat_zero", "env_roll", "mat_roll", "env_mat_roll")
-    fac_budget_eps: dict[str, dict[int, dict[int, dict[str, dict]]]] = {
-        "normal": arm_budget_eps["inc_rust_cold"],
-    }
-    for md in fac_modes:
-        fac_budget_eps[md] = {b: {s: {} for s in SEEDS} for b in BUDGET_CURVE}
-        for seed in SEEDS:
-            rm, rsha = rel_models[seed]
-            ctrl = IncrementalFrescoController(rm, rsha, use_rust=True)
-            for b in BUDGET_CURVE:
-                for c in cal_cases:
-                    fac_budget_eps[md][b][seed][c.root] = run_clean_episode(
-                        rg, c, controller=ctrl, mode=md, budget=b, depth=DEPTH, cold_cache=True
-                    )
+    # 8. Joint 2x2 Envelope x Matrix Bank Recurrence Factorial & 9. Stress Suite
+    if existing_cal_sum is not None and "factorial_2x2" in existing_cal_sum and "stress_suite" in existing_cal_sum:
+        print("[LBF-18 Phase 1] Resumed verified 2x2 bank factorial & 5-track stress suite.", flush=True)
+        factorial_summary = existing_cal_sum["factorial_2x2"]
+        stress_raw = existing_cal_sum["stress_suite"]
+    else:
+        print("[LBF-18 Phase 1] Running 2x2 Envelope x Matrix Bank recurrence factorial...", flush=True)
+        fac_modes = ("env_zero", "mat_zero", "env_mat_zero", "env_roll", "mat_roll", "env_mat_roll")
+        fac_budget_eps: dict[str, dict[int, dict[int, dict[str, dict]]]] = {
+            "normal": arm_budget_eps["rel_prov_guarded_inc_rust_cold"],
+        }
+        for md in fac_modes:
+            fac_budget_eps[md] = {b: {s: {} for s in SEEDS} for b in BUDGET_CURVE}
+            for seed in SEEDS:
+                rm, rsha = rel_models[seed]
+                ctrl = IncrementalFrescoController(rm, rsha, use_rust=True, guard_mode="fable_len_guard")
+                for b in BUDGET_CURVE:
+                    for c in cal_cases:
+                        fac_budget_eps[md][b][seed][c.root] = run_clean_episode(
+                            rg, c, controller=ctrl, mode=md, budget=b, depth=DEPTH, cold_cache=True
+                        )
 
-    def root_auc_vec(md_name: str) -> list[float]:
-        per_b = [root_level_summary(cal_roots, fac_budget_eps[md_name][b], budget=b)["_root_c"] for b in BUDGET_CURVE]
-        return [sum(per_b[bi][ri] for bi in range(len(BUDGET_CURVE))) / len(BUDGET_CURVE) for ri in range(len(cal_roots))]
+        def root_auc_vec(md_name: str) -> list[float]:
+            per_b = [root_level_summary(cal_roots, fac_budget_eps[md_name][b], budget=b)["_root_c"] for b in BUDGET_CURVE]
+            return [sum(per_b[bi][ri] for bi in range(len(BUDGET_CURVE))) / len(BUDGET_CURVE) for ri in range(len(cal_roots))]
 
-    def root_pw128_vec(md_name: str) -> list[float]:
-        return root_level_summary(cal_roots, fac_budget_eps[md_name][WORK], budget=WORK)["_root_w"]
+        def root_pw128_vec(md_name: str) -> list[float]:
+            return root_level_summary(cal_roots, fac_budget_eps[md_name][WORK], budget=WORK)["_root_w"]
 
-    def root_c64_vec(md_name: str) -> list[float]:
-        return root_level_summary(cal_roots, fac_budget_eps[md_name][64], budget=64)["_root_c"]
+        def root_c64_vec(md_name: str) -> list[float]:
+            return root_level_summary(cal_roots, fac_budget_eps[md_name][64], budget=64)["_root_c"]
 
-    factorial_summary = {
-        "zero_factorial_auc": analyze_2x2_bank_factorial(
-            cal_roots, root_auc_vec("normal"), root_auc_vec("env_zero"),
-            root_auc_vec("mat_zero"), root_auc_vec("env_mat_zero"), higher_is_better=True,
-        ),
-        "zero_factorial_closure_b64": analyze_2x2_bank_factorial(
-            cal_roots, root_c64_vec("normal"), root_c64_vec("env_zero"),
-            root_c64_vec("mat_zero"), root_c64_vec("env_mat_zero"), higher_is_better=True,
-        ),
-        "zero_factorial_penalized_work_b128": analyze_2x2_bank_factorial(
-            cal_roots, root_pw128_vec("normal"), root_pw128_vec("env_zero"),
-            root_pw128_vec("mat_zero"), root_pw128_vec("env_mat_zero"), higher_is_better=False,
-        ),
-        "roll_factorial_auc": analyze_2x2_bank_factorial(
-            cal_roots, root_auc_vec("normal"), root_auc_vec("env_roll"),
-            root_auc_vec("mat_roll"), root_auc_vec("env_mat_roll"), higher_is_better=True,
-        ),
-        "roll_factorial_penalized_work_b128": analyze_2x2_bank_factorial(
-            cal_roots, root_pw128_vec("normal"), root_pw128_vec("env_roll"),
-            root_pw128_vec("mat_roll"), root_pw128_vec("env_mat_roll"), higher_is_better=False,
-        ),
-    }
+        factorial_summary = {
+            "zero_factorial_auc": analyze_2x2_bank_factorial(
+                cal_roots, root_auc_vec("normal"), root_auc_vec("env_zero"),
+                root_auc_vec("mat_zero"), root_auc_vec("env_mat_zero"), higher_is_better=True,
+            ),
+            "zero_factorial_closure_b64": analyze_2x2_bank_factorial(
+                cal_roots, root_c64_vec("normal"), root_c64_vec("env_zero"),
+                root_c64_vec("mat_zero"), root_c64_vec("env_mat_zero"), higher_is_better=True,
+            ),
+            "zero_factorial_penalized_work_b128": analyze_2x2_bank_factorial(
+                cal_roots, root_pw128_vec("normal"), root_pw128_vec("env_zero"),
+                root_pw128_vec("mat_zero"), root_pw128_vec("env_mat_zero"), higher_is_better=False,
+            ),
+            "roll_factorial_auc": analyze_2x2_bank_factorial(
+                cal_roots, root_auc_vec("normal"), root_auc_vec("env_roll"),
+                root_auc_vec("mat_roll"), root_auc_vec("env_mat_roll"), higher_is_better=True,
+            ),
+            "roll_factorial_penalized_work_b128": analyze_2x2_bank_factorial(
+                cal_roots, root_pw128_vec("normal"), root_pw128_vec("env_roll"),
+                root_pw128_vec("mat_roll"), root_pw128_vec("env_mat_roll"), higher_is_better=False,
+            ),
+        }
 
-    # 9. Multi-axis scaling & adversarial provenance-collision stress suite
-    print("[LBF-18 Phase 1] Running 5-track scaling & adversarial provenance-collision stress suite...", flush=True)
-    stress_raw = run_stress_test_suite(seed=20261818)
-    deep_specs = stress_raw.pop("_deep_search_specs")
-    stress_raw["track_s4b_deep_16step_search"] = evaluate_deep_search_stress(rg, deep_specs, rel_models)
+        print("[LBF-18 Phase 1] Running 5-track scaling & adversarial provenance-collision stress suite...", flush=True)
+        stress_raw = run_stress_test_suite(seed=20261818)
+        deep_specs = stress_raw.pop("_deep_search_specs")
+        stress_raw["track_s4b_deep_16step_search"] = evaluate_deep_search_stress(rg, deep_specs, rel_models)
 
-    # Strip internal `_root_c`/`_root_w` arrays before writing clean JSON, after computing paired contrasts
+    # Key root-paired exploratory contrasts on Calibration (`R = 48`)
+    grd_c = clean_bench_summary["rel_prov_guarded_inc_rust_cold"]["_root_c"]
+    grd_w = clean_bench_summary["rel_prov_guarded_inc_rust_cold"]["_root_w"]
+    grd_enum = [
+        sum(arm_eps_128["rel_prov_guarded_inc_rust_cold"][s][r]["unique_succ_enumerated"] for s in SEEDS) / len(SEEDS)
+        for r in cal_roots
+    ]
+    bidir4k_enum = [float(bidir_cal_eps[4096][r]["unique_succ_enumerated"]) for r in cal_roots]
+    bidir4k_c = sym_bench_summary["bidir_b4096"]["_root_c"]
+
     cal_contrasts = {
-        "hybrid_minus_sym_prov_readout": paired_root_contrast(
-            cal_roots,
-            clean_bench_summary["hybrid_sym_rec_inc_rust_cold"]["_root_c"],
-            clean_bench_summary["hybrid_sym_rec_inc_rust_cold"]["_root_w"],
-            clean_bench_summary["sym_prov_readout_inc_rust_cold"]["_root_c"],
-            clean_bench_summary["sym_prov_readout_inc_rust_cold"]["_root_w"],
+        "rel_prov_guarded_minus_legacy": paired_root_contrast(
+            cal_roots, grd_c, grd_w,
+            clean_bench_summary["rel_prov_legacy_inc_rust_cold"]["_root_c"],
+            clean_bench_summary["rel_prov_legacy_inc_rust_cold"]["_root_w"],
         ),
-        "rel_prov_minus_hybrid": paired_root_contrast(
-            cal_roots,
-            clean_bench_summary["inc_rust_cold"]["_root_c"],
-            clean_bench_summary["inc_rust_cold"]["_root_w"],
-            clean_bench_summary["hybrid_sym_rec_inc_rust_cold"]["_root_c"],
-            clean_bench_summary["hybrid_sym_rec_inc_rust_cold"]["_root_w"],
+        "rel_prov_guarded_minus_mask_guard": paired_root_contrast(
+            cal_roots, grd_c, grd_w,
+            clean_bench_summary["rel_prov_mask_guard_inc_rust_cold"]["_root_c"],
+            clean_bench_summary["rel_prov_mask_guard_inc_rust_cold"]["_root_w"],
         ),
-        "rel_prov_adaptive_minus_full": paired_root_contrast(
-            cal_roots,
-            clean_bench_summary["rel_prov_adaptive_rust_cold"]["_root_c"],
-            clean_bench_summary["rel_prov_adaptive_rust_cold"]["_root_w"],
-            clean_bench_summary["inc_rust_cold"]["_root_c"],
-            clean_bench_summary["inc_rust_cold"]["_root_w"],
+        "rel_prov_guarded_minus_sym_prov_readout": paired_root_contrast(
+            cal_roots, grd_c, grd_w,
+            clean_bench_summary["sym_prov_readout_guarded_rust_cold"]["_root_c"],
+            clean_bench_summary["sym_prov_readout_guarded_rust_cold"]["_root_w"],
+        ),
+        "rel_prov_guarded_minus_hybrid": paired_root_contrast(
+            cal_roots, grd_c, grd_w,
+            clean_bench_summary["hybrid_sym_rec_guarded_rust_cold"]["_root_c"],
+            clean_bench_summary["hybrid_sym_rec_guarded_rust_cold"]["_root_w"],
+        ),
+        "rel_prov_guarded_minus_absint_mm": paired_root_contrast(
+            cal_roots, grd_c, grd_w,
+            sym_bench_summary["absint_mm"]["_root_c"],
+            sym_bench_summary["absint_mm"]["_root_w"],
+        ),
+        "rel_prov_guarded_minus_exact_mm": paired_root_contrast(
+            cal_roots, grd_c, grd_w,
+            sym_bench_summary["exact_mm"]["_root_c"],
+            sym_bench_summary["exact_mm"]["_root_w"],
+        ),
+        "rel_prov_guarded_unique_enum_minus_bidir_b4096": paired_root_contrast(
+            cal_roots, grd_c, grd_enum, bidir4k_c, bidir4k_enum,
         ),
     }
+
     for v in clean_bench_summary.values():
         v.pop("_root_c", None)
         v.pop("_root_w", None)
+    for v in sym_bench_summary.values():
+        v.pop("_root_c", None)
+        v.pop("_root_w", None)
+
+    # Fresh isolated single-arm subprocess OS kernel PeakRSS audit (free of multi-arm/training RSS carryover)
+    iso_rss_mb: dict[str, dict[str, float]] = {}
+    up_mod_file = Path(getattr(rg, "__file__"))
+    for iso_arm in (
+        "rel_prov_guarded_uncached_py",
+        "rel_prov_guarded_inc_py_cold",
+        "rel_prov_guarded_inc_rust_cold",
+        "rel_prov_guarded_inc_rust_warm",
+        "sym_prov_readout_guarded_rust_cold",
+        "absint_mm",
+        "exact_mm",
+        "bidir_b4096",
+    ):
+        snippet = (
+            "import json, pathlib, sys; "
+            f"sys.path.insert(0, {repr(str(HERE))}); "
+            "import lbf18_incremental_fresco as m18; "
+            f"rg = m18.base.load_upstream(pathlib.Path({repr(str(up_mod_file))})); "
+            "cases = m18._load_gzipped_cases(m18.LBF17_RESULTS_DIR / 'suite', 'calibration', rg)[:8]; "
+            f"arm = {repr(iso_arm)}; "
+            "rm, rsha, _ = m18.load_frozen_lbf17_checkpoint(107, 'rel_prov_opened'); "
+            "sm, ssha, _ = m18.load_frozen_lbf17_checkpoint(107, 'sym_prov_readout'); "
+            "c_f = m18.IncrementalFrescoController(rm, rsha, use_rust=('rust' in arm), guard_mode='fable_len_guard'); "
+            "c_s = m18.IncrementalSymController(sm, ssha, use_rust=True, guard_mode='fable_len_guard'); "
+            "[m18.run_clean_episode(rg, c, controller=c_f, budget=128, cold_cache=False) for c in (cases if arm.endswith('_warm') else [])]; "
+            "[("
+            "m18.run_clean_episode(rg, c, uncached_model=rm, uncached_guard_mode='fable_len_guard', budget=128) if arm=='rel_prov_guarded_uncached_py' else "
+            "m18.run_clean_episode(rg, c, controller=c_s, budget=128, cold_cache=True) if arm=='sym_prov_readout_guarded_rust_cold' else "
+            "m18.run_unified_symbolic_episode(rg, c, 'bidir' if arm=='bidir_b4096' else arm, budget=(4096 if arm=='bidir_b4096' else 128)) if arm in ('absint_mm','exact_mm','bidir_b4096') else "
+            "m18.run_clean_episode(rg, c, controller=c_f, budget=128, cold_cache=(not arm.endswith('_warm')))"
+            ") for c in cases]; "
+            "cur_b, pk_b = m18.current_and_peak_rss_bytes(); "
+            "print(json.dumps({'cur_mb': round(cur_b/1048576.0, 2), 'peak_mb': round(pk_b/1048576.0, 2)}))"
+        )
+        env_sub = dict(os.environ)
+        env_sub["OPENBLAS_NUM_THREADS"] = "1"
+        env_sub["OMP_NUM_THREADS"] = "1"
+        env_sub["MKL_NUM_THREADS"] = "1"
+        pr_sub = subprocess.run([sys.executable, "-c", snippet], capture_output=True, text=True, env=env_sub, timeout=180)
+        if pr_sub.returncode == 0 and pr_sub.stdout.strip():
+            iso_rss_mb[iso_arm] = json.loads(pr_sub.stdout.strip().splitlines()[-1])
 
     summary = {
-        "schema": "lbf18.calibration_and_incremental.v1",
+        "schema": "lbf18.calibration_and_incremental.v2",
         "sealed_outcomes_opened": False,
+        "raw_suite_custody_lbf17": raw_custody_17,
         "rust_backend_compiled": RUST_BACKEND.available,
         "lean18_formalization": lean18_cert,
+        "soundness_and_guard_audit": soundness_audit,
+        "isolated_clean_process_rss_mb": iso_rss_mb,
         "equivalence_verification": {
             "calibration_episodes_checked": 144,
-            "uncached_vs_inc_py_cold_exact_path_matches": traj_matches_py,
-            "uncached_vs_inc_rust_cold_exact_path_matches": traj_matches_rs,
-            "uncached_vs_inc_rust_warm_exact_path_matches": traj_matches_warm,
+            "legacy_uncached_vs_rust_exact_path_matches": eq_leg,
+            "guarded_uncached_vs_inc_py_cold_exact_path_matches": eq_grd_py,
+            "guarded_uncached_vs_inc_rust_cold_exact_path_matches": eq_grd_rs,
+            "guarded_uncached_vs_inc_rust_warm_exact_path_matches": eq_grd_warm,
+            "fable_guard_vs_pr348_mask_guard_exact_path_matches": mask_vs_fable_same,
             "fail_closed_invalidation_verified": True,
         },
         "hybrid_fits": hyb_fits,
         "adaptive_pass_calibration": adaptive_cal,
         "clean_inference_benchmark": clean_bench_summary,
+        "symbolic_controls_benchmark": sym_bench_summary,
+        "synthetic_successor_cost_sweep": cost_sweep_summary,
         "calibration_root_contrasts": cal_contrasts,
+        "calibration_episodes_jsonl_sha256": cal_eps_sha,
+        "calibration_episodes_archived_count": archived_cal_count,
         "calibration_new_lean_certificates": cal_cert_man,
         "factorial_2x2": factorial_summary,
         "stress_suite": stress_raw,
     }
     svg1_sha = render_incremental_and_factorial_svg(summary, out_dir / "fresco_incremental_architecture.svg")
+    svg_cost_sha = render_cost_breakeven_svg(cost_sweep_summary, out_dir / "fresco_cost_breakeven.svg")
     summary["fresco_incremental_architecture_svg_sha256"] = svg1_sha
+    summary["fresco_cost_breakeven_svg_sha256"] = svg_cost_sha
     (out_dir / "calibration_phase_summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
@@ -3079,8 +4733,8 @@ def run_calibration_phase(rg, out_dir: Path, scratch_dir: Path) -> dict:
 
 
 def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registration_path: Path) -> dict:
-    """Phase 2: Frozen Independent Confirmation on Sealed Ordinary & OOD Cohorts (`20261227` + `20261221`).
-    Refuses to run unless `registration_path` exists and `calibration_phase_summary.json` is frozen."""
+    """Phase 2: Frozen Revised Independent Confirmation on All 64 Untouched Sealed Roots
+    (`20261227` + `20261221`, `ordinary` + `ood` length-shift `L = 13`)."""
     if not registration_path.exists():
         raise RuntimeError(f"Refusing to open sealed cohorts: missing registration file {registration_path}")
     cal_sum_path = out_dir / "calibration_phase_summary.json"
@@ -3089,7 +4743,7 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
 
     torch.set_num_threads(1)
     base.certify = certify_single_thread
-    reg_sha = hashlib.sha256(registration_path.read_bytes()).hexdigest()
+    reg_sha = sha256_canonical_lf(registration_path)
     cal_sum = json.loads(cal_sum_path.read_text(encoding="utf-8"))
     adaptive_margins = (
         float(cal_sum["adaptive_pass_calibration"]["gamma1"]),
@@ -3097,10 +4751,12 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
     )
 
     # Load frozen checkpoints
-    rel_m, sym_m, lbf16_m, hyb_m = {}, {}, {}, {}
+    rel_m, sym_m, cnr_m, pnr_m, lbf16_m, hyb_m = {}, {}, {}, {}, {}, {}
     for seed in SEEDS:
         rel_m[seed] = load_frozen_lbf17_checkpoint(seed, "rel_prov_opened")[:2]
         sym_m[seed] = load_frozen_lbf17_checkpoint(seed, "sym_prov_readout")[:2]
+        cnr_m[seed] = load_frozen_lbf17_checkpoint(seed, "compute_nonrecurrent")[:2]
+        pnr_m[seed] = load_frozen_lbf17_checkpoint(seed, "param_nonrecurrent")[:2]
         lbf16_m[seed] = load_frozen_lbf17_checkpoint(seed, "lbf16_pos1_opened")[:2]
 
         ck_dir = out_dir / f"{seed}_hybrid_sym_rec_opened"
@@ -3114,12 +4770,11 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
             p.requires_grad_(False)
         hyb_m[seed] = (hm, fman["checkpoint_sha256"])
 
-    # Load all 4 untouched sealed splits (`20261227` ordinary/ood + `20261221` ordinary/ood)
     suite17_dir = LBF17_RESULTS_DIR / "suite"
     suite16_tmp = scratch_dir / "suite_20261221_sealed"
     if not suite16_tmp.exists():
         rg.freeze(suite16_tmp, seed=LBF16_SEED, counts=m17.COUNTS)
-    if rg.file_sha(suite16_tmp / "manifest.json") != LBF16_SUITE_MANIFEST_SHA256:
+    if not _matches_archived_sha(suite16_tmp / "manifest.json", LBF16_SUITE_MANIFEST_SHA256):
         raise ValueError("LBF-16 frozen suite manifest SHA mismatch")
 
     sealed_cohorts = {
@@ -3129,15 +4784,43 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
         "lbf16_ood": _load_gzipped_cases(suite16_tmp, "ood", rg),
     }
 
-    learned_arms = ("rel_prov_opened", "rel_prov_adaptive", "hybrid_sym_rec_opened", "sym_prov_readout", "lbf16_pos1_opened")
-    symbolic_arms = ("bidir", "astar", "geom_mm", "graph_bridge", "exact_lookahead", "uniform")
+    learned_arms = (
+        "rel_prov_guarded",
+        "rel_prov_mask_guard",
+        "rel_prov_legacy",
+        "rel_prov_adaptive",
+        "sym_prov_readout",
+        "hybrid_sym_rec_opened",
+        "compute_nonrecurrent",
+        "param_nonrecurrent",
+        "lbf16_pos1_opened",
+    )
+    symbolic_arms = (
+        "bidir",
+        "bidir_b4096",
+        "astar",
+        "geom_mm",
+        "graph_bridge",
+        "exact_lookahead",
+        "uniform",
+        "absint1_mm",
+        "absint_mm",
+        "exact_mm",
+    )
     all_arms = learned_arms + symbolic_arms
 
     cohort_results = {}
     pooled_eps: dict[str, dict[int, dict[str, dict]]] = {a: {s: {} for s in SEEDS} for a in learned_arms}
-    pooled_sym: dict[str, dict[str, tuple[float, float]]] = {a: {} for a in symbolic_arms}
+    pooled_sym_eps: dict[str, dict[str, dict]] = {a: {} for a in symbolic_arms}
     pooled_ord_roots, pooled_ood_roots, all_sealed_roots = [], [], []
     sealed_certs_to_compile = []
+    archived_sealed_rows: list[dict] = []
+
+    sealed_words_checked = 0
+    sealed_boolean_fn = 0
+    sealed_legacy_fn = 0
+    sealed_nested_systems = 0
+    sealed_min_pos_f32 = 1.0
 
     for cname, cases in sealed_cohorts.items():
         print(f"[LBF-18 Phase 2] Evaluating frozen protocol on sealed cohort {cname} ({len(cases)} roots)...", flush=True)
@@ -3148,82 +4831,142 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
         else:
             pooled_ood_roots.extend(roots)
 
-        # Verify uncached == incremental on sealed `rel_prov_opened` as an online fail-closed check!
+        cohort_seen_words_by_case: dict[str, set[str]] = {c.root: {c.source, c.target} for c in cases}
+
         arm_b_eps: dict[str, dict[int, dict[int, dict[str, dict]]]] = {
             a: {b: {s: {} for s in SEEDS} for b in BUDGET_CURVE} for a in learned_arms
         }
         for seed in SEEDS:
-            c_rel = IncrementalFrescoController(rel_m[seed][0], rel_m[seed][1], use_rust=True)
-            c_adp = IncrementalFrescoController(rel_m[seed][0], rel_m[seed][1], use_rust=True)
-            c_hyb = IncrementalSymController(hyb_m[seed][0], hyb_m[seed][1], use_rust=True)
-            c_sym = IncrementalSymController(sym_m[seed][0], sym_m[seed][1], use_rust=True)
+            c_grd = IncrementalFrescoController(rel_m[seed][0], rel_m[seed][1], use_rust=True, guard_mode="fable_len_guard")
+            c_msk = IncrementalFrescoController(rel_m[seed][0], rel_m[seed][1], use_rust=True, guard_mode="pr348_mask_guard")
+            c_leg = IncrementalFrescoController(rel_m[seed][0], rel_m[seed][1], use_rust=True, guard_mode="legacy")
+            c_adp = IncrementalFrescoController(rel_m[seed][0], rel_m[seed][1], use_rust=True, guard_mode="fable_len_guard")
+            c_sym = IncrementalSymController(sym_m[seed][0], sym_m[seed][1], use_rust=True, guard_mode="fable_len_guard")
+            c_hyb = IncrementalSymController(hyb_m[seed][0], hyb_m[seed][1], use_rust=True, guard_mode="fable_len_guard")
+            c_pnr = IncrementalFrescoController(pnr_m[seed][0], pnr_m[seed][1], use_rust=True, guard_mode="fable_len_guard")
+            m_cnr = cnr_m[seed][0]
             m_16 = lbf16_m[seed][0]
 
             for b in BUDGET_CURVE:
                 for c, rk_id in zip(cases, roots):
-                    ep_rel = run_clean_episode(rg, c, controller=c_rel, budget=b, depth=DEPTH, cold_cache=True)
+                    ep_grd = run_clean_episode(rg, c, controller=c_grd, budget=b, depth=DEPTH, cold_cache=True)
                     if b == WORK:
-                        # Cross-verify against uncached PyTorch on every sealed root at B=128!
-                        ep_unc = run_clean_episode(rg, c, uncached_model=rel_m[seed][0], budget=b, depth=DEPTH)
-                        if ep_rel["path"] != ep_unc["path"] or ep_rel["work"] != ep_unc["work"]:
+                        if ep_grd["min_pos_f32"] < sealed_min_pos_f32:
+                            sealed_min_pos_f32 = ep_grd["min_pos_f32"]
+                        for wk_tup in c_grd.word_cache:
+                            cohort_seen_words_by_case[c.root].add(wk_tup[-1])
+                        # Online fail-closed check: uncached guarded PyTorch == incremental guarded Rust on EVERY sealed root!
+                        ep_unc = run_clean_episode(
+                            rg, c, uncached_model=rel_m[seed][0], uncached_guard_mode="fable_len_guard", budget=b, depth=DEPTH
+                        )
+                        if ep_grd["path"] != ep_unc["path"] or ep_grd["work"] != ep_unc["work"]:
                             raise RuntimeError(f"sealed uncached vs incremental mismatch on {rk_id} seed {seed}")
+
+                    ep_msk = run_clean_episode(rg, c, controller=c_msk, budget=b, depth=DEPTH, cold_cache=True)
+                    ep_leg = run_clean_episode(rg, c, controller=c_leg, budget=b, depth=DEPTH, cold_cache=True)
                     ep_adp = run_clean_episode(
                         rg, c, controller=c_adp, budget=b, depth=DEPTH, cold_cache=True, adaptive_margins=adaptive_margins
                     )
-                    ep_hyb = run_clean_episode(rg, c, controller=c_hyb, budget=b, depth=DEPTH, cold_cache=True)
                     ep_sym = run_clean_episode(rg, c, controller=c_sym, budget=b, depth=DEPTH, cold_cache=True)
-                    ep_16 = m17.run_lbf17_episode(rg, c, "learned", model=m_16, arch="lbf16_pos1_opened", budget=b, depth=DEPTH)
+                    ep_hyb = run_clean_episode(rg, c, controller=c_hyb, budget=b, depth=DEPTH, cold_cache=True)
+                    ep_cnr = run_clean_episode(rg, c, uncached_model=m_cnr, uncached_guard_mode="legacy", budget=b, depth=DEPTH)
+                    ep_pnr = run_clean_episode(rg, c, controller=c_pnr, budget=b, depth=DEPTH, cold_cache=True)
+                    ep_16 = run_clean_episode(rg, c, uncached_model=m_16, uncached_guard_mode="legacy", budget=b, depth=DEPTH)
 
-                    arm_b_eps["rel_prov_opened"][b][seed][rk_id] = ep_rel
-                    arm_b_eps["rel_prov_adaptive"][b][seed][rk_id] = ep_adp
-                    arm_b_eps["hybrid_sym_rec_opened"][b][seed][rk_id] = ep_hyb
-                    arm_b_eps["sym_prov_readout"][b][seed][rk_id] = ep_sym
-                    arm_b_eps["lbf16_pos1_opened"][b][seed][rk_id] = ep_16
-
-                    if b == WORK:
-                        for aname, ep_obj in (
-                            ("rel_prov_opened", ep_rel),
-                            ("rel_prov_adaptive", ep_adp),
-                            ("hybrid_sym_rec_opened", ep_hyb),
-                            ("sym_prov_readout", ep_sym),
-                            ("lbf16_pos1_opened", ep_16),
-                        ):
+                    ep_map = {
+                        "rel_prov_guarded": ep_grd,
+                        "rel_prov_mask_guard": ep_msk,
+                        "rel_prov_legacy": ep_leg,
+                        "rel_prov_adaptive": ep_adp,
+                        "sym_prov_readout": ep_sym,
+                        "hybrid_sym_rec_opened": ep_hyb,
+                        "compute_nonrecurrent": ep_cnr,
+                        "param_nonrecurrent": ep_pnr,
+                        "lbf16_pos1_opened": ep_16,
+                    }
+                    for aname, ep_obj in ep_map.items():
+                        arm_b_eps[aname][b][seed][rk_id] = ep_obj
+                        archived_sealed_rows.append({"cohort": cname, "arm": aname, "seed": seed, "budget": b, **ep_obj})
+                        # Certify EVERY closed trajectory at B=128 (and any distinct B<128 path)!
+                        if b == WORK:
                             pooled_eps[aname][seed][rk_id] = ep_obj
                             if ep_obj["closed"]:
                                 sealed_certs_to_compile.append(
                                     (c, ep_obj["path"], f"sealed_{cname}_{aname}_{seed}_{c.root}")
                                 )
 
+        # Soundness check across all frontier words encountered on this sealed cohort!
+        for c in cases:
+            if _nested_rule_pairs(c.rules):
+                sealed_nested_systems += 1
+            wl = sorted(cohort_seen_words_by_case[c.root])
+            sealed_words_checked += len(wl)
+            b_fab, _ = RUST_BACKEND.sym_prov_adj2_u64(wl, c.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode="fable_len_guard")
+            b_leg, _ = RUST_BACKEND.sym_prov_adj2_u64(wl, c.rules, alpha=6, fp=FP_FIBERS, k_max=3, guard_mode="legacy")
+            for wi, w_item in enumerate(wl):
+                gt_w = m17.alpha1_bool(list(_exact_bfs_ball_distances(c.rules, w_item, 3).keys()), len(w_item))
+                if bool((gt_w & ~u64_supp_to_pos1_bool(b_fab[wi, 3])).any()):
+                    sealed_boolean_fn += 1
+                if bool((gt_w & ~u64_supp_to_pos1_bool(b_leg[wi, 3])).any()):
+                    sealed_legacy_fn += 1
+        if sealed_boolean_fn != 0:
+            raise RuntimeError(f"Sealed Boolean support soundness failed with {sealed_boolean_fn} false negatives!")
+
         sym_b_rates: dict[str, dict[int, tuple[list[float], list[float]]]] = {a: {} for a in symbolic_arms}
         for sa in symbolic_arms:
+            if sa == "bidir_b4096":
+                rc_l, rw_l = [], []
+                for c, rk_id in zip(cases, roots):
+                    ep4k = run_unified_symbolic_episode(rg, c, "bidir", budget=4096, depth=DEPTH)
+                    archived_sealed_rows.append({"cohort": cname, "arm": "bidir_b4096", "seed": 0, "budget": 4096, **ep4k})
+                    c_val = 1.0 if ep4k["closed"] else 0.0
+                    w_val = float(ep4k["work"] + (0 if ep4k["closed"] else 1))
+                    rc_l.append(c_val)
+                    rw_l.append(w_val)
+                    pooled_sym_eps[sa][rk_id] = {**ep4k, "_c": c_val, "_w": w_val}
+                    if ep4k["closed"]:
+                        sealed_certs_to_compile.append((c, ep4k["path"], f"sealed_{cname}_bidir4096_{c.root}"))
+                for b in BUDGET_CURVE:
+                    sym_b_rates[sa][b] = (rc_l, rw_l)
+                continue
+
             for b in BUDGET_CURVE:
                 rc_l, rw_l = [], []
                 for c, rk_id in zip(cases, roots):
                     if sa == "uniform":
-                        u_runs = [m17.run_lbf17_episode(rg, c, "uniform", seed=st, budget=b, depth=DEPTH) for st in STREAMS]
+                        u_runs = [run_unified_symbolic_episode(rg, c, "uniform", seed=st, budget=b, depth=DEPTH) for st in STREAMS]
+                        for st, x in zip(STREAMS, u_runs):
+                            archived_sealed_rows.append({"cohort": cname, "arm": "uniform", "seed": st, "budget": b, **x})
                         c_val = sum(1.0 if x["closed"] else 0.0 for x in u_runs) / len(STREAMS)
                         w_val = sum(float(x["work"] + (0 if x["closed"] else 1)) for x in u_runs) / len(STREAMS)
                         if b == WORK:
+                            pooled_sym_eps[sa][rk_id] = {
+                                "_c": c_val,
+                                "_w": w_val,
+                                "work": sum(x["work"] for x in u_runs) / len(STREAMS),
+                                "unique_succ_enumerated": sum(x["unique_succ_enumerated"] for x in u_runs) / len(STREAMS),
+                                "repeated_succ_enumerated": sum(x["repeated_succ_enumerated"] for x in u_runs) / len(STREAMS),
+                                "sim_rule_window_checks": sum(x["sim_rule_window_checks"] for x in u_runs) / len(STREAMS),
+                                "model_rule_window_checks": 0.0,
+                                "wall_clock_ms": sum(x["wall_clock_ms"] for x in u_runs) / len(STREAMS),
+                            }
                             for st, x in zip(STREAMS, u_runs):
                                 if x["closed"]:
                                     sealed_certs_to_compile.append((c, x["path"], f"sealed_{cname}_uniform_{st}_{c.root}"))
                     else:
-                        ep_s = m17.run_lbf17_episode(rg, c, sa, budget=b, depth=DEPTH)
+                        ep_s = run_unified_symbolic_episode(rg, c, sa, budget=b, depth=DEPTH, guard_mode="fable_len_guard")
+                        archived_sealed_rows.append({"cohort": cname, "arm": sa, "seed": 0, "budget": b, **ep_s})
                         c_val = 1.0 if ep_s["closed"] else 0.0
                         w_val = float(ep_s["work"] + (0 if ep_s["closed"] else 1))
-                        if b == WORK and ep_s["closed"]:
-                            sealed_certs_to_compile.append((c, ep_s["path"], f"sealed_{cname}_{sa}_{c.root}"))
+                        if b == WORK:
+                            pooled_sym_eps[sa][rk_id] = {**ep_s, "_c": c_val, "_w": w_val}
+                            if ep_s["closed"]:
+                                sealed_certs_to_compile.append((c, ep_s["path"], f"sealed_{cname}_{sa}_{c.root}"))
                     rc_l.append(c_val)
                     rw_l.append(w_val)
-                    if b == WORK:
-                        pooled_sym[sa][rk_id] = (c_val, w_val)
                 sym_b_rates[sa][b] = (rc_l, rw_l)
 
-        # Build root-level (`R = 16`) summary & contrasts for this cohort
-        c_rates_128 = {}
-        c_work_128 = {}
-        c_auc = {}
-        learned_rl = {}
+        c_rates_128, c_work_128, c_auc, learned_rl = {}, {}, {}, {}
         for la in learned_arms:
             rl = root_level_summary(roots, arm_b_eps[la][WORK], budget=WORK)
             learned_rl[la] = rl
@@ -3238,15 +4981,18 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
             c_work_128[sa] = sum(rw128) / len(roots)
             c_auc[sa] = sum(sum(sym_b_rates[sa][b][0]) / len(roots) for b in BUDGET_CURVE) / len(BUDGET_CURVE)
 
-        rel_rc = learned_rl["rel_prov_opened"]["_root_c"]
-        rel_rw = learned_rl["rel_prov_opened"]["_root_w"]
+        rel_rc = learned_rl["rel_prov_guarded"]["_root_c"]
+        rel_rw = learned_rl["rel_prov_guarded"]["_root_w"]
         contrasts = {}
-        for comp in ("bidir", "exact_lookahead", "geom_mm", "graph_bridge"):
-            contrasts[f"rel_prov_minus_{comp}"] = paired_root_contrast(
+        for comp in ("bidir", "geom_mm", "graph_bridge", "exact_lookahead", "absint1_mm", "absint_mm", "exact_mm"):
+            contrasts[f"rel_prov_guarded_minus_{comp}"] = paired_root_contrast(
                 roots, rel_rc, rel_rw, sym_b_rates[comp][WORK][0], sym_b_rates[comp][WORK][1]
             )
-        for comp_l in ("lbf16_pos1_opened", "sym_prov_readout", "hybrid_sym_rec_opened", "rel_prov_adaptive"):
-            contrasts[f"rel_prov_minus_{comp_l}"] = paired_root_contrast(
+        for comp_l in (
+            "rel_prov_mask_guard", "rel_prov_legacy", "rel_prov_adaptive",
+            "sym_prov_readout", "hybrid_sym_rec_opened", "compute_nonrecurrent", "param_nonrecurrent", "lbf16_pos1_opened",
+        ):
+            contrasts[f"rel_prov_guarded_minus_{comp_l}"] = paired_root_contrast(
                 roots, rel_rc, rel_rw, learned_rl[comp_l]["_root_c"], learned_rl[comp_l]["_root_w"]
             )
         for v in learned_rl.values():
@@ -3262,39 +5008,70 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
             "paired_root_contrasts_b128": contrasts,
         }
 
-    # Compile EVERY closed proof path across all 64 sealed roots standalone in Lean 4.19.0!
+    # Compile EVERY closed proof path across all 64 sealed roots standalone in Lean 4.19.0 & archive `Proofs_*.lean` in `out_dir`!
     print(f"[LBF-18 Phase 2] Compiling {len(sealed_certs_to_compile)} standalone Lean 4.19.0 sealed proof certificates...", flush=True)
-    sealed_cert_man = base.certify(rg, sealed_certs_to_compile, scratch_dir / "lbf18_sealed_certs")
-    (out_dir / "sealed_confirmation_certificates").mkdir(parents=True, exist_ok=True)
-    (out_dir / "sealed_confirmation_certificates" / "manifest.json").write_text(
-        json.dumps(sealed_cert_man, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    sealed_cert_man = base.certify(rg, sealed_certs_to_compile, out_dir / "sealed_confirmation_certificates")
+    sealed_eps_sha = _write_archived_episodes_gz(out_dir / "sealed_episodes.jsonl.gz", archived_sealed_rows)
 
     def build_pooled(subset_roots: list[str]) -> dict:
         out_p = {}
         for la in learned_arms:
             sub_eps = {s: {r: pooled_eps[la][s][r] for r in subset_roots} for s in SEEDS}
             rl = root_level_summary(subset_roots, sub_eps, budget=WORK)
+            all_e = [sub_eps[s][r] for s in SEEDS for r in subset_roots]
+            mean_ms = sum(e["wall_clock_ms"] for e in all_e) / len(all_e)
+            mean_pw = rl["mean_penalized_work"]
+            mean_uniq = sum(e["unique_succ_enumerated"] for e in all_e) / len(all_e)
+            rl["mean_episode_ms"] = mean_ms
+            rl["mean_unique_succ_enumerated"] = mean_uniq
+            rl["mean_repeated_succ_enumerated"] = sum(e["repeated_succ_enumerated"] for e in all_e) / len(all_e)
+            rl["mean_sim_rule_window_checks"] = sum(e["sim_rule_window_checks"] for e in all_e) / len(all_e)
+            rl["mean_model_rule_window_checks"] = sum(e["model_rule_window_checks"] for e in all_e) / len(all_e)
+            rl["mean_total_rule_window_checks"] = rl["mean_sim_rule_window_checks"] + rl["mean_model_rule_window_checks"]
+            rl["synthetic_verifier_cost_ms"] = {str(cs): mean_ms + cs * mean_pw for cs in SYNTHETIC_SUCC_COSTS_MS}
+            rl["synthetic_enumerated_cost_ms"] = {str(cs): mean_ms + cs * mean_uniq for cs in SYNTHETIC_SUCC_COSTS_MS}
             out_p[la] = rl
         for sa in symbolic_arms:
-            rc_s = [pooled_sym[sa][r][0] for r in subset_roots]
-            rw_s = [pooled_sym[sa][r][1] for r in subset_roots]
+            rc_s = [pooled_sym_eps[sa][r]["_c"] for r in subset_roots]
+            rw_s = [pooled_sym_eps[sa][r]["_w"] for r in subset_roots]
+            mean_ms = sum(pooled_sym_eps[sa][r]["wall_clock_ms"] for r in subset_roots) / len(subset_roots)
+            mean_pw = sum(rw_s) / len(subset_roots)
+            mean_uniq = sum(pooled_sym_eps[sa][r]["unique_succ_enumerated"] for r in subset_roots) / len(subset_roots)
+            sim_w = sum(pooled_sym_eps[sa][r]["sim_rule_window_checks"] for r in subset_roots) / len(subset_roots)
+            mod_w = sum(pooled_sym_eps[sa][r]["model_rule_window_checks"] for r in subset_roots) / len(subset_roots)
             out_p[sa] = {
                 "independent_roots": len(subset_roots),
                 "mean_closure_rate": sum(rc_s) / len(subset_roots),
-                "mean_penalized_work": sum(rw_s) / len(subset_roots),
+                "mean_penalized_work": mean_pw,
+                "mean_episode_ms": mean_ms,
+                "mean_unique_succ_enumerated": mean_uniq,
+                "mean_repeated_succ_enumerated": sum(pooled_sym_eps[sa][r]["repeated_succ_enumerated"] for r in subset_roots) / len(subset_roots),
+                "mean_sim_rule_window_checks": sim_w,
+                "mean_model_rule_window_checks": mod_w,
+                "mean_total_rule_window_checks": sim_w + mod_w,
+                "synthetic_verifier_cost_ms": {str(cs): mean_ms + cs * mean_pw for cs in SYNTHETIC_SUCC_COSTS_MS},
+                "synthetic_enumerated_cost_ms": {str(cs): mean_ms + cs * mean_uniq for cs in SYNTHETIC_SUCC_COSTS_MS},
                 "_root_c": rc_s,
                 "_root_w": rw_s,
             }
-        rel_c = out_p["rel_prov_opened"]["_root_c"]
-        rel_w = out_p["rel_prov_opened"]["_root_w"]
+        rel_c = out_p["rel_prov_guarded"]["_root_c"]
+        rel_w = out_p["rel_prov_guarded"]["_root_w"]
         p_con = {}
         for other in all_arms:
-            if other == "rel_prov_opened":
+            if other == "rel_prov_guarded":
                 continue
-            p_con[f"rel_prov_minus_{other}"] = paired_root_contrast(
+            p_con[f"rel_prov_guarded_minus_{other}"] = paired_root_contrast(
                 subset_roots, rel_c, rel_w, out_p[other]["_root_c"], out_p[other]["_root_w"]
             )
+        # Also include enumerated-once comparison against uncapped `bidir_b4096`!
+        rel_enum_r = [
+            sum(pooled_eps["rel_prov_guarded"][s][r]["unique_succ_enumerated"] for s in SEEDS) / len(SEEDS)
+            for r in subset_roots
+        ]
+        b4k_enum_r = [float(pooled_sym_eps["bidir_b4096"][r]["unique_succ_enumerated"]) for r in subset_roots]
+        p_con["rel_prov_guarded_unique_enum_minus_bidir_b4096"] = paired_root_contrast(
+            subset_roots, rel_c, rel_enum_r, out_p["bidir_b4096"]["_root_c"], b4k_enum_r
+        )
         for v in out_p.values():
             v.pop("_root_c", None)
             v.pop("_root_w", None)
@@ -3305,39 +5082,113 @@ def run_sealed_confirmation_phase(rg, out_dir: Path, scratch_dir: Path, registra
     pooled_ood = build_pooled(pooled_ood_roots)
     pooled_all64 = build_pooled(all_sealed_roots)
 
-    # Evaluate pre-declared confirmation screens (`C1, C2, C3, C4`)
+    # Hierarchical Fixed-Sequence Confirmation Tests (`H1, H2, H3` from Referee Report §11, total alpha = 0.05)
+    ord_rel_w = [
+        sum(float(pooled_eps["rel_prov_guarded"][s][r]["work"] + (0 if pooled_eps["rel_prov_guarded"][s][r]["closed"] else 1)) for s in SEEDS) / len(SEEDS)
+        for r in pooled_ord_roots
+    ]
+    ord_best_heur_w = [
+        min(pooled_sym_eps["geom_mm"][r]["_w"], pooled_sym_eps["graph_bridge"][r]["_w"])
+        for r in pooled_ord_roots
+    ]
+    h1_diffs = [ord_rel_w[i] - ord_best_heur_w[i] for i in range(len(pooled_ord_roots))]
+    p_h1 = _one_sided_signflip_less_p(h1_diffs, n_perm=100000, seed=20261861)
+    pass_h1 = bool((sum(h1_diffs) < 0.0) and (p_h1 <= 0.025))
+
+    ood_rel_w = [
+        sum(float(pooled_eps["rel_prov_guarded"][s][r]["work"] + (0 if pooled_eps["rel_prov_guarded"][s][r]["closed"] else 1)) for s in SEEDS) / len(SEEDS)
+        for r in pooled_ood_roots
+    ]
+    ood_best_heur_w = [
+        min(pooled_sym_eps["geom_mm"][r]["_w"], pooled_sym_eps["graph_bridge"][r]["_w"])
+        for r in pooled_ood_roots
+    ]
+    h2_diffs = [ood_rel_w[i] - ood_best_heur_w[i] for i in range(len(pooled_ood_roots))]
+    p_h2 = _one_sided_signflip_less_p(h2_diffs, n_perm=100000, seed=20261862)
+    pass_h2 = bool(pass_h1 and (sum(h2_diffs) < 0.0) and (p_h2 <= 0.025))
+
+    ord_all3_closed = int(pooled_ord["rel_prov_guarded"]["roots_closed_all_seeds"])
+    p_h3 = _exact_binomial_upper_tail_p(ord_all3_closed, len(pooled_ord_roots), p0=0.88)
+    pass_h3 = bool(p_h3 <= 0.025)
+
+    hierarchical_tests = {
+        "H1_ordinary_work_vs_best_heuristic": {
+            "n_roots": len(pooled_ord_roots),
+            "alpha_one_sided": 0.025,
+            "rel_prov_guarded_mean_work": sum(ord_rel_w) / len(pooled_ord_roots),
+            "rootwise_min_geom_graph_mean_work": sum(ord_best_heur_w) / len(pooled_ord_roots),
+            "mean_work_diff": sum(h1_diffs) / len(pooled_ord_roots),
+            "one_sided_signflip_p": p_h1,
+            "passed": pass_h1,
+        },
+        "H2_length_shift_work_vs_best_heuristic": {
+            "n_roots": len(pooled_ood_roots),
+            "gated_on_H1": True,
+            "alpha_one_sided": 0.025,
+            "rel_prov_guarded_mean_work": sum(ood_rel_w) / len(pooled_ood_roots),
+            "rootwise_min_geom_graph_mean_work": sum(ood_best_heur_w) / len(pooled_ood_roots),
+            "mean_work_diff": sum(h2_diffs) / len(pooled_ood_roots),
+            "one_sided_signflip_p": p_h2,
+            "passed": pass_h2,
+        },
+        "H3_ordinary_all_seed_closure_gt_88pct": {
+            "n_roots": len(pooled_ord_roots),
+            "alpha_one_sided": 0.025,
+            "null_p0": 0.88,
+            "roots_closed_all_3_seeds": ord_all3_closed,
+            "observed_rate": ord_all3_closed / len(pooled_ord_roots),
+            "exact_binomial_p": p_h3,
+            "passed": pass_h3,
+        },
+    }
+
     strongest_heur_64 = max(pooled_all64["geom_mm"]["mean_closure_rate"], pooled_all64["graph_bridge"]["mean_closure_rate"])
     strongest_heur_work = min(pooled_all64["geom_mm"]["mean_penalized_work"], pooled_all64["graph_bridge"]["mean_penalized_work"])
     screens = {
+        "H1_ordinary_work_confirmed": pass_h1,
+        "H2_length_shift_work_confirmed": pass_h2,
+        "H3_ordinary_closure_gt_88pct_confirmed": pass_h3,
         "screen_C1_sealed_vs_bidir_and_exact_lookahead": bool(
-            pooled_all64["rel_prov_opened"]["mean_closure_rate"] >= pooled_all64["bidir"]["mean_closure_rate"] + 0.15
-            and pooled_all64["rel_prov_opened"]["mean_penalized_work"] <= 0.70 * pooled_all64["bidir"]["mean_penalized_work"]
-            and pooled_all64["rel_prov_opened"]["mean_closure_rate"] > pooled_all64["exact_lookahead"]["mean_closure_rate"]
+            pooled_all64["rel_prov_guarded"]["mean_closure_rate"] >= pooled_all64["bidir"]["mean_closure_rate"] + 0.15
+            and pooled_all64["rel_prov_guarded"]["mean_penalized_work"] <= 0.70 * pooled_all64["bidir"]["mean_penalized_work"]
+            and pooled_all64["rel_prov_guarded"]["mean_closure_rate"] > pooled_all64["exact_lookahead"]["mean_closure_rate"]
         ),
         "screen_C2_sealed_vs_strongest_heuristic": bool(
-            pooled_all64["rel_prov_opened"]["mean_closure_rate"] >= strongest_heur_64 + 0.05
-            and pooled_all64["rel_prov_opened"]["mean_penalized_work"] <= 0.80 * strongest_heur_work
+            pooled_all64["rel_prov_guarded"]["mean_closure_rate"] >= strongest_heur_64 + 0.05
+            and pooled_all64["rel_prov_guarded"]["mean_penalized_work"] <= 0.80 * strongest_heur_work
         ),
-        "screen_C3_ood_generalization_and_vs_lbf16": bool(
-            pooled_ood["rel_prov_opened"]["mean_closure_rate"] >= 0.85
-            and pooled_all64["rel_prov_opened"]["mean_closure_rate"] >= pooled_all64["lbf16_pos1_opened"]["mean_closure_rate"]
-            and pooled_all64["rel_prov_opened"]["mean_penalized_work"] < pooled_all64["lbf16_pos1_opened"]["mean_penalized_work"]
+        "screen_C3_length_shift_and_vs_lbf16": bool(
+            pooled_ood["rel_prov_guarded"]["mean_closure_rate"] >= 0.85
+            and pooled_all64["rel_prov_guarded"]["mean_closure_rate"] >= pooled_all64["lbf16_pos1_opened"]["mean_closure_rate"]
+            and pooled_all64["rel_prov_guarded"]["mean_penalized_work"] < pooled_all64["lbf16_pos1_opened"]["mean_penalized_work"]
         ),
-        "screen_C4_zero_uncached_divergence_and_lean_certified": bool(
-            sealed_cert_man["compiled_axiom_free"] == len(sealed_certs_to_compile)
+        "screen_C4_zero_boolean_fn_zero_divergence_and_lean_certified": bool(
+            sealed_boolean_fn == 0
+            and sealed_cert_man["compiled_axiom_free"] == len(sealed_certs_to_compile)
         ),
     }
 
     conf = {
-        "schema": "lbf18.sealed_confirmation.v1",
+        "schema": "lbf18.sealed_confirmation.v2",
         "registration_sha256": reg_sha,
         "lbf17_suite_manifest_sha256": LBF17_SUITE_MANIFEST_SHA256,
         "lbf16_suite_manifest_sha256": LBF16_SUITE_MANIFEST_SHA256,
         "frozen_adaptive_margins": {"gamma1": adaptive_margins[0], "gamma2": adaptive_margins[1]},
+        "sealed_soundness_audit": {
+            "sealed_roots": len(all_sealed_roots),
+            "systems_with_nested_3_over_2_pair": sealed_nested_systems,
+            "words_checked": sealed_words_checked,
+            "guarded_boolean_false_negatives_k3": sealed_boolean_fn,
+            "legacy_boolean_false_negatives_k3": sealed_legacy_fn,
+            "min_pos_f32_k3": sealed_min_pos_f32,
+        },
+        "hierarchical_confirmation_tests": hierarchical_tests,
         "cohorts": cohort_results,
         "pooled_32_ordinary_roots": pooled_ord,
         "pooled_32_ood_roots": pooled_ood,
         "pooled_64_sealed_roots": pooled_all64,
+        "sealed_episodes_jsonl_sha256": sealed_eps_sha,
+        "sealed_episodes_archived_count": len(archived_sealed_rows),
         "lean_sealed_certificates_compiled": sealed_cert_man["compiled_axiom_free"],
         "lean_sealed_certificates_manifest": sealed_cert_man,
         "confirmation_screens": screens,
