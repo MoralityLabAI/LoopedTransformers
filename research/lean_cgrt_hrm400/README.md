@@ -27,6 +27,8 @@ Start with these documents:
 - [06E shared frontier registration](OLR_06E_REGISTRATION.md): multi-goal exact rewrite proposal ledger, shared query budget and native conjunction certificates.
 - [06E completed results](OLR_06E_RESULTS.md): 22/24 conjunctions at 256 concrete expansions, 280 native leaf replays and 80 conjunction certificates; registered learned-scheduler headroom fails.
 - [06F anytime abstraction registration](OLR_06F_REGISTRATION.md): partially settled reverse-Dijkstra pattern tables, monotone lower bounds, lazy queue rekey, and a single charged abstract+concrete work budget.
+- [06F results](OLR_06F_RESULTS.md): total-work headroom gate PASS (19/24 best fixed per panel, 23/24 hindsight).
+- [06G portfolio registration](OLR_06G_REGISTRATION.md): source-native certified strategy labels, fully paid restart schedules, calibrated root-level incidence selectors and cheap classical controls.
 - [OLR-METTA-05 registration](OLR_METTA_05_REGISTRATION.md): matched addressed/dense tied-memory comparison, three-to-five occupied-obligation load transfer, and focal-versus-sham receipt edits.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.
