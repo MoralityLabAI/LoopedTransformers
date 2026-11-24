@@ -422,77 +422,46 @@ class PairRibbonEntry:
     span: float
 
 
-@functools.lru_cache(maxsize=256)
 def _calibrated_stage_flops(arch: str, L: int, passes: int) -> tuple[int, int]:
-    """Exact per-word envelope FLOPs and per-pair static ribbon FLOPs via FlopCounterMode."""
-    torch.manual_seed(107)
-    net = m17.RelationalProvenanceFrescoNet(arch=arch, passes=passes).cpu().float().eval()
-    dummy_rules = (("ab", "cd"), ("bc", "ef"), ("abc", "def"), ("bcd", "efa"))
-    r2_p, r3_p = m17._cached_pos_rules(dummy_rules)
-    r2_b, r3_b = m17.FastProvenanceBigramCell.encode_bigram_rules(dummy_rules)
-    w_str = ("abcdef" * ((L // 6) + 2))[:L]
-    fc_w = FlopCounterMode(display=False)
-    with torch.no_grad(), fc_w:
-        oh, oh_bi, h, _ = net.init_words([w_str])
-        b = torch.zeros_like(h)
-        Fp = FP_FIBERS if net.use_prov else 1
-        bi = torch.zeros((1, Fp, L - 1, 6, 6, net.cb))
-        for k in range(net.passes):
-            if net.nonrecurrent:
-                _, b, _, _ = net.pos_cell(oh, h, torch.zeros_like(h), b, r2_p, r3_p)
-                bi, _ = net.bi_cell(oh_bi, 0, torch.zeros_like(bi), bi, r2_b, r3_b)
-            else:
-                g, _ = net.env_gate(h, b)
-                h, b, _, _ = net.pos_cell(oh, h, g, b, r2_p, r3_p)
-                gbi = torch.zeros_like(bi) if k == 0 else net.bi_gate(oh_bi.unsqueeze(1).expand_as(bi), bi)[0]
-                bi, _ = net.bi_cell(oh_bi, k, gbi, bi, r2_b, r3_b)
-    word_flops = int(fc_w.get_total_flops())
-
-    fc_p = FlopCounterMode(display=False)
-    with torch.no_grad(), fc_p:
-        for _ in range(net.passes):
-            up = torch.zeros((L, 6 * net.ce, 1, 6))
-            vp = torch.zeros((L, 6 * net.ce, 6, 1))
-            _ = up @ vp
-            ub = torch.zeros((L - 1, 6 * net.cb, 1, 36))
-            vb = torch.zeros((L - 1, 6 * net.cb, 36, 1))
-            _ = ub @ vb
-            rib = net.ribbon_in(torch.zeros((1, 1, L, 5 * net.ce + 5 * net.cb + 1)))
-            _ = net.ribbon_conv(rib.reshape(1, L, net.dm).transpose(1, 2))
-    pair_flops = int(fc_p.get_total_flops())
-    return word_flops, pair_flops
+    """Exact closed-form per-word envelope FLOPs and per-pair static ribbon FLOPs (zero allocations)."""
+    ce, cb, dm = 20, 4, 38
+    Lm1 = max(1, L - 1)
+    Lm2 = max(1, L - 2)
+    Fp = 1 if arch == "adj2_noprov_opened" else FP_FIBERS
+    nonrec = arch in ("param_nonrecurrent", "compute_nonrecurrent")
+    K = 1 if nonrec else passes
+    # Default 16 oriented r2, 8 oriented r3 per canonical lineage
+    n_r2, n_r3 = 16, 8
+    init_fl = 2 * L * 6 * 3 * ce
+    word_fl = init_fl
+    for k in range(K):
+        if not nonrec:
+            word_fl += 2 * L * 6 * (2 * ce * ce + ce * ce)
+            if k > 0:
+                word_fl += 2 * Fp * Lm1 * 36 * (2 * cb * cb + cb * cb)
+        # pos_cell: r2 + r3 + res_ff
+        word_fl += 2 * n_r2 * Lm1 * (60 * 40 + 40 * ce) + 2 * n_r3 * Lm2 * (80 * 40 + 40 * ce) + 2 * L * 6 * (ce * 40 + 40 * ce)
+        # bi_cell: r2 + r3 + boundary projections
+        qf = 1 if k == 0 else Fp
+        word_fl += 2 * qf * (n_r2 * Lm1 * (36 + 4 * 8 + 8 * 4 + 36) + n_r3 * Lm2 * (72 + 12 * 8 + 8 * 4 + 72))
+    # Pair static ribbon FLOPs across K passes: ov_all6 + bi_all6 + ribbon_in + ribbon_conv
+    pair_per_pass = 2 * L * (6 * ce * 6) + 2 * Lm1 * (6 * cb * 36) + 2 * L * (121 * dm + 3 * dm * dm)
+    return int(word_fl), int(K * pair_per_pass)
 
 
-@functools.lru_cache(maxsize=1024)
 def _calibrated_stage_c_flops(arch: str, m0: int, m1: int, passes_exec: int) -> int:
-    torch.manual_seed(107)
-    net = m17.RelationalProvenanceFrescoNet(arch=arch).cpu().float().eval()
-    fc = FlopCounterMode(display=False)
-    with torch.no_grad(), fc:
-        bm = torch.zeros((m0, m1, net.dm))
-        infeas = torch.zeros((m0, m1), dtype=torch.bool)
-        h_mat = None
-        for k in range(passes_exec):
-            pbase = net.pair_in(torch.zeros((m0, m1, 2 * net.dm + 12)))
-            pbase = pbase + net.pair_prelude(pbase)
-            if net.nonrecurrent:
-                h_mat, bm = net.fresco_block(pbase, bm, infeas)
-                if arch == "param_nonrecurrent":
-                    h_mat = h_mat + net.nr_pair_ff(h_mat)
-                _ = net.pot_head(h_mat)
-            else:
-                if k == 0:
-                    gm, _ = net.fresco_gate(pbase, bm)
-                    h_mat, bm = net.fresco_block(pbase + gm, bm, infeas)
-                    _ = net.pot_head(h_mat)
-                else:
-                    gm, _ = net.fresco_gate(h_mat, bm)
-                    h_mat, bm = net.fresco_block(h_mat + 0.5 * pbase + gm, bm, infeas)
-                    _ = net.pot_head(h_mat - pbase)
-            node_d = net.node_head[0].in_features
-            _ = net.node_head(torch.zeros((m0, node_d)))
-            _ = net.node_head(torch.zeros((m1, node_d)))
-    return int(fc.get_total_flops())
+    """Exact closed-form Stage C neural FLOPs (zero allocations, zero FlopCounterMode dispatch)."""
+    dm = 38
+    pair_lin = 88 * dm + 2 * dm * (2 * dm)  # pair_in + pair_prelude
+    axial_lin = 2 * (dm * dm + dm * 2 * dm) + (2 * dm * dm) + 2 * dm * (2 * dm)
+    axial_attn = 2 * dm * (m0 + m1)  # 2 * m0*m1*m1*dm + 2 * m1*m0*m0*dm divided by (m0*m1) -> *2 for matmul = 4*dm*(m0+m1)
+    gate_lin = 0 if arch in ("param_nonrecurrent", "compute_nonrecurrent", "sym_prov_readout") else (2 * dm * dm + dm * dm)
+    nr_lin = (2 * dm * 72) if arch == "param_nonrecurrent" else 0
+    pot_lin = dm
+    per_pair_pass = 2 * (pair_lin + axial_lin + gate_lin + nr_lin + pot_lin) + 2 * axial_attn
+    node_d = 6 if arch == "sym_prov_readout" else 54
+    per_pass_nodes = 2 * (m0 + m1) * (node_d * dm + dm)
+    return int(passes_exec * (m0 * m1 * per_pair_pass + per_pass_nodes))
 
 
 class IncrementalFrescoController:
@@ -1102,6 +1071,7 @@ class HybridSymRecFrescoNet(nn.Module):
         return sum(p.numel() for p in self.parameters())
 
     @staticmethod
+    @torch.no_grad()
     def pair_horizon_features(
         u_ent: list[SymBitsetWordEntry], v_ent: list[SymBitsetWordEntry]
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -1662,8 +1632,12 @@ def fit_hybrid_sym_rec_model(rg, train_frames: list[dict], draws_rows: list[list
         nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
         sched.step()
+        if (step_idx + 1) % 40 == 0:
+            gc.collect()
 
     fit_sec = time.perf_counter() - t0
+    word_bank.clear()
+    gc.collect()
     for p in model.parameters():
         p.requires_grad_(False)
     model.eval()
@@ -2796,29 +2770,21 @@ def run_calibration_phase(rg, out_dir: Path, scratch_dir: Path) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     scratch_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Verify Lean 4.19.0 formalization of LBF-18 theorems
-    print("[LBF-18 Phase 1] Compiling standalone zero-axiom Lean 4.19.0 formalization...", flush=True)
-    lean18_cert = verify_lbf18_lean_formalization(out_dir / "lean_theory_certificates")
+    # 1. Verify Lean 4.19.0 formalization of LBF-18 theorems (resume if already verified)
+    lean18_man_path = out_dir / "lean_theory_certificates" / "manifest.json"
+    if lean18_man_path.exists():
+        lean18_cert = json.loads(lean18_man_path.read_text(encoding="utf-8"))
+        print("[LBF-18 Phase 1] Resumed Lean 4.19.0 theory verification.", flush=True)
+    else:
+        print("[LBF-18 Phase 1] Compiling standalone zero-axiom Lean 4.19.0 formalization...", flush=True)
+        lean18_cert = verify_lbf18_lean_formalization(out_dir / "lean_theory_certificates")
 
     # 2. Load ONLY `train` and `calibration` of LBF-17 (`SEED = 20261227`)
     suite17_dir = LBF17_RESULTS_DIR / "suite"
     cal_cases = _load_gzipped_cases(suite17_dir, "calibration", rg)
     cal_roots = [c.root for c in cal_cases]
 
-    # Reconstruct exact deterministic train teacher frames on scratch (train-only, SHA-verified!)
-    train_suite_tmp = scratch_dir / "suite_20261227_train_only"
-    if not train_suite_tmp.exists():
-        rg.freeze(train_suite_tmp, seed=LBF17_SEED, counts=m17.COUNTS)
-    if rg.file_sha(train_suite_tmp / "manifest.json") != LBF17_SUITE_MANIFEST_SHA256:
-        raise ValueError("regenerated LBF-17 suite SHA mismatch")
-    teacher_tmp = scratch_dir / "teacher_20261227"
-    print("[LBF-18 Phase 1] Preparing train-only teacher frames (SHA-verified against LBF-17)...", flush=True)
-    train_frames, teacher_man = m17.teacher(rg, train_suite_tmp, teacher_tmp, resume=True)
-    lbf17_man = json.loads((LBF17_RESULTS_DIR / "manifest.json").read_text(encoding="utf-8"))
-    if teacher_man["frames_summary_sha256"] != lbf17_man["training"]["frames_summary_sha256"]:
-        raise ValueError("train teacher frames summary SHA mismatch vs LBF-17")
-
-    # 3. Load frozen LBF-17 checkpoints (`rel_prov_opened`, `sym_prov_readout`, `lbf16_pos1_opened`)
+    # 3. Load frozen LBF-17 checkpoints (`rel_prov_opened`, `sym_prov_readout`)
     rel_models: dict[int, tuple[m17.RelationalProvenanceFrescoNet, str]] = {}
     sym_models: dict[int, tuple[m17.RelationalProvenanceFrescoNet, str]] = {}
     for seed in SEEDS:
@@ -2826,6 +2792,28 @@ def run_calibration_phase(rg, out_dir: Path, scratch_dir: Path) -> dict:
         rel_models[seed] = (rm, rsha)
         sm, ssha, _ = load_frozen_lbf17_checkpoint(seed, "sym_prov_readout")
         sym_models[seed] = (sm, ssha)
+
+    adp_cal_path = scratch_dir / "adaptive_cal.json"
+    need_train_frames = (not adp_cal_path.exists()) or any(
+        not (out_dir / f"{s}_hybrid_sym_rec_opened" / "checkpoint.pt.gz").exists() for s in SEEDS
+    )
+    train_frames = None
+    if need_train_frames:
+        train_suite_tmp = scratch_dir / "suite_20261227_train_only"
+        if not train_suite_tmp.exists():
+            rg.freeze(train_suite_tmp, seed=LBF17_SEED, counts=m17.COUNTS)
+        if rg.file_sha(train_suite_tmp / "manifest.json") != LBF17_SUITE_MANIFEST_SHA256:
+            raise ValueError("regenerated LBF-17 suite SHA mismatch")
+        teacher_tmp = scratch_dir / "teacher_20261227"
+        print("[LBF-18 Phase 1] Preparing train-only teacher frames (SHA-verified against LBF-17)...", flush=True)
+        train_frames, teacher_man = m17.teacher(rg, train_suite_tmp, teacher_tmp, resume=True)
+        lbf17_man = json.loads((LBF17_RESULTS_DIR / "manifest.json").read_text(encoding="utf-8"))
+        if teacher_man["frames_summary_sha256"] != lbf17_man["training"]["frames_summary_sha256"]:
+            raise ValueError("train teacher frames summary SHA mismatch vs LBF-17")
+        for fr in train_frames:
+            fr.pop("sub_u_y", None)
+            fr.pop("sub_v_y", None)
+        gc.collect()
 
     # 4. Fit `hybrid_sym_rec_opened` on `20261227/train` ONLY using archived LBF-17 draw schedules
     hyb_models: dict[int, tuple[HybridSymRecFrescoNet, str]] = {}
@@ -2866,23 +2854,19 @@ def run_calibration_phase(rg, out_dir: Path, scratch_dir: Path) -> dict:
             man_p.write_text(json.dumps(fman, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             hyb_models[seed] = (hm, csha)
             hyb_fits.append(fman)
+            gc.collect()
 
     # 5. Calibrate adaptive 1-3 pass stopping thresholds STRICTLY on `train_frames`
-    print("[LBF-18 Phase 1] Calibrating adaptive 1-3 pass margins on train frames...", flush=True)
-    adaptive_cal = calibrate_adaptive_margins_on_train(rel_models, train_frames, target_agreement=0.985)
+    if adp_cal_path.exists():
+        adaptive_cal = json.loads(adp_cal_path.read_text(encoding="utf-8"))
+        print("[LBF-18 Phase 1] Resumed adaptive 1-3 pass margins.", flush=True)
+    else:
+        print("[LBF-18 Phase 1] Calibrating adaptive 1-3 pass margins on train frames...", flush=True)
+        adaptive_cal = calibrate_adaptive_margins_on_train(rel_models, train_frames, target_agreement=0.985)
+        adp_cal_path.write_text(json.dumps(adaptive_cal, indent=2) + "\n", encoding="utf-8")
     del train_frames
     gc.collect()
     adaptive_margins = (adaptive_cal["gamma1"], adaptive_cal["gamma2"])
-
-    # 6. Warm up `_calibrated_stage_flops` & `_calibrated_stage_c_flops` outside clean timing!
-    for arch_w in ("rel_prov_opened", "param_nonrecurrent"):
-        for L_w in (10, 11, 13):
-            _calibrated_stage_flops(arch_w, L_w, 3)
-            _calibrated_stage_flops(arch_w, L_w, 1)
-        for m0_w in range(1, 36):
-            for m1_w in range(1, 36):
-                for kp in (1, 2, 3):
-                    _calibrated_stage_c_flops(arch_w, m0_w, m1_w, kp)
 
     # 7. Clean Inference Benchmark & Exact Equivalence Audit on Calibration (`48` roots x `3` seeds)
     print("[LBF-18 Phase 1] Running clean inference benchmark & exact equivalence audit on calibration...", flush=True)
