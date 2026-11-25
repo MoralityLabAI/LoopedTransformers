@@ -168,7 +168,7 @@ class Unit:
     def storage(self):
         # Nominal capacity of successful stored bag tables and unary masks.
         # No claim about allocator/RSS or Python DAG/label overhead.
-        base=sum(loc is not None for loc,_ in self.base)
+        base=sum(loc is not None for loc,_ in self.base.values())
         memo=sum(loc is not None for loc,_ in self.memo.values())
         return (base*self.tree.storage()+len(self.base)*D*len(self.vs),
                 memo*self.tree.storage()+len(self.memo)*D*len(self.vs))
