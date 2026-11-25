@@ -1,0 +1,809 @@
+{
+  "protocol": "VAD-12",
+  "data_manifest": {
+    "evalmath_sources": {
+      "vad_agenda.py": "10ae61afeb2e1f958e9cebe22e373bc0d9d0b35d160d07f65e31c7e7ffac8e2c",
+      "vad_agenda_families.py": "3a5b10b36f0d63f484389f08a342b33be9775fc2019662e1806961c53248eb17"
+    },
+    "train": {
+      "seeds": [
+        90000,
+        90999
+      ],
+      "sequences": 6000,
+      "decision_steps": 18532,
+      "sha256": "0dd984befa000b7825a5691a27d266e70ea480e35247f2d65832f720349fa0d3"
+    },
+    "calib": {
+      "seeds": [
+        91000,
+        91249
+      ],
+      "sequences": 1500,
+      "decision_steps": 4563,
+      "sha256": "6bae45dfed7597f59e7814ea083e2d610d780b7bc6e59dd384898e7f0d83e159"
+    }
+  },
+  "epochs": 25,
+  "models": {
+    "trm": [
+      {
+        "seed": 0,
+        "params": 12194,
+        "calib_accuracy": 0.8226590156555176,
+        "train_seconds": 243.20148469999913,
+        "train_flops": 1043020800000,
+        "decision_flops": 386304
+      },
+      {
+        "seed": 1,
+        "params": 12194,
+        "calib_accuracy": 0.8239840865135193,
+        "train_seconds": 224.80579320000106,
+        "train_flops": 1043020800000,
+        "decision_flops": 386304
+      }
+    ],
+    "memoryless": [
+      {
+        "seed": 0,
+        "params": 12245,
+        "calib_accuracy": 0.8171378374099731,
+        "train_seconds": 360.0222819999981,
+        "train_flops": 2720044800000,
+        "decision_flops": 1007424
+      },
+      {
+        "seed": 1,
+        "params": 12245,
+        "calib_accuracy": 0.8178003430366516,
+        "train_seconds": 528.7227426000027,
+        "train_flops": 2720044800000,
+        "decision_flops": 1007424
+      }
+    ],
+    "fixed_depth": [
+      {
+        "seed": 0,
+        "params": 12194,
+        "calib_accuracy": 0.8222172856330872,
+        "train_seconds": 114.41895410000143,
+        "train_flops": 313113600000,
+        "decision_flops": 115968
+      },
+      {
+        "seed": 1,
+        "params": 12194,
+        "calib_accuracy": 0.8215547800064087,
+        "train_seconds": 50.43109669999831,
+        "train_flops": 313113600000,
+        "decision_flops": 115968
+      }
+    ],
+    "ff": [
+      {
+        "seed": 0,
+        "params": 12265,
+        "calib_accuracy": 0.8661660552024841,
+        "train_seconds": 24.780319400000735,
+        "train_flops": 65539800000,
+        "decision_flops": 24274
+      },
+      {
+        "seed": 1,
+        "params": 12265,
+        "calib_accuracy": 0.8696996569633484,
+        "train_seconds": 8.264370999997482,
+        "train_flops": 65539800000,
+        "decision_flops": 24274
+      }
+    ],
+    "trm_oracle_features": [
+      {
+        "seed": 0,
+        "params": 12194,
+        "calib_accuracy": 0.8297261595726013,
+        "train_seconds": 264.3159554999984,
+        "train_flops": 1043020800000,
+        "decision_flops": 386304
+      },
+      {
+        "seed": 1,
+        "params": 12194,
+        "calib_accuracy": 0.8255300521850586,
+        "train_seconds": 147.99917570000252,
+        "train_flops": 1043020800000,
+        "decision_flops": 386304
+      }
+    ]
+  },
+  "test": {
+    "in_distribution": {
+      "instances": 100,
+      "stop": {
+        "mean_regret": 5.530019170756353,
+        "optimal_fraction": 0.02
+      },
+      "greedy0": {
+        "mean_regret": 0.11942679567499168,
+        "optimal_fraction": 0.87
+      },
+      "greedy1": {
+        "mean_regret": 0.00046712121212121217,
+        "optimal_fraction": 0.98,
+        "seconds_per_instance": 0.07936435099978553
+      },
+      "greedy2": {
+        "mean_regret": 0.0,
+        "optimal_fraction": 1.0,
+        "seconds_per_instance": 0.15902211000022362
+      },
+      "direct": {
+        "mean_regret": 0.4037730454925075,
+        "optimal_fraction": 0.59
+      },
+      "random": {
+        "mean_regret": 1.0524327196338616,
+        "optimal_fraction": 0.24
+      },
+      "optimal_solve_seconds_per_instance": 0.14395926699991832,
+      "neural": {
+        "trm": [
+          {
+            "seed": 0,
+            "mean_regret": 0.0655706056969697,
+            "optimal_fraction": 0.8,
+            "decisions": 914,
+            "seconds": 3.583198199972685
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.16231678433477634,
+            "optimal_fraction": 0.76,
+            "decisions": 918,
+            "seconds": 3.3382659999260795
+          }
+        ],
+        "memoryless": [
+          {
+            "seed": 0,
+            "mean_regret": 0.08702679155555555,
+            "optimal_fraction": 0.8,
+            "decisions": 940,
+            "seconds": 3.172935899990989
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.06515254933333334,
+            "optimal_fraction": 0.84,
+            "decisions": 928,
+            "seconds": 3.0514387999792234
+          }
+        ],
+        "fixed_depth": [
+          {
+            "seed": 0,
+            "mean_regret": 0.10696820812698413,
+            "optimal_fraction": 0.79,
+            "decisions": 948,
+            "seconds": 2.9455735001065477
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.07397987458585858,
+            "optimal_fraction": 0.79,
+            "decisions": 932,
+            "seconds": 2.96149000000878
+          }
+        ],
+        "ff": [
+          {
+            "seed": 0,
+            "mean_regret": 0.29975689693684093,
+            "optimal_fraction": 0.65,
+            "decisions": 950,
+            "seconds": 1.9912416999795823
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.2653361227665667,
+            "optimal_fraction": 0.66,
+            "decisions": 950,
+            "seconds": 2.019461199946818
+          }
+        ],
+        "trm_oracle_features": [
+          {
+            "seed": 0,
+            "mean_regret": 0.059999005047619035,
+            "optimal_fraction": 0.82,
+            "decisions": 930,
+            "seconds": 4.361540899986721
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.06738355250793651,
+            "optimal_fraction": 0.82,
+            "decisions": 938,
+            "seconds": 4.727722500068921
+          }
+        ],
+        "shuffled_memory": [
+          {
+            "seed": 0,
+            "mean_regret": 0.06449327236363636,
+            "optimal_fraction": 0.79,
+            "decisions": 938,
+            "seconds": 3.5040758999602986
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.10041143224242424,
+            "optimal_fraction": 0.79,
+            "decisions": 928,
+            "seconds": 3.4273640000064916
+          }
+        ]
+      },
+      "paired_vs_greedy1": {
+        "trm": [
+          0.11347657380375178,
+          0.05479413917770564,
+          0.1822616167538239
+        ],
+        "memoryless": [
+          0.07562254923232324,
+          0.03730333914350649,
+          0.11719545918961038
+        ],
+        "fixed_depth": [
+          0.09000692014430016,
+          0.04615836516075036,
+          0.1384056838321789
+        ],
+        "ff": [
+          0.2820793886395826,
+          0.18940126356885895,
+          0.38841334775398484
+        ],
+        "trm_oracle_features": [
+          0.06322415756565655,
+          0.030772951765259734,
+          0.10085858351352812
+        ],
+        "shuffled_memory": [
+          0.08198523109090909,
+          0.04286644616515151,
+          0.12747249515930736
+        ]
+      }
+    },
+    "fresh_wide": {
+      "instances": 60,
+      "stop": {
+        "mean_regret": 6.122742347770749,
+        "optimal_fraction": 0.0
+      },
+      "greedy0": {
+        "mean_regret": 0.11818253362193362,
+        "optimal_fraction": 0.9
+      },
+      "greedy1": {
+        "mean_regret": 0.001078,
+        "optimal_fraction": 0.9833333333333333,
+        "seconds_per_instance": 0.06636072499998893
+      },
+      "greedy2": {
+        "mean_regret": 0.0,
+        "optimal_fraction": 1.0,
+        "seconds_per_instance": 0.06627122500000647
+      },
+      "direct": {
+        "mean_regret": 0.4651544366592667,
+        "optimal_fraction": 0.6
+      },
+      "random": {
+        "mean_regret": 1.4820935145685072,
+        "optimal_fraction": 0.1
+      },
+      "optimal_solve_seconds_per_instance": 0.04677469666657998,
+      "neural": {
+        "trm": [
+          {
+            "seed": 0,
+            "mean_regret": 0.11787742413882414,
+            "optimal_fraction": 0.8166666666666667,
+            "decisions": 454,
+            "seconds": 2.631591200024559
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.1095554631864432,
+            "optimal_fraction": 0.8166666666666667,
+            "decisions": 432,
+            "seconds": 2.8368165999745543
+          }
+        ],
+        "memoryless": [
+          {
+            "seed": 0,
+            "mean_regret": 0.195223466995967,
+            "optimal_fraction": 0.7666666666666667,
+            "decisions": 454,
+            "seconds": 2.3100839000144333
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.079277145983646,
+            "optimal_fraction": 0.8166666666666667,
+            "decisions": 454,
+            "seconds": 2.3111960000132967
+          }
+        ],
+        "fixed_depth": [
+          {
+            "seed": 0,
+            "mean_regret": 0.22761042976652976,
+            "optimal_fraction": 0.7833333333333333,
+            "decisions": 468,
+            "seconds": 2.3512532000022475
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.17040822595700597,
+            "optimal_fraction": 0.8,
+            "decisions": 456,
+            "seconds": 2.2118853999782004
+          }
+        ],
+        "ff": [
+          {
+            "seed": 0,
+            "mean_regret": 0.5160585195286195,
+            "optimal_fraction": 0.6333333333333333,
+            "decisions": 444,
+            "seconds": 1.5526416000211611
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.7471042957190956,
+            "optimal_fraction": 0.6333333333333333,
+            "decisions": 452,
+            "seconds": 1.6244196000225202
+          }
+        ],
+        "trm_oracle_features": [
+          {
+            "seed": 0,
+            "mean_regret": 0.09685387651977652,
+            "optimal_fraction": 0.8333333333333334,
+            "decisions": 448,
+            "seconds": 3.7707585000134713
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.1946859431864432,
+            "optimal_fraction": 0.8,
+            "decisions": 458,
+            "seconds": 3.8990461000466894
+          }
+        ],
+        "shuffled_memory": [
+          {
+            "seed": 0,
+            "mean_regret": 0.12403696232064233,
+            "optimal_fraction": 0.7666666666666667,
+            "decisions": 456,
+            "seconds": 2.5981727999642317
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.10643462985310986,
+            "optimal_fraction": 0.8166666666666667,
+            "decisions": 432,
+            "seconds": 2.404101000036462
+          }
+        ]
+      },
+      "paired_vs_greedy1": {
+        "trm": [
+          0.11263844366263366,
+          0.0527902292339466,
+          0.1843746729329512
+        ],
+        "memoryless": [
+          0.1361723064898065,
+          0.04063818819005068,
+          0.2612905717857142
+        ],
+        "fixed_depth": [
+          0.19793132786176787,
+          0.0592179583986199,
+          0.3975137575286749
+        ],
+        "ff": [
+          0.6305034076238576,
+          0.33219037968554593,
+          0.9976428017496392
+        ],
+        "trm_oracle_features": [
+          0.14469190985310984,
+          0.045552918768453764,
+          0.26618029781625757
+        ],
+        "shuffled_memory": [
+          0.1141577960868761,
+          0.05522575490608003,
+          0.1831256737353757
+        ]
+      }
+    },
+    "fresh_complementary": {
+      "instances": 60,
+      "stop": {
+        "mean_regret": 8.181164092111592,
+        "optimal_fraction": 0.0
+      },
+      "greedy0": {
+        "mean_regret": 0.18879182539682537,
+        "optimal_fraction": 0.7333333333333333
+      },
+      "greedy1": {
+        "mean_regret": 0.03368182539682539,
+        "optimal_fraction": 0.9333333333333333,
+        "seconds_per_instance": 0.016255391666588064
+      },
+      "greedy2": {
+        "mean_regret": 0.0,
+        "optimal_fraction": 1.0,
+        "seconds_per_instance": 0.019378436666920608
+      },
+      "direct": {
+        "mean_regret": 4.293687124819625,
+        "optimal_fraction": 0.1
+      },
+      "random": {
+        "mean_regret": 2.367244871242184,
+        "optimal_fraction": 0.0
+      },
+      "optimal_solve_seconds_per_instance": 0.014269980000002154,
+      "neural": {
+        "trm": [
+          {
+            "seed": 0,
+            "mean_regret": 0.7116541305916306,
+            "optimal_fraction": 0.3333333333333333,
+            "decisions": 435,
+            "seconds": 1.269925600005081
+          },
+          {
+            "seed": 1,
+            "mean_regret": 1.0658953192640692,
+            "optimal_fraction": 0.21666666666666667,
+            "decisions": 429,
+            "seconds": 1.0932933999902161
+          }
+        ],
+        "memoryless": [
+          {
+            "seed": 0,
+            "mean_regret": 0.8804105158730159,
+            "optimal_fraction": 0.2833333333333333,
+            "decisions": 439,
+            "seconds": 1.015501999987464
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.7418410714285713,
+            "optimal_fraction": 0.35,
+            "decisions": 429,
+            "seconds": 0.8920047999636154
+          }
+        ],
+        "fixed_depth": [
+          {
+            "seed": 0,
+            "mean_regret": 0.8853068452380951,
+            "optimal_fraction": 0.3,
+            "decisions": 453,
+            "seconds": 1.5026669000544643
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.8605890873015872,
+            "optimal_fraction": 0.2833333333333333,
+            "decisions": 439,
+            "seconds": 0.9167577999978676
+          }
+        ],
+        "ff": [
+          {
+            "seed": 0,
+            "mean_regret": 1.9111875721500722,
+            "optimal_fraction": 0.25,
+            "decisions": 480,
+            "seconds": 0.5259648999926867
+          },
+          {
+            "seed": 1,
+            "mean_regret": 1.8898497150072149,
+            "optimal_fraction": 0.26666666666666666,
+            "decisions": 464,
+            "seconds": 0.5019822000176646
+          }
+        ],
+        "trm_oracle_features": [
+          {
+            "seed": 0,
+            "mean_regret": 0.40206583333333334,
+            "optimal_fraction": 0.5,
+            "decisions": 421,
+            "seconds": 1.5096211999771185
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.5998822402597402,
+            "optimal_fraction": 0.36666666666666664,
+            "decisions": 445,
+            "seconds": 1.456232800061116
+          }
+        ],
+        "shuffled_memory": [
+          {
+            "seed": 0,
+            "mean_regret": 0.7499175595238096,
+            "optimal_fraction": 0.35,
+            "decisions": 434,
+            "seconds": 1.2842124999588123
+          },
+          {
+            "seed": 1,
+            "mean_regret": 1.2030594065656566,
+            "optimal_fraction": 0.23333333333333334,
+            "decisions": 437,
+            "seconds": 1.0971483000248554
+          }
+        ]
+      },
+      "paired_vs_greedy1": {
+        "trm": [
+          0.8550928995310245,
+          0.5974705647997837,
+          1.142596372407107
+        ],
+        "memoryless": [
+          0.7774439682539682,
+          0.5447202549603175,
+          1.0320972837301585
+        ],
+        "fixed_depth": [
+          0.8392661408730159,
+          0.5801526934523809,
+          1.1315240337301584
+        ],
+        "ff": [
+          1.866836818181818,
+          1.3017463564213563,
+          2.467205416486291
+        ],
+        "trm_oracle_features": [
+          0.4672922113997114,
+          0.2892448313492063,
+          0.6697842731331165
+        ],
+        "shuffled_memory": [
+          0.9428066576479076,
+          0.6644646488095237,
+          1.2628002098665225
+        ]
+      }
+    },
+    "fresh_chain": {
+      "instances": 60,
+      "stop": {
+        "mean_regret": 5.570255227513226,
+        "optimal_fraction": 0.0
+      },
+      "greedy0": {
+        "mean_regret": 2.2503079444444447,
+        "optimal_fraction": 0.6166666666666667
+      },
+      "greedy1": {
+        "mean_regret": 2.413974611111111,
+        "optimal_fraction": 0.65,
+        "seconds_per_instance": 0.014348043333181218
+      },
+      "greedy2": {
+        "mean_regret": 0.0,
+        "optimal_fraction": 1.0,
+        "seconds_per_instance": 0.025393940000382524
+      },
+      "direct": {
+        "mean_regret": 0.16917388888888885,
+        "optimal_fraction": 0.4166666666666667
+      },
+      "random": {
+        "mean_regret": 3.5349128190035275,
+        "optimal_fraction": 0.016666666666666666
+      },
+      "optimal_solve_seconds_per_instance": 0.013106278333422476,
+      "neural": {
+        "trm": [
+          {
+            "seed": 0,
+            "mean_regret": 0.5816457936507936,
+            "optimal_fraction": 0.6833333333333333,
+            "decisions": 470,
+            "seconds": 1.4378703000220412
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.12217499999999999,
+            "optimal_fraction": 0.6666666666666666,
+            "decisions": 447,
+            "seconds": 1.3642378999647917
+          }
+        ],
+        "memoryless": [
+          {
+            "seed": 0,
+            "mean_regret": 0.5382180158730159,
+            "optimal_fraction": 0.6666666666666666,
+            "decisions": 473,
+            "seconds": 1.2047551000614476
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.30983246031746037,
+            "optimal_fraction": 0.7166666666666667,
+            "decisions": 470,
+            "seconds": 1.1240490999480244
+          }
+        ],
+        "fixed_depth": [
+          {
+            "seed": 0,
+            "mean_regret": 0.3141124603174603,
+            "optimal_fraction": 0.6666666666666666,
+            "decisions": 473,
+            "seconds": 1.083306199980143
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.30111579365079366,
+            "optimal_fraction": 0.7,
+            "decisions": 470,
+            "seconds": 1.045452699996531
+          }
+        ],
+        "ff": [
+          {
+            "seed": 0,
+            "mean_regret": 1.525020753968254,
+            "optimal_fraction": 0.5,
+            "decisions": 447,
+            "seconds": 0.5638963999554107
+          },
+          {
+            "seed": 1,
+            "mean_regret": 1.176013253968254,
+            "optimal_fraction": 0.5333333333333333,
+            "decisions": 450,
+            "seconds": 0.5620675000282063
+          }
+        ],
+        "trm_oracle_features": [
+          {
+            "seed": 0,
+            "mean_regret": 0.303555,
+            "optimal_fraction": 0.6833333333333333,
+            "decisions": 457,
+            "seconds": 1.693435600016528
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.5299846825396826,
+            "optimal_fraction": 0.6666666666666666,
+            "decisions": 470,
+            "seconds": 1.6443313999661768
+          }
+        ],
+        "shuffled_memory": [
+          {
+            "seed": 0,
+            "mean_regret": 0.6871513492063492,
+            "optimal_fraction": 0.65,
+            "decisions": 474,
+            "seconds": 1.4072353999836196
+          },
+          {
+            "seed": 1,
+            "mean_regret": 0.12166071428571429,
+            "optimal_fraction": 0.6666666666666666,
+            "decisions": 455,
+            "seconds": 1.441500700013421
+          }
+        ]
+      },
+      "paired_vs_greedy1": {
+        "trm": [
+          -2.062064214285714,
+          -3.0267786075396828,
+          -1.151929690277778
+        ],
+        "memoryless": [
+          -1.989949373015873,
+          -2.984227660714286,
+          -1.063979159722223
+        ],
+        "fixed_depth": [
+          -2.1063604841269843,
+          -3.1532698049603174,
+          -1.18298047420635
+        ],
+        "ff": [
+          -1.063457607142857,
+          -2.017610388095238,
+          -0.18971931259920669
+        ],
+        "trm_oracle_features": [
+          -1.99720476984127,
+          -2.9911583087301583,
+          -1.0777371623015881
+        ],
+        "shuffled_memory": [
+          -2.0095685793650793,
+          -2.956997790873016,
+          -1.1045091361111117
+        ]
+      }
+    }
+  },
+  "log": [
+    "seed 0 arm trm params 12194 flops/decision 386304",
+    "  epoch 0 calib action accuracy 0.7900",
+    "  epoch 10 calib action accuracy 0.8140",
+    "  epoch 20 calib action accuracy 0.8045",
+    "seed 0 arm memoryless params 12245 flops/decision 1007424",
+    "  epoch 0 calib action accuracy 0.7931",
+    "  epoch 10 calib action accuracy 0.8065",
+    "  epoch 20 calib action accuracy 0.7840",
+    "seed 0 arm fixed_depth params 12194 flops/decision 115968",
+    "  epoch 0 calib action accuracy 0.7736",
+    "  epoch 10 calib action accuracy 0.8098",
+    "  epoch 20 calib action accuracy 0.8187",
+    "seed 0 arm ff params 12265 flops/decision 24274",
+    "  epoch 0 calib action accuracy 0.7756",
+    "  epoch 10 calib action accuracy 0.8220",
+    "  epoch 20 calib action accuracy 0.8642",
+    "seed 0 arm trm_oracle_features params 12194 flops/decision 386304",
+    "  epoch 0 calib action accuracy 0.7798",
+    "  epoch 10 calib action accuracy 0.8220",
+    "  epoch 20 calib action accuracy 0.8149",
+    "seed 1 arm trm params 12194 flops/decision 386304",
+    "  epoch 0 calib action accuracy 0.7588",
+    "  epoch 10 calib action accuracy 0.8096",
+    "  epoch 20 calib action accuracy 0.8092",
+    "seed 1 arm memoryless params 12245 flops/decision 1007424",
+    "  epoch 0 calib action accuracy 0.8008",
+    "  epoch 10 calib action accuracy 0.8094",
+    "  epoch 20 calib action accuracy 0.8114",
+    "seed 1 arm fixed_depth params 12194 flops/decision 115968",
+    "  epoch 0 calib action accuracy 0.7363",
+    "  epoch 10 calib action accuracy 0.8140",
+    "  epoch 20 calib action accuracy 0.8107",
+    "seed 1 arm ff params 12265 flops/decision 24274",
+    "  epoch 0 calib action accuracy 0.7858",
+    "  epoch 10 calib action accuracy 0.8299",
+    "  epoch 20 calib action accuracy 0.8642",
+    "seed 1 arm trm_oracle_features params 12194 flops/decision 386304",
+    "  epoch 0 calib action accuracy 0.7694",
+    "  epoch 10 calib action accuracy 0.8032",
+    "  epoch 20 calib action accuracy 0.8165",
+    "memory-threading evaluator agrees with library evaluator on 6 instances",
+    "in_distribution: {\"stop\": 5.53, \"greedy0\": 0.1194, \"greedy1\": 0.0005, \"greedy2\": 0.0, \"direct\": 0.4038, \"random\": 1.0524} nn: {\"trm\": 0.1139, \"memoryless\": 0.0761, \"fixed_depth\": 0.0905, \"ff\": 0.2825, \"trm_oracle_features\": 0.0637, \"shuffled_memory\": 0.0825}",
+    "fresh_wide: {\"stop\": 6.1227, \"greedy0\": 0.1182, \"greedy1\": 0.0011, \"greedy2\": 0.0, \"direct\": 0.4652, \"random\": 1.4821} nn: {\"trm\": 0.1137, \"memoryless\": 0.1373, \"fixed_depth\": 0.199, \"ff\": 0.6316, \"trm_oracle_features\": 0.1458, \"shuffled_memory\": 0.1152}",
+    "fresh_complementary: {\"stop\": 8.1812, \"greedy0\": 0.1888, \"greedy1\": 0.0337, \"greedy2\": 0.0, \"direct\": 4.2937, \"random\": 2.3672} nn: {\"trm\": 0.8888, \"memoryless\": 0.8111, \"fixed_depth\": 0.8729, \"ff\": 1.9005, \"trm_oracle_features\": 0.501, \"shuffled_memory\": 0.9765}",
+    "fresh_chain: {\"stop\": 5.5703, \"greedy0\": 2.2503, \"greedy1\": 2.414, \"greedy2\": 0.0, \"direct\": 0.1692, \"random\": 3.5349} nn: {\"trm\": 0.3519, \"memoryless\": 0.424, \"fixed_depth\": 0.3076, \"ff\": 1.3505, \"trm_oracle_features\": 0.4168, \"shuffled_memory\": 0.4044}"
+  ]
+}
