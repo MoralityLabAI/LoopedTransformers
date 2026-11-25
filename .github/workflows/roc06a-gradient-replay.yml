@@ -1,0 +1,210 @@
+name: ROC-06A train-only gradient observer causal replay
+
+on:
+  push:
+    paths:
+      - 'configs/roc06a_train_counterfactual_gradient_observer_v1.json'
+      - 'research_gym/analysis/roc06a_*.py'
+      - 'tests/test_roc06a_gradient_observer.py'
+      - '.github/workflows/roc06a-gradient-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  gradient-preflight:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install pinned CPU Torch and run exact four-step VJP tests
+        run: |
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m compileall -q research_gym/analysis/roc06a_*.py tests/test_roc06a_gradient_observer.py
+          python -m unittest discover -s tests -p 'test_roc06a_gradient_observer.py' -v
+      - name: Audit frozen source-only preregistration and future test seal
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('configs/roc06a_train_counterfactual_gradient_observer_v1.json').read_text())
+          assert c['parent']['original_train_run']==44101721734
+          assert c['gradient_basis']['rank']==7
+          assert c['primary']['radius']==.20
+          assert len(c['parent']['original_1920step_checkpoint_sha256'])==6
+          assert len(c['parent']['source_sha256'])==3
+          assert c['source']['original_roc02_sealed_families']==[6,7]
+          assert c['source']['roc05_reserved'].startswith('384 reserved')
+          print('Frozen ROC-06A registration PASS')
+          PY
+
+  causal-seed:
+    needs: gradient-preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [20261117231, 20261117233, 20261117239, 20261117241, 20261117251, 20261117257]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install pinned CPU Torch
+        run: |
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Download only ORIGINAL ROC-05A first-run frozen checkpoint artifacts
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44101721734
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: ROC05A-seed-*
+          merge-multiple: true
+          path: /tmp/roc06_original
+      - name: Generate only the original train and exposed development source
+        run: |
+          python -m research_gym.analysis.roc05_permutation_source --out-dir /tmp/roc06_source
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          c=json.loads(Path('configs/roc06a_train_counterfactual_gradient_observer_v1.json').read_text())
+          names={'train_low4':'train_low4.jsonl','train_high512':'train_high512.jsonl',
+                 'development':'development.jsonl'}
+          for k,n in names.items():
+              p=Path('/tmp/roc06_source')/n
+              assert hashlib.sha256(p.read_bytes()).hexdigest()==c['parent']['source_sha256'][k]
+          assert not any('reserved' in p.name for p in Path('/tmp/roc06_source').iterdir())
+          print('Original ROC05 sources SHA matched; future ROC05 test unmaterialized')
+          PY
+      - name: Fit train-only gradient basis and execute all fixed causal arms
+        run: |
+          python -m research_gym.analysis.roc06a_counterfactual_gradient \
+            --seed ${{ matrix.seed }} --source-dir /tmp/roc06_source \
+            --checkpoint-dir /tmp/roc06_original \
+            --config configs/roc06a_train_counterfactual_gradient_observer_v1.json \
+            --outdir /tmp/roc06_results
+      - name: Check two frozen checkpoint hashes, route/geometry census and causality scope
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          seed=int("${{ matrix.seed }}")
+          c=json.loads(Path('configs/roc06a_train_counterfactual_gradient_observer_v1.json').read_text())
+          out=Path('/tmp/roc06_results')
+          for arm in ('low_affine4','high_permutation512'):
+              ck=Path('/tmp/roc06_original')/f'roc05_{arm}_S{seed}_step1920.pt'
+              assert hashlib.sha256(ck.read_bytes()).hexdigest()==c['parent']['original_1920step_checkpoint_sha256'][str(seed)][arm]
+              receipt=json.loads((out/f'roc06a_S{seed}_{arm}_receipt.json').read_text())
+              assert receipt['study']==c['study']
+              assert receipt['per_case_row_count']==256*3*10
+              assert len(receipt['null_rows'])==256
+              assert len(receipt['shadow_cards'])==6
+              assert receipt['model_training_updates_during_causal_analysis']==0
+              assert not receipt['sealed_test_evaluated']
+              assert receipt['basis_singulars']['train_only']
+              raw=out/f'roc06a_S{seed}_{arm}.csv.gz'
+              assert hashlib.sha256(raw.read_bytes()).hexdigest()==receipt['per_case_csv_gzip_sha256']
+          print('Original weights and 15360 causal records, six cards per seed audited')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ROC06A-original-gradient-seed-${{ matrix.seed }}
+          path: /tmp/roc06_results/
+          retention-days: 90
+
+  independent-summary:
+    needs: causal-seed
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ROC06A-original-gradient-seed-*
+          merge-multiple: true
+          path: /tmp/roc06_all
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44101721734
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: ROC05A-seed-*
+          merge-multiple: true
+          path: /tmp/roc06_original
+      - name: Independently verify every 92160 case-route, 3072 nulls and six-sign primary
+        run: |
+          python -m research_gym.analysis.roc06a_independent_audit \
+            --result-dir /tmp/roc06_all \
+            --config configs/roc06a_train_counterfactual_gradient_observer_v1.json \
+            --out /tmp/roc06_all/ROC06A_INDEPENDENT_SUMMARY.json
+      - name: Bundle all original checkpoint/source bytes and SHA-indexed reproducibility files
+        run: |
+          python -m research_gym.analysis.roc05_permutation_source --out-dir /tmp/roc06_source
+          python - <<'PY'
+          import hashlib,shutil,zipfile,json
+          from pathlib import Path
+          dst=Path('/tmp/roc06_package')
+          dst.mkdir(parents=True,exist_ok=True)
+          for p in Path('/tmp/roc06_all').iterdir():
+              if p.is_file():shutil.copy2(p,dst/p.name)
+          for p in Path('/tmp/roc06_source').iterdir():
+              if p.is_file():shutil.copy2(p,dst/p.name)
+          ckdir=dst/'original_roc05a_models'
+          ckdir.mkdir(exist_ok=True)
+          for p in Path('/tmp/roc06_original').iterdir():
+              if p.is_file():shutil.copy2(p,ckdir/p.name)
+          assert len(list(ckdir.glob('*step1920.pt')))==12
+          paths=[
+            'configs/roc06a_train_counterfactual_gradient_observer_v1.json',
+            'experiments/roc06_train_gradient_observer/ROC06A_PREREGISTRATION.md',
+            'research_gym/analysis/roc06a_counterfactual_gradient.py',
+            'research_gym/analysis/roc06a_independent_audit.py',
+            'research_gym/analysis/roc05_permutation_source.py',
+            'research_gym/analysis/roc04_permutation_source.py',
+            'research_gym/analysis/roc03b_query_table_memory.py',
+            'research_gym/analysis/roc02_tied_train.py',
+            'research_gym/analysis/roc02_delayed_rule_source.py',
+            'tests/test_roc06a_gradient_observer.py',
+          ]
+          for name in paths:
+              p=Path(name);dest=dst/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(p,dest)
+          files=sorted(p for p in dst.rglob('*') if p.is_file())
+          manifest={'study':'ROC-06A-v1-train-only-counterfactual-gradient-observer',
+              'model_count':12,'causal_rows':92160,'null_rows':3072,'observer_cards':72,
+              'original_roc02_sealed':True,'ROC05_reserved_examples_generated':False,
+              'file_receipts':[{'path':str(f.relative_to(dst)), 'bytes':f.stat().st_size,
+                   'sha256':hashlib.sha256(f.read_bytes()).hexdigest()} for f in files]}
+          (dst/'ROC06A_MANIFEST.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          zpath=Path('/tmp/ROC06A_counterfactual_gradient_reproducibility.zip')
+          with zipfile.ZipFile(zpath,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+              for p in sorted(x for x in dst.rglob('*') if x.is_file()):
+                  info=zipfile.ZipInfo(str(p.relative_to(dst)),date_time=(1980,1,1,0,0,0))
+                  info.compress_type=zipfile.ZIP_DEFLATED
+                  z.writestr(info,p.read_bytes())
+          print('ZIP',zpath,'sha256',hashlib.sha256(zpath.read_bytes()).hexdigest(),
+                'bytes',zpath.stat().st_size,'files',len(manifest['file_receipts']))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ROC06A-complete-frozen-gradient-causal-replay
+          path: |
+            /tmp/ROC06A_counterfactual_gradient_reproducibility.zip
+            /tmp/roc06_all/ROC06A_INDEPENDENT_SUMMARY.json
+          retention-days: 90
