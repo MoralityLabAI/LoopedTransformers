@@ -6,10 +6,10 @@ namespace LBF20Scope
 
 abbrev Assignment := Nat → Nat
 abbrev Table := Assignment → Prop
-abbrev Scope := List Nat
+abbrev Scope := Nat → Bool
 
 def Agree (A : Scope) (x y : Assignment) : Prop :=
-  ∀ i, i ∈ A → x i = y i
+  ∀ i, A i = true → x i = y i
 
 def Project (A : Scope) (T : Table) : Table :=
   fun x => ∃ y, T y ∧ Agree A x y
@@ -48,25 +48,33 @@ theorem local_projection_exact {A : Scope} {P : Table} (h : Local A P) :
   fun x ⟨y, hy, he⟩ => h y x (agree_symm he) hy
 
 def Glue (A : Scope) (x y : Assignment) : Assignment :=
-  fun i => if i ∈ A then x i else y i
+  fun i => match A i with
+    | true => x i
+    | false => y i
 
 theorem glue_left (A : Scope) (x y : Assignment) : Agree A x (Glue A x y) := by
   intro i hi
-  change x i = (if i ∈ A then x i else y i)
-  exact (if_pos hi).symm
+  exact (congrArg (fun b : Bool => match b with
+    | true => x i
+    | false => y i) hi).symm
 
 theorem glue_right {A B : Scope} {x y : Assignment}
-    (h : ∀ i, i ∈ A → i ∈ B → x i = y i) : Agree B y (Glue A x y) := by
+    (h : ∀ i, A i = true → B i = true → x i = y i) : Agree B y (Glue A x y) := by
   intro i hi
-  change y i = (if i ∈ A then x i else y i)
-  by_cases ha : i ∈ A
-  · exact (h i ha hi).symm.trans (if_pos ha).symm
-  · exact (if_neg ha).symm
+  cases ha : A i with
+  | false =>
+    exact (congrArg (fun b : Bool => match b with
+      | true => x i
+      | false => y i) ha).symm
+  | true =>
+    exact (h i ha hi).symm.trans ((congrArg (fun b : Bool => match b with
+      | true => x i
+      | false => y i) ha).symm)
 
 theorem separator_glue {A B : Scope} {P Q : Table} {x y : Assignment}
     (hp : Local A P) (hq : Local B Q)
     (px : P x) (qy : Q y)
-    (h : ∀ i, i ∈ A → i ∈ B → x i = y i) :
+    (h : ∀ i, A i = true → B i = true → x i = y i) :
     ∃ z, P z ∧ Q z ∧ Agree A x z ∧ Agree B y z :=
   ⟨Glue A x y, hp x _ (glue_left A x y) px,
     hq y _ (glue_right h) qy, glue_left A x y, glue_right h⟩
