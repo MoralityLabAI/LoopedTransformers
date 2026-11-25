@@ -1,0 +1,59 @@
+name: LBF-20H exact revision scheduling
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf20h_scheduler.py"
+      - "research/lite_braille_fresco/lean/LBF20Schedule.lean"
+      - "research/lite_braille_fresco/LBF_20H_REGISTRATION.md"
+      - ".github/workflows/lbf20h-scheduler.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU numerical dependency
+        run: python -m pip install numpy==1.26.4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: false
+          test: false
+          use-mathlib-cache: false
+      - name: Verify schedule soundness and terminal uniqueness
+        run: |
+          mkdir -p "$RUNNER_TEMP/lbf20h-theory"
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          "$lean_bin" --threads=1 research/lite_braille_fresco/lean/LBF20Schedule.lean > "$RUNNER_TEMP/lbf20h-theory/theory.log" 2>&1 || { cat "$RUNNER_TEMP/lbf20h-theory/theory.log"; exit 1; }
+          cat "$RUNNER_TEMP/lbf20h-theory/theory.log"
+          test "$(grep -c 'does not depend on any axioms' "$RUNNER_TEMP/lbf20h-theory/theory.log")" -eq 9
+      - name: Independent finite audit and matched scheduling study
+        run: |
+          python research/lite_braille_fresco/lbf20h_scheduler.py --out "$RUNNER_TEMP/lbf20h"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          s=json.loads((Path(os.environ["RUNNER_TEMP"])/"lbf20h/summary.json").read_text())
+          assert s["audit"]["fixed_point_comparisons"]==480 and s["audit"]["mismatches"]==0
+          assert len(s["fits"])==6 and s["rows"]==108*(4+11*4)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf20h-revision-receipts
+          path: |
+            ${{ runner.temp }}/lbf20h/
+            ${{ runner.temp }}/lbf20h-theory/
+          if-no-files-found: warn
