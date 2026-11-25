@@ -1,0 +1,30 @@
+{
+  "architecture": "Inkling2LoopForConditionalGeneration",
+  "hidden_size": 2304,
+  "loop_config": {
+    "core_end": 18,
+    "core_start": 6,
+    "gate_rank": 64,
+    "is_varloop": false,
+    "num_passes": 3
+  },
+  "model_id": "thinkingmachines/Inkling-2-Mini",
+  "model_type": "inkling2_loop",
+  "num_hidden_layers": 24,
+  "revision": "b85c3cfa615fc413cc9af3379f491b963f3b586a",
+  "source_quantization": {
+    "quant_algo": "NVFP4",
+    "quant_method": "modelopt"
+  },
+  "tokenizer_eos_id": 200006,
+  "tokenizer_sha256": "7f332727f9a3f093dd452a39cc978e6757627e5dad1b0673aa4e75174f236dd6",
+  "unpadded_vocab_size": 200058,
+  "verified_git_blobs": {
+    "config.json": "e6c170c3fb666c50e3b509493b6b7a8f948b7d15",
+    "model.safetensors.index.json": "3b835a38066039133931b604a0734dfae89a644e",
+    "special_tokens_map.json": "e4fe9735b528be1c630eb832d655fc8c4c2c309f",
+    "tokenizer_config.json": "abf8fb60451e6c33d2cfa3c4dfab9f8c1e7516aa"
+  },
+  "weight_identity_source": "verified original native prefill receipts",
+  "weight_sha256": "65e60f51aa1284d4fb022584908c315270334d991828bb774af60584523539d1"
+}

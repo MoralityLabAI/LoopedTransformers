@@ -1,0 +1,53 @@
+{
+  "arms": [
+    "clean",
+    "clean_replay",
+    "zero_k",
+    "vector_k",
+    "zero_rescue",
+    "vector_rescue",
+    "zero_k_unclamped",
+    "vector_k_unclamped"
+  ],
+  "beta_tolerance": 0.001,
+  "checkpoint_revision": "b85c3cfa615fc413cc9af3379f491b963f3b586a",
+  "clamp": {
+    "recovery_tolerance": 2e-07,
+    "shared_beta_rule": "FP32 midpoint of the two native K score softmax weights"
+  },
+  "development_only": true,
+  "dose_tolerance": 0.01,
+  "frozen_tv_floor": 0.01,
+  "launch": {
+    "budget_gib": 1.85,
+    "device": "cuda:0",
+    "offload_vocabulary": true,
+    "reserve_gib": 1
+  },
+  "manifest_sha256": "4d83528ef6f666d2b71fc29bfe2e667fd0d5c38a8f7dda6e63741dc8e7324ccf",
+  "model_id": "thinkingmachines/Inkling-2-Mini",
+  "reader_layer": 12,
+  "reader_passes": [
+    3
+  ],
+  "replay_safety_factor": 10,
+  "replays": 2,
+  "rescue_tv_tolerance": 0.0001,
+  "root_prompts": {
+    "k-only-bakery": "The bakery labels each sourdough starter with a",
+    "k-only-balloon": "On the ridge, the weather balloon burst above"
+  },
+  "schema": "ink-route-02.k-only.v1",
+  "scientific_minimum_tv": 0.01,
+  "sealed_evaluations_accessed": false,
+  "smoke_gate_sha256": null,
+  "source_sha256": {
+    "checkpoint.py": "793a8023a2a9d1d77a7e999c3a12c09bbbdfe738c4b683a5ea4ec150f8c04b5c",
+    "core.py": "8469d5f588cbc3b43a2ff4ab9c4a3f3fe03621b8b78106707bac066d14c5794a",
+    "hooks.py": "cd61ed3fe6507422e937c5efb4261af84e690192d070ae7044722bf002f1f588",
+    "k_only.py": "c1b1fc879e1e90b92ce6f55b717dd9bd5cbd9d73a2c435ea17082cb45a236a47",
+    "local.py": "7ec55271e3901758832b9a84308b955eae0a07a3978843bd368e4b5ac8cc78d5",
+    "matched_controls.py": "d12d2ec092844909d2292446a67b0b505b7660853c19f383fbb68b3bf626519b",
+    "native.py": "8b25a1dfbfd768675c1b42556334f0a64855b311dbbda5d16aee60b2f1ff20c9"
+  }
+}

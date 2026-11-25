@@ -141,7 +141,7 @@ class ReaderTrace:
         for pass_number, reader in self.readers.items():
             if not np.array_equal(reader["original"][0], self.writers[pass_number - 2]):
                 raise RuntimeError(f"writer does not match previous-pass block-3 bank for pass {pass_number}")
-            lanes = [0, *(self.lanes[pass_number, arm] for arm in ARMS)]
+            lanes = [0, *(lane for (reader_pass, _), lane in self.lanes.items() if reader_pass == pass_number)]
             for key in ("bank2", "original"):
                 if not np.array_equal(reader[key][lanes], np.broadcast_to(reader[key][0], (len(lanes), WIDTH))):
                     raise RuntimeError(f"intervention lanes diverged before pass {pass_number} {key}")

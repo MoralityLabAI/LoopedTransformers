@@ -1,0 +1,60 @@
+{
+  "development_only": true,
+  "expand": false,
+  "max_observed_replay_or_rescue_tv": 2.861773018558722e-08,
+  "max_reconstruction_error": 1.3888920748304667e-07,
+  "max_rescue_tv": 2.861773018558722e-08,
+  "mean_paired_root_tv": 0.004777442813241672,
+  "minimum_meaningful_tv": 0.01,
+  "noise_resolves_floor": true,
+  "roots": {
+    "k-only-bakery": {
+      "clears_floor_both_replays": false,
+      "first_replay_treatment_outcomes": {
+        "vector_k": {
+          "reference_logprob_delta": 0.002770543098449707,
+          "top_token_flip": false,
+          "top_token_id": 150755,
+          "tv_from_clean": 0.0037747640566453008
+        },
+        "zero_k": {
+          "reference_logprob_delta": 0.001711726188659668,
+          "top_token_flip": false,
+          "top_token_id": 150755,
+          "tv_from_clean": 0.00237996687543797
+        }
+      },
+      "k_message_l2_zero_vs_vector": 56.37956998340811,
+      "max_beta_gap": 0.00011509412584453926,
+      "tv_zero_vs_vector_by_replay": [
+        0.00337364836223886,
+        0.00337364836223886
+      ]
+    },
+    "k-only-balloon": {
+      "clears_floor_both_replays": false,
+      "first_replay_treatment_outcomes": {
+        "vector_k": {
+          "reference_logprob_delta": -0.004763901233673096,
+          "top_token_flip": false,
+          "top_token_id": 149876,
+          "tv_from_clean": 0.005777721941140502
+        },
+        "zero_k": {
+          "reference_logprob_delta": -0.0012865066528320312,
+          "top_token_flip": false,
+          "top_token_id": 149876,
+          "tv_from_clean": 0.00781750423015875
+        }
+      },
+      "k_message_l2_zero_vs_vector": 56.39189530284037,
+      "max_beta_gap": 7.255377045167766e-05,
+      "tv_zero_vs_vector_by_replay": [
+        0.006181237264244484,
+        0.006181237264244484
+      ]
+    }
+  },
+  "rows": 24,
+  "sealed_evaluations_accessed": false
+}

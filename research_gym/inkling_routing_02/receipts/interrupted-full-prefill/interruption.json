@@ -1,0 +1,32 @@
+{
+  "attempt": "native-fineweb-01",
+  "gpu_before_stop": "16303 MiB, 13715 MiB, 2201 MiB, 90 %",
+  "last_completed_root": "fw-001",
+  "last_progress": "fw-001: 104 rows, 189.29s",
+  "original_console_log_sha256": "2a5a46af5371743a62bb1528063884d9c23d6525564107159ab2db63abac231a",
+  "preserved_local_files": {
+    "checkpoint.json": "223b8a15d31fa0edbfeb8bcc361254f86bdd1470e08e9711ec7edca0a2229aec",
+    "failures.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "manifest.json": "af82f038a0e8cd31ac98c0da2d83ca7ea6d2f5ad5d91fb287b546fbffd38a438",
+    "records.jsonl": "457808cd1644cf208432974c4404206e49865e646961c284d5b3c568c679ede6",
+    "resources_before.json": "290eae584fbfec96b0fd47ef61353776b28d688d3849c0261e8f929335fa85e9",
+    "resources_loaded.json": "45c09879de5750c50d2c49d59712d11f3a60857982dcfaeaf2ec19b1be32fddc",
+    "software.json": "5dfca61db30f3152ac7253b5492de525a8a01a7c00f8aed748762308071c5695",
+    "vectors_fw-001_pass2_replay0.npz": "143332166ce1154a365704387c52df5732f28b478d0498930936bf9d06f085aa",
+    "vectors_fw-001_pass2_replay1.npz": "143332166ce1154a365704387c52df5732f28b478d0498930936bf9d06f085aa",
+    "vectors_fw-001_pass3_replay0.npz": "e5ece340a4446c284ec4b1b9e98d2527b3f85eaecabc1e2c15a9052804d105d5",
+    "vectors_fw-001_pass3_replay1.npz": "e5ece340a4446c284ec4b1b9e98d2527b3f85eaecabc1e2c15a9052804d105d5"
+  },
+  "reason": "Switch to batched clean capture after native forwards slowed under sustained shared GPU load",
+  "received": {
+    "flips": 0,
+    "flips_by_arm": {},
+    "forward_seconds": 569.2653763999988,
+    "null_zero_arms": 0,
+    "roots": 1,
+    "rows": 104,
+    "tensors": 4
+  },
+  "stage": "operator interruption",
+  "time_utc": "2026-11-22T14:26:43.8486265Z"
+}

@@ -65,7 +65,7 @@ def verify_metadata(snapshot: Path):
     }
 
 
-def packed_model_class(weight_file):
+def packed_model_class(weight_file, *, expert_chunk_size=None):
     """Keep original NVFP4/MXFP8 expert weights mapped on disk, decoding active experts only."""
     import torch
     import torch.nn.functional as F
@@ -116,7 +116,7 @@ def packed_model_class(weight_file):
             mask = F.one_hot(top_k_index, num_classes=self.num_experts + 1).permute(2, 1, 0)
             active = mask[:self.num_experts].any(dim=(-2, -1)).nonzero().flatten().tolist()
             output = torch.zeros_like(hidden_states, dtype=torch.float32)
-            chunk_size = dequantize.EXPERTS_PER_CHUNK
+            chunk_size = expert_chunk_size or dequantize.EXPERTS_PER_CHUNK
             for start in range(0, len(active), chunk_size):
                 experts = active[start:start + chunk_size]
                 gate = self.read_projection(self.sources[0], experts, hidden_states.device)
@@ -139,12 +139,14 @@ def packed_model_class(weight_file):
     return PackedInkling, expected_packed, vision_keys
 
 
-def load_model(snapshot, weight_file, device):
+def load_model(snapshot, weight_file, device, *, offload_vocabulary=False):
     import torch
     from transformers import AutoConfig
     from transformers.conversion_mapping import get_checkpoint_conversion_mapping, register_checkpoint_conversion_mapping
 
-    model_class, expected_packed, vision_keys = packed_model_class(weight_file)
+    model_class, expected_packed, vision_keys = packed_model_class(
+        weight_file, expert_chunk_size=2 if offload_vocabulary else None,
+    )
     config = AutoConfig.from_pretrained(snapshot, local_files_only=True, trust_remote_code=False).text_config
     # The generic NVFP4 loader cannot ingest this ModelOpt layout. The original
     # packed experts above use the release's own Inkling-specific converter.
@@ -159,7 +161,7 @@ def load_model(snapshot, weight_file, device):
         dtype=torch.bfloat16,
         attn_implementation="eager",
         experts_implementation="eager",
-        device_map={"": device},
+        device_map={"": "cpu" if offload_vocabulary else device},
         output_loading_info=True,
     )
     packed_targets = {
@@ -171,4 +173,17 @@ def load_model(snapshot, weight_file, device):
     problems = {key: value for key, value in diagnostics.items() if key != "unexpected_keys" and value}
     if unexpected or problems:
         raise RuntimeError(f"unexpected checkpoint loading diagnostics: {sorted(unexpected)} / {problems}")
+    if offload_vocabulary:
+        # Keep the vocabulary look-up and projection on CPU. The native
+        # recurrent layers and embedding norm execute on the selected GPU.
+        embedding, head = model.model.embed_tokens, model.lm_head
+        del model.model.embed_tokens
+        del model.lm_head
+        model.to(device)
+        embedding.embed_norm.to(device)
+        embedding.register_forward_pre_hook(lambda module, args: (args[0].cpu(),))
+        embedding.embed_norm.register_forward_pre_hook(lambda module, args: (args[0].to(device),))
+        head.register_forward_pre_hook(lambda module, args: (args[0].cpu(),))
+        head.register_forward_hook(lambda module, args, output: output.to(device))
+        model.model.embed_tokens, model.lm_head = embedding, head
     return model.eval(), len(expected_packed)
