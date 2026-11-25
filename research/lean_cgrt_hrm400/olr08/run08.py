@@ -181,6 +181,11 @@ def menu(exe,source,row):
 
 def enumerate_menu(m,s):
     p=m.call('premises',sid=s['sid'],max_rw=40,max_apply=10)
+    if p.get('ok') is False and 'maximum number of heartbeats' in str(p.get('error','')) and 'rw' not in p and 'apply' not in p:
+        # Infrastructure repair: the enumerator hit its own heartbeat cap at this state. As in Fable's
+        # referee search, the state gets no premise proposals but keeps its fixed, local and definition
+        # actions; the charged call stays in the meter journal with ok=False. Other failures still raise.
+        p={'rw':[],'apply':[]}
     if p.get('error') or not all(k in p for k in ('rw','apply')):raise ValueError('premise enumeration failed: '+str(p)[:300])
     # De-duplicate literal tactic strings only, never proof states.
     seen=set();out=[]

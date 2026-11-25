@@ -1,0 +1,45 @@
+Traceback (most recent call last):
+  File "C:\olr08\run_full.py", line 109, in <module>
+    main()
+  File "C:\olr08\run_full.py", line 90, in main
+    launch.main()
+  File "C:\olr08\pkg\launch.py", line 57, in main
+    try:run(args);stats['completed']=True
+        ^^^^^^^^^
+  File "C:\olr08\pkg\run08.py", line 356, in main
+    teacher=stage(out,'source_s2',tr,lambda r:search(exe,source,r,'s2'),args.workers);prior=fit_prior(teacher);write(out/'prior.json',prior)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\olr08\run_full.py", line 49, in guarded
+    return _stage(out, name, rows, fn, workers)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\olr08\pkg\run08.py", line 296, in stage
+    for i,v in enumerate(pool.map(work,rows)):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\patri\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\patri\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\patri\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\patri\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\patri\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\olr08\pkg\run08.py", line 293, in work
+    v=fn(row);write(p,v);seal.write_text(sha(p)+'\n');return v
+      ^^^^^^^
+  File "C:\olr08\pkg\run08.py", line 356, in <lambda>
+    teacher=stage(out,'source_s2',tr,lambda r:search(exe,source,r,'s2'),args.workers);prior=fit_prior(teacher);write(out/'prior.json',prior)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\olr08\pkg\run08.py", line 268, in search
+    _,audit=replay(exe,source,row,winner.path);result['replay']=audit
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\olr08\pkg\run08.py", line 243, in replay
+    if s.get('ok') is not True:raise ValueError('fresh native path replay failed')
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: fresh native path replay failed
+EXIT 1
