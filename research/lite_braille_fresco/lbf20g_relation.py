@@ -291,8 +291,11 @@ def evaluate(cases,truth,arm,net=None):
                     v=float(scores[i][a]);y=int(bool(exact[i]&(1<<a)))
                     fn+=int(y and v<.5);fp+=int(not y and v>=.5)
                     brier+=(v-y)**2;nlabels+=1;ap_data.append((v,y))
-            if any(m.bit_count()>1 for m in dom) and sat:
-                i=s.variable(dom);a=min(bits(dom[i]),key=lambda a:(-scores[i][a],a))
+            decision_dom=s.ac(filtered)
+            if decision_dom is not None and sat and any(m.bit_count()>1 for m in decision_dom):
+                i=s.variable(decision_dom)
+                rank=scores[i] if arm in ARMS else s.lcv(decision_dom,i)
+                a=min(bits(decision_dom[i]),key=lambda a:(-rank[a],a))
                 first=bool(exact[i]&(1<<a))
             # Learned policies only rank; use identical fixed root scores at
             # every later AC state. Boolean/functional/SAC may soundly filter.
@@ -316,7 +319,7 @@ def evaluate(cases,truth,arm,net=None):
             "false_negatives":sum(r["threshold_false_negatives"] for r in rows),
             "false_positives":sum(r["threshold_false_positives"] for r in rows),
             "ap":ap(ap_data),"brier":sum(r["brier_sum"] for r in rows)/max(1,len(ap_data)),
-            "first_viable":statistics.mean([r["first_value_viable"] for r in rows if r["first_value_viable"] is not None]),
+            "first_viable":statistics.mean([r["first_value_viable"] for r in rows if r["first_value_viable"] is not None]) if any(r["first_value_viable"] is not None for r in rows) else None,
             "nodes_by_family":{k:statistics.mean(r["nodes"] for r in rows if r["family"]==k)
                                for k in sorted({r["family"] for r in rows})},
             "rows":rows}
