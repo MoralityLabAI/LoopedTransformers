@@ -1,0 +1,61 @@
+name: LBF-20E contextual proof DAGs
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf20e_*.py"
+      - "research/lite_braille_fresco/lean/LBF20Horn.lean"
+      - "research/lite_braille_fresco/LBF_20E_REGISTRATION.md"
+      - ".github/workflows/lbf20e-context-dag.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONHASHSEED: "0"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - name: Verify scoped Horn support theorems
+        run: |
+          mkdir -p "$RUNNER_TEMP/lbf20e-theory"
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          "$lean_bin" --threads=1 research/lite_braille_fresco/lean/LBF20Horn.lean > "$RUNNER_TEMP/lbf20e-theory/theory.log" 2>&1 || { cat "$RUNNER_TEMP/lbf20e-theory/theory.log"; exit 1; }
+          cat "$RUNNER_TEMP/lbf20e-theory/theory.log"
+          test "$(grep -c 'does not depend on any axioms' "$RUNNER_TEMP/lbf20e-theory/theory.log")" -eq 8
+      - name: Exhaustive support audit and paired native search
+        run: python research/lite_braille_fresco/lbf20e_native.py --out "$RUNNER_TEMP/lbf20e"
+      - name: Independently compile all native witnesses
+        run: |
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          "$lean_bin" --threads=1 "$RUNNER_TEMP/lbf20e/Witnesses.lean" > "$RUNNER_TEMP/lbf20e/witnesses.log" 2>&1 || { tail -100 "$RUNNER_TEMP/lbf20e/witnesses.log"; exit 1; }
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"lbf20e"
+          s=json.loads((d/"summary.json").read_text())
+          names=re.findall(r"'(lbf20e_[A-Za-z0-9_]+)' does not depend on any axioms",(d/"witnesses.log").read_text())
+          assert len(names)==s["native_kernel_certificates"] and len(set(names))==len(names)
+          assert s["episodes"]==120 and s["context_cache_rejections"]==24 and s["audit"]["mismatches"]==0
+          print("Standalone axiom-free certificates:",len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf20e-context-dag-receipts
+          path: |
+            ${{ runner.temp }}/lbf20e/
+            ${{ runner.temp }}/lbf20e-theory/
+          if-no-files-found: warn
