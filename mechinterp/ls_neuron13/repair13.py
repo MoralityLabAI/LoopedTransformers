@@ -86,7 +86,7 @@ def run(seed,dose,arm,out):
     for r in range(1,ROUNDS+1):
         move='noop';n=0;profile_loss=None
         if arm!='continuous':
-            cand,names=proposals(c,arm=='paired');n=len(cand);count+=n;l,coef,offs=profile(cand,s);j=int(np.argmin(l));profile_loss=float(l[j])
+            cand,names=proposals(c,arm=='paired');n=len(cand);count+=n;l,coef,offs=profile(cand,s);j=int(np.argmin(l));profile_loss=float(l[j]);
             if j!=0 and l[j]<rec['loss']-1e-12:
                 c=cand[j].copy();s=s.copy();s[[0,3]]=coef[j];o=float(offs[j]);move=names[j]
         s,o,rec=fit(c,s,o);fits+=rec['nfev'];ledger.append(dict(round=r,move=move,candidates=n,profile_loss=profile_loss,fit=rec,codes=c.tolist(),scales=s.tolist(),offset=o))
