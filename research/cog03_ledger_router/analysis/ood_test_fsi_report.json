@@ -1,0 +1,59 @@
+{
+  "accuracy_intervals": null,
+  "alpha": 0.05,
+  "baseline_accuracy": 0.953125,
+  "baseline_correct": 122,
+  "baseline_only": 2,
+  "candidate_accuracy": 0.9765625,
+  "candidate_correct": 125,
+  "candidate_only": 5,
+  "case_effect_exact": "3/128",
+  "case_weighted_effect": 0.0234375,
+  "cluster_bootstrap_interval": [
+    -0.03125,
+    0.0859375
+  ],
+  "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+  "cluster_bootstrap_resamples": 4096,
+  "cluster_effect_exact": "3/128",
+  "cluster_macro_effect": 0.0234375,
+  "clusters_independent": true,
+  "discordant": 7,
+  "evaluation_mode": "sampled",
+  "exchangeable_pair_labels": true,
+  "experiment_id": "COG-03-ood_test",
+  "familywise_alpha": 0.0125,
+  "gate_reasons": [
+    "readout_used_in_selection_or_unsealed",
+    "adjusted_test_not_significant",
+    "cluster_interval_crosses_effect_floor",
+    "nonasymptotic_effect_floor_bound_not_met"
+  ],
+  "hoeffding_one_sided_effect_bounds": [
+    -0.34661429682519956,
+    0.39348929682519956
+  ],
+  "hypothesis_preregistered": true,
+  "input_filenames": [
+    "ood_test_paired.jsonl",
+    "ood_test_fsi_registration.json"
+  ],
+  "min_independent_clusters": 20,
+  "minimum_effect": 0.1,
+  "n_cases": 128,
+  "n_clusters": 64,
+  "outcomes_sha256": "fb6554449cc2931cd8cbeefa868dcc84850bfa459ee263736207d5482d872130",
+  "p_bonferroni": 1.0,
+  "p_exact_fraction": null,
+  "p_unadjusted": 0.527773611319434,
+  "planned_comparisons": 4,
+  "registration_sha256": "df300a94bc00b8b718a9f27f3839d4c14e7e19b226ec0739f896d7b51be5aaab",
+  "resample_seed": 20261117,
+  "schema_version": 1,
+  "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+  "sealed_readout": false,
+  "target_population": "public development Horn proof roots, ood_test; paired training seeds within roots",
+  "test": "monte_carlo_cluster_sign_flip",
+  "ties": 121,
+  "verdict": "inconclusive"
+}
