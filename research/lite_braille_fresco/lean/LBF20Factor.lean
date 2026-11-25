@@ -119,15 +119,17 @@ theorem run_append {K : Type} (step : K → Nat → Option K)
   induction xs generalizing start with
   | nil => rfl
   | cons a xs ih =>
-    change Run step start (a :: (xs ++ ys)) =
-      (match Run step start (a :: xs) with
+    change (match step start a with
+      | none => none
+      | some t => Run step t (xs ++ ys)) =
+      (match (match step start a with
+        | none => none
+        | some t => Run step t xs) with
        | none => none
        | some t => Run step t ys)
-    cases h : step start a with
-    | none => simp only [Run, h]
-    | some t =>
-      simp only [Run, h]
-      exact ih t
+    cases step start a with
+    | none => rfl
+    | some t => exact ih t
 
 theorem suffix_congruence {K : Type} (step : K → Nat → Option K)
     {a b : K} (h : a = b) (suffix : List Nat) :
@@ -152,16 +154,18 @@ theorem accepting_edge {K : Type} (step : K → Nat → Option K)
       change Run step u (a :: ys) = some t at ht
       cases hv : step u a with
       | none =>
-        rw [Run, hv] at ht
+        change (match step u a with | none => none | some z => Run step z ys) = some t at ht
+        rw [hv] at ht
         cases ht
       | some v =>
         rw [Run, hv] at ht
-        exact ⟨u,v,t,hu,hv,ht,ho⟩
+        exact ⟨u,v,t,rfl,hv,ht,ho⟩
   · intro ⟨u,v,t,hu,hv,ht,ho⟩
     refine ⟨t, ?_, ho⟩
     rw [run_append, hu]
     change Run step u (a :: ys) = some t
-    rw [Run, hv]
+    change (match step u a with | none => none | some z => Run step z ys) = some t
+    rw [hv]
     exact ht
 
 /-- The terminal predicate must test every component in that same branch. -/
