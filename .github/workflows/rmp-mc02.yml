@@ -1,0 +1,51 @@
+name: RMP MC-02
+on:
+  push:
+    branches: ['research/rmp-mc02']
+    paths:
+      - 'research_gym/analysis/intervention_certificate.py'
+      - 'research_gym/scripts/loopscope_intervention_certificate.py'
+      - 'tests/test_intervention_certificate.py'
+      - '.github/workflows/rmp-mc02.yml'
+  pull_request:
+    paths:
+      - 'research_gym/analysis/intervention_certificate.py'
+      - 'research_gym/scripts/loopscope_intervention_certificate.py'
+      - 'tests/test_intervention_certificate.py'
+      - '.github/workflows/rmp-mc02.yml'
+permissions:
+  contents: read
+concurrency:
+  group: mc02-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-and-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Reference and native integration tests
+        run: |
+          python -m unittest discover -s tests -p 'test_*certificate.py' -v
+          python -O -m unittest discover -s tests -p 'test_*certificate.py' -v
+      - name: Exact controls and untrained full-checkout smoke
+        run: |
+          python -m research_gym.scripts.loopscope_intervention_certificate --controls --out /tmp/mc02-controls
+          python -m research_gym.scripts.loopscope_intervention_certificate --smoke --items 16 --visits 1,2,4 --horizon 3 --max-pairs 4 --random-controls 2 --out /tmp/mc02-smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rmp-mc02-evidence
+          path: |
+            /tmp/mc02-controls
+            /tmp/mc02-smoke
+          if-no-files-found: error
