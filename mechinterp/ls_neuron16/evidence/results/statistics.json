@@ -1,0 +1,185 @@
+{
+  "arm_summaries": [
+    {
+      "arm": "greedy",
+      "certificate_acquisition_seeds": [
+        493,
+        494,
+        498,
+        499,
+        503,
+        505,
+        508,
+        509,
+        513
+      ],
+      "certificate_acquisitions": 9,
+      "final_certificates": 9,
+      "final_verdicts": {
+        "CERTIFIED": 9,
+        "POINT_VIOLATION": 15,
+        "UNRESOLVED": 0
+      },
+      "initial_certificates": 0,
+      "initial_point_violations": 24,
+      "initial_unresolved": 0,
+      "lost_certificates": 0,
+      "lost_seeds": [],
+      "n_units": 24,
+      "new_certificates": 9,
+      "new_seeds": [
+        493,
+        494,
+        498,
+        499,
+        503,
+        505,
+        508,
+        509,
+        513
+      ]
+    },
+    {
+      "arm": "beam",
+      "certificate_acquisition_seeds": [
+        493,
+        494,
+        498,
+        499,
+        501,
+        503,
+        505,
+        508,
+        509,
+        513,
+        516
+      ],
+      "certificate_acquisitions": 11,
+      "final_certificates": 11,
+      "final_verdicts": {
+        "CERTIFIED": 11,
+        "POINT_VIOLATION": 13,
+        "UNRESOLVED": 0
+      },
+      "initial_certificates": 0,
+      "initial_point_violations": 24,
+      "initial_unresolved": 0,
+      "lost_certificates": 0,
+      "lost_seeds": [],
+      "n_units": 24,
+      "new_certificates": 11,
+      "new_seeds": [
+        493,
+        494,
+        498,
+        499,
+        501,
+        503,
+        505,
+        508,
+        509,
+        513,
+        516
+      ]
+    }
+  ],
+  "causal_controls": "Width-three distinct-codebook beam retention with frozen parents per round versus one incumbent with three sequential greedy expansions; same shared bootstrap and fitting caps",
+  "certificate_source_sha256": "73a382d216e8f4c6fc23969249a9d8f1b1ecc08a33779c4ea7ae85044157ba98",
+  "comparisons": [
+    {
+      "accuracy_intervals": {
+        "baseline": [
+          0.18799209594726562,
+          0.5940666198730469
+        ],
+        "candidate": [
+          0.2555274963378906,
+          0.6717948913574219
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "alpha": 0.05,
+      "baseline_accuracy": 0.375,
+      "baseline_correct": 9,
+      "baseline_only": 0,
+      "baseline_only_seeds": [],
+      "candidate_accuracy": 0.4583333333333333,
+      "candidate_correct": 11,
+      "candidate_only": 2,
+      "candidate_only_seeds": [
+        501,
+        516
+      ],
+      "case_effect_exact": "1/12",
+      "case_weighted_effect": 0.08333333333333333,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.20833333333333334
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "1/12",
+      "cluster_macro_effect": 0.08333333333333333,
+      "clusters_independent": true,
+      "confirmation_policy": "The official FSI result is reported intact. The LS16 study stays PILOT_ONLY because direct beam power and matched-sham calibration were unavailable before execution.",
+      "discordant": 2,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": true,
+      "experiment_id": "LS-NEURON-16-beam-vs-greedy",
+      "familywise_alpha": 0.05,
+      "gate_reasons": [
+        "adjusted_test_not_significant",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        -0.4163108962235577,
+        0.5829775628902244
+      ],
+      "hypothesis_preregistered": true,
+      "input_filenames": [
+        "paired_outcomes.jsonl",
+        "registration.json"
+      ],
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.25,
+      "n_cases": 24,
+      "n_clusters": 24,
+      "operational_count_gate": false,
+      "outcomes_sha256": "e18f324d418c5153ecc2cfdb5157c21332448d35e01f4862aa714bab15f6aa6e",
+      "p_bonferroni": 0.5,
+      "p_exact_fraction": "1/2",
+      "p_unadjusted": 0.5,
+      "planned_comparisons": 1,
+      "registration_sha256": "adf3074460fd39413d70046765cb54b9ec6af4fc4eca50fb42a5b7663331e7ef",
+      "resample_seed": 20261125,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": true,
+      "study_evidence_class": "PILOT_ONLY",
+      "support_scope": "Exact-real certificates repairing proven initial point violations on fresh seeds from the fixed synthetic perturbation generator",
+      "target_population": "Fresh independently seeded 15-percent perturbations of the fixed eight-GELU mod4 template under the locked LS16 search budget; exact-real certificates repairing proven initial point violations",
+      "test": "exact_McNemar_independent_pairs",
+      "ties": 22,
+      "verdict": "inconclusive"
+    }
+  ],
+  "estimated_power": null,
+  "experiment": "LS-NEURON-16",
+  "interval_scope": "Official per-arm Clopper-Pearson intervals are marginal 95-percent intervals under independent Bernoulli seed sampling; they do not jointly cover both arms at 95 percent.",
+  "matched_sham_floor": null,
+  "matched_sham_source": "No calibrated LS16 beam sham; historical preflight supplies the universal support bound 1",
+  "n_final_model_endpoints": 48,
+  "n_paired_cases_per_comparison": 24,
+  "n_units": 24,
+  "physical_dose": 0.15,
+  "planned_and_actual_comparisons": 1,
+  "primary_contrast": "beam versus greedy",
+  "primary_endpoint": "initial POINT_VIOLATION and final CERTIFIED",
+  "primary_operational_gate_passed": false,
+  "readout_selection_exposure": "Fresh perturbation seeds remain sealed until source lock. The known 32 transition cases guide fitting and selection; they are not unseen tasks. Research design uses earlier LS studies.",
+  "registration_sha256": "adf3074460fd39413d70046765cb54b9ec6af4fc4eca50fb42a5b7663331e7ef",
+  "scientific_variation_floor": 0.25,
+  "study_evidence_class": "PILOT_ONLY",
+  "unit": "independently seeded initial perturbation"
+}

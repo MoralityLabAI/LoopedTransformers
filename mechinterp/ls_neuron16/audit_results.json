@@ -1,0 +1,144 @@
+{
+  "actual_compute_with_common_once": {
+    "expansions": 1752,
+    "lp_calls": 10512,
+    "ls_calls": 10536,
+    "profile_slots": 620208
+  },
+  "certificate_sha256": "73a382d216e8f4c6fc23969249a9d8f1b1ecc08a33779c4ea7ae85044157ba98",
+  "distinct_certified_weight_sets": 20,
+  "distinct_final_weight_sets": 46,
+  "evidence_class": "PILOT_ONLY",
+  "exact_verifier_calls": 73,
+  "experiment": "LS-NEURON-16",
+  "n_final_endpoints": 48,
+  "n_units": 24,
+  "numerical_final_horizon_conditions": 96,
+  "numerical_horizon_conditions": 144,
+  "numerical_horizons": [
+    8,
+    128
+  ],
+  "numerical_initial_horizon_conditions": 48,
+  "positive_control_verdict": "CERTIFIED",
+  "scope": "Independent numerical metric, FP32 weight decoding, LP residual/dual audit and selection replay; LS solver trajectories are not rerun; exact-real endpoint certificates use the inherited rational verifier.",
+  "status": "PASS",
+  "summary": [
+    {
+      "arm": "greedy",
+      "bootstrap_bound_passes": 2,
+      "bootstrap_retained_worsening_edges": 0,
+      "bound_certificate_agreement": 24,
+      "bound_passes": 9,
+      "certified_final_ancestries_with_worsening_edge": 0,
+      "checked_states": 10680,
+      "expansions": 888,
+      "final_ancestries_with_worsening_edge": 0,
+      "final_verdicts": {
+        "CERTIFIED": 9,
+        "POINT_VIOLATION": 15
+      },
+      "initial_verdicts": {
+        "POINT_VIOLATION": 24
+      },
+      "lp_calls": 5328,
+      "lp_max_complementarity": 1.5680880545789376e-11,
+      "lp_max_dual_sign": 0.0,
+      "lp_max_duality_gap": 2.0539125955565396e-15,
+      "lp_max_primal": 9.882453744225472e-09,
+      "lp_max_stationarity": 1.1641709818377421e-10,
+      "lp_successes": 5328,
+      "ls_calls": 5352,
+      "ls_nfev": 84434,
+      "median_bound": 0.1267181612013319,
+      "n_seeds": 24,
+      "new_certificates": 9,
+      "new_seeds": [
+        493,
+        494,
+        498,
+        499,
+        503,
+        505,
+        508,
+        509,
+        513
+      ],
+      "profile_slots": 314352,
+      "retained_worsening_edges": 0,
+      "rollout": {
+        "128": {
+          "accuracy": 0.7864583333333334,
+          "all_prefix": 0.7213541666666666
+        },
+        "8": {
+          "accuracy": 0.9117838541666666,
+          "all_prefix": 0.8855794270833334
+        }
+      },
+      "secondary_bound_crossings": 0,
+      "secondary_improvements": 5327,
+      "seconds": 205.94398643000022,
+      "total_retained_worsening_edges": 0
+    },
+    {
+      "arm": "beam",
+      "bootstrap_bound_passes": 2,
+      "bootstrap_retained_worsening_edges": 0,
+      "bound_certificate_agreement": 24,
+      "bound_passes": 11,
+      "certified_final_ancestries_with_worsening_edge": 6,
+      "checked_states": 10680,
+      "expansions": 888,
+      "final_ancestries_with_worsening_edge": 8,
+      "final_verdicts": {
+        "CERTIFIED": 11,
+        "POINT_VIOLATION": 13
+      },
+      "initial_verdicts": {
+        "POINT_VIOLATION": 24
+      },
+      "lp_calls": 5328,
+      "lp_max_complementarity": 1.2169612545550467e-10,
+      "lp_max_dual_sign": 0.0,
+      "lp_max_duality_gap": 2.9976021664879227e-15,
+      "lp_max_primal": 9.32356392091549e-09,
+      "lp_max_stationarity": 2.0948044252105561e-10,
+      "lp_successes": 5328,
+      "ls_calls": 5352,
+      "ls_nfev": 86290,
+      "median_bound": 0.1039928281910765,
+      "n_seeds": 24,
+      "new_certificates": 11,
+      "new_seeds": [
+        493,
+        494,
+        498,
+        499,
+        501,
+        503,
+        505,
+        508,
+        509,
+        513,
+        516
+      ],
+      "profile_slots": 314352,
+      "retained_worsening_edges": 26,
+      "rollout": {
+        "128": {
+          "accuracy": 0.8251953125,
+          "all_prefix": 0.77734375
+        },
+        "8": {
+          "accuracy": 0.9703776041666666,
+          "all_prefix": 0.9620768229166666
+        }
+      },
+      "secondary_bound_crossings": 2,
+      "secondary_improvements": 4876,
+      "seconds": 209.38242190500387,
+      "total_retained_worsening_edges": 26
+    }
+  ]
+}

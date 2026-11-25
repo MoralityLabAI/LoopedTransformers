@@ -1,0 +1,24 @@
+[
+  {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-m",
+      "unittest",
+      "test_search16.py",
+      "test_audit16.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "test_exact_tie_preserves_incumbent_and_insertion_order (test_search16.SelectionTests.test_exact_tie_preserves_incumbent_and_insertion_order) ... ok\ntest_keep_best_scale_variant_before_width_truncation (test_search16.SelectionTests.test_keep_best_scale_variant_before_width_truncation) ... ok\ntest_raw_minimum_applies_to_both_widths (test_search16.SelectionTests.test_raw_minimum_applies_to_both_widths) ... ok\ntest_short_pool_fails (test_search16.SelectionTests.test_short_pool_fails) ... ok\ntest_worse_child_can_survive_without_worsening_best (test_search16.SelectionTests.test_worse_child_can_survive_without_worsening_best) ... ok\ntest_corrupt_dual_rejected (test_audit16.AuditTests.test_corrupt_dual_rejected) ... ok\ntest_corrupt_primal_rejected (test_audit16.AuditTests.test_corrupt_primal_rejected) ... ok\ntest_corrupt_score_rejected (test_audit16.AuditTests.test_corrupt_score_rejected) ... ok\ntest_duplicate_dual_row_rejected (test_audit16.AuditTests.test_duplicate_dual_row_rejected) ... ok\ntest_fp32_decode_matches_inherited_receipt (test_audit16.AuditTests.test_fp32_decode_matches_inherited_receipt) ... ok\ntest_fractional_or_out_of_range_code_rejected (test_audit16.AuditTests.test_fractional_or_out_of_range_code_rejected) ... ok\ntest_independent_lp_matrix_matches_fixed_problem (test_audit16.AuditTests.test_independent_lp_matrix_matches_fixed_problem) ... ok\ntest_independent_segment_score_matches_endpoint_implementation (test_audit16.AuditTests.test_independent_segment_score_matches_endpoint_implementation) ... ok\ntest_inherited_rollout_horizons_are_8_and_128 (test_audit16.AuditTests.test_inherited_rollout_horizons_are_8_and_128) ... ok\ntest_lp_failure_keeps_first_parameters (test_audit16.AuditTests.test_lp_failure_keeps_first_parameters) ... ok\ntest_lp_iteration_budget_enforced (test_audit16.AuditTests.test_lp_iteration_budget_enforced) ... ok\ntest_missing_and_extra_endpoint_rejected (test_audit16.AuditTests.test_missing_and_extra_endpoint_rejected) ... ok\ntest_segment_bound_contains_dense_diagnostic_samples (test_audit16.AuditTests.test_segment_bound_contains_dense_diagnostic_samples) ... ok\ntest_selection_ties_dedup_and_sub_tolerance_improvement (test_audit16.AuditTests.test_selection_ties_dedup_and_sub_tolerance_improvement) ... ok\ntest_shortlist_excludes_padded_duplicate_noops (test_audit16.AuditTests.test_shortlist_excludes_padded_duplicate_noops) ... ok\ntest_valid_sparse_dual_receipt (test_audit16.AuditTests.test_valid_sparse_dual_receipt) ... ok\n\n----------------------------------------------------------------------\nRan 21 tests in 0.282s\n\nOK\n"
+  },
+  {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "evidence/test_stats16.py"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.046s\n\nOK\n"
+  }
+]
