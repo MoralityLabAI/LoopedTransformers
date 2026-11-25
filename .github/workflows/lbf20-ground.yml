@@ -1,0 +1,48 @@
+name: LBF-20A weighted ground completion
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf20_ground_witness.py"
+      - "research/lite_braille_fresco/lean/LBF20Ground.lean"
+      - "research/lite_braille_fresco/LBF_20A_REGISTRATION.md"
+      - ".github/workflows/lbf20-ground.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ground:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: false
+          test: false
+          use-mathlib-cache: false
+      - name: Verify relational weighted-run soundness and completeness
+        run: |
+          mkdir -p "$RUNNER_TEMP/lbf20a"
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          "$lean_bin" --threads=1 research/lite_braille_fresco/lean/LBF20Ground.lean > "$RUNNER_TEMP/lbf20a/theory.log" 2>&1 || { cat "$RUNNER_TEMP/lbf20a/theory.log"; exit 1; }
+          cat "$RUNNER_TEMP/lbf20a/theory.log"
+          test "$(grep -c 'does not depend on any axioms' "$RUNNER_TEMP/lbf20a/theory.log")" -eq 14
+      - name: Audit finite witnesses and scaling
+        run: python research/lite_braille_fresco/lbf20_ground_witness.py --out "$RUNNER_TEMP/lbf20a"
+      - name: Compile all generated concrete proof witnesses
+        run: |
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          "$lean_bin" --threads=1 "$RUNNER_TEMP/lbf20a/Witnesses.lean" > "$RUNNER_TEMP/lbf20a/witnesses.log" 2>&1 || { cat "$RUNNER_TEMP/lbf20a/witnesses.log"; exit 1; }
+          cat "$RUNNER_TEMP/lbf20a/witnesses.log"
+          test "$(grep -c 'does not depend on any axioms' "$RUNNER_TEMP/lbf20a/witnesses.log")" -eq 22
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf20a-ground-receipts
+          path: ${{ runner.temp }}/lbf20a
+          if-no-files-found: warn
