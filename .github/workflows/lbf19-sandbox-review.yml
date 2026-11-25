@@ -1,0 +1,38 @@
+name: LBF-19 sandbox retrospective audit
+on:
+  pull_request:
+    paths:
+      - "reports/lbf19_sandbox_review_20261125/**"
+      - ".github/workflows/lbf19-sandbox-review.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: false
+          test: false
+          use-mathlib-cache: false
+      - name: Reproduce archived counters and certify deferred paths
+        run: |
+          python reports/lbf19_sandbox_review_20261125/audit_deferred.py --out "$RUNNER_TEMP/lbf19-audit" --lean "$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+      - name: Retrospective ground weighted automata smoke
+        run: |
+          mkdir -p "$RUNNER_TEMP/lbf19-audit"
+          python reports/lbf19_sandbox_review_20261125/graded_ground_audit.py > "$RUNNER_TEMP/lbf19-audit/graded_ground_summary.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf19-retrospective-audit
+          path: ${{ runner.temp }}/lbf19-audit
+          if-no-files-found: warn
