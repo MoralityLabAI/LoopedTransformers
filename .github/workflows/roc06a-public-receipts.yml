@@ -1,0 +1,42 @@
+name: ROC-06A frozen public result arithmetic
+
+on:
+  push:
+    paths:
+      - 'experiments/roc06_train_gradient_observer/**'
+      - 'tests/test_roc06a_public_receipts.py'
+      - '.github/workflows/roc06a-public-receipts.yml'
+  pull_request:
+    paths:
+      - 'experiments/roc06_train_gradient_observer/**'
+      - 'tests/test_roc06a_public_receipts.py'
+      - '.github/workflows/roc06a-public-receipts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-six-seed-receipt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen original 256-case pairing, exact sign-flip and native task outcomes
+        run: |
+          python -m unittest discover -s tests -p 'test_roc06a_public_receipts.py' -v
+          python - <<'PY'
+          from pathlib import Path
+          src=Path('experiments/roc06_train_gradient_observer')
+          report=(src/'ROC06A_CAUSAL_RESULT.md').read_text()
+          assert '−0.0566440431951681' in report
+          assert '0/6' in report and '92,160' in report
+          assert '3,072' in report and '72/72' in report
+          assert 'f0ca87809dd3675dab7baee4e7d02743e97301cffb96dc772e2cb7d2700f9093' in report
+          registration=(src/'ROC06A_PREREGISTRATION.md').read_text()
+          assert '1c209f6db0f56dd0bb4d4677d1fb22a8cd462a8c' in registration
+          assert '384 reserved-rule' in registration
+          print('ROC-06A frozen public receipts and claim scopes PASS')
+          PY
