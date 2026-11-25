@@ -1,0 +1,225 @@
+{
+  "verdict": "PASS",
+  "experiment": "LS-NEURON-14",
+  "n_units": 24,
+  "paired_rows": 96,
+  "unique_initial_conditions": 24,
+  "exact_verifier_calls_including_control": 121,
+  "initial_verdicts": {
+    "POINT_VIOLATION": 24
+  },
+  "final_verdicts": {
+    "POINT_VIOLATION": 67,
+    "CERTIFIED": 29
+  },
+  "numerical_horizon_conditions": 240,
+  "stored_receipt_files": 120,
+  "profile_slots_replayed": 433152,
+  "fitted_candidate_states_checked": 15456,
+  "accepted_edits": 365,
+  "accepted_updates": 407,
+  "positive_control": "CERTIFIED",
+  "certificate_sha256": "767519e2c70424e4d20b72cb8aa62fea279305894ce5b4bc39ba6ab8a815a60c",
+  "scope": "Source and receipt hashes; complete profile ranking replay; independent stored-weight score checks; legal moves; deterministic shortlists and acceptance; fit budgets and losses; shared initial fit; final decode; 257-point diagnostic; float32 rollout vectors; unchanged rational invariant verifier. SciPy optimization trajectories were not retrained. Numerical diagnostics do not prove floating-kernel invariance.",
+  "summary": [
+    {
+      "arm": "point_single",
+      "n_units": 24,
+      "initial": 0,
+      "final": 7,
+      "new": 7,
+      "acquired_from_noncertified": 7,
+      "acquired_from_unresolved": 0,
+      "retained": 0,
+      "lost": 0,
+      "initial_verdicts": {
+        "POINT_VIOLATION": 24
+      },
+      "final_verdicts": {
+        "POINT_VIOLATION": 17,
+        "CERTIFIED": 7
+      },
+      "new_seeds": [
+        447,
+        448,
+        449,
+        452,
+        459,
+        460,
+        461
+      ],
+      "certificate_seeds": [
+        447,
+        448,
+        449,
+        452,
+        459,
+        460,
+        461
+      ],
+      "numerical_bound_passes": 7,
+      "proxy_pass_without_certificate": 0,
+      "certificate_with_proxy_above_target": 0,
+      "T8": 0.9358723958333334,
+      "T128": 0.78662109375,
+      "T128_all": 0.72216796875,
+      "hamming_mean": 3.0416666666666665,
+      "accepted_edits": 80,
+      "accepted_updates": 91,
+      "profile_slots": 80640,
+      "fit_calls": 3864,
+      "fit_nfev": 82026,
+      "search_seconds_sum": 176.1668899180006
+    },
+    {
+      "arm": "bound_single",
+      "n_units": 24,
+      "initial": 0,
+      "final": 4,
+      "new": 4,
+      "acquired_from_noncertified": 4,
+      "acquired_from_unresolved": 0,
+      "retained": 0,
+      "lost": 0,
+      "initial_verdicts": {
+        "POINT_VIOLATION": 24
+      },
+      "final_verdicts": {
+        "POINT_VIOLATION": 20,
+        "CERTIFIED": 4
+      },
+      "new_seeds": [
+        448,
+        449,
+        460,
+        461
+      ],
+      "certificate_seeds": [
+        448,
+        449,
+        460,
+        461
+      ],
+      "numerical_bound_passes": 4,
+      "proxy_pass_without_certificate": 0,
+      "certificate_with_proxy_above_target": 0,
+      "T8": 0.7828776041666666,
+      "T128": 0.5797526041666666,
+      "T128_all": 0.4571940104166667,
+      "hamming_mean": 2.8333333333333335,
+      "accepted_edits": 81,
+      "accepted_updates": 97,
+      "profile_slots": 80640,
+      "fit_calls": 3864,
+      "fit_nfev": 86544,
+      "search_seconds_sum": 179.83463899299966
+    },
+    {
+      "arm": "point_paired",
+      "n_units": 24,
+      "initial": 0,
+      "final": 9,
+      "new": 9,
+      "acquired_from_noncertified": 9,
+      "acquired_from_unresolved": 0,
+      "retained": 0,
+      "lost": 0,
+      "initial_verdicts": {
+        "POINT_VIOLATION": 24
+      },
+      "final_verdicts": {
+        "POINT_VIOLATION": 15,
+        "CERTIFIED": 9
+      },
+      "new_seeds": [
+        446,
+        447,
+        448,
+        449,
+        452,
+        457,
+        460,
+        461,
+        462
+      ],
+      "certificate_seeds": [
+        446,
+        447,
+        448,
+        449,
+        452,
+        457,
+        460,
+        461,
+        462
+      ],
+      "numerical_bound_passes": 9,
+      "proxy_pass_without_certificate": 0,
+      "certificate_with_proxy_above_target": 0,
+      "T8": 0.9710286458333334,
+      "T128": 0.8626302083333334,
+      "T128_all": 0.82421875,
+      "hamming_mean": 4.875,
+      "accepted_edits": 100,
+      "accepted_updates": 106,
+      "profile_slots": 135936,
+      "fit_calls": 3864,
+      "fit_nfev": 65231,
+      "search_seconds_sum": 194.55854129599993
+    },
+    {
+      "arm": "bound_paired",
+      "n_units": 24,
+      "initial": 0,
+      "final": 9,
+      "new": 9,
+      "acquired_from_noncertified": 9,
+      "acquired_from_unresolved": 0,
+      "retained": 0,
+      "lost": 0,
+      "initial_verdicts": {
+        "POINT_VIOLATION": 24
+      },
+      "final_verdicts": {
+        "POINT_VIOLATION": 15,
+        "CERTIFIED": 9
+      },
+      "new_seeds": [
+        446,
+        447,
+        448,
+        449,
+        457,
+        459,
+        460,
+        461,
+        463
+      ],
+      "certificate_seeds": [
+        446,
+        447,
+        448,
+        449,
+        457,
+        459,
+        460,
+        461,
+        463
+      ],
+      "numerical_bound_passes": 9,
+      "proxy_pass_without_certificate": 0,
+      "certificate_with_proxy_above_target": 0,
+      "T8": 0.8732096354166666,
+      "T128": 0.6923828125,
+      "T128_all": 0.60205078125,
+      "hamming_mean": 5.041666666666667,
+      "accepted_edits": 104,
+      "accepted_updates": 113,
+      "profile_slots": 135936,
+      "fit_calls": 3864,
+      "fit_nfev": 69398,
+      "search_seconds_sum": 181.55722455600005
+    }
+  ],
+  "audit_seconds": 141.7498448240001
+}
