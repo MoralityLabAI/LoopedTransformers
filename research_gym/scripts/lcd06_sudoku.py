@@ -86,19 +86,25 @@ def forward(model,TS,q,c,device):
         x=torch.cat((h,l),-1)
         d=x.float()-ref.float()
         if source["method"]=="scalar":
-            g=source["dose"]*d
+            joint=source["dose"]*d
             rec={}
         else:
-            g,rec=aa.bounded_correction(history,source["ridge"],source["dose"])
+            joint,rec=aa.bounded_correction(history,source["ridge"],source["dose"])
+        # Terminal coda reads H only. Match controls on the actual
+        # intervened H coordinates; L contributes to AA's coefficient fit
+        # but receives no terminal perturbation.
+        g=joint[...,:h.shape[-1]].contiguous()
+        axis=d[...,:h.shape[-1]]
+        rec["proposed_joint_norm"]=float(aa.norm(joint))
         if c["method"]=="matched_random":
             g=aa.sham_direction(g,int(hashlib.sha256(q.encode()).hexdigest()[:8],16))
         if c["method"]=="matched_scalar":
-            g,bad=aa.matched_direction(d,g)
+            g,bad=aa.matched_direction(axis,g)
             rec["degenerate"]=bad
-        out=(x.float()+g).to(x.dtype)
-        rec["joint_correction_norm"]=float(aa.norm(g))
-        rec["readout_h_correction_norm"]=float(aa.norm(out[...,:h.shape[-1]].float()-h.float()))
-        h,l=out.split(h.shape[-1],-1)
+        out=(h.float()+g).to(h.dtype)
+        rec["readout_h_correction_norm"]=float(aa.norm(g))
+        rec["readout_h_cast_norm"]=float(aa.norm(out.float()-h.float()))
+        h=out
     return model.digit_logits(h)[0],rec
 
 @torch.inference_mode()
