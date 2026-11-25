@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "development_seeds_only": [
+    433,
+    434,
+    435,
+    436,
+    437,
+    438,
+    439,
+    440,
+    441,
+    442,
+    443,
+    444
+  ],
+  "parent_initializations_matching_exactly": 12,
+  "positive_control_exact": "CERTIFIED",
+  "positive_control_bound_proxy": 4.630892277704249e-05,
+  "fixed_slot_unique_move_sets_match_parent": true,
+  "smoke_runs": [
+    {
+      "seed": 433,
+      "arm": "point_single",
+      "fit_calls": 161,
+      "fit_nfev": 2198,
+      "profile_slots": 3360,
+      "seconds": 3.3557415469999796
+    },
+    {
+      "seed": 433,
+      "arm": "bound_paired",
+      "fit_calls": 161,
+      "fit_nfev": 2710,
+      "profile_slots": 5664,
+      "seconds": 5.213770128000078
+    }
+  ],
+  "fresh_seeds_generated": false,
+  "source_sha256": "b4a86322a63e3defd869557d51b295a3e542cab50c33b875400871c994c076b8",
+  "audit_receipt_replay_passed": [
+    "point_single-433",
+    "bound_paired-433"
+  ],
+  "audit_source_sha256": "0ddfbccd625821ee66fba50ac135649458a9439632686f8a6e600a68b5ae57bb"
+}
