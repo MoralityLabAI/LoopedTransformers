@@ -33,9 +33,16 @@ jobs:
           run-id: 43851165980
           github-token: ${{ github.token }}
           path: nbr_history/ls08
+      - uses: actions/download-artifact@v4
+        with:
+          name: nbr-toy
+          run-id: 45515740820
+          github-token: ${{ github.token }}
+          path: nbr_history/pilot
       - run: |
+          echo 'bcf9b3c47f5703d8e33222bbb66f34e057277476c44a555b896dc5325dd50a5b  nbr_history/pilot/nbr_roster.json' | sha256sum -c
           echo '69c4cd1a2e09760ed2d463e598550bdd1da42fb1bc0ad83a8a95825c47bea7f9  nbr_history/ls08/full.json' | sha256sum -c
-          python -m mechinterp.nbr_source.admit --ls11 nbr_history/ls11.json --ls12 nbr_history/ls12.json --ls08 nbr_history/ls08/full.json --loopscope nbr_history/loopscope.json --out nbr_source
+          python -m mechinterp.nbr_source.admit --ls11 nbr_history/ls11.json --ls12 nbr_history/ls12.json --ls08 nbr_history/ls08/full.json --loopscope nbr_history/loopscope.json --pilot nbr_history/pilot/nbr_roster.json --out nbr_source
       - uses: actions/upload-artifact@v4
         if: always()
         with:
