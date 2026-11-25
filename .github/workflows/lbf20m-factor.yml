@@ -1,0 +1,55 @@
+name: LBF-20M factorized cutset caches
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf20m_factor.py"
+      - "research/lite_braille_fresco/lean/LBF20Factor.lean"
+      - "research/lite_braille_fresco/LBF_20M_REGISTRATION.md"
+      - ".github/workflows/lbf20m-factor.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: false
+          test: false
+          use-mathlib-cache: false
+      - name: Verify factorization and accepting-edge lemmas
+        run: |
+          mkdir -p "$RUNNER_TEMP/lbf20m-theory"
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          "$lean_bin" --threads=1 research/lite_braille_fresco/lean/LBF20Factor.lean > "$RUNNER_TEMP/lbf20m-theory/theory.log" 2>&1 || { cat "$RUNNER_TEMP/lbf20m-theory/theory.log"; exit 1; }
+          cat "$RUNNER_TEMP/lbf20m-theory/theory.log"
+          test "$(grep -c 'does not depend on any axioms' "$RUNNER_TEMP/lbf20m-theory/theory.log")" -eq 6
+      - name: Exhaustive audit and paired factorized cache study
+        run: |
+          python research/lite_braille_fresco/lbf20m_factor.py --out "$RUNNER_TEMP/lbf20m"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          s=json.loads((Path(os.environ["RUNNER_TEMP"])/"lbf20m/summary.json").read_text())
+          assert s["audit"]["systems"]==56 and s["audit"]["support_checks"]==5832 and s["audit"]["mismatches"]==0
+          assert s["audit"]["label_map_checks"]==168 and s["audit"]["cap_checks"]==2
+          assert s["rows"]==372 and s["new_training_fits"]==0
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf20m-factorized-receipts
+          path: |
+            ${{ runner.temp }}/lbf20m/
+            ${{ runner.temp }}/lbf20m-theory/
+          if-no-files-found: warn
