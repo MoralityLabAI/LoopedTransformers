@@ -35,13 +35,15 @@ theorem assoc_forward (a b c : Label) : Dom (mul (mul a b) c) (mul a (mul b c)) 
   ⟨fun _ h => h.elim (fun x => x.elim Or.inl (fun y => Or.inr (Or.inl y)))
     (fun z => Or.inr (Or.inr z)),
     by change (a.work + b.work) + c.work ≤ a.work + (b.work + c.work)
-       rw [Nat.add_assoc]⟩
+       rw [Nat.add_assoc]
+       exact Nat.le_refl _⟩
 
 theorem assoc_backward (a b c : Label) : Dom (mul a (mul b c)) (mul (mul a b) c) :=
   ⟨fun _ h => h.elim (fun x => Or.inl (Or.inl x))
     (fun y => y.elim (fun z => Or.inl (Or.inr z)) Or.inr),
     by change a.work + (b.work + c.work) ≤ (a.work + b.work) + c.work
-       rw [Nat.add_assoc]⟩
+       rw [Nat.add_assoc]
+       exact Nat.le_refl _⟩
 
 theorem one_left (a : Label) : Dom (mul one a) a :=
   ⟨fun _ h => h.elim False.elim (fun x => x), (Nat.zero_add a.work).symm ▸ Nat.le_refl a.work⟩
