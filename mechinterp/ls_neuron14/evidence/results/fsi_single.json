@@ -1,0 +1,78 @@
+{
+  "accuracy_intervals": {
+    "baseline": [
+      0.11016845703125,
+      0.5395660400390625
+    ],
+    "candidate": [
+      0.03841400146484375,
+      0.4029579162597656
+    ],
+    "method": "outward_exact_Clopper_Pearson_iid_cases"
+  },
+  "alpha": 0.05,
+  "baseline_accuracy": 0.2916666666666667,
+  "baseline_correct": 7,
+  "baseline_only": 3,
+  "baseline_only_seeds": [
+    447,
+    452,
+    459
+  ],
+  "candidate_accuracy": 0.16666666666666666,
+  "candidate_correct": 4,
+  "candidate_only": 0,
+  "candidate_only_seeds": [],
+  "case_effect_exact": "-1/8",
+  "case_weighted_effect": -0.125,
+  "cluster_bootstrap_interval": [
+    -0.2916666666666667,
+    0.0
+  ],
+  "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+  "cluster_bootstrap_resamples": 4096,
+  "cluster_effect_exact": "-1/8",
+  "cluster_macro_effect": -0.125,
+  "clusters_independent": true,
+  "comparison_role": "primary",
+  "discordant": 3,
+  "evaluation_mode": "sampled",
+  "exchangeable_pair_labels": true,
+  "experiment_id": "LS-NEURON-14-bound-vs-point-single",
+  "familywise_alpha": 0.025,
+  "gate_reasons": [
+    "adjusted_test_not_significant",
+    "cluster_interval_crosses_effect_floor",
+    "nonasymptotic_effect_floor_bound_not_met"
+  ],
+  "hoeffding_one_sided_effect_bounds": [
+    -0.6794426220774891,
+    0.42944262207748907
+  ],
+  "hypothesis_preregistered": true,
+  "input_filenames": [
+    "paired_single.jsonl",
+    "registration_single.json"
+  ],
+  "min_independent_clusters": 20,
+  "minimum_effect": 0.25,
+  "n_cases": 24,
+  "n_clusters": 24,
+  "operational_count_gate": false,
+  "outcomes_sha256": "ac38b77e67ff79f6bc15f50f0af90b32be7083d459d318dd1184fe75b7319e1c",
+  "p_bonferroni": 0.5,
+  "p_exact_fraction": "1/4",
+  "p_unadjusted": 0.25,
+  "planned_comparisons": 2,
+  "registration_sha256": "dd5c9c9c4c1a09aa935e385d2753ad3739cc701aaf34dbf757fb7876bd078f23",
+  "resample_seed": 20261125,
+  "schema_version": 1,
+  "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+  "sealed_readout": true,
+  "study_evidence_class": "PILOT_ONLY",
+  "support_scope": "New exact-real certificates repairing proven initial point violations on fresh seeds from the fixed synthetic perturbation generator",
+  "target_population": "Fresh independently seeded 15-percent perturbations of the fixed eight-GELU mod4 template under the locked LS14 search budget; new certificates repairing proven initial point violations",
+  "test": "exact_McNemar_independent_pairs",
+  "ties": 21,
+  "verdict": "inconclusive"
+}

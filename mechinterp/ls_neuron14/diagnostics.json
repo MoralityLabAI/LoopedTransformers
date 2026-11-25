@@ -1,0 +1,482 @@
+{
+  "initial_rollout": {
+    "8": {
+      "accuracy": 0.2823893229166667,
+      "all_prefix": 0.08040364583333333
+    },
+    "128": {
+      "accuracy": 0.22151692708333334,
+      "all_prefix": 0.0
+    }
+  },
+  "arms": [
+    {
+      "arm": "point_single",
+      "score_min": 7.591798325960276e-07,
+      "score_median": 0.18878659793044,
+      "score_max": 0.38758861710053516,
+      "certified_score_max": 0.09045906016786844,
+      "violating_score_min": 0.10778311755034553,
+      "final_unique_weight_hashes": 24,
+      "certified_box_counts": [
+        500,
+        32,
+        464,
+        32,
+        32,
+        464,
+        500
+      ]
+    },
+    {
+      "arm": "bound_single",
+      "score_min": 7.014843992762344e-07,
+      "score_median": 0.2219587908071179,
+      "score_max": 0.5956826454459375,
+      "certified_score_max": 0.04689938503551023,
+      "violating_score_min": 0.10778191188223417,
+      "final_unique_weight_hashes": 24,
+      "certified_box_counts": [
+        32,
+        636,
+        636,
+        32
+      ]
+    },
+    {
+      "arm": "point_paired",
+      "score_min": 3.159184529004739e-07,
+      "score_median": 0.13446228853219044,
+      "score_max": 0.32978411796091894,
+      "certified_score_max": 1.2866916510899308e-06,
+      "violating_score_min": 0.11492240478903594,
+      "final_unique_weight_hashes": 24,
+      "certified_box_counts": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "arm": "bound_paired",
+      "score_min": 2.0855972835054438e-07,
+      "score_median": 0.17810337603691104,
+      "score_max": 0.5117481379517311,
+      "certified_score_max": 0.04689938503551023,
+      "violating_score_min": 0.12317582702609721,
+      "final_unique_weight_hashes": 24,
+      "certified_box_counts": [
+        32,
+        32,
+        32,
+        636,
+        32,
+        32,
+        636,
+        32,
+        32
+      ]
+    }
+  ],
+  "posthoc_point_paths": [
+    {
+      "arm": "point_single",
+      "runs_with_bound_increase": 10,
+      "increasing_updates": 15,
+      "certified_runs_with_bound_increase": 2,
+      "details": [
+        {
+          "seed": 445,
+          "increasing_rounds": [
+            3
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 3,
+              "before": 0.2131530075225648,
+              "after": 0.21412811227901807,
+              "delta": 0.0009751047564532656
+            }
+          ]
+        },
+        {
+          "seed": 447,
+          "increasing_rounds": [
+            4
+          ],
+          "final_certified": true,
+          "bound_changes": [
+            {
+              "round": 4,
+              "before": 0.09045888144878236,
+              "after": 0.09045906016786844,
+              "delta": 1.7871908607192122e-07
+            }
+          ]
+        },
+        {
+          "seed": 450,
+          "increasing_rounds": [
+            4
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 4,
+              "before": 0.1926816677342922,
+              "after": 0.1926826651534342,
+              "delta": 9.974191420014655e-07
+            }
+          ]
+        },
+        {
+          "seed": 453,
+          "increasing_rounds": [
+            4
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 4,
+              "before": 0.21495702207715223,
+              "after": 0.24303525550304578,
+              "delta": 0.02807823342589355
+            }
+          ]
+        },
+        {
+          "seed": 454,
+          "increasing_rounds": [
+            3
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 3,
+              "before": 0.2278419006158982,
+              "after": 0.22784223760001568,
+              "delta": 3.3698411747162815e-07
+            }
+          ]
+        },
+        {
+          "seed": 458,
+          "increasing_rounds": [
+            2,
+            4
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 2,
+              "before": 0.37070270753306284,
+              "after": 0.37728561286460044,
+              "delta": 0.006582905331537603
+            },
+            {
+              "round": 4,
+              "before": 0.24050100235614025,
+              "after": 0.2405010275869699,
+              "delta": 2.5230829647782116e-08
+            }
+          ]
+        },
+        {
+          "seed": 461,
+          "increasing_rounds": [
+            4
+          ],
+          "final_certified": true,
+          "bound_changes": [
+            {
+              "round": 4,
+              "before": 0.09045885192585648,
+              "after": 0.09045903064494255,
+              "delta": 1.7871908607192122e-07
+            }
+          ]
+        },
+        {
+          "seed": 465,
+          "increasing_rounds": [
+            1,
+            7
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 1,
+              "before": 2.3782375760370846,
+              "after": 3.2313117658719004,
+              "delta": 0.8530741898348158
+            },
+            {
+              "round": 7,
+              "before": 0.4692735154305957,
+              "after": 0.5011156748865484,
+              "delta": 0.0318421594559527
+            }
+          ]
+        },
+        {
+          "seed": 466,
+          "increasing_rounds": [
+            1,
+            6,
+            7
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 1,
+              "before": 0.4699906827823746,
+              "after": 0.5339971367500447,
+              "delta": 0.06400645396767007
+            },
+            {
+              "round": 6,
+              "before": 0.11219760179052395,
+              "after": 0.11492227717825841,
+              "delta": 0.0027246753877344654
+            },
+            {
+              "round": 7,
+              "before": 0.11492227717825841,
+              "after": 0.11492240478903594,
+              "delta": 1.2761077752831973e-07
+            }
+          ]
+        },
+        {
+          "seed": 468,
+          "increasing_rounds": [
+            3,
+            5
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 3,
+              "before": 0.33733691822015094,
+              "after": 0.4478762477959102,
+              "delta": 0.11053932957575924
+            },
+            {
+              "round": 5,
+              "before": 0.23843376663382387,
+              "after": 0.24075707061225549,
+              "delta": 0.0023233039784316123
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "arm": "point_paired",
+      "runs_with_bound_increase": 9,
+      "increasing_updates": 17,
+      "certified_runs_with_bound_increase": 1,
+      "details": [
+        {
+          "seed": 445,
+          "increasing_rounds": [
+            3,
+            5
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 3,
+              "before": 0.17384985276252166,
+              "after": 0.20975024043162405,
+              "delta": 0.03590038766910239
+            },
+            {
+              "round": 5,
+              "before": 0.13793343257125462,
+              "after": 0.13793359917068504,
+              "delta": 1.6659943041785752e-07
+            }
+          ]
+        },
+        {
+          "seed": 453,
+          "increasing_rounds": [
+            4,
+            6,
+            8
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 4,
+              "before": 0.1953033443431017,
+              "after": 0.20348217513857497,
+              "delta": 0.008178830795473269
+            },
+            {
+              "round": 6,
+              "before": 0.17385044213992717,
+              "after": 0.2097503212704237,
+              "delta": 0.035899879130496526
+            },
+            {
+              "round": 8,
+              "before": 0.13793327499147517,
+              "after": 0.1379336800094847,
+              "delta": 4.0501800951942e-07
+            }
+          ]
+        },
+        {
+          "seed": 456,
+          "increasing_rounds": [
+            4
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 4,
+              "before": 0.2987615734738127,
+              "after": 0.3115648957709484,
+              "delta": 0.01280332229713571
+            }
+          ]
+        },
+        {
+          "seed": 458,
+          "increasing_rounds": [
+            4
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 4,
+              "before": 0.240099906799776,
+              "after": 0.24077178956026724,
+              "delta": 0.0006718827604912381
+            }
+          ]
+        },
+        {
+          "seed": 462,
+          "increasing_rounds": [
+            5
+          ],
+          "final_certified": true,
+          "bound_changes": [
+            {
+              "round": 5,
+              "before": 0.046899359517271595,
+              "after": 0.048946026241138474,
+              "delta": 0.0020466667238668787
+            }
+          ]
+        },
+        {
+          "seed": 465,
+          "increasing_rounds": [
+            1,
+            10,
+            13
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 1,
+              "before": 2.3782375760370846,
+              "after": 3.2313117658719004,
+              "delta": 0.8530741898348158
+            },
+            {
+              "round": 10,
+              "before": 0.4034024054422591,
+              "after": 0.40843507583523364,
+              "delta": 0.005032670392974559
+            },
+            {
+              "round": 13,
+              "before": 0.3297840638716914,
+              "after": 0.32978411796091894,
+              "delta": 5.4089227541354035e-08
+            }
+          ]
+        },
+        {
+          "seed": 466,
+          "increasing_rounds": [
+            1,
+            6,
+            7
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 1,
+              "before": 0.4699906827823746,
+              "after": 0.5339971367500447,
+              "delta": 0.06400645396767007
+            },
+            {
+              "round": 6,
+              "before": 0.11219760179052395,
+              "after": 0.11492227717825841,
+              "delta": 0.0027246753877344654
+            },
+            {
+              "round": 7,
+              "before": 0.11492227717825841,
+              "after": 0.11492240478903594,
+              "delta": 1.2761077752831973e-07
+            }
+          ]
+        },
+        {
+          "seed": 467,
+          "increasing_rounds": [
+            3
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 3,
+              "before": 0.2320851956086911,
+              "after": 0.23960148655097727,
+              "delta": 0.0075162909422861746
+            }
+          ]
+        },
+        {
+          "seed": 468,
+          "increasing_rounds": [
+            2,
+            4
+          ],
+          "final_certified": false,
+          "bound_changes": [
+            {
+              "round": 2,
+              "before": 0.33733691822015094,
+              "after": 0.4507173597160322,
+              "delta": 0.11338044149588128
+            },
+            {
+              "round": 4,
+              "before": 0.2386061321523696,
+              "after": 0.24076094503333656,
+              "delta": 0.002154812880966972
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostic_scope": "Descriptive analysis after all locked searches and exact endpoint scoring; no causal attribution or adaptive repair."
+}
