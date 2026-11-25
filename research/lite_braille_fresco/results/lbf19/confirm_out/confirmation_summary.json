@@ -1,0 +1,258 @@
+{
+  "n_roots": 24,
+  "classical_cohort_stats": {
+    "expanded_min": 10032,
+    "expanded_median": 34041.5,
+    "expanded_max": 189974,
+    "visited_mean": 107039.29166666667,
+    "work_mean": 576828.5833333334
+  },
+  "certificates": {
+    "n_files": 13,
+    "n_theorems": 28,
+    "all_axiom_free": true,
+    "mean_compile_s": 1.0285379384614106
+  },
+  "lean_latency_by_L": {
+    "16": {
+      "n_episodes": 48,
+      "total_calls": 42247,
+      "init_ms": 31.044639583114986,
+      "mean_ms": 18.525235675141282,
+      "p50_ms": 16.482301041378378,
+      "p95_ms": 33.71597499964688
+    },
+    "20": {
+      "n_episodes": 48,
+      "total_calls": 42195,
+      "init_ms": 71.30022499973165,
+      "mean_ms": 34.73197696035248,
+      "p50_ms": 29.714396874889342,
+      "p95_ms": 67.8364041665039
+    },
+    "24": {
+      "n_episodes": 48,
+      "total_calls": 43517,
+      "init_ms": 47.04955000018648,
+      "mean_ms": 24.236070772472413,
+      "p50_ms": 22.486693750124687,
+      "p95_ms": 38.79383749987634
+    }
+  },
+  "lean_B512": {
+    "sym_prov_readout": {
+      "n_roots": 24,
+      "closure_mean": 0.3888888888888889,
+      "closure_ci95": [
+        0.2222222222222222,
+        0.5694444444444444
+      ],
+      "all_seeds_closure": 0.2916666666666667,
+      "any_seed_closure": 0.5416666666666666,
+      "work_mean": 450.7916666666667,
+      "calls_mean": 339.81944444444446,
+      "calls_ci95": [
+        314.9166666666667,
+        362.3611111111111
+      ],
+      "calls_median": 352.83333333333337,
+      "edges_mean": 339.81944444444446,
+      "cache_hits_mean": 0.0,
+      "wall_s_mean": 21.777874023611176,
+      "tactic_s_mean": 8.751338455556581,
+      "init_ms_mean": 45.32819166646126,
+      "mean_call_ms": 26.438666101680834,
+      "mismatches_total": 0,
+      "censored_roots": 0,
+      "by_L": {
+        "16": {
+          "n": 8,
+          "closure": 0.20833333333333331,
+          "calls": 335.1666666666667,
+          "wall_s": 18.607315624999956
+        },
+        "20": {
+          "n": 8,
+          "closure": 0.5,
+          "calls": 320.1666666666667,
+          "wall_s": 26.065355120833374
+        },
+        "24": {
+          "n": 8,
+          "closure": 0.4583333333333333,
+          "calls": 364.125,
+          "wall_s": 20.660951325000195
+        }
+      }
+    },
+    "geom_mm": {
+      "n_roots": 24,
+      "closure_mean": 0.0,
+      "closure_ci95": [
+        0.0,
+        0.0
+      ],
+      "all_seeds_closure": 0.0,
+      "any_seed_closure": 0.0,
+      "work_mean": 512.0,
+      "calls_mean": 312.1666666666667,
+      "calls_ci95": [
+        296.375,
+        328.25
+      ],
+      "calls_median": 316.5,
+      "edges_mean": 312.1666666666667,
+      "cache_hits_mean": 0.0,
+      "wall_s_mean": 14.041596045833254,
+      "tactic_s_mean": 8.004032824989887,
+      "init_ms_mean": 66.82864166668878,
+      "mean_call_ms": 25.19803673590316,
+      "mismatches_total": 0,
+      "censored_roots": 0,
+      "by_L": {
+        "16": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 275.375,
+          "wall_s": 8.8370996499998
+        },
+        "20": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 313.875,
+          "wall_s": 18.84119783749975
+        },
+        "24": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 347.25,
+          "wall_s": 14.446490650000214
+        }
+      }
+    },
+    "exact_mm": {
+      "n_roots": 24,
+      "closure_mean": 0.0,
+      "closure_ci95": [
+        0.0,
+        0.0
+      ],
+      "all_seeds_closure": 0.0,
+      "any_seed_closure": 0.0,
+      "work_mean": 512.0,
+      "calls_mean": 2000.0,
+      "calls_ci95": [
+        2000.0,
+        2000.0
+      ],
+      "calls_median": 2000.0,
+      "edges_mean": 8082.791666666667,
+      "cache_hits_mean": 6082.791666666667,
+      "wall_s_mean": 51.436024333333535,
+      "tactic_s_mean": 50.58701215832267,
+      "init_ms_mean": 48.99748333324775,
+      "mean_call_ms": 25.293506079161336,
+      "mismatches_total": 0,
+      "censored_roots": 24,
+      "by_L": {
+        "16": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 2000.0,
+          "wall_s": 40.159156399999574
+        },
+        "20": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 2000.0,
+          "wall_s": 64.9757080000004
+        },
+        "24": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 2000.0,
+          "wall_s": 49.173208600000635
+        }
+      }
+    },
+    "bidir_uncapped": {
+      "n_roots": 24,
+      "closure_mean": 0.0,
+      "closure_ci95": [
+        0.0,
+        0.0
+      ],
+      "all_seeds_closure": 0.0,
+      "any_seed_closure": 0.0,
+      "work_mean": 512.0,
+      "calls_mean": 2000.0,
+      "calls_ci95": [
+        2000.0,
+        2000.0
+      ],
+      "calls_median": 2000.0,
+      "edges_mean": 2000.0,
+      "cache_hits_mean": 0.0,
+      "wall_s_mean": 50.701989779166524,
+      "tactic_s_mean": 50.35805139165071,
+      "init_ms_mean": 46.97812916674593,
+      "mean_call_ms": 25.179025695825356,
+      "mismatches_total": 0,
+      "censored_roots": 24,
+      "by_L": {
+        "16": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 2000.0,
+          "wall_s": 51.68256848749979
+        },
+        "20": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 2000.0,
+          "wall_s": 54.1439734999999
+        },
+        "24": {
+          "n": 8,
+          "closure": 0.0,
+          "calls": 2000.0,
+          "wall_s": 46.27942734999988
+        }
+      }
+    }
+  },
+  "count_B512": {},
+  "count_B1024": {},
+  "confirmatory": {
+    "H1_closure_vs_best_heur": {
+      "diff_mean": 0.3888888888888889,
+      "ci95": [
+        0.2222222222222222,
+        0.5694444444444444
+      ],
+      "p_one_sided": 0.00011999880001199988,
+      "confirmed": true
+    },
+    "H2_calls_vs_bidir_uncapped": {
+      "diff_calls_mean": -1660.1805555555557,
+      "ci95": [
+        -1685.0833333333333,
+        -1637.638888888889
+      ],
+      "p_one_sided": 9.99990000099999e-06,
+      "confirmed": true,
+      "lean_closed_roots_n": 13,
+      "lean_wall_s_diff_vs_2000cap_bidir": -30.234518856409963
+    },
+    "H3_calls_vs_exact_mm": {
+      "diff_calls_mean": -1660.1805555555557,
+      "ci95": [
+        -1685.0833333333333,
+        -1637.638888888889
+      ],
+      "p_one_sided": 9.99990000099999e-06,
+      "confirmed": true
+    }
+  },
+  "contrasts": {}
+}

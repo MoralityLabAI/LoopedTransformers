@@ -1,0 +1,71 @@
+name: LBF-19 native verifier and transfer tests
+
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf19_*.py"
+      - "research/lite_braille_fresco/tests/test_lbf19_*.py"
+      - "research/lite_braille_fresco/tests/run_unittest.py"
+      - "research/lite_braille_fresco/lean/LBF19TreeAutomata.lean"
+      - "research/lean_cgrt_hrm400/lean/**"
+      - ".github/workflows/lbf19-expensive-verifier.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lbf19-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU test dependencies
+        run: |
+          python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "numpy<2" pytest
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - name: Build Rust sparse trellis
+        run: cargo build --release --manifest-path research/lite_braille_fresco/rust_trellis/Cargo.toml
+      - name: Verify native toolchain and run all 18 LBF-19 tests
+        working-directory: research/lite_braille_fresco
+        run: |
+          export LBF19_LEAN_EXE="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          export LBF19_LGYM_EXE="$(realpath ../lean_cgrt_hrm400/lean/.lake/build/bin/lgym)"
+          test -x "$LBF19_LEAN_EXE"
+          test -x "$LBF19_LGYM_EXE"
+          "$LBF19_LEAN_EXE" --version | grep '4.19.0'
+          python -m pytest -q -rA tests/test_lbf19_expensive_verifier.py tests/test_lbf19_tree_automata.py tests/test_lbf19_learned_transfer.py --junitxml="$RUNNER_TEMP/lbf19-pytest.xml"
+          python - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+          tree = ET.parse(os.path.join(os.environ["RUNNER_TEMP"], "lbf19-pytest.xml"))
+          cases = tree.findall(".//testcase")
+          assert len(cases) == 18, len(cases)
+          assert not tree.findall(".//skipped"), "No skipped LBF-19 tests permitted"
+          PY
+      - name: Verify tree-automata Lean formalization
+        working-directory: research/lite_braille_fresco
+        run: |
+          "$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean" --threads=1 lean/LBF19TreeAutomata.lean > "$RUNNER_TEMP/lbf19-tree-axioms.txt"
+          test "$(grep -c 'does not depend on any axioms' "$RUNNER_TEMP/lbf19-tree-axioms.txt")" -eq 18
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf19-engineering-receipts
+          path: |
+            ${{ runner.temp }}/lbf19-pytest.xml
+            ${{ runner.temp }}/lbf19-tree-axioms.txt
+          if-no-files-found: warn

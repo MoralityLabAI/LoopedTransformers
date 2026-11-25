@@ -32,7 +32,7 @@ jobs:
       - name: Fresco codec and exact view registry
         working-directory: research/lite_braille_fresco
         run: |
-          python -m unittest discover -s tests -v
+          python tests/run_unittest.py
           PYTHONPATH=../lean_cgrt_hrm400 python - <<'PY'
           from ppt_gym.typed_state import VIEWS,schema_for_view,PRETTY_DOSES
           from ppt_gym.lbf_hybrid import SCHEMAS
