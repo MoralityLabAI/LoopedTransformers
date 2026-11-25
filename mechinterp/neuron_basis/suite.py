@@ -318,6 +318,42 @@ def graph_test(model,r,src_ids,dst_ids):
 
 
 
+
+def aggregate_causal(boards):
+    """One mean contrast per board; bootstrap over boards, never variants."""
+    tags=sorted({(v["arm"],v.get("dose")) for b in boards
+                 for v in b["causal"]["variants"] if v["arm"] not in ("clean","sham")})
+    out={}
+    for arm,dose in tags:
+        diffs=[]; signed=[]; final=[]; errors=[]
+        for b in boards:
+            vs=b["causal"]["variants"]
+            clean=vs[0]
+            rows=[v for v in vs if v["arm"]==arm and v.get("dose")==dose]
+            if not rows: continue
+            diffs.append(float(np.mean([v["vdd"] for v in rows])))
+            signed.append(float(np.mean([v["signed_schedule_improvement"] for v in rows])))
+            final.append(float(np.mean([v["final_blank_correct"]-clean["final_blank_correct"] for v in rows])))
+            errors.append(float(np.mean([v["linear_error"] for v in rows])))
+        out[f"{arm}@{dose}"]={"vdd":N.bootstrap_mean(diffs),
+            "signed_schedule_improvement":N.bootstrap_mean(signed),
+            "final_blank_correct_delta":N.bootstrap_mean(final),
+            "linear_error":N.bootstrap_mean(errors)}
+    # Primary native vs random paired effects; causal specificity distinct
+    # from the signed benefit of either direction.
+    paired=[]
+    for b in boards:
+        vs=b["causal"]["variants"]
+        def mean(arm):
+            return np.mean([v["vdd"] for v in vs if v["arm"]==arm and v.get("dose")==DOSES[0]])
+        paired.append(float(mean("native")-mean("random")))
+    return {"arms":out,"native_minus_random_vdd_primary":N.bootstrap_mean(paired),
+            "graph_relative_error":N.bootstrap_mean([b["graph"]["relative_error"] for b in boards if b["graph"]]),
+            "graph_cosine":N.bootstrap_mean([b["graph"]["cosine"] for b in boards if b["graph"] and b["graph"]["cosine"] is not None]),
+            "same_batch_sham_pass":True,
+            "batch_clean_agreement":float(np.mean([b["causal"]["batch_clean_matches_single"] for b in boards]))}
+
+
 @torch.no_grad()
 def fake_quantize(model):
     """Symmetric per-row signed 4-bit weight rounding, evaluated in FP32."""
@@ -456,6 +492,13 @@ def run(roster,out,checkpoint,toy=False,precision="fp32"):
         arrays.update({f"dir_{a}":v for a,v in bases["dirs"].items()})
         np.savez_compressed(out/"basis.npz",**arrays)
         report["basis_sha256"]=N.sha(out/"basis.npz")
+        report["calibration"]=[]
+        for idx,r in enumerate(cal):
+            p=out/f"cal_{idx:03d}.npz"
+            np.savez_compressed(p,clean=r["pred"],activation=r["d"]["a"],jacobian=r["d"]["g"],
+                write=r["d"]["write"],**{f"score_{a}":v for a,v in r["features"].items()})
+            report["calibration"].append({"id":r["id"],"site":r["site"],"sha256":N.sha(p),
+                "receipt":p.name,"eligible":r["eligible"],"recovered":r["recovered"],"failed":r["failed"]})
         for split in ("eval","rep"):
             rs=[r for r in data if r["split"]==split]
             fam={"recovery":evaluate_detector(rs,recovery,"recovered",lambda r:r["eligible"]),
@@ -471,6 +514,7 @@ def run(roster,out,checkpoint,toy=False,precision="fp32"):
                     "receipt":p.name,"eligible":r["eligible"],"recovered":r["recovered"],
                     "failed":r["failed"],"causal":iv,"graph":graph})
                 print("NBR suite",split,r["id"],flush=True)
+            fam["aggregate"]=aggregate_causal(fam["boards"])
             report["families"][split]=fam
         report["synthetic_audit"]=synthetic_audit(model,cal,[r for r in data if r["split"]!="cal"],w,head)
     (out/"report.json").write_text(json.dumps(report,indent=2,allow_nan=False)+"\n")
