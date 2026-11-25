@@ -1,0 +1,26 @@
+name: CPR-01 exact and learned pilot
+on:
+  pull_request:
+    paths:
+      - 'research/coded_permutation_routing/**'
+      - '.github/workflows/cpr01-routing.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node research/coded_permutation_routing/cpr01.js cpr01-summary.json cpr01-raw.json
+      - run: diff -u research/coded_permutation_routing/receipt.json cpr01-summary.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cpr01-paired-replay
+          path: |
+            cpr01-summary.json
+            cpr01-raw.json
