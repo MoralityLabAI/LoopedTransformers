@@ -1,0 +1,15 @@
+[package]
+name = "lbf18_trellis_rs"
+version = "0.1.0"
+edition = "2021"
+description = "Sparse u64-bitset and continuous preference trellis kernels for LBF-18 incremental relational frescoes"
+
+[lib]
+name = "lbf18_trellis_rs"
+crate-type = ["cdylib"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"

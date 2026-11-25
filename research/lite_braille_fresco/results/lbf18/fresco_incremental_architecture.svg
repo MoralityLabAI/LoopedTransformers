@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 690" font-family="Inter, Segoe UI, system-ui, sans-serif">
+<rect width="1180" height="690" fill="#0b1020" rx="14"/>
+<text x="32" y="42" fill="#f8fafc" font-size="21" font-weight="700">LBF-18 Repaired Guarded Fresco: Clean Inference Speedup &amp; 2x2 Bank Dependence</text>
+<text x="32" y="66" fill="#94a3b8" font-size="13">Frozen LBF-17 checkpoints (~53.1K params) with Fable Guard + Decoupled u64 Boolean Support on 48 Calibration Roots</text>
+<rect x="28" y="84" width="700" height="350" fill="#111827" stroke="#1f2937" rx="10"/>
+<text x="46" y="112" fill="#e2e8f0" font-size="15" font-weight="600">A. Uninstrumented Clean Episode Latency (B = 128) &amp; Cache Hit Rates</text>
+<text x="46" y="146" fill="#cbd5e1" font-size="11.5">Repaired Uncached PyTorch (K=3)</text>
+<rect x="315" y="132" width="260.0" height="20" fill="#94a3b8" rx="4"/>
+<text x="583.0" y="146" fill="#f8fafc" font-size="11" font-weight="600">4732.2 ms (1.0x) · W-hit 0% · P-hit 0%</text>
+<text x="46" y="182" fill="#cbd5e1" font-size="11.5">Incremental PyTorch (Cold)</text>
+<rect x="315" y="168" width="79.4" height="20" fill="#60a5fa" rx="4"/>
+<text x="402.4" y="182" fill="#f8fafc" font-size="11" font-weight="600">1445.0 ms (3.3x) · W-hit 67% · P-hit 57%</text>
+<text x="46" y="218" fill="#cbd5e1" font-size="11.5">Incremental PyTorch (Warm)</text>
+<rect x="315" y="204" width="5.3" height="20" fill="#3b82f6" rx="4"/>
+<text x="328.3" y="218" fill="#f8fafc" font-size="11" font-weight="600">95.9 ms (49.3x) · W-hit 100% · P-hit 100%</text>
+<text x="46" y="254" fill="#cbd5e1" font-size="11.5">Incremental + Rust u64 (Cold, Fable Guard)</text>
+<rect x="315" y="240" width="8.8" height="20" fill="#10b981" rx="4"/>
+<text x="331.8" y="254" fill="#f8fafc" font-size="11" font-weight="600">159.8 ms (29.6x) · W-hit 67% · P-hit 57%</text>
+<text x="46" y="290" fill="#cbd5e1" font-size="11.5">Incremental + Rust u64 (Warm, Fable Guard)</text>
+<rect x="315" y="276" width="4.3" height="20" fill="#059669" rx="4"/>
+<text x="327.3" y="290" fill="#f8fafc" font-size="11" font-weight="600">78.5 ms (60.3x) · W-hit 100% · P-hit 100%</text>
+<text x="46" y="326" fill="#cbd5e1" font-size="11.5">Adaptive 1-3 Pass + Rust (Cold)</text>
+<rect x="315" y="312" width="11.7" height="20" fill="#f59e0b" rx="4"/>
+<text x="334.7" y="326" fill="#f8fafc" font-size="11" font-weight="600">213.7 ms (22.1x) · W-hit 67% · P-hit 57%</text>
+<text x="46" y="362" fill="#cbd5e1" font-size="11.5">sym_prov_readout + Rust u64 (K=1)</text>
+<rect x="315" y="348" width="4.4" height="20" fill="#a78bfa" rx="4"/>
+<text x="327.4" y="362" fill="#f8fafc" font-size="11" font-weight="600">79.3 ms (59.7x) · W-hit 68% · P-hit 61%</text>
+<text x="46" y="398" fill="#cbd5e1" font-size="11.5">Hybrid Sym-Env + 3-Pass Axial + Rust</text>
+<rect x="315" y="384" width="7.6" height="20" fill="#ec4899" rx="4"/>
+<text x="330.6" y="398" fill="#f8fafc" font-size="11" font-weight="600">138.2 ms (34.2x) · W-hit 68% · P-hit 59%</text>
+<rect x="748" y="84" width="404" height="350" fill="#111827" stroke="#1f2937" rx="10"/>
+<text x="766" y="112" fill="#e2e8f0" font-size="15" font-weight="600">B. 2x2 Trained-Model Bank Dependence (N = 48 Roots)</text>
+<text x="766" y="132" fill="#94a3b8" font-size="11.5">Envelope Bank (Bw, Bbi) x Cross-Frontier Matrix Bank (Bm)</text>
+<rect x="780" y="156" width="165" height="92" fill="#064e3b" stroke="#10b981" stroke-width="1.5" rx="8"/>
+<text x="794" y="178" fill="#a7f3d0" font-size="12" font-weight="700">E=1, M=1 (Intact)</text>
+<text x="794" y="202" fill="#ffffff" font-size="16" font-weight="700">29.08 work</text>
+<text x="794" y="224" fill="#6ee7b7" font-size="12">5-Budget AUC: 75.14%</text>
+<rect x="960" y="156" width="165" height="92" fill="#1e293b" stroke="#475569" rx="8"/>
+<text x="974" y="178" fill="#bfdbfe" font-size="12" font-weight="700">E=1, M=0 (mat_zero)</text>
+<text x="974" y="202" fill="#f8fafc" font-size="16" font-weight="700">30.28 work</text>
+<text x="974" y="224" fill="#93c5fd" font-size="12">5-Budget AUC: 74.58%</text>
+<rect x="780" y="262" width="165" height="92" fill="#1e293b" stroke="#475569" rx="8"/>
+<text x="794" y="284" fill="#fde68a" font-size="12" font-weight="700">E=0, M=1 (env_zero)</text>
+<text x="794" y="308" fill="#f8fafc" font-size="16" font-weight="700">34.07 work</text>
+<text x="794" y="330" fill="#fcd34d" font-size="12">5-Budget AUC: 71.81%</text>
+<rect x="960" y="262" width="165" height="92" fill="#3f1d2e" stroke="#f43f5e" rx="8"/>
+<text x="974" y="284" fill="#fecdd3" font-size="12" font-weight="700">E=0, M=0 (env_mat_zero)</text>
+<text x="974" y="308" fill="#ffffff" font-size="16" font-weight="700">34.87 work</text>
+<text x="974" y="330" fill="#fda4af" font-size="12">5-Budget AUC: 70.97%</text>
+<text x="768" y="382" fill="#e2e8f0" font-size="12" font-weight="600">Joint Ablation Drop: 5.78 work (I_EM = +0.40)</text>
+<text x="768" y="404" fill="#cbd5e1" font-size="11.5">Shapley Dependence: Env 82.8% (4.79) · Mat 17.2% (1.00)</text>
+<text x="768" y="423" fill="#94a3b8" font-size="11">Measures trained-checkpoint bank dependence (compare sym_prov_readout)</text>
+<rect x="28" y="452" width="1124" height="212" fill="#111827" stroke="#1f2937" rx="10"/>
+<text x="46" y="480" fill="#e2e8f0" font-size="15" font-weight="600">C. Three-Stage Incremental Factorization, Theorem A Guard &amp; Decoupled Boolean Support</text>
+<rect x="48" y="498" width="335" height="142" fill="#0f172a" stroke="#10b981" rx="8"/>
+<text x="64" y="522" fill="#34d399" font-size="13" font-weight="700">Stage A: Guarded Word Cache C_word</text>
+<text x="64" y="544" fill="#cbd5e1" font-size="11.5">Key: (sha256, guard_mode, canon(R), env_mode, K, w)</text>
+<text x="64" y="564" fill="#cbd5e1" font-size="11.5">Decoupled u64 support: 0 FN on R* &amp; 100 nested systems</text>
+<text x="64" y="584" fill="#a7f3d0" font-size="11.5">Cold hit: 66.8% · Warm: 100.0%</text>
+<text x="64" y="604" fill="#a7f3d0" font-size="11.5">Model window checks cut by 66.7%</text>
+<text x="64" y="624" fill="#94a3b8" font-size="11">Min pos float32 at K=3: 0.140 (&gt;&gt; 1e-6 floor)</text>
+<rect x="408" y="498" width="345" height="142" fill="#0f172a" stroke="#3b82f6" rx="8"/>
+<text x="424" y="522" fill="#60a5fa" font-size="13" font-weight="700">Stage B: Static Pair Ribbon Cache C_pair</text>
+<text x="424" y="544" fill="#cbd5e1" font-size="11.5">Key: (sha256, guard_mode, canon(R), env_mode, K, u, v)</text>
+<text x="424" y="564" fill="#cbd5e1" font-size="11.5">Caches Kx76 pooled Conv1d subterm bridges (912 B/pair)</text>
+<text x="424" y="584" fill="#bfdbfe" font-size="11.5">Cold hit: 57.2% · Warm: 100.0%</text>
+<text x="424" y="604" fill="#bfdbfe" font-size="11.5">Executed FLOPs cut by 59.4% (cold)</text>
+<text x="424" y="624" fill="#94a3b8" font-size="11">144/144 trajectory identity (Uncached == Py == Rust)</text>
+<rect x="778" y="498" width="354" height="142" fill="#0f172a" stroke="#f59e0b" rx="8"/>
+<text x="794" y="522" fill="#fbbf24" font-size="13" font-weight="700">Stage C: Live Cross-Frontier Competition</text>
+<text x="794" y="544" fill="#cbd5e1" font-size="11.5">Dynamic infeas(g0, g1, D), rem_budget, lm_diff, prev_pot</text>
+<text x="794" y="564" fill="#cbd5e1" font-size="11.5">Unique 1-hop succ enum: 125.2 (vs 369 uncached)</text>
+<text x="794" y="584" fill="#fde68a" font-size="11.5">Adaptive passes/dec: 2.82 (closure 100.0%)</text>
+<text x="794" y="604" fill="#fbcfe8" font-size="11.5">Hybrid 3-pass: 138.2 ms/ep · 29.56 work</text>
+<text x="794" y="624" fill="#94a3b8" font-size="11">Measured OS peak RSS: 288.1 MB (&lt;&lt; 2 GiB cap)</text>
+</svg>

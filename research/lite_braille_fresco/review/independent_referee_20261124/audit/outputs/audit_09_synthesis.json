@@ -1,0 +1,680 @@
+{
+  "auc_contrasts_rel_prov_opened_minus": {
+    "compute_nonrecurrent": {
+      "auc_delta_pp": 1.1111111111111107,
+      "root_bootstrap_95_pp": [
+        -0.694444444444445,
+        3.055555555555555
+      ],
+      "roots_with_any_difference": 17,
+      "signflip_p": 0.3202056884765625
+    },
+    "param_nonrecurrent": {
+      "auc_delta_pp": 2.2222222222222223,
+      "root_bootstrap_95_pp": [
+        0.4166666666666666,
+        4.583333333333333
+      ],
+      "roots_with_any_difference": 15,
+      "signflip_p": 0.04327392578125
+    },
+    "rel_prov_env_mat_zero": {
+      "auc_delta_pp": 4.166666666666667,
+      "root_bootstrap_95_pp": [
+        1.6666666666666667,
+        6.944444444444444
+      ],
+      "roots_with_any_difference": 19,
+      "signflip_p": 0.0028849855750721245
+    },
+    "rel_prov_env_zero": {
+      "auc_delta_pp": 3.3333333333333335,
+      "root_bootstrap_95_pp": [
+        1.1111111111111114,
+        5.972222222222221
+      ],
+      "roots_with_any_difference": 15,
+      "signflip_p": 0.0074462890625
+    },
+    "rel_prov_mat_zero": {
+      "auc_delta_pp": 0.6944444444444445,
+      "root_bootstrap_95_pp": [
+        -0.13888888888888884,
+        1.5277777777777781
+      ],
+      "roots_with_any_difference": 11,
+      "signflip_p": 0.2265625
+    },
+    "rel_prov_standard": {
+      "auc_delta_pp": 1.6666666666666659,
+      "root_bootstrap_95_pp": [
+        0.1388888888888877,
+        3.472222222222222
+      ],
+      "roots_with_any_difference": 15,
+      "signflip_p": 0.08660888671875
+    },
+    "sym_prov_readout": {
+      "auc_delta_pp": 1.527777777777777,
+      "root_bootstrap_95_pp": [
+        -0.5555555555555566,
+        3.8888888888888875
+      ],
+      "roots_with_any_difference": 16,
+      "signflip_p": 0.23345947265625
+    }
+  },
+  "break_even_cost_per_successor_check_ms": {
+    "absint_mm": {
+      "baseline_closure": 0.9375,
+      "baseline_mean_penalized_work": 44.875,
+      "break_even_ms_per_successor_check": 17.66506502871024,
+      "successor_checks_saved": 15.722222222222221
+    },
+    "bidir": {
+      "baseline_closure": 0.625,
+      "baseline_mean_penalized_work": 84.52083333333333,
+      "break_even_ms_per_successor_check": 5.016142885363099,
+      "successor_checks_saved": 55.36805555555555
+    },
+    "exact_mm": {
+      "baseline_closure": 1.0,
+      "baseline_mean_penalized_work": 31.416666666666668,
+      "break_even_ms_per_successor_check": 122.68008351226986,
+      "successor_checks_saved": 2.2638888888888893
+    },
+    "geom_mm": {
+      "baseline_closure": 0.8125,
+      "baseline_mean_penalized_work": 59.104166666666664,
+      "break_even_ms_per_successor_check": 9.272828014143284,
+      "successor_checks_saved": 29.951388888888886
+    },
+    "graph_bridge": {
+      "baseline_closure": 0.8125,
+      "baseline_mean_penalized_work": 58.916666666666664,
+      "break_even_ms_per_successor_check": 9.331242936304243,
+      "successor_checks_saved": 29.763888888888886
+    }
+  },
+  "budget_curves_identical_to_manifest": {
+    "compute_nonrecurrent": true,
+    "param_nonrecurrent": true,
+    "rel_prov_env_zero": true,
+    "rel_prov_mat_zero": true,
+    "rel_prov_opened": true,
+    "rel_prov_standard": true,
+    "sym_prov_readout": true
+  },
+  "budget_curves_rerun": {
+    "compute_nonrecurrent": {
+      "128": 1.0,
+      "16": 0.1388888888888889,
+      "32": 0.6458333333333334,
+      "64": 0.9305555555555556,
+      "96": 0.9861111111111112,
+      "auc": 0.7402777777777778
+    },
+    "param_nonrecurrent": {
+      "128": 1.0,
+      "16": 0.1388888888888889,
+      "32": 0.625,
+      "64": 0.9097222222222222,
+      "96": 0.9722222222222222,
+      "auc": 0.7291666666666666
+    },
+    "rel_prov_env_mat_zero": {
+      "128": 0.9930555555555556,
+      "16": 0.125,
+      "32": 0.5694444444444444,
+      "64": 0.8958333333333334,
+      "96": 0.9652777777777778,
+      "auc": 0.7097222222222223
+    },
+    "rel_prov_env_zero": {
+      "128": 0.9930555555555556,
+      "16": 0.11805555555555555,
+      "32": 0.5902777777777778,
+      "64": 0.9166666666666666,
+      "96": 0.9722222222222222,
+      "auc": 0.7180555555555556
+    },
+    "rel_prov_mat_zero": {
+      "128": 1.0,
+      "16": 0.1111111111111111,
+      "32": 0.6458333333333334,
+      "64": 0.9652777777777778,
+      "96": 1.0,
+      "auc": 0.7444444444444445
+    },
+    "rel_prov_opened": {
+      "128": 1.0,
+      "16": 0.11805555555555555,
+      "32": 0.6597222222222222,
+      "64": 0.9791666666666666,
+      "96": 1.0,
+      "auc": 0.7513888888888889
+    },
+    "rel_prov_standard": {
+      "128": 1.0,
+      "16": 0.125,
+      "32": 0.6319444444444444,
+      "64": 0.9375,
+      "96": 0.9791666666666666,
+      "auc": 0.7347222222222222
+    },
+    "sym_prov_readout": {
+      "128": 1.0,
+      "16": 0.10416666666666667,
+      "32": 0.6388888888888888,
+      "64": 0.9375,
+      "96": 1.0,
+      "auc": 0.736111111111111
+    }
+  },
+  "cache_reuse_rel_prov_opened_B128": {
+    "distinct_pairs": 15207,
+    "distinct_words": 3329,
+    "episodes": 144,
+    "mean_decisions": 6.319444444444445,
+    "note": "word envelopes depend only on (word, rules) and are exactly cacheable; pair ribbons depend only on (u, v, rules) up to the scramble modes; everything from pair_in onward depends on the whole frontier, the remaining budget and prev_pot, and is not cacheable without changing the function computed",
+    "pair_evaluations": 35533,
+    "pair_level_fraction_recurring": 0.5720316325669097,
+    "word_envelope_evaluations": 10041,
+    "word_level_fraction_avoidable_by_exact_cache": 0.6684593168011155
+  },
+  "factorial_auc_closure": {
+    "additive_prediction_for_both_zero": 0.7111111111111111,
+    "both_zero_minus_intact": -0.04166666666666667,
+    "both_zero_minus_intact_95": [
+      -0.06944444444444443,
+      -0.016666666666666666
+    ],
+    "cell_means": {
+      "both_zero": 0.7097222222222223,
+      "env_zero": 0.7180555555555556,
+      "intact": 0.7513888888888889,
+      "mat_zero": 0.7444444444444445
+    },
+    "env_effect_with_matrix_bank_intact": -0.03333333333333333,
+    "env_effect_with_matrix_bank_zeroed": -0.034722222222222224,
+    "interaction": -0.001388888888888892,
+    "interaction_root_bootstrap_95": [
+      -0.016666666666666673,
+      0.01388888888888889
+    ],
+    "interaction_signflip_p": 1.0,
+    "mat_effect_with_envelope_intact": -0.006944444444444445,
+    "mat_effect_with_envelope_zeroed": -0.008333333333333335,
+    "naive_ratio_share_envelope": 0.8275862068965517,
+    "shapley_share_envelope": 0.8166666666666667,
+    "shapley_share_envelope_root_bootstrap_95": [
+      0.6346153846153846,
+      0.9848484848484849
+    ]
+  },
+  "factorial_penalized_work_B128": {
+    "additive_prediction_for_both_zero": 35.291666666666664,
+    "both_zero_minus_intact": 5.715277777777778,
+    "both_zero_minus_intact_95": [
+      2.9861111111111107,
+      9.25
+    ],
+    "cell_means": {
+      "both_zero": 34.86805555555556,
+      "env_zero": 34.06944444444444,
+      "intact": 29.15277777777778,
+      "mat_zero": 30.375
+    },
+    "env_effect_with_matrix_bank_intact": 4.916666666666666,
+    "env_effect_with_matrix_bank_zeroed": 4.493055555555555,
+    "interaction": -0.42361111111111066,
+    "interaction_root_bootstrap_95": [
+      -1.4791666666666663,
+      0.5416666666666669
+    ],
+    "interaction_signflip_p": 0.4413877930610347,
+    "mat_effect_with_envelope_intact": 1.222222222222222,
+    "mat_effect_with_envelope_zeroed": 0.7986111111111113,
+    "naive_ratio_share_envelope": 0.8009049773755655,
+    "shapley_share_envelope": 0.8232077764277035,
+    "shapley_share_envelope_root_bootstrap_95": [
+      0.6834975369458127,
+      0.946927374301676
+    ]
+  },
+  "per_budget_closure_contrasts": {
+    "compute_nonrecurrent": {
+      "128": {
+        "closure_delta_pp": 0.0,
+        "root_bootstrap_95_pp": [
+          0.0,
+          0.0
+        ],
+        "signflip_p": 1.0
+      },
+      "16": {
+        "closure_delta_pp": -2.083333333333333,
+        "root_bootstrap_95_pp": [
+          -6.944444444444444,
+          2.777777777777778
+        ],
+        "signflip_p": 0.5625
+      },
+      "32": {
+        "closure_delta_pp": 1.3888888888888886,
+        "root_bootstrap_95_pp": [
+          -2.777777777777778,
+          6.25
+        ],
+        "signflip_p": 0.78125
+      },
+      "64": {
+        "closure_delta_pp": 4.861111111111112,
+        "root_bootstrap_95_pp": [
+          0.0,
+          11.11111111111111
+        ],
+        "signflip_p": 0.15625
+      },
+      "96": {
+        "closure_delta_pp": 1.388888888888889,
+        "root_bootstrap_95_pp": [
+          0.0,
+          3.472222222222223
+        ],
+        "signflip_p": 0.5
+      }
+    },
+    "param_nonrecurrent": {
+      "128": {
+        "closure_delta_pp": 0.0,
+        "root_bootstrap_95_pp": [
+          0.0,
+          0.0
+        ],
+        "signflip_p": 1.0
+      },
+      "16": {
+        "closure_delta_pp": -2.083333333333333,
+        "root_bootstrap_95_pp": [
+          -6.25,
+          0.6944444444444448
+        ],
+        "signflip_p": 0.5
+      },
+      "32": {
+        "closure_delta_pp": 3.4722222222222223,
+        "root_bootstrap_95_pp": [
+          0.6944444444444444,
+          6.25
+        ],
+        "signflip_p": 0.0625
+      },
+      "64": {
+        "closure_delta_pp": 6.944444444444445,
+        "root_bootstrap_95_pp": [
+          1.388888888888889,
+          13.88888888888889
+        ],
+        "signflip_p": 0.03125
+      },
+      "96": {
+        "closure_delta_pp": 2.777777777777778,
+        "root_bootstrap_95_pp": [
+          0.0,
+          7.638888888888889
+        ],
+        "signflip_p": 0.5
+      }
+    },
+    "rel_prov_standard": {
+      "128": {
+        "closure_delta_pp": 0.0,
+        "root_bootstrap_95_pp": [
+          0.0,
+          0.0
+        ],
+        "signflip_p": 1.0
+      },
+      "16": {
+        "closure_delta_pp": -0.6944444444444443,
+        "root_bootstrap_95_pp": [
+          -2.7777777777777777,
+          1.388888888888889
+        ],
+        "signflip_p": 1.0
+      },
+      "32": {
+        "closure_delta_pp": 2.7777777777777772,
+        "root_bootstrap_95_pp": [
+          -1.3888888888888893,
+          7.638888888888888
+        ],
+        "signflip_p": 0.40625
+      },
+      "64": {
+        "closure_delta_pp": 4.166666666666667,
+        "root_bootstrap_95_pp": [
+          0.0,
+          9.027777777777779
+        ],
+        "signflip_p": 0.15625
+      },
+      "96": {
+        "closure_delta_pp": 2.0833333333333335,
+        "root_bootstrap_95_pp": [
+          0.0,
+          5.555555555555556
+        ],
+        "signflip_p": 0.5
+      }
+    },
+    "sym_prov_readout": {
+      "128": {
+        "closure_delta_pp": 0.0,
+        "root_bootstrap_95_pp": [
+          0.0,
+          0.0
+        ],
+        "signflip_p": 1.0
+      },
+      "16": {
+        "closure_delta_pp": 1.388888888888889,
+        "root_bootstrap_95_pp": [
+          -4.861111111111111,
+          9.027777777777777
+        ],
+        "signflip_p": 0.875
+      },
+      "32": {
+        "closure_delta_pp": 2.083333333333333,
+        "root_bootstrap_95_pp": [
+          -4.861111111111112,
+          9.027777777777777
+        ],
+        "signflip_p": 0.6875
+      },
+      "64": {
+        "closure_delta_pp": 4.166666666666666,
+        "root_bootstrap_95_pp": [
+          -0.6944444444444445,
+          11.11111111111111
+        ],
+        "signflip_p": 0.375
+      },
+      "96": {
+        "closure_delta_pp": 0.0,
+        "root_bootstrap_95_pp": [
+          0.0,
+          0.0
+        ],
+        "signflip_p": 1.0
+      }
+    }
+  },
+  "reference_single_pass_arms_penalized_work_B128": {
+    "compute_nonrecurrent": 31.694444444444443,
+    "param_nonrecurrent": 31.833333333333332,
+    "sym_prov_readout": 30.145833333333332
+  },
+  "replication_B128": {
+    "by_condition": {
+      "adj2_noprov_opened": {
+        "compared": 144,
+        "identical": 144
+      },
+      "astar": {
+        "compared": 48,
+        "identical": 48
+      },
+      "bidir": {
+        "compared": 48,
+        "identical": 48
+      },
+      "compute_nonrecurrent": {
+        "compared": 144,
+        "identical": 144
+      },
+      "exact_lookahead": {
+        "compared": 48,
+        "identical": 48
+      },
+      "geom_mm": {
+        "compared": 48,
+        "identical": 48
+      },
+      "graph_bridge": {
+        "compared": 48,
+        "identical": 48
+      },
+      "lbf16_pos1_opened": {
+        "compared": 144,
+        "identical": 144
+      },
+      "lowrank_opened": {
+        "compared": 144,
+        "identical": 144
+      },
+      "param_nonrecurrent": {
+        "compared": 144,
+        "identical": 144
+      },
+      "rel_prov_env_zero": {
+        "compared": 144,
+        "identical": 144
+      },
+      "rel_prov_mat_zero": {
+        "compared": 144,
+        "identical": 144
+      },
+      "rel_prov_opened": {
+        "compared": 144,
+        "identical": 144
+      },
+      "rel_prov_standard": {
+        "compared": 144,
+        "identical": 144
+      },
+      "sym_prov_readout": {
+        "compared": 144,
+        "identical": 144
+      }
+    },
+    "records_compared": 1680,
+    "records_identical_closed_work_path": 1680
+  },
+  "roots": 48,
+  "rows": 6432,
+  "successor_accounting_B128": {
+    "compute_nonrecurrent": {
+      "all_roots_closed_at_B128": true,
+      "bidir_bfs_max_work_to_closure": 653,
+      "bidir_bfs_mean_work_to_closure_unbounded_budget": 147.54166666666666,
+      "bidir_bfs_median_work_to_closure": 77.5,
+      "mean_charged_successor_checks": 31.694444444444443,
+      "mean_successor_enumerations_as_implemented": 485.99305555555554,
+      "mean_successors_enumerated_once_(explicit_or_implicit)": 132.79166666666666,
+      "median_charged_successor_checks": 24.833333333333336,
+      "median_successors_enumerated_once": 118.5,
+      "paired_mean_enumerated_once_minus_bidir": -14.75,
+      "paired_root_bootstrap_95": [
+        -43.756944444444436,
+        10.826388888888886
+      ],
+      "paired_signflip_p": 0.30753846230768844,
+      "ratio_enumerated_once_over_charged": 4.189745836985101,
+      "roots_where_bidir_enumerates_fewer_successors": 33,
+      "roots_where_bidir_needs_fewer_than_charged_only": 1
+    },
+    "lbf16_pos1_opened": {
+      "all_roots_closed_at_B128": false,
+      "bidir_bfs_max_work_to_closure": 653,
+      "bidir_bfs_mean_work_to_closure_unbounded_budget": 147.54166666666666,
+      "bidir_bfs_median_work_to_closure": 77.5,
+      "mean_charged_successor_checks": 35.638888888888886,
+      "mean_successor_enumerations_as_implemented": 630.3819444444445,
+      "mean_successors_enumerated_once_(explicit_or_implicit)": 144.18055555555554,
+      "median_charged_successor_checks": 25.833333333333336,
+      "median_successors_enumerated_once": 121.16666666666667,
+      "paired_mean_enumerated_once_minus_bidir": -3.3611111111111116,
+      "paired_root_bootstrap_95": [
+        -30.791666666666668,
+        20.041666666666668
+      ],
+      "paired_signflip_p": 0.8057809710951446,
+      "ratio_enumerated_once_over_charged": 4.045596258768511,
+      "roots_where_bidir_enumerates_fewer_successors": 34,
+      "roots_where_bidir_needs_fewer_than_charged_only": 1
+    },
+    "param_nonrecurrent": {
+      "all_roots_closed_at_B128": true,
+      "bidir_bfs_max_work_to_closure": 653,
+      "bidir_bfs_mean_work_to_closure_unbounded_budget": 147.54166666666666,
+      "bidir_bfs_median_work_to_closure": 77.5,
+      "mean_charged_successor_checks": 31.833333333333332,
+      "mean_successor_enumerations_as_implemented": 487.9791666666667,
+      "mean_successors_enumerated_once_(explicit_or_implicit)": 133.19444444444446,
+      "median_charged_successor_checks": 25.333333333333332,
+      "median_successors_enumerated_once": 117.16666666666666,
+      "paired_mean_enumerated_once_minus_bidir": -14.347222222222221,
+      "paired_root_bootstrap_95": [
+        -43.388888888888886,
+        11.284722222222223
+      ],
+      "paired_signflip_p": 0.3200233998830006,
+      "ratio_enumerated_once_over_charged": 4.18411867364747,
+      "roots_where_bidir_enumerates_fewer_successors": 31,
+      "roots_where_bidir_needs_fewer_than_charged_only": 1
+    },
+    "rel_prov_opened": {
+      "all_roots_closed_at_B128": true,
+      "bidir_bfs_max_work_to_closure": 653,
+      "bidir_bfs_mean_work_to_closure_unbounded_budget": 147.54166666666666,
+      "bidir_bfs_median_work_to_closure": 77.5,
+      "mean_charged_successor_checks": 29.15277777777778,
+      "mean_successor_enumerations_as_implemented": 398.38194444444446,
+      "mean_successors_enumerated_once_(explicit_or_implicit)": 125.34722222222223,
+      "median_charged_successor_checks": 24.833333333333336,
+      "median_successors_enumerated_once": 115.5,
+      "paired_mean_enumerated_once_minus_bidir": -22.194444444444443,
+      "paired_root_bootstrap_95": [
+        -52.791666666666664,
+        4.770833333333333
+      ],
+      "paired_signflip_p": 0.1458842705786471,
+      "ratio_enumerated_once_over_charged": 4.299666507860886,
+      "roots_where_bidir_enumerates_fewer_successors": 25,
+      "roots_where_bidir_needs_fewer_than_charged_only": 1
+    },
+    "sym_prov_readout": {
+      "all_roots_closed_at_B128": true,
+      "bidir_bfs_max_work_to_closure": 653,
+      "bidir_bfs_mean_work_to_closure_unbounded_budget": 147.54166666666666,
+      "bidir_bfs_median_work_to_closure": 77.5,
+      "mean_charged_successor_checks": 30.145833333333332,
+      "mean_successor_enumerations_as_implemented": 437.7013888888889,
+      "mean_successors_enumerated_once_(explicit_or_implicit)": 134.13194444444443,
+      "median_charged_successor_checks": 24.5,
+      "median_successors_enumerated_once": 128.5,
+      "paired_mean_enumerated_once_minus_bidir": -13.409722222222223,
+      "paired_root_bootstrap_95": [
+        -43.95138888888889,
+        12.909722222222221
+      ],
+      "paired_signflip_p": 0.37973310133449334,
+      "ratio_enumerated_once_over_charged": 4.4494356139138445,
+      "roots_where_bidir_enumerates_fewer_successors": 30,
+      "roots_where_bidir_needs_fewer_than_charged_only": 1
+    }
+  },
+  "wall_clock_B128": {
+    "adj2_noprov_opened": {
+      "archived_ms_per_episode": 1607.6729215272078,
+      "archived_over_clean": 8.269648068309765,
+      "archived_ratio_vs_sym_prov_readout": 2.307426897577177,
+      "clean_ms_per_decision": 29.940672472727595,
+      "clean_ms_per_episode": 194.4064497361132,
+      "clean_ratio_vs_sym_prov_readout": 1.9902445455435278
+    },
+    "compute_nonrecurrent": {
+      "archived_ms_per_episode": 1514.840584027398,
+      "archived_over_clean": 2.9867107951901115,
+      "archived_ratio_vs_sym_prov_readout": 2.1741884573174874,
+      "clean_ms_per_decision": 74.14809909847754,
+      "clean_ms_per_episode": 507.1935945277804,
+      "clean_ratio_vs_sym_prov_readout": 5.192416642625494
+    },
+    "lbf16_pos1_opened": {
+      "archived_ms_per_episode": 1390.092268750272,
+      "archived_over_clean": 7.356443006372472,
+      "archived_ratio_vs_sym_prov_readout": 1.995142325331612,
+      "clean_ms_per_decision": 24.96386052293449,
+      "clean_ms_per_episode": 188.96255534721243,
+      "clean_ratio_vs_sym_prov_readout": 1.9345124382562864
+    },
+    "lowrank_opened": {
+      "archived_ms_per_episode": 1056.543667360529,
+      "archived_over_clean": 5.990691835458386,
+      "archived_ratio_vs_sym_prov_readout": 1.5164137206569601,
+      "clean_ms_per_decision": 24.21014973117215,
+      "clean_ms_per_episode": 176.36421574999713,
+      "clean_ratio_vs_sym_prov_readout": 1.8055363847338963
+    },
+    "param_nonrecurrent": {
+      "archived_ms_per_episode": 665.2759291656467,
+      "archived_over_clean": 6.371702529364866,
+      "archived_ratio_vs_sym_prov_readout": 0.9548432101532307,
+      "clean_ms_per_decision": 15.17173176387786,
+      "clean_ms_per_episode": 104.41101512502055,
+      "clean_ratio_vs_sym_prov_readout": 1.0689123412793495
+    },
+    "rel_prov_env_mat_zero": {
+      "archived_ms_per_episode": null,
+      "archived_over_clean": null,
+      "clean_ms_per_decision": 44.35358451914008,
+      "clean_ms_per_episode": 329.8797848611043,
+      "clean_ratio_vs_sym_prov_readout": 3.377158748570703
+    },
+    "rel_prov_env_zero": {
+      "archived_ms_per_episode": 1378.6605979160715,
+      "archived_over_clean": 4.219713829504905,
+      "archived_ratio_vs_sym_prov_readout": 1.9787349178211182,
+      "clean_ms_per_decision": 44.76454149191175,
+      "clean_ms_per_episode": 326.7189799166614,
+      "clean_ratio_vs_sym_prov_readout": 3.344799869486477
+    },
+    "rel_prov_mat_zero": {
+      "archived_ms_per_episode": 992.8951368051962,
+      "archived_over_clean": 3.4833946054572023,
+      "archived_ratio_vs_sym_prov_readout": 1.4250615995705864,
+      "clean_ms_per_decision": 43.7116910798707,
+      "clean_ms_per_episode": 285.03665224999014,
+      "clean_ratio_vs_sym_prov_readout": 2.91807521401976
+    },
+    "rel_prov_opened": {
+      "archived_ms_per_episode": 1713.228018054805,
+      "archived_over_clean": 6.168591303925865,
+      "archived_ratio_vs_sym_prov_readout": 2.458925791190912,
+      "clean_ms_per_decision": 43.949128818681295,
+      "clean_ms_per_episode": 277.73407795138877,
+      "clean_ratio_vs_sym_prov_readout": 2.8433147897337037
+    },
+    "rel_prov_standard": {
+      "archived_ms_per_episode": 2520.926294444507,
+      "archived_over_clean": 7.10578312488693,
+      "archived_ratio_vs_sym_prov_readout": 3.6181819452958766,
+      "clean_ms_per_decision": 51.18941315030208,
+      "clean_ms_per_episode": 354.7710716944547,
+      "clean_ratio_vs_sym_prov_readout": 3.631984387940591
+    },
+    "sym_prov_readout": {
+      "archived_ms_per_episode": 696.7383986098462,
+      "archived_over_clean": 7.132889877811432,
+      "archived_ratio_vs_sym_prov_readout": 1.0,
+      "clean_ms_per_decision": 15.47400866556537,
+      "clean_ms_per_episode": 97.6796797013814,
+      "clean_ratio_vs_sym_prov_readout": 1.0
+    }
+  },
+  "wall_clock_note": "clean timings were taken while two audit shards shared a 2-core machine; arms are interleaved within root, so ratios are meaningful and absolute values are indicative only"
+}

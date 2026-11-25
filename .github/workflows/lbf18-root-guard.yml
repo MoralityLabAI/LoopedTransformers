@@ -1,0 +1,24 @@
+name: LBF-18 root-suppression guard audit
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf18_root_guard.py"
+      - "research/lite_braille_fresco/tests/test_lbf18_root_guard.py"
+      - ".github/workflows/lbf18-root-guard.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Counterexample and exhaustive bounded fixture reachability
+        working-directory: research/lite_braille_fresco
+        run: |
+          python lbf18_root_guard.py
+          python -m unittest discover -s tests -p test_lbf18_root_guard.py -v

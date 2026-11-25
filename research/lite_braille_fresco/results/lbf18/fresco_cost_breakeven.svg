@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 560" font-family="Inter, Segoe UI, system-ui, sans-serif">
+<rect width="1180" height="560" fill="#0b1020" rx="14"/>
+<text x="32" y="42" fill="#f8fafc" font-size="20" font-weight="700">LBF-18 Economic Regime: Synthetic Per-Successor Cost Sweep (0, 1, 10, 100 ms)</text>
+<text x="32" y="65" fill="#94a3b8" font-size="12.5">Total Episode Latency = Clean Search Wall-Clock + c_succ * Charged Verifier Calls (Left) vs + c_succ * Unique Enumerated Successors (Right)</text>
+<rect x="28" y="84" width="550" height="446" fill="#111827" stroke="#1f2937" rx="10"/>
+<text x="46" y="112" fill="#e2e8f0" font-size="14.5" font-weight="600">A. Verifier-Call Regime (Local Rule Graph, Expensive Tactic Check)</text>
+<text x="46" y="134" fill="#94a3b8" font-size="11.5">Arm                             0 ms      1 ms     10 ms    100 ms   Break-Even vs bidir@4096</text>
+<rect x="602" y="84" width="550" height="446" fill="#111827" stroke="#1f2937" rx="10"/>
+<text x="620" y="112" fill="#e2e8f0" font-size="14.5" font-weight="600">B. Oracle-Enumeration Regime (Every 1-Hop Successor Charged)</text>
+<text x="620" y="134" fill="#94a3b8" font-size="11.5">Arm                          UniqueEnum     0 ms      1 ms     10 ms    100 ms</text>
+<circle cx="52" cy="162" r="5" fill="#10b981"/>
+<text x="64" y="166" fill="#f8fafc" font-size="11.5" font-weight="600">rel_prov_guarded (Rust Cold)</text>
+<text x="246" y="166" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace"> 159.8    188.8    450.6      3068     1.32 ms</text>
+<circle cx="626" cy="162" r="5" fill="#10b981"/>
+<text x="638" y="166" fill="#f8fafc" font-size="11.5" font-weight="600">rel_prov_guarded (Rust Cold)</text>
+<text x="820" y="166" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">  125.2    159.8    285.0   1412.1     12683</text>
+<circle cx="52" cy="204" r="5" fill="#a78bfa"/>
+<text x="64" y="208" fill="#f8fafc" font-size="11.5" font-weight="600">sym_prov_readout (Rust Cold)</text>
+<text x="246" y="208" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">  79.3    109.4    381.1      3098     0.65 ms</text>
+<circle cx="626" cy="204" r="5" fill="#a78bfa"/>
+<text x="638" y="208" fill="#f8fafc" font-size="11.5" font-weight="600">sym_prov_readout (Rust Cold)</text>
+<text x="820" y="208" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">  134.1     79.3    213.4   1420.6     13492</text>
+<circle cx="52" cy="246" r="5" fill="#ec4899"/>
+<text x="64" y="250" fill="#f8fafc" font-size="11.5" font-weight="600">hybrid_sym_rec (Rust Cold)</text>
+<text x="246" y="250" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace"> 138.2    167.7    433.8      3094     1.14 ms</text>
+<circle cx="626" cy="246" r="5" fill="#ec4899"/>
+<text x="638" y="250" fill="#f8fafc" font-size="11.5" font-weight="600">hybrid_sym_rec (Rust Cold)</text>
+<text x="820" y="250" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">  131.9    138.2    270.1   1457.6     13332</text>
+<circle cx="52" cy="288" r="5" fill="#38bdf8"/>
+<text x="64" y="292" fill="#f8fafc" font-size="11.5" font-weight="600">absint_mm (0-param 3-pass)</text>
+<text x="246" y="292" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace"> 781.4    826.3   1230.7      5275     7.58 ms</text>
+<circle cx="626" cy="288" r="5" fill="#38bdf8"/>
+<text x="638" y="292" fill="#f8fafc" font-size="11.5" font-weight="600">absint_mm (0-param 3-pass)</text>
+<text x="820" y="292" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">  178.2    781.4    959.5   2563.2     18600</text>
+<circle cx="52" cy="330" r="5" fill="#f59e0b"/>
+<text x="64" y="334" fill="#f8fafc" font-size="11.5" font-weight="600">geom_mm (0-param Hamming)</text>
+<text x="246" y="334" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">  19.1     78.2    610.1      5929     0.18 ms</text>
+<circle cx="626" cy="330" r="5" fill="#f59e0b"/>
+<text x="638" y="334" fill="#f8fafc" font-size="11.5" font-weight="600">geom_mm (0-param Hamming)</text>
+<text x="820" y="334" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">   58.9     19.1     78.0    608.2      5911</text>
+<circle cx="52" cy="372" r="5" fill="#94a3b8"/>
+<text x="64" y="376" fill="#f8fafc" font-size="11.5" font-weight="600">bidir @ B=128</text>
+<text x="246" y="376" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">   1.4     86.0    846.6      8454     0.00 ms</text>
+<circle cx="626" cy="372" r="5" fill="#94a3b8"/>
+<text x="638" y="376" fill="#f8fafc" font-size="11.5" font-weight="600">bidir @ B=128</text>
+<text x="820" y="376" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">   84.1      1.4     85.6    842.9      8416</text>
+<circle cx="52" cy="414" r="5" fill="#ef4444"/>
+<text x="64" y="418" fill="#f8fafc" font-size="11.5" font-weight="600">bidir uncapped @ B=4096</text>
+<text x="246" y="418" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">   3.4    151.0   1478.8     14758     —</text>
+<circle cx="626" cy="414" r="5" fill="#ef4444"/>
+<text x="638" y="418" fill="#f8fafc" font-size="11.5" font-weight="600">bidir uncapped @ B=4096</text>
+<text x="820" y="418" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">  147.5      3.4    151.0   1478.8     14758</text>
+<circle cx="52" cy="456" r="5" fill="#fb7185"/>
+<text x="64" y="460" fill="#f8fafc" font-size="11.5" font-weight="600">exact_mm (3-hop balls, oracle)</text>
+<text x="246" y="460" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace">  80.9    112.3    395.1      3223     0.67 ms</text>
+<circle cx="626" cy="456" r="5" fill="#fb7185"/>
+<text x="638" y="460" fill="#f8fafc" font-size="11.5" font-weight="600">exact_mm (3-hop balls, oracle)</text>
+<text x="820" y="460" fill="#cbd5e1" font-size="11.5" font-family="Consolas, monospace"> 3389.0     80.9   3469.9  33970.7    338979</text>
+<text x="46" y="508" fill="#6ee7b7" font-size="11.5">Abstract propagation pays once verifier checks cost &gt;= ~0.2-0.5 ms (e.g. Lean kernel / SMT tactic calls).</text>
+<text x="620" y="508" fill="#fcd34d" font-size="11.5">Counting implicit 1-hop enumeration, exact_mm explodes (~3,400 succs) while frescoes enumerate ~125 vs 148 for BFS.</text>
+</svg>

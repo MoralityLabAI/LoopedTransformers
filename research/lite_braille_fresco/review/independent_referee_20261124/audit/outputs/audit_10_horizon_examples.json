@@ -1,0 +1,105 @@
+{
+  "k3_false_positive_first_concrete_distance": {
+    "sym_adj2": {
+      "first_reachable_at_4": 104,
+      "first_reachable_at_5": 7,
+      "first_reachable_at_6": 2,
+      "first_reachable_at_8": 5,
+      "not_reachable_within_8": 6
+    },
+    "sym_pos1": {
+      "first_reachable_at_4": 376,
+      "first_reachable_at_5": 228,
+      "first_reachable_at_6": 144,
+      "first_reachable_at_7": 99,
+      "first_reachable_at_8": 90,
+      "not_reachable_within_8": 440
+    },
+    "sym_prov4_adj2": {
+      "first_reachable_at_4": 25,
+      "first_reachable_at_5": 2,
+      "not_reachable_within_8": 1
+    },
+    "sym_sub3": {
+      "first_reachable_at_4": 8
+    }
+  },
+  "k3_false_positive_share_that_is_horizon_overshoot": {
+    "sym_adj2": 0.9516129032258065,
+    "sym_pos1": 0.6804647785039942,
+    "sym_prov4_adj2": 0.9642857142857143,
+    "sym_sub3": 1.0
+  },
+  "prov4_adj2_examples": [
+    {
+      "first_concrete_distance": 4,
+      "position": 7,
+      "root": "calibration_002_233b14d9428c",
+      "symbol": "d",
+      "word": "bcddbbcece"
+    },
+    {
+      "first_concrete_distance": 4,
+      "position": 6,
+      "root": "calibration_004_21ef46682bd8",
+      "symbol": "b",
+      "word": "effaeefcca"
+    },
+    {
+      "first_concrete_distance": 5,
+      "position": 7,
+      "root": "calibration_005_33a48ecc1f99",
+      "symbol": "d",
+      "word": "fbdcaedbaeb"
+    },
+    {
+      "first_concrete_distance": 4,
+      "position": 2,
+      "root": "calibration_007_4b50b478b197",
+      "symbol": "b",
+      "word": "bedccfafcff"
+    },
+    {
+      "first_concrete_distance": 4,
+      "position": 3,
+      "root": "calibration_007_4b50b478b197",
+      "symbol": "f",
+      "word": "bedccfafcff"
+    },
+    {
+      "first_concrete_distance": 4,
+      "position": 4,
+      "root": "calibration_007_4b50b478b197",
+      "symbol": "a",
+      "word": "bedccfafcff"
+    }
+  ],
+  "search_depth": 8,
+  "word_level_witness": {
+    "concrete_distance_of_each": {
+      "abeeab": 0,
+      "abeecd": 1,
+      "cdeeab": 1,
+      "cdeecd": 2
+    },
+    "contains_word_at_distance_2": true,
+    "fiber_of_both": 0,
+    "pass1_fiber0_concretisation": [
+      "abeeab",
+      "abeecd",
+      "cdeeab",
+      "cdeecd"
+    ],
+    "pass1_redex_positions": [
+      0,
+      4
+    ],
+    "rules": [
+      [
+        "ab",
+        "cd"
+      ]
+    ],
+    "w0": "abeeab"
+  }
+}
