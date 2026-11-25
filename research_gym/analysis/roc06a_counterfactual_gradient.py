@@ -456,7 +456,7 @@ def evaluate_model(seed,arm,source,checkpoint,cfg,out):
                     fields=list(records[0])
                     writer=csv.DictWriter(stream,fieldnames=fields)
                     writer.writeheader();writer.writerows(records)
-        card={"study":"ROC06A-v1-matched-hidden-input-causal-rule-intervention",
+        card={"study":"ROC-06A-v1-train-only-counterfactual-gradient-observer",
               "seed":seed,"arm":arm,"checkpoint_sha256":cksha,
               "source_dev_sha256":sha(source/"development.jsonl"),
               "model_training_updates_during_causal_analysis":0,
