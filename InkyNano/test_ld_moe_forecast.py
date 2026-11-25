@@ -1,10 +1,13 @@
 import unittest
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import numpy as np
 import torch
 
-from ld_moe_forecast import causal_features, successor_indices, Mesh, MODES, WIDTH
+from ld_moe_forecast import causal_features, successor_indices, Mesh, MODES, WIDTH, fit, predict
 from test_ld_moe_cache import fixture
-from ld_moe_cache import normalize_events
+from ld_moe_cache import normalize_events, audit
 
 
 class ForecastTests(unittest.TestCase):
@@ -34,6 +37,26 @@ class ForecastTests(unittest.TestCase):
         # Block 0's message becomes visible only after layer 5 executes.
         self.assertEqual(v[5][0][-512:].sum(),0.)
         self.assertEqual(v[6][0][-512:-384].sum(),8.)
+
+    def test_end_to_end_fixture_training(self):
+        # A construction check only, no scientific performance claim.
+        e,s=fixture(2)
+        e=normalize_events(e,s,1,1)
+        with TemporaryDirectory() as tmp:
+            path=Path(tmp)/"trace.jsonl"
+            records=[{"case_id":split,"root":split,"split":split,"task":"fixture",
+                      "model_sha256":"synthetic","runtime_revision":"fixture",
+                      "expert_support":s,"ordered_trace_version":1,"routing_events":e,
+                      "traced_runtime":{"input_tokens":1,"decoded_tokens":1}}
+                     for split in ("train","dev")]
+            path.write_text("\n".join(json.dumps(v) for v in records),encoding="utf8")
+            model,training=fit(path,"pass_mesh",epochs=1,batch=4,per_case=8,cap=16)
+            self.assertEqual(training["train_roots"],1)
+            self.assertEqual(training["train_samples"],8)
+            report=audit(path,(8,12),lambda row:predict(model,row,"pass_mesh",batch=16))
+            found={q["policy"]:q["root_mean_admissions"] for q in report["summary"] if q["capacity"]==8}
+            self.assertEqual(found["forecast"],found["lru"])
+            self.assertEqual(found["forecast"],found["oracle"])
 
     def test_model_grad(self):
         m=Mesh()

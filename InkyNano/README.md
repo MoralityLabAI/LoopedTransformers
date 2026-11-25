@@ -2,6 +2,12 @@
 
 Research program: compress Inkling 2 Mini into a text-first, locally runnable looped MoE with an LDT-controlled resident expert bank. Target: RTX 3050 4 GiB with CPU RAM backing, batch 1. This is an experimental scaffold, not released weights or an inference implementation.
 
+## Per-token LD-MoE (current direction)
+- [LD-MoE theory](LD_MOE.md) and [experiment ledger](LD_MOE_EXPERIMENTS.md).
+- [Ordered native trace and exact cache replay](LD_MOE_PROGRESS.md).
+- [Trainable causal eviction forecast](LD_MOE_FORECAST.md).
+- [Codex implementation goal](LD_MOE_CODEX_GOAL.md).
+
 ## Cloud-to-local gym
 - [GGUF conversion report](GGUF_CONVERSION.md): resumable Colab CPU conversion of all 3,072 experts + text backbone to GGML GGUF bundles, 16-expert receipts, and selective LDT loader (`gguf_convert.py`, `gguf_loader.py`, `inkynano_colab_gguf.ipynb`).
 - [Stage 1 report](STAGE1.md): local controller sweep, receipts, and rerun commands.
@@ -34,7 +40,7 @@ The example byte cost is ideal packed INT4 at rank 96 for three 2304x1152 matric
 - https://thinkingmachines.ai/news/inkling-2-mini/
 - https://docs.nvidia.com/nemo/automodel/model-coverage/vision-language-models/thinkingmachines/Inkling-2-Mini
 
-Pin immutable checkpoint and implementation revisions before extraction. Source license Apache-2.0; retain license, attribution, source provenance and modification notices for derivative artifacts. No cloud execution or publication has occurred in this branch.
+Pin immutable checkpoint and implementation revisions before extraction. Source license Apache-2.0; retain license, attribution, source provenance and modification notices for derivative artifacts. The published conversion and earlier pilot artifacts are documented in their respective receipts.
 
 ## Milestones
 INK-NANO-00: tensor inventory and dequantization audit.

@@ -36,3 +36,9 @@ python InkyNano/ld_moe_cache.py --routing matrix/ordered-smoke/routing.jsonl \
 ```
 
 Requires dev cases in the input; capacities beyond scoped support skipped. Reports per-case and root-macro results. No native ordered capture in this session; new replay tests are synthetic finite checks. Actual full-bank parity and performance, learned forecasts, backend scheduling and substitution still pending.
+
+## Implication of eight slots for recurrent traffic
+
+At exactly eight slots and eight active experts, the post-visit cache is the native selected set. For the same physical layer's successive pass visits A and B, the next visit necessarily admits 8-|A∩B| experts under demand-only GPU residency. The original 16-root full-support teacher pilot reported root-mean successive-pass overlap 0.5891. Applied illustratively to the converted packed bank's 12 recurrent NVFP4-profile layers and two within-token pass transitions, that is 12*2*8*(1-0.5891) = 78.8928 admissions/token, or about 379.53 MB/token (decimal) at 4,810,752 B/expert. This accounts for within-token loop transitions alone; cross-token transitions and prefill are additional. At five tokens/s this component alone implies about 1.90 GB/s of demand payload if every admission is an H2D copy. This is a cross-check combining an earlier native trace statistic and a later storage measurement, not measured bandwidth or a prediction of the quantized model's exact routing. An eviction predictor cannot improve this fixed-eight demand bound. More slots, CPU execution, or prefetch overlap under an explicitly charged staging budget are distinct ways to improve latency.
+
+The trainable next-use controller and matched ablations are described in LD_MOE_FORECAST.md.
