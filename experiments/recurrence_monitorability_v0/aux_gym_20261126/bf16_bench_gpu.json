@@ -1,0 +1,23 @@
+{
+ "device": "cuda",
+ "steps": 150,
+ "fp32": {
+  "s_per_step_median": 0.09991949999675853,
+  "steps_per_s": 10.008056485795473,
+  "loss_first": 8.691837310791016,
+  "loss_last20": 2.469725027680397,
+  "finite": true,
+  "peak_vram_mb": 1596.67626953125
+ },
+ "bf16": {
+  "s_per_step_median": 0.10697649999929126,
+  "steps_per_s": 9.347847424496269,
+  "loss_first": 8.692843914031982,
+  "loss_last20": 2.4697799891233445,
+  "finite": true,
+  "peak_vram_mb": 1596.67626953125
+ },
+ "speedup": 0.9340322407016542,
+ "loss_ratio_bf16_over_fp32": 1.000022254073766,
+ "adopt_bf16": false
+}

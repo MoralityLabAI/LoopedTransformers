@@ -1,0 +1,41 @@
+model LoopedDecoderLM(
+  (embedding): Embedding(2048, 128)
+  (input_norm): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+  (blocks): ModuleList(
+    (0): ExplicitDecoderBlock(
+      (norm1): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+      (qkv): Linear(in_features=128, out_features=384, bias=False)
+      (attention_out): Linear(in_features=128, out_features=128, bias=False)
+      (norm2): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+      (mlp): Sequential(
+        (0): Linear(in_features=128, out_features=512, bias=False)
+        (1): GELU(approximate='none')
+        (2): Linear(in_features=512, out_features=128, bias=False)
+      )
+    )
+  )
+  (final_norm): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+  (executor): ScheduleExecutor()
+)
+params 459776
+mode=fp32 one profiled step wall 5.59s
+--------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                        Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+--------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                    aten::mm        48.92%        2.484s        48.92%        2.484s      10.266ms           242  
+                                   aten::bmm         7.72%     392.128ms         7.72%     392.295ms       4.086ms            96  
+                                 aten::copy_         5.48%     278.328ms         5.48%     278.328ms     687.231us           405  
+                                   aten::mul         4.57%     232.186ms         4.76%     241.926ms       1.805ms           134  
+                         aten::gelu_backward         3.86%     196.159ms         3.86%     196.159ms      12.260ms            16  
+                                  aten::gelu         2.72%     138.229ms         2.72%     138.229ms       8.639ms            16  
+                                   aten::cat         2.61%     132.347ms         2.65%     134.506ms       7.473ms            18  
+                                   aten::div         2.21%     112.195ms         2.26%     114.841ms       2.252ms            51  
+            aten::native_layer_norm_backward         2.03%     103.127ms         2.14%     108.869ms       2.177ms            50  
+autograd::engine::evaluate_function: MmBa...         1.97%     100.186ms        31.62%        1.606s      20.074ms            80  
+                aten::_softmax_backward_data         1.89%      96.051ms         1.89%      96.051ms       6.003ms            16  
+                                  aten::add_         1.78%      90.222ms         1.79%      90.665ms     392.488us           231  
+                              aten::_softmax         1.69%      85.697ms         1.69%      85.697ms       5.356ms            16  
+                                   aten::add         1.61%      82.006ms         1.61%      82.006ms       1.864ms            44  
+--------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 5.078s
+

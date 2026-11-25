@@ -1,0 +1,56 @@
+﻿diff --git a/research_gym/interp/training.py b/research_gym/interp/training.py
+index 1bcb55ed..176b1aac 100644
+--- a/research_gym/interp/training.py
++++ b/research_gym/interp/training.py
+@@ -201,16 +201,28 @@ def run_visits(model: LoopedDecoderLM, tokens: Tensor, config: CellConfig, *, vi
+     return model(tokens, depth_visits=visits, visit_hook=hook)
+ 
+ 
++def _amp(device_type: str):
++    """bf16 autocast when RMP_BF16=1 (weights, optimizer and checkpoints stay fp32); no-op otherwise."""
++
++    import contextlib
++    import os
++
++    if os.environ.get("RMP_BF16") == "1":
++        return torch.autocast(device_type=device_type, dtype=torch.bfloat16)
++    return contextlib.nullcontext()
++
++
+ def cell_loss(model: LoopedDecoderLM, tokens: Tensor, targets: Tensor, config: CellConfig) -> Tensor:
+     """Per-example answer-position cross-entropy; with deep supervision, averaged over visits."""
+ 
+-    output = run_visits(model, tokens, config)
+-    if not config.deep_supervision:
+-        return torch.nn.functional.cross_entropy(output.logits[:, -1], targets, reduction="none")
+-    losses = [
+-        torch.nn.functional.cross_entropy(model.lens(state[:, -1]), targets, reduction="none")
+-        for state in output.visit_outputs
+-    ]
++    with _amp(tokens.device.type):
++        output = run_visits(model, tokens, config)
++        if not config.deep_supervision:
++            return torch.nn.functional.cross_entropy(output.logits[:, -1].float(), targets, reduction="none")
++        losses = [
++            torch.nn.functional.cross_entropy(model.lens(state[:, -1]).float(), targets, reduction="none")
++            for state in output.visit_outputs
++        ]
+     return torch.stack(losses).mean(dim=0)
+ 
+ 
+@@ -219,10 +231,11 @@ def predict(
+     model: LoopedDecoderLM, tokens: Tensor, config: CellConfig, *, device: torch.device, batch: int = 500
+ ) -> Tensor:
+     model.eval()
+-    predictions = [
+-        run_visits(model, tokens[start : start + batch].to(device), config).logits[:, -1].argmax(dim=-1).cpu()
+-        for start in range(0, tokens.shape[0], batch)
+-    ]
++    with _amp(device.type):
++        predictions = [
++            run_visits(model, tokens[start : start + batch].to(device), config).logits[:, -1].argmax(dim=-1).cpu()
++            for start in range(0, tokens.shape[0], batch)
++        ]
+     model.train()
+     return torch.cat(predictions)
+ 

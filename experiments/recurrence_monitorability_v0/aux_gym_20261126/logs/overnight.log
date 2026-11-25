@@ -1,0 +1,19 @@
+2026-11-26T00:31:09.5277569+08:00 gpu_bench: start
+2026-11-26T00:31:56.7257870+08:00 gpu_bench: adopt_bf16=False variant=aux2
+2026-11-26T00:31:57.4653291+08:00 queue: starting LOOP-T,FF-U-aux2-s123
+powershell.exe : C:\Users\patri\rmp-aux-20261125\scripts\run_rmp_training_cell.ps1 : Cannot validate argument on 
+parameter 'Arm'. The 
+At C:\Users\patri\Documents\Codex\rmp_v0_aux\run_aux_queue.ps1:18 char:1
++ & powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_rmp ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\patri\...ter 'Arm'. The :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+argument "LOOP-T,FF-U" does not belong to the set "LOOP-T,FF-U" specified by the ValidateSet attribute. Supply an 
+argument that is in the set and then try the command again.
+    + CategoryInfo          : InvalidData: (:) [run_rmp_training_cell.ps1], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : ParameterArgumentValidationError,run_rmp_training_cell.ps1
+ 
+2026-11-26T00:31:58.1304421+08:00 queue: LOOP-T,FF-U-aux2-s123 runner exit 1, status 
+2026-11-26T00:31:58.1319875+08:00 queue: finished
+2026-11-26T00:31:58.2289083+08:00 queue: exited

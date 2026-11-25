@@ -1,0 +1,12 @@
+python.exe : C:\Users\patri\Documents\Codex\rmp_v0_aux\bf16_bench.py:48: UserWarning: Converting a tensor with 
+requires_grad=True to a scalar may lead to unexpected behavior.
+At C:\Users\patri\Documents\Codex\rmp_v0_aux\run_aux_queue.ps1:10 char:1
++ & $py -u "$aux\bf16_bench.py" cuda 150 "$aux\bf16_bench_gpu.json" *>  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\patri\...ected behavior.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Consider using tensor.detach() first. (Triggered internally at 
+C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:837.)
+  total += float(loss) / len(fams)
+{"device": "cuda", "steps": 150, "fp32": {"s_per_step_median": 0.09991949999675853, "steps_per_s": 10.008056485795473, "loss_first": 8.691837310791016, "loss_last20": 2.469725027680397, "finite": true, "peak_vram_mb": 1596.67626953125}, "bf16": {"s_per_step_median": 0.10697649999929126, "steps_per_s": 9.347847424496269, "loss_first": 8.692843914031982, "loss_last20": 2.4697799891233445, "finite": true, "peak_vram_mb": 1596.67626953125}, "speedup": 0.9340322407016542, "loss_ratio_bf16_over_fp32": 1.000022254073766, "adopt_bf16": false}

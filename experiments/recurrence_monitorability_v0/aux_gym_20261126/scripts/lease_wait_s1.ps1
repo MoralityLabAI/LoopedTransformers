@@ -1,0 +1,1 @@
+vramorama run --vram 3G --owner rmp-aux-gym-s1 --wait 604800 --quiet -- powershell -NoProfile -ExecutionPolicy Bypass -File C:\Users\patri\Documents\Codex\rmp_v0_aux\run_aux_queue_seed.ps1 -Seed 1 *> C:\Users\patri\Documents\Codex\rmp_v0_aux\queue_lease_s1.log

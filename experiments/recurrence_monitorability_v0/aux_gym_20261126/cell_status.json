@@ -1,0 +1,144 @@
+{
+ "snapshot_utc": "2026-11-25T22:53:28.505927+00:00",
+ "cells": [
+  {
+   "cell": "LOOP-T-aux2cpu-s1",
+   "device": "cpu",
+   "step": 20000,
+   "status": "paused",
+   "gate_passed": false,
+   "families": {
+    "masked_pointer_chase": [
+     0.9512,
+     {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 1.0,
+      "4": 1.0,
+      "5": 1.0,
+      "6": 0.96875,
+      "7": 0.921875,
+      "8": 0.71875
+     }
+    ],
+    "modular_recurrence": [
+     0.0664,
+     {
+      "1": 0.078125,
+      "2": 0.09375,
+      "3": 0.03125,
+      "4": 0.078125,
+      "5": 0.046875,
+      "6": 0.046875,
+      "7": 0.046875,
+      "8": 0.109375
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": 8,
+    "modular_recurrence": null
+   }
+  },
+  {
+   "cell": "LOOP-T-mask2-s1",
+   "device": "cuda",
+   "step": 4750,
+   "status": "running",
+   "gate_passed": null,
+   "families": {
+    "masked_pointer_chase": [
+     0.9395,
+     {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 1.0,
+      "4": 0.96875,
+      "5": 1.0,
+      "6": 0.984375,
+      "7": 1.0,
+      "8": 0.5625
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": 8
+   }
+  },
+  {
+   "cell": "LOOP-T-mask2-s2",
+   "device": "cuda",
+   "step": 1250,
+   "status": "running",
+   "gate_passed": null,
+   "families": {
+    "masked_pointer_chase": [
+     0.0957,
+     {
+      "1": 0.5,
+      "2": 0.015625,
+      "3": 0.03125,
+      "4": 0.0,
+      "5": 0.015625,
+      "6": 0.09375,
+      "7": 0.09375,
+      "8": 0.015625
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": null
+   }
+  },
+  {
+   "cell": "LOOP-T-mask2-s3",
+   "device": "cuda",
+   "step": 500,
+   "status": "running",
+   "gate_passed": null,
+   "families": {
+    "masked_pointer_chase": [
+     0.4238,
+     {
+      "1": 0.5,
+      "2": 0.5625,
+      "3": 0.421875,
+      "4": 0.5,
+      "5": 0.296875,
+      "6": 0.5,
+      "7": 0.515625,
+      "8": 0.09375
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": null
+   }
+  },
+  {
+   "cell": "LOOP-T-modnccpu-s1",
+   "device": "cpu",
+   "step": 250,
+   "status": "running",
+   "gate_passed": null,
+   "families": {
+    "modular_recurrence": [
+     0.0703,
+     {
+      "1": 0.078125,
+      "2": 0.109375,
+      "3": 0.046875,
+      "4": 0.078125,
+      "5": 0.0625,
+      "6": 0.0625,
+      "7": 0.015625,
+      "8": 0.109375
+     }
+    ]
+   },
+   "max_unlocked": {
+    "modular_recurrence": null
+   }
+  }
+ ]
+}

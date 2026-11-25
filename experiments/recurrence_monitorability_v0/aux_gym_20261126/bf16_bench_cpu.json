@@ -1,0 +1,23 @@
+{
+ "device": "cpu",
+ "steps": 30,
+ "fp32": {
+  "s_per_step_median": 5.520283700003347,
+  "steps_per_s": 0.18115011009296383,
+  "loss_first": 8.691836833953857,
+  "loss_last20": 3.259831744432449,
+  "finite": true,
+  "peak_vram_mb": null
+ },
+ "bf16": {
+  "s_per_step_median": 2.9046209000007366,
+  "steps_per_s": 0.34427900728792055,
+  "loss_first": 8.692896366119385,
+  "loss_last20": 3.260330766439438,
+  "finite": true,
+  "peak_vram_mb": null
+ },
+ "speedup": 1.9005177921848415,
+ "loss_ratio_bf16_over_fp32": 1.0001530821361688,
+ "adopt_bf16": true
+}

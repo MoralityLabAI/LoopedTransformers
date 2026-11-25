@@ -1,0 +1,10 @@
+checkpoint step 20037 deepest {'masked_pointer_chase': 8, 'modular_recurrence': 1}
+pool tokens (1000000, 64) depth counts [0, 131435, 124458, 123978, 124569, 123739, 124053, 123858, 123910]
+val tokens (3711, 64) depth counts [0, 211, 500, 500, 500, 500, 500, 500, 500]
+pool token range 0 357 val 0 357
+pool pad frac 0.6832968592643738 val pad frac 0.6638906002044678
+TRAIN pool depth 1: acc 0.996 n=512
+TRAIN pool depth 2: acc 0.045 n=512
+VALID depth 1: acc 0.100 n=211
+example train tokens [1, 9, 19, 346, 20, 357, 21, 350, 343, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2] target 844
+example valid tokens [1, 9, 19, 352, 20, 357, 21, 351, 352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2] target 840
