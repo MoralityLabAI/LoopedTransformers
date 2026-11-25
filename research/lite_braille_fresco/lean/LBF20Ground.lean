@@ -142,7 +142,8 @@ theorem run_step {R : Rules} {Q : Term → Prop} {E : Eps} {H : Nat}
   induction step with
   | root hr =>
       intro q n hn run
-      exact run_extend hc (hs hr run hn) _ 0 hn (run_refl hq hrefl _ (hR hr))
+      have edge := hs (q := q) hr run hn
+      exact run_extend hc edge _ 0 hn (run_refl hq hrefl _ (hR hr))
   | un f st ih =>
       intro q n hn run
       obtain ⟨s, a, b, hq', e, r, eq⟩ := run
@@ -172,7 +173,7 @@ theorem walk_complete {R : Rules} {Q : Term → Prop} {E : Eps} {H : Nat}
   | refl => exact run_refl hq hrefl _ hseed
   | tail path step ih =>
       exact run_step hq hrefl hR hc hs step _ _ hn
-        (ih hseed (Nat.le_trans (Nat.le_succ _) hn))
+        (ih (Nat.le_trans (Nat.le_succ _) hn))
 
 /-- Exact capped reachability, conditional on the finite epsilon table's
     soundness, identities, min-plus closure and rule saturation. -/
