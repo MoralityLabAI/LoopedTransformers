@@ -1,0 +1,131 @@
+{
+  "study": "ROC-06A-v1-train-only-counterfactual-gradient-observer",
+  "preregistration_date": "2026-11-25",
+  "protocol_stage": "premeasurement registration; do not inspect ROC06 intervention effects before freeze",
+  "parent": {
+    "roc05b_pr": 163,
+    "roc05b_null_pr": 165,
+    "roc05b_protocol_sha": "ef18aef009e72c0b0e75de9331d6135db7977d98",
+    "original_train_run": 44101721734,
+    "source_sha256": {
+      "train_low4": "b590a3bcc8b1018c430f5eb6617144caaa9a87899a1d45110ee1804a9a2c9642",
+      "train_high512": "c687a129a0d8e5edda26195c22bd116732409a07fcff6511c6766fb998f12bf4",
+      "development": "342d9d811f8bdcaa6a8b4e86d4c02b66f772a3e2c1546cd0c521939f88f054ee"
+    },
+    "original_1920step_checkpoint_sha256": {
+      "20261117231": {
+        "low_affine4": "0aae65d0b178e99a506a6746983cc12f5081501eff7dc0505380a8ac10d6d1d3",
+        "high_permutation512": "f04608e5b632c2a88b0801dbbdfe30cad0c6f11ebdfbbf9ed9863e908b6c4326"
+      },
+      "20261117233": {
+        "low_affine4": "e67ae214f7dd5be4071f4a5f1c82c02170fd3944f91829bf2819555fe022820c",
+        "high_permutation512": "7f5a761a74e7a256f708ff61d0bcfb5c838567392d8884990aef3035dc0571ae"
+      },
+      "20261117239": {
+        "low_affine4": "46e5bacd9a5fc028ea3578b88a2e23cdcaeb24c505c831068ca0ceb85d6b2ddc",
+        "high_permutation512": "f636640c8f3ee16f1facfcbc0001678cb28d05b2d10e1e40e88075e6e3a8bee7"
+      },
+      "20261117241": {
+        "low_affine4": "47c770c5be6150f976789a88499ad7472b707e7a21fca769752e5e1758119354",
+        "high_permutation512": "d3d4edaf5859e166bb315c8a4e87b3bfe74a0c45b59ed9b9e636e3aaba6de03f"
+      },
+      "20261117251": {
+        "low_affine4": "857879f6230ed28858d04f3da56fc1d832de9a7eda55dad59741b2ea4d59805b",
+        "high_permutation512": "60b0a5d27f7e9a42aff95a271fb85362bc21b206708ae2c3855feec6dac8068d"
+      },
+      "20261117257": {
+        "low_affine4": "096c291d2d2fcc52c4aa04881dc8a2bfb5f3f9a3923ca7ec4f0df9b165a61bde",
+        "high_permutation512": "ea22644c74e7d594dd66e20d48058790e3545f98693c56bd268b55d5737bbb18"
+      }
+    },
+    "immutable_model": "original ROC05A first hosted run; all twelve model SHA must match; no refitting",
+    "original_architecture": "QueryConditionedTableMemory 51520 parameters width128 depth8, fixed prequery memory, 4+4 tied residual suffix"
+  },
+  "source": {
+    "train_pools": "only ROC05A arm-matched 1024 original train rows to construct gradient and supervised bases",
+    "development": "same exposed 256 ROC05A development cases as ROC05B; all cases, no case selection",
+    "legal_counterfactual": "swap initial source A table outputs at queried q and (q+4)%8, preserving delay, distractors and final query; verify symbolic labels",
+    "original_roc02_sealed_families": [
+      6,
+      7
+    ],
+    "roc05_reserved": "384 reserved table IDs stay identities only; never generate inputs, inspect labels or score",
+    "roc04_previous_rules": "1152 consumed ROC04 identities excluded by ROC05A source code",
+    "source_checks": "recompute original train and dev JSONL byte SHA and all checkpoint hashes before fitting observers or evaluating"
+  },
+  "gradient_basis": {
+    "rank": 7,
+    "location": "prequery midpoint after all events except last visible query and first four of eight tied residual steps",
+    "suffix": "remaining four tied residual updates and original table_head selected by fixed final one-hot query",
+    "target": "for each of 1024 train examples, legal row swap changes y to yprime; calculate d/dh_mid [z_native(yprime)-z_native(y)] evaluated at unedited train midpoint",
+    "compute": "analytic four-step tied tanh suffix reverse-mode VJP, verified against PyTorch autograd and centered-difference directional derivatives before real data",
+    "normalize": "normalize each finite nonzero 128-dimensional train gradient to unit L2 (epsilon 1e-10 for invalid-state rejection); subtract train gradient mean; take top seven right singular vectors of 1024x128 centered normalized gradients",
+    "rank_gate": "7th singular value > 1e-9; orthonormality max |U' U-I| <=1e-7; any failure abort cell",
+    "avoid_selection": "one basis per frozen model, constructed using train rows and true train labels only; no dev-based penalty, rank or gamma selection; fix sign by projecting actual source edit delta",
+    "reference": "ROC05B identical train-only supervised cross-covariance rank-7 observer from mean-centered train midpoints and queried correct label onehot, no optimizer updates",
+    "exploratory_geometry": "train-only PCA rank7 baseline and 128 SHA-keyed rank7 random nulls per each of two fixed exposed shadow states; D=T-I and H capture as in ROC05B, six one-sided tails plus Holm",
+    "relevant_question": "whether a task-gradient-informed low-rank observer captures more useful causal changed-rule directions than task label covariance"
+  },
+  "interventions": {
+    "location": "same ROC05B native midpoint and original frozen suffix/readout",
+    "radii": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "primary_radius": 0.2,
+    "directions": [
+      "gradient_observed P_grad delta normalized to r",
+      "supervised_observed P_sup delta normalized to r",
+      "input_soft early-A feature interpolation with hidden midpoint radius r",
+      "full hidden source delta normalized to r",
+      "PCA observed",
+      "gradient dark",
+      "seeded rank7 random observed",
+      "seeded isotropic"
+    ],
+    "input_interpolation": "same ROC05B fixed 64-grid first crossing and 24 bisections, error <=2e-5; off-manifold input has no independently valid source label",
+    "output": "native frozen original 8 logits; g=(zpost[yprime]-zpost[y])-(zbase[yprime]-zbase[y])",
+    "normalizer": "absolute 128-dimensional midpoint L2 radius, the same original h0 and same original suffix",
+    "full_legal": "report valid discrete rule edit and new-label correctness at its natural, potentially larger physical dose"
+  },
+  "primary": {
+    "cohort": "six ORIGINAL high_permutation512 model seeds 20261117231/233/239/241/251/257",
+    "per_case": "g(gradient-observed rank7, r=.20), g(supervised-observed rank7, r=.20), and g(softened-input r=.20) evaluated on the same valid pair",
+    "per_seed": "mean over all cases eligible in all three routes; d_s=mean_g_gradient - max(mean_g_supervised, mean_g_soft_input) in original frozen-model target margin units",
+    "scientific_null": "gradient observer fails to exceed at least one preregistered comparator on fixed exposed dev pool",
+    "acceptance": ">=80% three-way eligible dev cases per seed; at least 5/6 positive d_s; positive unweighted six-seed mean; one-sided exact six-seed 64-sign p <=0.05",
+    "if_unreachable": "ABSTAIN if any seed <205/256 triple-eligible, report gate and per-route missed cases explicitly; no replacement labels",
+    "analysis_unit": "six frozen independent model initializations; exposed dev cases are within-seed paired, not new independent model samples",
+    "multiplicity": "single registered max-of-two mean comparator controls both reference arms at seed level; secondary pairwise tests descriptive, no posthoc choosing winner",
+    "selection_scope": "preexisting ROC05A/ROC05B dev results were known; ROC06 exploratory dev-family mechanistic optimization, no fresh-rule confirmation"
+  },
+  "secondary": {
+    "geometry": [
+      "gradient vs supervised A/B/C norm-to-null",
+      "future-logit H capture",
+      "subspace principal angles",
+      "frozen true discrete source-rule changed-target correctness",
+      "paired seed sensitivity at r=.05,.10"
+    ],
+    "controls": [
+      "train-only PCA observed",
+      "gradient dark",
+      "input-induced full hidden",
+      "isotropic/random rank7 null"
+    ],
+    "report": "all per-case routes and dose validity flags, twelve checkpoint source hashes, per-model training-gradient singular values, 128-null raw records and 3,072 nulls if all 12 models, six-seed conservative maximum-comparator effects, exact sign flip"
+  },
+  "compute": "CPU PyTorch 2.10; single-thread per model; no optimizer updates, no paid GPU",
+  "stop": [
+    "frozen checkpoint hash mismatch",
+    "any source SHA mismatch",
+    "different labels between legal edit and exact interpreter",
+    "gradient basis rank collapse",
+    "native staged forward mismatch",
+    "wrong physical radius",
+    "any ROC05 reserved or ROC02 original sealed source example read",
+    "non-finite values"
+  ],
+  "conclusion_scope": "A success only supports this exposed-development causal contrast for this train-derived rank7 basis, not a complete ROC01 mechanism classification; failure is negative evidence specific to the registered rank, horizon and endpoint."
+}
