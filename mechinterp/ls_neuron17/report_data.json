@@ -1,0 +1,872 @@
+{
+  "audit": {
+    "actual_new_search_compute": {
+      "expansions": 864,
+      "lp_calls": 5184,
+      "ls_calls": 5184,
+      "profile_slots": 305856
+    },
+    "archived_beam_endpoints_reverified": 24,
+    "certificate_sha256": "a98f533181fb37eac2cbc6dd597555d5301c2e3ff0b745a556b57c9e07ba4e79",
+    "confirmation_eligible": false,
+    "distinct_certified_weight_sets": 20,
+    "distinct_final_weight_sets": 44,
+    "evidence_class": "EXPOSED_DEVELOPMENT_ONLY",
+    "exact_verifier_calls": 73,
+    "experiment": "LS-NEURON-17",
+    "initial_endpoints_reverified": 24,
+    "n_final_endpoints": 48,
+    "n_units": 24,
+    "numerical_horizon_conditions": 144,
+    "numerical_horizons": [
+      8,
+      128
+    ],
+    "parent_manifest_sha256": "11c8a924e65d8340224cccbd68f35ab34573d4cc7400e1973c83b51216a22045",
+    "positive_control_verdict": "CERTIFIED",
+    "scope": "Numerical decoder, segment-bound and LP audit uses unchanged independent LS16 code; independent branch retention is replayed here. Archived beam certificates and rollouts must reproduce exactly. LS optimization trajectories are outside replay scope.",
+    "status": "PASS",
+    "summary": [
+      {
+        "arm": "beam",
+        "bound_certificate_agreement": 24,
+        "checked_states": 10680,
+        "expanded_codebook_count": 368,
+        "expansions": 888,
+        "final_verdicts": {
+          "CERTIFIED": 11,
+          "POINT_VIOLATION": 13
+        },
+        "initial_verdicts": {
+          "POINT_VIOLATION": 24
+        },
+        "lp_calls": 5328,
+        "lp_max_complementarity": 1.2169612545550467e-10,
+        "lp_max_dual_sign": 0.0,
+        "lp_max_duality_gap": 2.9976021664879227e-15,
+        "lp_max_primal": 9.32356392091549e-09,
+        "lp_max_stationarity": 2.0948044252105561e-10,
+        "lp_successes": 5328,
+        "ls_calls": 5352,
+        "ls_nfev": 86290,
+        "median_bound": 0.1039928281910765,
+        "median_expanded_codebooks": 15.0,
+        "median_final_path_depth": 6.0,
+        "n_seeds": 24,
+        "new_certificates": 11,
+        "new_seeds": [
+          493,
+          494,
+          498,
+          499,
+          501,
+          503,
+          505,
+          508,
+          509,
+          513,
+          516
+        ],
+        "profile_slots": 314352,
+        "repeated_expanded_codebook_count": 520,
+        "rollout": {
+          "128": {
+            "accuracy": 0.8251953125,
+            "all_prefix": 0.77734375
+          },
+          "8": {
+            "accuracy": 0.9703776041666666,
+            "all_prefix": 0.9620768229166666
+          }
+        },
+        "secondary_bound_crossings": 2,
+        "secondary_improvements": 4876,
+        "seconds": 209.38242190500387,
+        "seconds_scope": "Archived LS16 search worker time"
+      },
+      {
+        "arm": "multistart",
+        "bound_certificate_agreement": 24,
+        "checked_states": 10680,
+        "expanded_codebook_count": 266,
+        "expansions": 888,
+        "final_verdicts": {
+          "CERTIFIED": 11,
+          "POINT_VIOLATION": 13
+        },
+        "initial_verdicts": {
+          "POINT_VIOLATION": 24
+        },
+        "lp_calls": 5328,
+        "lp_max_complementarity": 1.2169612545550467e-10,
+        "lp_max_dual_sign": 0.0,
+        "lp_max_duality_gap": 2.220446049250313e-15,
+        "lp_max_primal": 9.882453744225472e-09,
+        "lp_max_stationarity": 2.0948044252105561e-10,
+        "lp_successes": 5328,
+        "ls_calls": 5352,
+        "ls_nfev": 94157,
+        "median_bound": 0.11485051990612649,
+        "median_expanded_codebooks": 10.5,
+        "median_final_path_depth": 5.0,
+        "n_seeds": 24,
+        "new_certificates": 11,
+        "new_ls_nfev": 89323,
+        "new_seeds": [
+          493,
+          494,
+          498,
+          499,
+          503,
+          505,
+          506,
+          508,
+          509,
+          510,
+          513
+        ],
+        "profile_slots": 314352,
+        "repeated_expanded_codebook_count": 622,
+        "rollout": {
+          "128": {
+            "accuracy": 0.806640625,
+            "all_prefix": 0.755859375
+          },
+          "8": {
+            "accuracy": 0.94775390625,
+            "all_prefix": 0.9337565104166666
+          }
+        },
+        "secondary_bound_crossings": 2,
+        "secondary_improvements": 5228,
+        "seconds": 213.88783393299855,
+        "seconds_scope": "New LS17 search worker time",
+        "winning_branch_counts": {
+          "0": 17,
+          "1": 5,
+          "2": 2
+        }
+      }
+    ]
+  },
+  "beam_only_seeds": [
+    501,
+    516
+  ],
+  "both_seeds": [
+    493,
+    494,
+    498,
+    499,
+    503,
+    505,
+    508,
+    509,
+    513
+  ],
+  "codebook_diagnostics": {
+    "beam": {
+      "expanded_codebook_count": {
+        "median_per_seed": 15.0,
+        "sum_within_seed_counts": 368
+      },
+      "final_path_depth": {
+        "median_per_seed": 6.0,
+        "sum_within_seed_counts": 144
+      },
+      "repeated_expanded_codebook_count": {
+        "median_per_seed": 22.0,
+        "sum_within_seed_counts": 520
+      },
+      "retained_codebook_count_all_selections": {
+        "median_per_seed": 14.5,
+        "sum_within_seed_counts": 360
+      },
+      "retained_node_count_all_selections": {
+        "median_per_seed": 16.5,
+        "sum_within_seed_counts": 412
+      },
+      "unique_codebooks_visited": {
+        "median_per_seed": 37.5,
+        "sum_within_seed_counts": 1001
+      },
+      "unique_decoded_weights_visited": {
+        "median_per_seed": 144.5,
+        "sum_within_seed_counts": 3646
+      }
+    },
+    "multistart": {
+      "expanded_codebook_count": {
+        "median_per_seed": 10.5,
+        "sum_within_seed_counts": 266
+      },
+      "final_path_depth": {
+        "median_per_seed": 5.0,
+        "sum_within_seed_counts": 118
+      },
+      "repeated_expanded_codebook_count": {
+        "median_per_seed": 26.5,
+        "sum_within_seed_counts": 622
+      },
+      "retained_codebook_count_all_selections": {
+        "median_per_seed": 10.5,
+        "sum_within_seed_counts": 258
+      },
+      "retained_node_count_all_selections": {
+        "median_per_seed": 14.0,
+        "sum_within_seed_counts": 354
+      },
+      "unique_codebooks_visited": {
+        "median_per_seed": 31.5,
+        "sum_within_seed_counts": 770
+      },
+      "unique_decoded_weights_visited": {
+        "median_per_seed": 111.0,
+        "sum_within_seed_counts": 2758
+      }
+    }
+  },
+  "codebook_diagnostics_scope": "Descriptive sums of per-seed unique counts, not globally deduplicated; visited codebooks refer to fitted states, not all proposal profile slots",
+  "counts": {
+    "beam": 11,
+    "multistart": 11
+  },
+  "experiment": "LS-NEURON-17",
+  "multistart_only_seeds": [
+    506,
+    510
+  ],
+  "neither_seeds": [
+    495,
+    496,
+    497,
+    500,
+    502,
+    504,
+    507,
+    511,
+    512,
+    514,
+    515
+  ],
+  "official_descriptive_statistics": {
+    "arm_summaries": [
+      {
+        "arm": "multistart",
+        "certificate_acquisitions": 11,
+        "final_verdicts": {
+          "CERTIFIED": 11,
+          "POINT_VIOLATION": 13,
+          "UNRESOLVED": 0
+        },
+        "initial_verdicts": {
+          "CERTIFIED": 0,
+          "POINT_VIOLATION": 24,
+          "UNRESOLVED": 0
+        },
+        "lost_certificates": 0,
+        "n_units": 24,
+        "new_certificates": 11,
+        "new_seeds": [
+          493,
+          494,
+          498,
+          499,
+          503,
+          505,
+          506,
+          508,
+          509,
+          510,
+          513
+        ]
+      },
+      {
+        "arm": "beam",
+        "certificate_acquisitions": 11,
+        "final_verdicts": {
+          "CERTIFIED": 11,
+          "POINT_VIOLATION": 13,
+          "UNRESOLVED": 0
+        },
+        "initial_verdicts": {
+          "CERTIFIED": 0,
+          "POINT_VIOLATION": 24,
+          "UNRESOLVED": 0
+        },
+        "lost_certificates": 0,
+        "n_units": 24,
+        "new_certificates": 11,
+        "new_seeds": [
+          493,
+          494,
+          498,
+          499,
+          501,
+          503,
+          505,
+          508,
+          509,
+          513,
+          516
+        ]
+      }
+    ],
+    "certificate_sha256": "a98f533181fb37eac2cbc6dd597555d5301c2e3ff0b745a556b57c9e07ba4e79",
+    "comparison": {
+      "accuracy_intervals": {
+        "baseline": [
+          0.2555274963378906,
+          0.6717948913574219
+        ],
+        "candidate": [
+          0.2555274963378906,
+          0.6717948913574219
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "alpha": 0.05,
+      "baseline_accuracy": 0.4583333333333333,
+      "baseline_correct": 11,
+      "baseline_only": 2,
+      "baseline_only_seeds": [
+        506,
+        510
+      ],
+      "candidate_accuracy": 0.4583333333333333,
+      "candidate_correct": 11,
+      "candidate_only": 2,
+      "candidate_only_seeds": [
+        501,
+        516
+      ],
+      "case_effect_exact": "0",
+      "case_weighted_effect": 0.0,
+      "cluster_bootstrap_interval": [
+        -0.16666666666666666,
+        0.16666666666666666
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "0",
+      "cluster_macro_effect": 0.0,
+      "clusters_independent": true,
+      "discordant": 4,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": true,
+      "experiment_id": "LS-NEURON-17-beam-vs-independent-restarts",
+      "familywise_alpha": 0.05,
+      "gate_reasons": [
+        "hypothesis_not_preregistered",
+        "readout_used_in_selection_or_unsealed",
+        "adjusted_test_not_significant",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        -0.49964422955689103,
+        0.49964422955689103
+      ],
+      "hypothesis_preregistered": false,
+      "inferential_scope": "The cohort selected this ablation. Nominal test/interval computations are descriptive; exposure prevents a confirmation or population-effect claim.",
+      "inherited_planning_reference_note": "Beam11/24 was already known; the >=12count condition was known to fail before LS17. This is no new operational gate.",
+      "inherited_planning_reference_passed": false,
+      "input_filenames": [
+        "paired_outcomes.jsonl",
+        "registration.json"
+      ],
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.25,
+      "n_cases": 24,
+      "n_clusters": 24,
+      "outcomes_sha256": "acf2335c3118446bb9c5c2f4b82a3e8b1fc5ac2ed431ac1ec0da54738f6df75f",
+      "p_bonferroni": 1.0,
+      "p_exact_fraction": "1",
+      "p_unadjusted": 1.0,
+      "planned_comparisons": 1,
+      "registration_sha256": "55fba0cad39c15573a5f18452f098b5962add9038250843d576c4136aaf9b8c8",
+      "resample_seed": 20261125,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "study_evidence_class": "EXPOSED_DEVELOPMENT_ONLY",
+      "target_population": "Already inspected LS16 perturbation seeds493..516; descriptive algorithm-allocation comparison only",
+      "test": "exact_McNemar_independent_pairs",
+      "ties": 20,
+      "verdict": "inconclusive"
+    },
+    "direct_power_estimate": null,
+    "experiment": "LS-NEURON-17",
+    "floor_scope": "Inherited planning reference",
+    "matched_sham_floor": null,
+    "n_final_model_endpoints": 48,
+    "n_units": 24,
+    "physical_dose": 0.15,
+    "planned_and_actual_comparisons": 1,
+    "primary_contrast": "dynamic beam minus three independent greedy paths",
+    "registration_sha256": "55fba0cad39c15573a5f18452f098b5962add9038250843d576c4136aaf9b8c8",
+    "scientific_variation_floor": 0.25,
+    "study_evidence_class": "EXPOSED_DEVELOPMENT_ONLY",
+    "unit": "independently seeded initialization, already exposed in LS16"
+  },
+  "paired_outcomes": [
+    {
+      "beam_bound": 1.6113702497809814e-07,
+      "beam_expanded_codebooks": 17,
+      "beam_fitted_codebooks": 39,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        1.6849864487752366e-07,
+        0.17203859707062752,
+        1.6849864487752366e-07
+      ],
+      "multistart_bound": 1.6849864487752366e-07,
+      "multistart_expanded_codebooks": 11,
+      "multistart_fitted_codebooks": 26,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 0,
+      "seed": 493
+    },
+    {
+      "beam_bound": 1.6516009646228092e-07,
+      "beam_expanded_codebooks": 12,
+      "beam_fitted_codebooks": 29,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        2.684305964281156e-07,
+        0.1722082919026744,
+        1.6516009646228092e-07
+      ],
+      "multistart_bound": 1.6516009646228092e-07,
+      "multistart_expanded_codebooks": 10,
+      "multistart_fitted_codebooks": 27,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 2,
+      "seed": 494
+    },
+    {
+      "beam_bound": 0.10387536420788734,
+      "beam_expanded_codebooks": 15,
+      "beam_fitted_codebooks": 42,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.3017875021982467,
+        0.3017874876855458,
+        0.17648100069067013
+      ],
+      "multistart_bound": 0.17648100069067013,
+      "multistart_expanded_codebooks": 15,
+      "multistart_fitted_codebooks": 47,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 2,
+      "seed": 495
+    },
+    {
+      "beam_bound": 0.13683961630733854,
+      "beam_expanded_codebooks": 16,
+      "beam_fitted_codebooks": 47,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.13683961630733854,
+        0.19384498973503958,
+        0.1892663381607988
+      ],
+      "multistart_bound": 0.13683961630733854,
+      "multistart_expanded_codebooks": 13,
+      "multistart_fitted_codebooks": 38,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 496
+    },
+    {
+      "beam_bound": 0.10411029217426565,
+      "beam_expanded_codebooks": 14,
+      "beam_fitted_codebooks": 32,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.10462214995392209,
+        0.10462214995392209,
+        0.10462214995392209
+      ],
+      "multistart_bound": 0.10462214995392209,
+      "multistart_expanded_codebooks": 7,
+      "multistart_fitted_codebooks": 17,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 497
+    },
+    {
+      "beam_bound": 9.5088034872181e-08,
+      "beam_expanded_codebooks": 13,
+      "beam_fitted_codebooks": 28,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        1.0131057015527745e-07,
+        0.18669219927681618,
+        1.0131057015527745e-07
+      ],
+      "multistart_bound": 1.0131057015527745e-07,
+      "multistart_expanded_codebooks": 6,
+      "multistart_fitted_codebooks": 18,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 0,
+      "seed": 498
+    },
+    {
+      "beam_bound": 1.7316277112386326e-07,
+      "beam_expanded_codebooks": 14,
+      "beam_fitted_codebooks": 29,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        2.1627071917743342e-07,
+        2.1627071917743342e-07,
+        2.1627071917743342e-07
+      ],
+      "multistart_bound": 2.1627071917743342e-07,
+      "multistart_expanded_codebooks": 6,
+      "multistart_fitted_codebooks": 12,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 0,
+      "seed": 499
+    },
+    {
+      "beam_bound": 0.18724758394037067,
+      "beam_expanded_codebooks": 10,
+      "beam_fitted_codebooks": 25,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.2592395035410971,
+        0.2592395035410971,
+        0.48606170865654386
+      ],
+      "multistart_bound": 0.2592395035410971,
+      "multistart_expanded_codebooks": 9,
+      "multistart_fitted_codebooks": 28,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 500
+    },
+    {
+      "beam_bound": 1.7665679485912023e-07,
+      "beam_expanded_codebooks": 18,
+      "beam_fitted_codebooks": 49,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        0.490517625056797,
+        0.14965348684847066,
+        0.490517625056797
+      ],
+      "multistart_bound": 0.14965348684847066,
+      "multistart_expanded_codebooks": 9,
+      "multistart_fitted_codebooks": 29,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 1,
+      "seed": 501
+    },
+    {
+      "beam_bound": 0.14503770548415654,
+      "beam_expanded_codebooks": 18,
+      "beam_fitted_codebooks": 48,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.13583071075375527,
+        0.22222224218061792,
+        0.13583071075375527
+      ],
+      "multistart_bound": 0.13583071075375527,
+      "multistart_expanded_codebooks": 14,
+      "multistart_fitted_codebooks": 34,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 502
+    },
+    {
+      "beam_bound": 2.0978124361292678e-07,
+      "beam_expanded_codebooks": 9,
+      "beam_fitted_codebooks": 22,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        2.4494562260611315e-07,
+        3.596305509388316e-07,
+        0.12509824261069297
+      ],
+      "multistart_bound": 2.4494562260611315e-07,
+      "multistart_expanded_codebooks": 12,
+      "multistart_fitted_codebooks": 31,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 0,
+      "seed": 503
+    },
+    {
+      "beam_bound": 0.14812700767509113,
+      "beam_expanded_codebooks": 25,
+      "beam_fitted_codebooks": 79,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.1250788898583309,
+        0.136839650992544,
+        0.14812700767509113
+      ],
+      "multistart_bound": 0.1250788898583309,
+      "multistart_expanded_codebooks": 25,
+      "multistart_fitted_codebooks": 81,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 504
+    },
+    {
+      "beam_bound": 5.7318356854929027e-08,
+      "beam_expanded_codebooks": 12,
+      "beam_fitted_codebooks": 25,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        3.525524994605718e-07,
+        0.2563091143654357,
+        3.525524994605718e-07
+      ],
+      "multistart_bound": 3.525524994605718e-07,
+      "multistart_expanded_codebooks": 7,
+      "multistart_fitted_codebooks": 20,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 0,
+      "seed": 505
+    },
+    {
+      "beam_bound": 0.1294383620941414,
+      "beam_expanded_codebooks": 23,
+      "beam_fitted_codebooks": 86,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.12835743254433288,
+        1.64926508793645e-07,
+        0.12835743254433288
+      ],
+      "multistart_bound": 1.64926508793645e-07,
+      "multistart_expanded_codebooks": 16,
+      "multistart_fitted_codebooks": 49,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 1,
+      "seed": 506
+    },
+    {
+      "beam_bound": 0.18307059900548323,
+      "beam_expanded_codebooks": 16,
+      "beam_fitted_codebooks": 45,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.18307059900548323,
+        0.20145965217105866,
+        0.18307059900548323
+      ],
+      "multistart_bound": 0.18307059900548323,
+      "multistart_expanded_codebooks": 13,
+      "multistart_fitted_codebooks": 41,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 507
+    },
+    {
+      "beam_bound": 1.3145163370550327e-07,
+      "beam_expanded_codebooks": 9,
+      "beam_fitted_codebooks": 17,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        2.957272855802141e-07,
+        2.957272855802141e-07,
+        2.957272855802141e-07
+      ],
+      "multistart_bound": 2.957272855802141e-07,
+      "multistart_expanded_codebooks": 5,
+      "multistart_fitted_codebooks": 11,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 0,
+      "seed": 508
+    },
+    {
+      "beam_bound": 2.2215703873929094e-07,
+      "beam_expanded_codebooks": 10,
+      "beam_fitted_codebooks": 30,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        2.2611416633068646e-07,
+        2.2215703873929094e-07,
+        2.2215703873929094e-07
+      ],
+      "multistart_bound": 2.2215703873929094e-07,
+      "multistart_expanded_codebooks": 12,
+      "multistart_fitted_codebooks": 36,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 1,
+      "seed": 509
+    },
+    {
+      "beam_bound": 0.10922378334132643,
+      "beam_expanded_codebooks": 16,
+      "beam_fitted_codebooks": 36,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.10922378334132643,
+        1.8784269976078807e-07,
+        0.10922378334132643
+      ],
+      "multistart_bound": 1.8784269976078807e-07,
+      "multistart_expanded_codebooks": 15,
+      "multistart_fitted_codebooks": 32,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 1,
+      "seed": 510
+    },
+    {
+      "beam_bound": 0.14969315936115923,
+      "beam_expanded_codebooks": 21,
+      "beam_fitted_codebooks": 65,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.13166488380168784,
+        0.23786470735890353,
+        0.16536606420748756
+      ],
+      "multistart_bound": 0.13166488380168784,
+      "multistart_expanded_codebooks": 21,
+      "multistart_fitted_codebooks": 69,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 511
+    },
+    {
+      "beam_bound": 0.3240561393187606,
+      "beam_expanded_codebooks": 15,
+      "beam_fitted_codebooks": 52,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.325678923661361,
+        0.32567911882338035,
+        0.4092368269912441
+      ],
+      "multistart_bound": 0.325678923661361,
+      "multistart_expanded_codebooks": 10,
+      "multistart_fitted_codebooks": 33,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 512
+    },
+    {
+      "beam_bound": 1.2517225299247495e-07,
+      "beam_expanded_codebooks": 10,
+      "beam_fitted_codebooks": 21,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        3.64287163811909e-07,
+        1.762612258633004e-07,
+        3.64287163811909e-07
+      ],
+      "multistart_bound": 1.762612258633004e-07,
+      "multistart_expanded_codebooks": 4,
+      "multistart_fitted_codebooks": 9,
+      "multistart_repair": 1,
+      "multistart_winning_branch": 1,
+      "seed": 513
+    },
+    {
+      "beam_bound": 0.1700328098104229,
+      "beam_expanded_codebooks": 16,
+      "beam_fitted_codebooks": 60,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.17004222287644172,
+        0.25475034628128096,
+        0.17004222287644172
+      ],
+      "multistart_bound": 0.17004222287644172,
+      "multistart_expanded_codebooks": 9,
+      "multistart_fitted_codebooks": 33,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 514
+    },
+    {
+      "beam_bound": 0.1481270013018908,
+      "beam_expanded_codebooks": 25,
+      "beam_fitted_codebooks": 69,
+      "beam_repair": 0,
+      "branch_terminal_bounds": [
+        0.1478179639777184,
+        0.14812701018263907,
+        0.1478179639777184
+      ],
+      "multistart_bound": 0.1478179639777184,
+      "multistart_expanded_codebooks": 12,
+      "multistart_fitted_codebooks": 39,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 515
+    },
+    {
+      "beam_bound": 8.823826659861645e-08,
+      "beam_expanded_codebooks": 14,
+      "beam_fitted_codebooks": 26,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        0.22222224013830782,
+        0.22222224013830782,
+        0.22222224013830782
+      ],
+      "multistart_bound": 0.22222224013830782,
+      "multistart_expanded_codebooks": 5,
+      "multistart_fitted_codebooks": 10,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 516
+    }
+  ],
+  "prior_LS16_added_seed_outcomes": [
+    {
+      "beam_bound": 1.7665679485912023e-07,
+      "beam_expanded_codebooks": 18,
+      "beam_fitted_codebooks": 49,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        0.490517625056797,
+        0.14965348684847066,
+        0.490517625056797
+      ],
+      "multistart_bound": 0.14965348684847066,
+      "multistart_expanded_codebooks": 9,
+      "multistart_fitted_codebooks": 29,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 1,
+      "seed": 501
+    },
+    {
+      "beam_bound": 8.823826659861645e-08,
+      "beam_expanded_codebooks": 14,
+      "beam_fitted_codebooks": 26,
+      "beam_repair": 1,
+      "branch_terminal_bounds": [
+        0.22222224013830782,
+        0.22222224013830782,
+        0.22222224013830782
+      ],
+      "multistart_bound": 0.22222224013830782,
+      "multistart_expanded_codebooks": 5,
+      "multistart_fitted_codebooks": 10,
+      "multistart_repair": 0,
+      "multistart_winning_branch": 0,
+      "seed": 516
+    }
+  ],
+  "report_code_scope": "Post-run rendering outside the frozen experiment; no new hypothesis tests",
+  "scope": "EXPOSED_DEVELOPMENT_ONLY",
+  "source_hashes": {
+    "audit_results.json": "7396f77f6b2bddae1187f15e78e186a98eccd4cd9591f5e250fef1531990aff3",
+    "certificates.json": "a98f533181fb37eac2cbc6dd597555d5301c2e3ff0b745a556b57c9e07ba4e79",
+    "evidence/results/statistics.json": "8bf8288a41662e4f261f6f121741366193165457397bcdc9f112209946da4ed7",
+    "lock.sha256": "caa6e6bb2f6eaae15589fac1823b22613f55511fbb76f9d46b75c4d23b162de7",
+    "report17.py": "973e0b6cd27051baffa51a10ce6575520a2de13fe14d9a24eab26b09c9389d16"
+  },
+  "winning_bootstrap_branch_counts": {
+    "0": 17,
+    "1": 5,
+    "2": 2
+  }
+}

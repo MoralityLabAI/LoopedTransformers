@@ -1,0 +1,55 @@
+{
+  "started_utc": "2026-11-25T15:06:27.303289+00:00",
+  "stages": [
+    {
+      "stage": "search",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-u",
+        "search17.py",
+        "--workers",
+        "3"
+      ],
+      "started_utc": "2026-11-25T15:06:27.305991+00:00",
+      "finished_utc": "2026-11-25T15:07:46.477517+00:00",
+      "exit_code": 0
+    },
+    {
+      "stage": "audit",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-u",
+        "audit17.py",
+        "--workers",
+        "3"
+      ],
+      "started_utc": "2026-11-25T15:07:46.480947+00:00",
+      "finished_utc": "2026-11-25T15:08:45.899079+00:00",
+      "exit_code": 0
+    },
+    {
+      "stage": "statistics",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "evidence/stats17.py",
+        "--certificates",
+        "certificates.json",
+        "--outdir",
+        "evidence/results"
+      ],
+      "started_utc": "2026-11-25T15:08:45.901863+00:00",
+      "finished_utc": "2026-11-25T15:08:46.028159+00:00",
+      "exit_code": 0
+    },
+    {
+      "stage": "report",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "report17.py"
+      ],
+      "started_utc": "2026-11-25T15:08:46.029135+00:00",
+      "finished_utc": "2026-11-25T15:08:47.788358+00:00",
+      "exit_code": 0
+    }
+  ]
+}
