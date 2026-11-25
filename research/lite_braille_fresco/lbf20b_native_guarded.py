@@ -330,7 +330,7 @@ def eager(ep, w):
         if best_depth[word] != g or best_depth.get(nxt, HORIZON + 1) <= g + 1:
             continue
         proof = proof_step(word, case.rules[i], i, pos)
-        tac = "exact " + proof if nxt == case.target else f"refine Eq.trans ({proof}) ?_"
+        tac = "exact " + proof if nxt == case.target else f"refine Eq.trans (b := {expression(nxt)}) ({proof}) ?_"
         reply = ep.attempt(sid, tac, {"kind": "transition", "rule": i, "source": word, "predicted": nxt,
                                       "heuristic": h, "guard_score": p})
         if reply is None:
