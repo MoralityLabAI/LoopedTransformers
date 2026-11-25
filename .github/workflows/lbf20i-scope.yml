@@ -1,0 +1,54 @@
+name: LBF-20I selective higher-order scope closure
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf20i_scope.py"
+      - "research/lite_braille_fresco/lean/LBF20Scope.lean"
+      - "research/lite_braille_fresco/LBF_20I_REGISTRATION.md"
+      - ".github/workflows/lbf20i-scope.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: false
+          test: false
+          use-mathlib-cache: false
+      - name: Check projection and separator gluing lemmas
+        run: |
+          mkdir -p "$RUNNER_TEMP/lbf20i-theory"
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          "$lean_bin" --threads=1 research/lite_braille_fresco/lean/LBF20Scope.lean > "$RUNNER_TEMP/lbf20i-theory/theory.log" 2>&1 || { cat "$RUNNER_TEMP/lbf20i-theory/theory.log"; exit 1; }
+          cat "$RUNNER_TEMP/lbf20i-theory/theory.log"
+          test "$(grep -c 'does not depend on any axioms' "$RUNNER_TEMP/lbf20i-theory/theory.log")" -eq 10
+      - name: Exhaustive finite audit and symbolic scope comparison
+        run: |
+          python research/lite_braille_fresco/lbf20i_scope.py --out "$RUNNER_TEMP/lbf20i"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          s=json.loads((Path(os.environ["RUNNER_TEMP"])/"lbf20i/summary.json").read_text())
+          assert s["audit"]["fixed_table_checks"]==96 and s["audit"]["mismatches"]==0
+          assert s["rows"]==840 and s["new_training_fits"]==0
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf20i-scope-receipts
+          path: |
+            ${{ runner.temp }}/lbf20i/
+            ${{ runner.temp }}/lbf20i-theory/
+          if-no-files-found: warn
