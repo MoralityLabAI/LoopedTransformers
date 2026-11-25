@@ -1,0 +1,34 @@
+name: PDI public transfer smoke
+on:
+  push:
+    branches: [research/pdi-transfer-smoke-20261125]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: research/lean_cgrt_hrm400/pdi_transfer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Lean
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          bash /tmp/elan-init.sh -y --default-toolchain leanprover/lean4:v4.19.0
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Unit tests
+        run: python -m unittest -v
+      - name: Public compiler smoke
+        run: python public_smoke.py --out "$RUNNER_TEMP/pdi-public-smoke"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pdi-public-smoke
+          path: ${{ runner.temp }}/pdi-public-smoke
+          if-no-files-found: warn
