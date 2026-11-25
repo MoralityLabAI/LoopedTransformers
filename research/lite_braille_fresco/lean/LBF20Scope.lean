@@ -52,14 +52,16 @@ def Glue (A : Scope) (x y : Assignment) : Assignment :=
 
 theorem glue_left (A : Scope) (x y : Assignment) : Agree A x (Glue A x y) := by
   intro i hi
-  simp [Glue, hi]
+  change x i = (if i ∈ A then x i else y i)
+  exact (if_pos hi).symm
 
 theorem glue_right {A B : Scope} {x y : Assignment}
     (h : ∀ i, i ∈ A → i ∈ B → x i = y i) : Agree B y (Glue A x y) := by
   intro i hi
+  change y i = (if i ∈ A then x i else y i)
   by_cases ha : i ∈ A
-  · simp [Glue, ha, h i ha hi]
-  · simp [Glue, ha]
+  · exact (h i ha hi).symm.trans (if_pos ha).symm
+  · exact (if_neg ha).symm
 
 theorem separator_glue {A B : Scope} {P Q : Table} {x y : Assignment}
     (hp : Local A P) (hq : Local B Q)
