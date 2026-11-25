@@ -101,8 +101,8 @@ roots.
 
 ## Infrastructure repair before the rerun
 
-The first full run (C:\olr08ull) stopped in source_s2 when two credited `exact?` paths failed
+The first full run (C:\olr08\full) stopped in source_s2 when two credited `exact?` paths failed
 fresh replay. The cause is Lean's process-wide library-search cache, not the proofs. The repair
 and its verification are in [olr08/REPAIRS.md](olr08/REPAIRS.md). The campaign is rerun from
-scratch under the repaired code in C:\olr08ull2. Its registry must refreeze identical to
+scratch under the repaired code in C:\olr08\full2. Its registry must refreeze identical to
 d61bf979… before outcome collection continues.
