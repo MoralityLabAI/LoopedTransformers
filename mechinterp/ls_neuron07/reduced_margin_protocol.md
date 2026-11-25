@@ -1,0 +1,2 @@
+# Post-hoc reduced disturbance budget
+The locked 1/32 primary failed for all endpoints and all fixed-codebook scale repairs. Evaluate every repaired checkpoint at epsilon 1/64, 1/128, 1/256, and 0 in the original parity regions, without any additional weight changes. Exact rational checks required. Weaker certificates may establish a mathematical property of a particular repaired checkpoint, not the original training success gate or a population success rate. No proof of an optimum disturbance radius.
