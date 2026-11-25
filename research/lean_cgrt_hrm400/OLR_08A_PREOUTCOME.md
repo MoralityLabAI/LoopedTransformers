@@ -47,7 +47,7 @@ The package's spent.json lists 62 files. The 7 others in the inventory are files
 Int/DivMod, Fin/Bitwise, Fin/Log2. None is in the fresh roster. The exact 07B registry also has 2
 goals and 2 declarations (Array.map_fst_zip, Array.map_uncurry_zip_eq_zipWith) absent from
 spent.json. The frozen fresh registry is checked against the full inventory before outcome
-collection; the result is recorded below.
+collection; the result is recorded in the next section.
 
 Array, Vector, Fin, UInt and Int results are new-file evidence within families already tested.
 Only BitVec is new-family evidence. SInt stays sealed for the separately registered 500K gate.
@@ -69,3 +69,32 @@ CPU, Python 3.12.10. The run directory is on C:, because other jobs keep the D: 
 full. The pinned Lean source is D:\lean4-419-source at 6caaee84 with a clean tracked tree.
 Reissue prerequisites are the committed, custody-authenticated artifacts in
 [results/olr07_reissue/](results/olr07_reissue/).
+
+## Frozen full registry, audited before outcomes
+
+Frozen by [olr08/drivers/preflight_freeze.py](olr08/drivers/preflight_freeze.py), which ran the
+unchanged full-profile prelude (contract, sentinel, freeze) under the 12 GiB Job Object and stopped
+before `menu_source`. Copies are in [results/olr08a/preoutcome/](results/olr08a/preoutcome/).
+Registry SHA-256 d61bf9797c50823cd591472d879085a954b68974334e97f46f964b9d5b38905e; contract
+exe 61923c65…, Torch 2.5.1+cpu, 8 threads, reissue manifests b614ffab… (07A) and fc7bb50e… (07B).
+
+| Role | Roots | T | R | Files with roots |
+| --- | --- | --- | --- | --- |
+| TRAIN (reused referee source) | 192 | | | |
+| Calibration | 39 | 37 | 2 | 5 of 5 |
+| Evaluation | 275 | 207 | 68 | 22 of 27 |
+
+Five evaluation files yielded no eligible root: BitVec/BasicAux, Array/Lex, Array/QSort,
+Array/Set, UInt/Log2. Fresh roots by family: Vector 160, Array 65, BitVec 52, Int 24, UInt 9, Fin 4.
+
+[olr08/drivers/registry_audit.py](olr08/drivers/registry_audit.py) checked the 314 fresh roots
+against the full 69-file inventory: no spent file, no SInt file, no exact spent goal, no spent
+(file, declaration) key and no spent declaration name. All 192 TRAIN roots come from the package's
+train_registry.json. The package spent.json therefore suffices for this registry, and no further
+exclusion is registered.
+
+Smoke disclosure: the smoke run observed outcomes on two roots that are also in the full
+registry, calibration T Int.cooper_resolution_dvd_right (id 0c711bff…) and evaluation T
+BitVec.shiftLeftZeroExtend (id 45ce790b…). No setting was changed after the smoke. The
+registered gates use the frozen registry unchanged; results are also reported without these two
+roots.
