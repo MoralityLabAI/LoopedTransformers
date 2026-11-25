@@ -1,0 +1,54 @@
+name: LBF-20J separator-conditioned support
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf20j_separator.py"
+      - "research/lite_braille_fresco/lean/LBF20Separator.lean"
+      - "research/lite_braille_fresco/LBF_20J_REGISTRATION.md"
+      - ".github/workflows/lbf20j-separator.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: false
+          test: false
+          use-mathlib-cache: false
+      - name: Verify separator message and projection identities
+        run: |
+          mkdir -p "$RUNNER_TEMP/lbf20j-theory"
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          "$lean_bin" --threads=1 research/lite_braille_fresco/lean/LBF20Separator.lean > "$RUNNER_TEMP/lbf20j-theory/theory.log" 2>&1 || { cat "$RUNNER_TEMP/lbf20j-theory/theory.log"; exit 1; }
+          cat "$RUNNER_TEMP/lbf20j-theory/theory.log"
+          test "$(grep -c 'does not depend on any axioms' "$RUNNER_TEMP/lbf20j-theory/theory.log")" -eq 5
+      - name: Exhaustive marginal audit and paired separator queries
+        run: |
+          python research/lite_braille_fresco/lbf20j_separator.py --out "$RUNNER_TEMP/lbf20j"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          s=json.loads((Path(os.environ["RUNNER_TEMP"])/"lbf20j/summary.json").read_text())
+          assert s["audit"]["systems"]==80 and s["audit"]["conditional_queries"]==1408 and s["audit"]["mismatches"]==0
+          assert s["rows"]==432 and s["selector_rows"]==165 and s["new_training_fits"]==0
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf20j-separator-receipts
+          path: |
+            ${{ runner.temp }}/lbf20j/
+            ${{ runner.temp }}/lbf20j-theory/
+          if-no-files-found: warn
