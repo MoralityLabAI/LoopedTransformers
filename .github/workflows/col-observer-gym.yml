@@ -1,0 +1,20 @@
+name: COL observer finite audit
+on:
+  pull_request:
+    paths:
+      - 'research/collatz_observer_gym/**'
+      - '.github/workflows/col-observer-gym.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest research.collatz_observer_gym.test_observer_gym -v
+      - run: python research/collatz_observer_gym/observer_gym.py --check research/collatz_observer_gym/results/exact_receipt.json.gz
