@@ -1,0 +1,205 @@
+{
+  "defensible_interpretation": "The full beam allocation produced two additional exact repairs in this cohort and retained every greedy success. Its 11/24 yield and 2/24 paired gain missed both registered operational requirements. The exact paired test is inconclusive, and the pre-data power/sham limitations preserve PILOT_ONLY scope.",
+  "issues": [],
+  "posthoc_ancestry_review": {
+    "certified_beam_final_paths": 11,
+    "paths": [
+      {
+        "first_numerical_crossing_bound": 4.543143353859839e-07,
+        "first_numerical_crossing_node": "r03:e0:initial:130:lp",
+        "seed": 493,
+        "worsening_edges_after_crossing": [
+          "r06:e0:initial:124:lp"
+        ],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 3.14039902971075e-07,
+        "first_numerical_crossing_node": "r01:e2:initial:84:lp",
+        "seed": 494,
+        "worsening_edges_after_crossing": [],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 1.0131057015527745e-07,
+        "first_numerical_crossing_node": "r02:e1:current:80:lp",
+        "seed": 498,
+        "worsening_edges_after_crossing": [
+          "r03:e0:initial:132:lp"
+        ],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 0.04375896198470701,
+        "first_numerical_crossing_node": "r01:e0:initial:98:lp",
+        "seed": 499,
+        "worsening_edges_after_crossing": [],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 7.222450813977874e-07,
+        "first_numerical_crossing_node": "r04:e2:initial:150:lp",
+        "seed": 501,
+        "worsening_edges_after_crossing": [],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 2.8625583354313923e-07,
+        "first_numerical_crossing_node": "r01:e0:initial:137:lp",
+        "seed": 503,
+        "worsening_edges_after_crossing": [],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 3.525524994605718e-07,
+        "first_numerical_crossing_node": "r02:e0:initial:83:lp",
+        "seed": 505,
+        "worsening_edges_after_crossing": [
+          "r03:e0:current:132:lp"
+        ],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 2.957272855802141e-07,
+        "first_numerical_crossing_node": "b0:initial:151:lp",
+        "seed": 508,
+        "worsening_edges_after_crossing": [
+          "r01:e0:current:132:lp"
+        ],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 4.5378410622838533e-07,
+        "first_numerical_crossing_node": "r01:e1:initial:85:lp",
+        "seed": 509,
+        "worsening_edges_after_crossing": [],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 4.080922591833566e-07,
+        "first_numerical_crossing_node": "b0:initial:125:lp",
+        "seed": 513,
+        "worsening_edges_after_crossing": [
+          "r02:e0:current:124:lp"
+        ],
+        "worsening_edges_before_crossing": []
+      },
+      {
+        "first_numerical_crossing_bound": 3.216325897168844e-07,
+        "first_numerical_crossing_node": "r02:e2:initial:76:lp",
+        "seed": 516,
+        "worsening_edges_after_crossing": [
+          "r03:e0:current:132:lp"
+        ],
+        "worsening_edges_before_crossing": []
+      }
+    ],
+    "paths_with_worsening_before_first_numerical_crossing": 0,
+    "paths_with_worsening_only_after_first_numerical_crossing": 6,
+    "scope": "Timing relative to the first numerical bound crossing is a posthoc diagnostic. Intermediate ancestry nodes were not separately exactly certified. The timing does not support worsening edges as the cause of the two extra exact endpoint repairs.",
+    "status": "PASS"
+  },
+  "recount": {
+    "all_final_verdicts_resolved": true,
+    "beam_new_certificates": 11,
+    "beam_only_seeds": [
+      501,
+      516
+    ],
+    "both_failed": 13,
+    "both_passed": 9,
+    "conditional_two_sided_mcnemar_exact": "1/2",
+    "greedy_new_certificates": 9,
+    "greedy_only_seeds": [],
+    "initial_point_violations": 24,
+    "initial_unresolved": 0,
+    "n_endpoints": 48,
+    "n_independent_seed_units": 24,
+    "official_fsi_verdict": "inconclusive",
+    "operational_gate": {
+      "observed_beam": 11,
+      "observed_net": 2,
+      "passed": false,
+      "requires_beam_at_least": 12,
+      "requires_net_at_least": 6
+    },
+    "planned_comparisons": 1,
+    "primary_repair_gain": 0.08333333333333333,
+    "primary_repair_gain_exact": "1/12",
+    "study_evidence_class": "PILOT_ONLY"
+  },
+  "review_scope": "Independent recount and inference-interpretation review after the frozen run. No additional hypothesis tests and no existing artifact edits. Exact certificate mathematics and full selection replay are covered by audit16.py, not re-proven here.",
+  "reviewed_file_sha256": {
+    "audit_results.json": "89ac83e5a761365fb0cdf5b53b7901fdbb38082ce942e1c0d28ddd87aad3c10a",
+    "audit_run.json": "a566136238f8f9810edbd3af5abd345a7015badf1e8994837e9d6ee0e87b901d",
+    "certificates.json": "73a382d216e8f4c6fc23969249a9d8f1b1ecc08a33779c4ea7ae85044157ba98",
+    "evidence/preflight_results.json": "b54f5b9fc31791a378f3166e53c30dfb52dd7a229f812cf693b6f4c6ece543c5",
+    "evidence/preflight_scope.json": "bfdaf6458d67aa0a93dde87283b91dc75af875f6e4f11002b3401ced1ea0aada",
+    "evidence/registration.json": "adf3074460fd39413d70046765cb54b9ec6af4fc4eca50fb42a5b7663331e7ef",
+    "evidence/results/fsi_beam_vs_greedy.json": "6fa120fbccc0cd5133e93dda146d53bfb4c91a0aed64715d66fefdfd3a87b043",
+    "evidence/results/paired_outcomes.jsonl": "e18f324d418c5153ecc2cfdb5157c21332448d35e01f4862aa714bab15f6aa6e",
+    "evidence/results/statistics.json": "eacb5fe0d8a3d23ca7b917ddb4238ca3d9d148ca1b963c690d5ea60b97f1ca78",
+    "freeze_receipt.json": "11af9095969edecfb1a2b98ff56da8351c9a45328a2636ec4b4b5a58f945e0a5",
+    "lock.sha256": "6af8f7a91b926cd221bc1ed0536742bbe23ffe710cf7cc9cdfea5031cc23ddce",
+    "protocol.md": "47242204707efb242769ec7a653df077d90b16829084d5ed3e97f19f069ba45c",
+    "run_manifest.json": "9a59a3d643e274343b7345e8b876e74c5e01c3f77048dc3dfe245ddf669732b1"
+  },
+  "source_lock": {
+    "all_local_locked_sources_unchanged": true,
+    "chronology": {
+      "all_searches_completed_utc": "2026-11-25T14:18:40.061353+00:00",
+      "audit_finished_utc": "2026-11-25T14:20:08.710293+00:00",
+      "audit_started_utc": "2026-11-25T14:19:11.558588+00:00",
+      "initials_generated_utc": "2026-11-25T14:16:51.336057+00:00",
+      "run_started_utc": "2026-11-25T14:16:51.307792+00:00"
+    },
+    "chronology_order_checked": true,
+    "commit_sha": "0c9ce8fa60443d9414a71fbbe7d5c9716ebf6a55",
+    "locked_files_checked": 37,
+    "remote_commit_url": "https://github.com/MoralityLabAI/LoopedTransformers/commit/0c9ce8fa60443d9414a71fbbe7d5c9716ebf6a55",
+    "remote_git_committer_date_utc": "2026-11-25T14:16:14+00:00",
+    "remote_lock_git_blob_sha": "9cc71b7c0303bf22ebba8d62e92a5eb68e81cd64",
+    "remote_lock_matches_local": true,
+    "scope": "Git commit metadata and saved run receipts support pre-run source freezing and terminal audit order. These records cannot prove the absence of any unrecorded prior execution."
+  },
+  "status": "PASS",
+  "uncertainty": {
+    "bootstrap_scope": "Approximate percentile interval from 4096 paired-seed resamples. Its upper endpoint below 0.25 does not meet the registered conservative refutation gate.",
+    "equivalence_claim_supported": false,
+    "floor_relation": "The observed gain is below the floor and the conservative bounds span it. Neither confirmation nor refutation of the floor follows.",
+    "hoeffding_lower_one_sided_95_percent_bound": -0.4163108962235577,
+    "hoeffding_scope": "Each bound separately has the stated one-sided guarantee under independent bounded seed effects. The pair is not labelled a two-sided 95-percent confidence interval.",
+    "hoeffding_upper_one_sided_95_percent_bound": 0.5829775628902244,
+    "marginal_95_percent_clopper_pearson": {
+      "beam": {
+        "independent_beta_quantiles": [
+          0.25553020199474624,
+          0.671791924304822
+        ],
+        "outward_enclosure_checked": true,
+        "reported": [
+          0.2555274963378906,
+          0.6717948913574219
+        ]
+      },
+      "greedy": {
+        "independent_beta_quantiles": [
+          0.18799292819600225,
+          0.594063615992056
+        ],
+        "outward_enclosure_checked": true,
+        "reported": [
+          0.18799209594726562,
+          0.5940666198730469
+        ]
+      }
+    },
+    "marginal_scope": "Each per-arm interval has at least 95-percent coverage under independent Bernoulli seed sampling. This is not a simultaneous 95-percent statement about both arms.",
+    "paired_descriptive_bootstrap_interval": [
+      0.0,
+      0.20833333333333334
+    ],
+    "registered_scientific_effect_floor": 0.25
+  },
+  "what_further_data_would_change_the_conclusion": "Use the exposed lineage receipts for a new development contrast that isolates retention of alternate bootstrap codebooks from later beam management, with a budget-matched control. Estimate that contrast on independent development seeds, calibrate the appropriate matched variation, and prospectively plan fresh confirmation units. Development evidence should address the registered 25-percentage-point target; the present 8.33-point estimate alone does not justify confirmation power for that target. An identical unplanned repeat would not isolate the source of the gain."
+}
