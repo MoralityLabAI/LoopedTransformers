@@ -28,7 +28,7 @@ def digits(s):
         raise ValueError("invalid history grid")
     return a
 
-def historical(ls11,ls12,ls08,loopscope):
+def historical(ls11,ls12,ls08,loopscope,pilot):
     from mechinterp.sae_causal_transfer.native_trm_v1 import families as S2
     from mechinterp.sae_causal_transfer.native_jvp_v1 import families as S3
     from mechinterp.sae_causal_transfer.native_jvp_v2 import families as S4
@@ -44,8 +44,32 @@ def historical(ls11,ls12,ls08,loopscope):
     add("LS-SAE02",[r for g in a.values() for r in g])
     add("LS-SAE03",[r for g in b.values() for r in g])
     for key,m,names in [("LS-SAE04",S4,S4.BASES),("LS-SAE05",S5,S5.SEEDS),
-                         ("LS-SAE06",S6,S6.SEEDS),("LS-SAE07",S7,S7.BASES)]:
+                         ("LS-SAE06",S6,S6.SEEDS)]:
         add(key,[r for n in names for r in m.roster(n)])
+    # The original LS-SAE07 roster aborts on one known 54-hole dig.
+    # Reconstruct all attempted inputs with the identical algorithm,
+    # including the failed 53-hole partial grid. Never omit its solution.
+    attempted=[]; failed=[]
+    for family,base in S7.BASES.items():
+        for i in range(S7.SIZES[family]):
+            seed=base+i; target=S2.full_solution(seed); q=list(target)
+            rng=random.Random(seed+1000000)
+            for cell in rng.sample(range(81),81):
+                if q.count(0)==S7.HOLES[family]:
+                    break
+                v=q[cell];q[cell]=0
+                if S2.count_solutions(q,2)!=1:
+                    q[cell]=v
+            if q.count(0)!=S7.HOLES[family]:
+                failed.append((seed,S7.HOLES[family],q.count(0)))
+            if S2.count_solutions(q,2)!=1 or not S2.valid_solution(target):
+                raise ValueError("historical LS-SAE07 attempted grid invalid")
+            attempted.append({"x":q,"target":target})
+    if failed!=[(202627040006,54,53)]:
+        raise ValueError(f"unexpected historical failed dig roster: {failed}")
+    add("LS-SAE07-all-attempts",attempted)
+    print("Historical LS-SAE07 known failed admission retained",failed,flush=True)
+    j=json.loads(pilot.read_text());add("NBR-engineering-pilot",j,"question","answer")
     j=json.loads(ls11.read_text());add("LS-SAE11",[r for g in j["rosters"].values() for r in g])
     j=json.loads(ls12.read_text());add("LS-SAE12",j["pool"])
     j=json.loads(ls08.read_text());add("LS-SAE08",[r for g in ("test_52","test_54") for r in j["families"][g]["source_roster"]])
@@ -138,13 +162,13 @@ def audit(rows,old,count):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    for name in ("ls11","ls12","ls08","loopscope","out"):
+    for name in ("ls11","ls12","ls08","loopscope","pilot","out"):
         p.add_argument("--"+name,type=Path,required=True)
     p.add_argument("--count",type=int,default=COUNT)
     a=p.parse_args()
     if a.count<1 or a.out.exists():
         p.error("positive count and new output required")
-    old=historical(a.ls11,a.ls12,a.ls08,a.loopscope)
+    old=historical(a.ls11,a.ls12,a.ls08,a.loopscope,a.pilot)
     rows,rejections=make(old,a.count)
     a.out.mkdir(parents=True)
     path=a.out/"roster.json"
@@ -153,7 +177,7 @@ def main():
     receipt={"schema":"NBR/source-candidate-v1","model_inference_executed":False,
        "candidate_only":True,"seed":SEED,"count_per_split_stratum":a.count,
        "roster_sha256":sha(path),"historical_counts":{k:len(v) for k,v in old.items()},
-       "historical_receipt_sha256":{k:sha(getattr(a,k)) for k in ("ls11","ls12","ls08","loopscope")},
+       "historical_receipt_sha256":{k:sha(getattr(a,k)) for k in ("ls11","ls12","ls08","loopscope","pilot")},
        "n_rows":len(rows),"rejections":rejections,"source_recheck":"PASS",
        "symmetry_method":"distinct necessary invariants; collisions conservatively rejected",
        "limitations":"named historical cohorts only; other Sudoku campaigns require review; no training-set disjointness claim"}
