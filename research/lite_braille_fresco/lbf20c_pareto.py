@@ -218,6 +218,6 @@ def audit():
     d,e,f = [(x,) for x in "def"]
     s,t = ("p",a,d),("p",c,f)
     wa = ParetoWitness(s, [(a,b,0),(b,c,0),(d,e,0),(e,f,0),(a,c,1),(d,f,2)],4)
-    assert {m:len(p) for m,p in wa.frontier(s,t).items()} == {1:4,6:2}
+    assert {m:len(p) for m,p in wa.frontier(s,t).items()} == {1:4,3:3,5:3,6:2}
     return {"systems":96,"horizon":H,**dict(counts),"mismatches":0,
             "seconds":time.perf_counter()-started}
