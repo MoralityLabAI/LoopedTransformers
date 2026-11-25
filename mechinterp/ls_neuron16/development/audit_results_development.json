@@ -1,0 +1,122 @@
+{
+  "actual_compute_with_common_once": {
+    "expansions": 73,
+    "lp_calls": 438,
+    "ls_calls": 439,
+    "profile_slots": 25842
+  },
+  "certificate_sha256": "264b65ea3fd94da20bfa497ae3cd04998581ce828aea23266af2d07bd66f5c40",
+  "distinct_certified_weight_sets": 1,
+  "distinct_final_weight_sets": 2,
+  "evidence_class": "PILOT_ONLY",
+  "exact_verifier_calls": 4,
+  "experiment": "LS-NEURON-16",
+  "n_final_endpoints": 2,
+  "n_units": 1,
+  "numerical_final_horizon_conditions": 4,
+  "numerical_horizon_conditions": 6,
+  "numerical_horizons": [
+    8,
+    128
+  ],
+  "numerical_initial_horizon_conditions": 2,
+  "positive_control_verdict": "CERTIFIED",
+  "scope": "Independent numerical metric, FP32 weight decoding, LP residual/dual audit and selection replay; LS solver trajectories are not rerun; exact-real endpoint certificates use the inherited rational verifier.",
+  "status": "PASS",
+  "summary": [
+    {
+      "arm": "greedy",
+      "bootstrap_bound_passes": 0,
+      "bootstrap_retained_worsening_edges": 0,
+      "bound_certificate_agreement": 1,
+      "bound_passes": 0,
+      "certified_final_ancestries_with_worsening_edge": 0,
+      "checked_states": 445,
+      "expansions": 37,
+      "final_ancestries_with_worsening_edge": 0,
+      "final_verdicts": {
+        "POINT_VIOLATION": 1
+      },
+      "initial_verdicts": {
+        "POINT_VIOLATION": 1
+      },
+      "lp_calls": 222,
+      "lp_max_complementarity": 4.3557137312827806e-16,
+      "lp_max_dual_sign": 0.0,
+      "lp_max_duality_gap": 6.522560269672795e-16,
+      "lp_max_primal": 1.3322676295501878e-15,
+      "lp_max_stationarity": 3.552713678800501e-15,
+      "lp_successes": 222,
+      "ls_calls": 223,
+      "ls_nfev": 3104,
+      "median_bound": 0.10794150823272065,
+      "n_seeds": 1,
+      "new_certificates": 0,
+      "new_seeds": [],
+      "profile_slots": 13098,
+      "retained_worsening_edges": 0,
+      "rollout": {
+        "128": {
+          "accuracy": 1.0,
+          "all_prefix": 1.0
+        },
+        "8": {
+          "accuracy": 1.0,
+          "all_prefix": 1.0
+        }
+      },
+      "secondary_bound_crossings": 0,
+      "secondary_improvements": 222,
+      "seconds": 6.992874437000864,
+      "total_retained_worsening_edges": 0
+    },
+    {
+      "arm": "beam",
+      "bootstrap_bound_passes": 0,
+      "bootstrap_retained_worsening_edges": 0,
+      "bound_certificate_agreement": 1,
+      "bound_passes": 1,
+      "certified_final_ancestries_with_worsening_edge": 1,
+      "checked_states": 445,
+      "expansions": 37,
+      "final_ancestries_with_worsening_edge": 1,
+      "final_verdicts": {
+        "CERTIFIED": 1
+      },
+      "initial_verdicts": {
+        "POINT_VIOLATION": 1
+      },
+      "lp_calls": 222,
+      "lp_max_complementarity": 6.800412154134558e-16,
+      "lp_max_dual_sign": 0.0,
+      "lp_max_duality_gap": 8.881784197001252e-16,
+      "lp_max_primal": 9.32356392091549e-09,
+      "lp_max_stationarity": 2.886579864025407e-15,
+      "lp_successes": 222,
+      "ls_calls": 223,
+      "ls_nfev": 2531,
+      "median_bound": 6.923928598764284e-08,
+      "n_seeds": 1,
+      "new_certificates": 1,
+      "new_seeds": [
+        469
+      ],
+      "profile_slots": 13098,
+      "retained_worsening_edges": 3,
+      "rollout": {
+        "128": {
+          "accuracy": 1.0,
+          "all_prefix": 1.0
+        },
+        "8": {
+          "accuracy": 1.0,
+          "all_prefix": 1.0
+        }
+      },
+      "secondary_bound_crossings": 1,
+      "secondary_improvements": 162,
+      "seconds": 6.040193980999902,
+      "total_retained_worsening_edges": 3
+    }
+  ]
+}
