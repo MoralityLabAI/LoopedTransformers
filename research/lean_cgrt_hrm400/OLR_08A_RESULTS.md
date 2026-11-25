@@ -1,17 +1,162 @@
-# OLR-08A results: reissue custody, gate outcomes and spent cohorts
+# OLR-08A results: native term/action search, headroom gate failed
 
-2026-11-24. Branch `research/olr-obligation-ledger-20261123`, PR #318, starting commit
-ded064c8a993fea70c2d7033b064cd09ae788d19.
+2026-11-25. Branch `research/olr-obligation-ledger-20261123`, PR #318 (draft). Protocol:
+[olr08/RUN.md](olr08/RUN.md) and [olr08/run08.py](olr08/run08.py) with the two infrastructure
+repairs in [olr08/REPAIRS.md](olr08/REPAIRS.md). Pre-outcome registration:
+[OLR_08A_PREOUTCOME.md](OLR_08A_PREOUTCOME.md).
 
-**The OLR-08 CPU campaign was not run.** OLR08_CPU_gym.zip (210361 bytes, SHA-256
-e5e4b26af9837a828b743a9479e396621fbec2d6f3e846711a02c639d53750cb) was not attached to the
-work order and is not on the run machine. Its package_manifest.json, RUN.md, hardened
-Session/Trace/Main Lake project, roster and graph-reader code exist only inside it, so the
-package import, Session build and smoke, roster audit, S1/S2/S3/S3c search, calibration
-reference and fitting were not started. No new Lean outcome was collected and no model was
-trained. The prerequisites that do not depend on the package are complete and recorded below.
+**Verdict: Gate 1 (headroom) failed on two of its registered criteria.** Calibration has 18
+menu-hard roots against the required 24. The 1200-step S3 reference closes 5 of 18 against 4 of 18
+for the best 300-step control, which is 5.6 percentage points against the required 10. Gate 0
+(source validity) passed. No reader was fitted, Gate 2 was not reached, and no fresh-evaluation
+outcome was collected. The 275 fresh evaluation roots remain unspent. SInt was not opened.
+Thresholds were not changed.
 
-## 1. 07A/07B exact reissue: run history
+## Gates
+
+| Gate | Criterion | Threshold | Measured | Result |
+| --- | --- | --- | --- | --- |
+| 0 | TRAIN T-human replay | ≥95%, ≥20 audits | 159/163 = 97.5% | pass |
+| 0 | CAL T-human replay | ≥95%, ≥10 audits | 34/34 = 100% | pass |
+| 1 | Menu-hard TRAIN roots | ≥40 | 106 | pass |
+| 1 | Menu-hard CAL roots | ≥24 | 18 | **fail** |
+| 1 | Strongest 300-step control on CAL | ≤80% | S2 4/18 = 22.2% | pass |
+| 1 | S3 at 1200 steps minus best 300-step control | ≥10 pp | 5/18 − 4/18 = 5.6 pp | **fail** |
+| 2 | Replay-certified source action frames | ≥64 | not reached | — |
+
+Without the one calibration root the smoke run had observed (Int.cooper_resolution_dvd_right,
+unsolved by every arm): 17 hard CAL roots, S2 4/17, S3-long 5/17, headroom 5.9 pp. Both failures
+stand.
+
+## Cohort
+
+| Role | Selected | Scored | Exclusions | Menu closes | Menu-hard |
+| --- | --- | --- | --- | --- | --- |
+| TRAIN (reused referee source) | 192 | 187 | 4 nonportable, 1 uncertifiable | 81 | 106 |
+| Calibration (fresh files) | 39 | 36 | 3 nonportable | 18 | 18 |
+| Evaluation (fresh files) | 275 | not collected | | | |
+
+Nonportable states were refused, never opened in the later environment. Calibration files:
+Int/Cooper, Int/OfNat, Array/BinSearch, Array/FinRange, Fin/Iterate. Menu actions closing the most
+calibration roots: exact? 15, simp [*] 10, simp_all 10, omega 9.
+
+## Search controls
+
+Exact best-first search over enumerated actions, depth 3, per root 300 attempted tactics,
+1200 native RPCs and 512 million raw heartbeats (fourfold for the long reference). Every
+unsolved root below hit the step cap. None reached the RPC or heartbeat cap, and none exhausted
+its finite action space. These are censored observations, not proofs of absence.
+
+| Arm | Roots | Solved | Censored at step cap | Steps to solve | Credited paths replayed and certified fresh |
+| --- | --- | --- | --- | --- | --- |
+| Source S2 (hand prior, TRAIN) | 106 | 33 | 73 | 16 to 289 | 33/33 |
+| CAL S1 uniform | 18 | 3 | 15 | 17, 23, 85 | 3/3 |
+| CAL S2 hand prior | 18 | 4 | 14 | 10, 18, 32, 83 | 4/4 |
+| CAL S3 counted prior | 18 | 3 | 15 | 2, 2, 23 | 3/3 |
+| CAL S3c cost-aware prior | 18 | 3 | 15 | 4, 4, 23 | 3/3 |
+| CAL S3 long, 1200 steps | 18 | 5 | 13 | 2, 2, 23, 397, 1069 | 5/5 |
+
+Solved calibration roots, with the steps each arm needed:
+
+| Root | File | S1 | S2 | S3 | S3c | S3 long |
+| --- | --- | --- | --- | --- | --- | --- |
+| Array.size_finRange | Array/FinRange | 17 | 18 | 2 | 4 | 2 |
+| Array.getElem_finRange | Array/FinRange | 23 | 32 | 2 | 4 | 2 |
+| Array.finRange_reverse | Array/FinRange | 85 | 10 | 23 | 23 | 23 |
+| Array.binSearchContains | Array/BinSearch | — | 83 | — | — | 1069 |
+| Int.OfNat.of_dvd | Int/OfNat | — | — | — | — | 397 |
+
+The S3 long reference solves every root S2 solves plus Int.OfNat.of_dvd. Paired on the 18
+calibration roots over 5 file clusters, S2 minus S3 is +1 root (95% file bootstrap 0 to +33 pp),
+and S3 minus S3c is 0. The counted prior reached its two FinRange closures in 2 steps where S2
+needed 18 and 32, but lost Array.binSearchContains within 300 steps. Int/Cooper's 7 hard roots
+were unsolved by every arm.
+
+The S3 prior was fitted on the 106 TRAIN S2 searches from exact attempt-event IDs (48 template
+keys; prior SHA-256 4fb599f5…). One calibration root, Array.finRange_succ, has a state whose
+premise enumeration exceeds the server's cap. That timeout was charged in every arm (S1 3, S2 1,
+S3 3, S3c 3, S3 long 20 calls) and the state kept its non-premise actions (repair 0002).
+
+## Resources
+
+All native work is charged: premise enumeration, tactic execution and certification. Graph and
+lemma-graph construction run only in reader arms, which were not reached. Raw heartbeats are
+Lean heartbeats as counted by the server, not thousands.
+
+| Stage | Step RPCs | Premise RPCs | Cert RPCs | Raw heartbeats | Server ms | Native wall s | Root opening s | Fresh replay: opening s, native s, raw hb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Source S2 | 25,122 | 8,660 | 33 | 2,241,168,728 | 289,240 | 312.8 | 296.6 | 91.7, 1.13, 8,729,839 |
+| CAL S1 | 4,625 | 2,238 | 3 | 445,558,669 | 60,709 | 65.4 | 14.3 | 1.9, 0.22, 2,324,645 |
+| CAL S2 | 4,343 | 1,448 | 4 | 415,792,664 | 48,515 | 50.9 | 11.1 | 3.7, 0.25, 3,011,986 |
+| CAL S3 | 4,527 | 2,076 | 3 | 541,384,580 | 68,643 | 72.5 | 12.2 | 2.5, 0.24, 1,713,739 |
+| CAL S3c | 4,531 | 2,090 | 3 | 435,915,330 | 54,631 | 57.7 | 10.8 | 1.8, 0.15, 1,713,739 |
+| CAL S3 long | 17,093 | 6,779 | 5 | 2,039,593,986 | 245,314 | 260.5 | 11.6 | 4.2, 0.22, 2,324,444 |
+
+The menu stage (231 roots, two fresh passes each, plus T-human replay at the 20000 cap) used
+251,684,346 raw heartbeats, with 556 s and 560 s of root opening in the two passes. Per-root,
+per-RPC journals with heartbeats, server ms and wall seconds are in the audit archive.
+
+Run 3 took 1,933 s for the campaign after a separate registry preflight. It used 8 threads,
+2 native workers and a Windows Job Object hard commit limit of 12 GiB. Peak job commit was
+2.83 GB, and peak sampled process-tree RSS 2.89 GB. Wall times share the machine with other
+jobs and are not a speed comparison. No end-to-end speedup is claimed.
+
+## Run history and reproducibility
+
+| Run | Code | Outcome |
+| --- | --- | --- |
+| Smoke (C:\olr08\smoke) | package | completed in 1,051 s; ineligible for gates |
+| 1 (C:\olr08\full) | package run08.py | stopped in source S2: credited exact? path failed fresh replay (repair 0001) |
+| 2 (C:\olr08\full2) | + repair 0001 | killed twice by an external process kill; then stopped in CAL S1 on a premise timeout (repair 0002) |
+| 3 (C:\olr08\full3) | + repairs 0001, 0002 | completed through the calibration stages in one attempt; stopped before fresh evaluation as registered |
+
+Each rerun refroze the registry byte-identical to the audited one (SHA-256 d61bf979…) before any
+outcome. Checkpoints that overlap between runs agree field by field:
+
+| Comparison | Roots | Identical |
+| --- | --- | --- |
+| Menu receipts, runs 1 and 2 against run 3 | 231 each | 231 and 231 |
+| Source S2, run 1 against run 3 | 73 | outcome, steps, path, RPC counts and full attempt sequence 73/73 |
+| Source S2, run 2 against run 3 | 106 | same fields 106/106 |
+| CAL S1, run 2 against run 3 | 16 | same fields 16/16 |
+
+Total raw heartbeats differ by at most 142 per root, against about 21 million per root on average.
+
+## Disclosures
+
+- The smoke run, prescribed by RUN.md, observed outcomes on calibration root
+  Int.cooper_resolution_dvd_right and evaluation root BitVec.shiftLeftZeroExtend, which are also
+  in the full registry. No setting changed afterwards; the gate verdict holds without the
+  calibration root. The evaluation root's smoke outcome is the only fresh-evaluation outcome
+  observed.
+- Both repairs change run08.py and therefore the contract. They restore behaviour the protocol
+  already assumes, a reproducible fresh replay and Fable's handling of a failed premise call, and
+  neither alters caps, rosters, priors or gates.
+- A failed headroom gate stops the run before fresh evaluation, as pre-registered in
+  OLR_08A_PREOUTCOME.md. Resuming launch.py on run 3's directory would collect fresh evaluation
+  outcomes for the fixed controls under the same contract.
+- Fresh calibration files are new files within the Int, Array and Fin families; this cohort has
+  no new-family calibration evidence.
+
+## Artifacts
+
+- Audit archive: [results/olr08a/olr08-full_AUDIT.zip](results/olr08a/olr08-full_AUDIT.zip).
+  It holds the registry, all native menu and replay receipts, per-root search journals with RPC
+  journals, the prior, resource telemetry, code, drivers, analysis and file hashes.
+- Referee archive: [results/olr08a/olr08-full_FABLE.zip](results/olr08a/olr08-full_FABLE.zip),
+  with code, contract, summary, frozen policy, prior, resources and the analysis report.
+- Unpacked run records: [results/olr08a/full/](results/olr08a/full/).
+- Gym source: [olr08/](olr08/), with the authenticated ZIP, repairs and drivers.
+- Archive hashes and commit-pinned URLs: [results/olr08a/PINNED.md](results/olr08a/PINNED.md).
+
+No model checkpoint exists, because no reader was eligible for fitting.
+
+# Appendix: prerequisites completed on 2026-11-24
+
+The sections below were written before the package was supplied and are kept as the record of
+the 07A/07B reissue custody and the spent-cohort inventory.
+
+## A1. 07A/07B exact reissue: run history
 
 Workflow [olr07-scope-reissue.yml](../../.github/workflows/olr07-scope-reissue.yml).
 
@@ -30,7 +175,7 @@ whole PR diff, so every push to PR #318 restarted the reissue and cancelled the 
 The workflow now triggers on pushes to the research branch that change the tracer, runner or
 workflow, and queues instead of cancelling. Budgets, source pin and runner code are unchanged.
 
-## 2. Custody of the corrected manifests
+## A2. Custody of the corrected manifests
 
 Artifact downloads need a token, so the custody job
 [olr07-reissue-custody.yml](../../.github/workflows/olr07-reissue-custody.yml) fetched the exact
@@ -63,7 +208,7 @@ of the original 07A archive. Every field agreed with the CI custody record.
 Binary hashes recorded by the reissue: Lean 92c3d35b…, REPL ae00588f…, tracer 5ec81720…,
 runner 73a61a91…. The original archives are unchanged.
 
-## 3. Reissue outcomes
+## A3. Reissue outcomes
 
 ### 07A: native validity fails
 
@@ -100,10 +245,9 @@ action policy under corrected pre-command receipts. The original 07B negative he
 stands. The exact original registry reproduces Fable's recreated TRAIN (538 to 312 of 649) and
 CAL (127 to 95 of 155) counts. EVAL differs from Fable's 404 to 272 of 560 because 60
 evaluation states are nonportable or uncertifiable under the fail-closed scope rule and are
-excluded here. This result concerns the 12-action menu; it does not decide the OLR-08
-longer-budget search headroom gate.
+excluded here. This result concerns the 12-action menu. The OLR-08A search headroom gate is reported above.
 
-## 4. Spent cohorts and the reserved SInt family
+## A4. Spent cohorts and the reserved SInt family
 
 [audit/olr08_spent_cohorts.py](audit/olr08_spent_cohorts.py) authenticated the original 07A and
 07B archives and the referee archive (SHA-256 23225d1d…, matching the scope incident), read the
@@ -131,17 +275,7 @@ family or from a new family:
 python audit/olr08_spent_cohorts.py audit --inventory results/olr08_spent/spent_cohorts.json --roster <roster.json> --out <run>/roster_audit.json
 ```
 
-## 5. What resumes the campaign
-
-1. Place OLR08_CPU_gym.zip on the run machine and confirm SHA-256 e5e4b26a…53750cb before
-   unpacking it into `research/lean_cgrt_hrm400/olr08/`.
-2. Verify package_manifest.json, then follow RUN.md: Session build and smoke on Lean 4.19.0, the
-   native sentinel, and the roster audit above before any new outcome.
-3. The run machine has Lean 4.19.0 under elan, the lean4 source at 6caaee84 with a clean tree,
-   Python 3.12, 20 logical CPUs and 47 GiB RAM. It has no Torch install; the package states its
-   protocol tests passed under Torch 2.10 CPU.
-
-## Files added
+## A5. Files added on 2026-11-24
 
 | Path | SHA-256 |
 | --- | --- |
