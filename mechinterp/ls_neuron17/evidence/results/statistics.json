@@ -1,0 +1,160 @@
+{
+  "arm_summaries": [
+    {
+      "arm": "multistart",
+      "certificate_acquisitions": 11,
+      "final_verdicts": {
+        "CERTIFIED": 11,
+        "POINT_VIOLATION": 13,
+        "UNRESOLVED": 0
+      },
+      "initial_verdicts": {
+        "CERTIFIED": 0,
+        "POINT_VIOLATION": 24,
+        "UNRESOLVED": 0
+      },
+      "lost_certificates": 0,
+      "n_units": 24,
+      "new_certificates": 11,
+      "new_seeds": [
+        493,
+        494,
+        498,
+        499,
+        503,
+        505,
+        506,
+        508,
+        509,
+        510,
+        513
+      ]
+    },
+    {
+      "arm": "beam",
+      "certificate_acquisitions": 11,
+      "final_verdicts": {
+        "CERTIFIED": 11,
+        "POINT_VIOLATION": 13,
+        "UNRESOLVED": 0
+      },
+      "initial_verdicts": {
+        "CERTIFIED": 0,
+        "POINT_VIOLATION": 24,
+        "UNRESOLVED": 0
+      },
+      "lost_certificates": 0,
+      "n_units": 24,
+      "new_certificates": 11,
+      "new_seeds": [
+        493,
+        494,
+        498,
+        499,
+        501,
+        503,
+        505,
+        508,
+        509,
+        513,
+        516
+      ]
+    }
+  ],
+  "certificate_sha256": "a98f533181fb37eac2cbc6dd597555d5301c2e3ff0b745a556b57c9e07ba4e79",
+  "comparison": {
+    "accuracy_intervals": {
+      "baseline": [
+        0.2555274963378906,
+        0.6717948913574219
+      ],
+      "candidate": [
+        0.2555274963378906,
+        0.6717948913574219
+      ],
+      "method": "outward_exact_Clopper_Pearson_iid_cases"
+    },
+    "alpha": 0.05,
+    "baseline_accuracy": 0.4583333333333333,
+    "baseline_correct": 11,
+    "baseline_only": 2,
+    "baseline_only_seeds": [
+      506,
+      510
+    ],
+    "candidate_accuracy": 0.4583333333333333,
+    "candidate_correct": 11,
+    "candidate_only": 2,
+    "candidate_only_seeds": [
+      501,
+      516
+    ],
+    "case_effect_exact": "0",
+    "case_weighted_effect": 0.0,
+    "cluster_bootstrap_interval": [
+      -0.16666666666666666,
+      0.16666666666666666
+    ],
+    "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+    "cluster_bootstrap_resamples": 4096,
+    "cluster_effect_exact": "0",
+    "cluster_macro_effect": 0.0,
+    "clusters_independent": true,
+    "discordant": 4,
+    "evaluation_mode": "sampled",
+    "exchangeable_pair_labels": true,
+    "experiment_id": "LS-NEURON-17-beam-vs-independent-restarts",
+    "familywise_alpha": 0.05,
+    "gate_reasons": [
+      "hypothesis_not_preregistered",
+      "readout_used_in_selection_or_unsealed",
+      "adjusted_test_not_significant",
+      "cluster_interval_crosses_effect_floor",
+      "nonasymptotic_effect_floor_bound_not_met"
+    ],
+    "hoeffding_one_sided_effect_bounds": [
+      -0.49964422955689103,
+      0.49964422955689103
+    ],
+    "hypothesis_preregistered": false,
+    "inferential_scope": "The cohort selected this ablation. Nominal test/interval computations are descriptive; exposure prevents a confirmation or population-effect claim.",
+    "inherited_planning_reference_note": "Beam11/24 was already known; the >=12count condition was known to fail before LS17. This is no new operational gate.",
+    "inherited_planning_reference_passed": false,
+    "input_filenames": [
+      "paired_outcomes.jsonl",
+      "registration.json"
+    ],
+    "min_independent_clusters": 20,
+    "minimum_effect": 0.25,
+    "n_cases": 24,
+    "n_clusters": 24,
+    "outcomes_sha256": "acf2335c3118446bb9c5c2f4b82a3e8b1fc5ac2ed431ac1ec0da54738f6df75f",
+    "p_bonferroni": 1.0,
+    "p_exact_fraction": "1",
+    "p_unadjusted": 1.0,
+    "planned_comparisons": 1,
+    "registration_sha256": "55fba0cad39c15573a5f18452f098b5962add9038250843d576c4136aaf9b8c8",
+    "resample_seed": 20261125,
+    "schema_version": 1,
+    "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+    "sealed_readout": false,
+    "study_evidence_class": "EXPOSED_DEVELOPMENT_ONLY",
+    "target_population": "Already inspected LS16 perturbation seeds493..516; descriptive algorithm-allocation comparison only",
+    "test": "exact_McNemar_independent_pairs",
+    "ties": 20,
+    "verdict": "inconclusive"
+  },
+  "direct_power_estimate": null,
+  "experiment": "LS-NEURON-17",
+  "floor_scope": "Inherited planning reference",
+  "matched_sham_floor": null,
+  "n_final_model_endpoints": 48,
+  "n_units": 24,
+  "physical_dose": 0.15,
+  "planned_and_actual_comparisons": 1,
+  "primary_contrast": "dynamic beam minus three independent greedy paths",
+  "registration_sha256": "55fba0cad39c15573a5f18452f098b5962add9038250843d576c4136aaf9b8c8",
+  "scientific_variation_floor": 0.25,
+  "study_evidence_class": "EXPOSED_DEVELOPMENT_ONLY",
+  "unit": "independently seeded initialization, already exposed in LS16"
+}
