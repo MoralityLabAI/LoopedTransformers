@@ -9,8 +9,8 @@ OLR08_CPU_gym.zip, 210361 bytes, SHA-256
 e5e4b26af9837a828b743a9479e396621fbec2d6f3e846711a02c639d53750cb, equal to the digest
 registered in [OLR_08A_CPU_HANDOFF.md](OLR_08A_CPU_HANDOFF.md). All 14 files match
 package_manifest.json and no unlisted file is present. The ZIP and its unpacked files are
-committed under [olr08/](olr08/). A `-text` attribute keeps the package's CRLF bytes, so the
-committed blobs hash to the manifest values on every checkout.
+committed under [olr08/](olr08/). A `-text` attribute stops autocrlf conversion, so the
+committed blobs and every checkout hash to the manifest values.
 
 ## Native build and sentinel
 
@@ -98,3 +98,11 @@ registry, calibration T Int.cooper_resolution_dvd_right (id 0c711bff…) and eva
 BitVec.shiftLeftZeroExtend (id 45ce790b…). No setting was changed after the smoke. The
 registered gates use the frozen registry unchanged; results are also reported without these two
 roots.
+
+## Infrastructure repair before the rerun
+
+The first full run (C:\olr08ull) stopped in source_s2 when two credited `exact?` paths failed
+fresh replay. The cause is Lean's process-wide library-search cache, not the proofs. The repair
+and its verification are in [olr08/REPAIRS.md](olr08/REPAIRS.md). The campaign is rerun from
+scratch under the repaired code in C:\olr08ull2. Its registry must refreeze identical to
+d61bf979… before outcome collection continues.

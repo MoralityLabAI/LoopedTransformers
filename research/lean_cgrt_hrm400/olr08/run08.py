@@ -12,6 +12,7 @@ from search08 import actions,reprice,FREE,RANKED
 HOME=Path(__file__).resolve().parent
 SCOPE='pre_command_session_v1'; COMMIT='6caaee842e9495688c1567e78c0e68dbb96942aa'
 SEED=20270129; STEP_CAP=300; RPC_CAP=1200; HB_CAP=512_000_000; DEPTH=3
+REPLAY_WARM_HB=20000
 # New files, no SInt. Calibration and fresh evaluation use distinct files;
 # their families were held out from the reused referee TRAIN cohort.
 FRESH={ 'calibration':{'Int':['Cooper','OfNat'],'Array':['BinSearch','FinRange'],'Fin':['Iterate']},
@@ -232,17 +233,23 @@ def replay(exe,source,row,path,prior=None,frames=False):
     with Lean(exe) as L:
         s,why,opening=open_root(L,source,row)
         if s is None:raise ValueError('fresh replay root missing '+str(why))
-        m=Meter(L,steps=DEPTH+1,rpcs=100,hb=HB_CAP);data=[]
+        m=Meter(L,steps=DEPTH+1,rpcs=100,hb=HB_CAP);data=[];warm=[]
         for d,tac in enumerate(path):
             if frames:
                 acts=enumerate_menu(m,s);priced=reprice(acts,prior,d)
                 if tac not in [x[-1] for x in acts]:raise ValueError('replay action missing from enumerator')
                 p=get_packet(m,s,acts,d,priced)
                 if p is not None:data.append((p,[x[-1] for x in acts].index(tac)))
+            if tac=='exact?':
+                # Infrastructure repair: exact? builds Lean's library-search index as a process-wide cache,
+                # paid in search by earlier charged attempts. Warm it on this state, uncharged and recorded,
+                # so the replayed step runs under the same 500 cap it met in search.
+                w=L.request(op='step',sid=s['sid'],tactic=tac,hb=REPLAY_WARM_HB)
+                warm.append({'depth':d,'ok':w.get('ok'),'hb_raw':w.get('request_hb_raw'),'server_ms':w.get('request_ms')})
             s=m.call('step',sid=s['sid'],tactic=tac,hb=500 if tac=='exact?' else 200)
             if s.get('ok') is not True:raise ValueError('fresh native path replay failed')
         if s.get('ngoals')!=0 or not close_cert(m.call('cert',sid=s['sid']).get('cert',{})):raise ValueError('fresh native certification failed')
-        return data,{'open':opening,'meter':m.report()}
+        return data,{'open':opening,'meter':m.report(),'library_search_warmup':warm}
 
 def search(exe,source,row,arm,prior=None,model=None,alpha=0.,limit=STEP_CAP):
     start=time.perf_counter()

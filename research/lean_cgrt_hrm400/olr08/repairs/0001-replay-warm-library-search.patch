@@ -1,0 +1,17 @@
+14a15
+> REPLAY_WARM_HB=20000
+235c236
+<         m=Meter(L,steps=DEPTH+1,rpcs=100,hb=HB_CAP);data=[]
+---
+>         m=Meter(L,steps=DEPTH+1,rpcs=100,hb=HB_CAP);data=[];warm=[]
+241a243,248
+>             if tac=='exact?':
+>                 # Infrastructure repair: exact? builds Lean's library-search index as a process-wide cache,
+>                 # paid in search by earlier charged attempts. Warm it on this state, uncharged and recorded,
+>                 # so the replayed step runs under the same 500 cap it met in search.
+>                 w=L.request(op='step',sid=s['sid'],tactic=tac,hb=REPLAY_WARM_HB)
+>                 warm.append({'depth':d,'ok':w.get('ok'),'hb_raw':w.get('request_hb_raw'),'server_ms':w.get('request_ms')})
+245c252
+<         return data,{'open':opening,'meter':m.report()}
+---
+>         return data,{'open':opening,'meter':m.report(),'library_search_warmup':warm}

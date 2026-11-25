@@ -1,0 +1,54 @@
+[
+ {
+  "id": "923d86a154547a2fde937503b4d1055993517a1306aee5e1c8af1a1b31cf4ae0",
+  "decl": "List.pairwise_of_forall_mem_list",
+  "replay_ok": false,
+  "replay_error": "fresh native path replay failed",
+  "steps": [
+   {
+    "tactic": "rw [List.Pairwise.imp_mem]",
+    "ok": true,
+    "ngoals": 1,
+    "error": null,
+    "hb": 44,
+    "request_hb_raw": 44925,
+    "ms": 43
+   },
+   {
+    "tactic": "exact?",
+    "ok": false,
+    "ngoals": null,
+    "error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (500) has been reached\nUse `set_option maxHeartbeats <num>` to set the limit.(invalid MessageData.lazy, missing context)",
+    "hb": 500,
+    "request_hb_raw": 500418,
+    "ms": 690
+   }
+  ]
+ },
+ {
+  "id": "0dd0a080a42e66ee3d9cab4b60bbac886f0f6248437dfba323a14adb1a8066c5",
+  "decl": "List.findIdx?_flatten",
+  "replay_ok": false,
+  "replay_error": "fresh native path replay failed",
+  "steps": [
+   {
+    "tactic": "simp [Option.map]",
+    "ok": true,
+    "ngoals": 1,
+    "error": null,
+    "hb": 224,
+    "request_hb_raw": 224807,
+    "ms": 50
+   },
+   {
+    "tactic": "exact?",
+    "ok": false,
+    "ngoals": null,
+    "error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (500) has been reached\nUse `set_option maxHeartbeats <num>` to set the limit.(invalid MessageData.lazy, missing context)",
+    "hb": 508,
+    "request_hb_raw": 508193,
+    "ms": 1176
+   }
+  ]
+ }
+]

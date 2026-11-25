@@ -1,0 +1,172 @@
+[
+ {
+  "id": "0dd0a080a42e66ee3d9cab4b60bbac886f0f6248437dfba323a14adb1a8066c5",
+  "decl": "List.findIdx?_flatten",
+  "path": [
+   "simp [Option.map]",
+   "exact?"
+  ],
+  "cold": {
+   "ok": false,
+   "failed_at": "exact?",
+   "hb": [
+    224807,
+    508193
+   ],
+   "warm": null
+  },
+  "warm": {
+   "ok": true,
+   "hb": [
+    224775,
+    253825
+   ],
+   "warm": {
+    "ok": false,
+    "hb_raw": 1063986,
+    "ms": 1372
+   }
+  }
+ },
+ {
+  "id": "923d86a154547a2fde937503b4d1055993517a1306aee5e1c8af1a1b31cf4ae0",
+  "decl": "List.pairwise_of_forall_mem_list",
+  "path": [
+   "rw [List.Pairwise.imp_mem]",
+   "exact?"
+  ],
+  "cold": {
+   "ok": false,
+   "failed_at": "exact?",
+   "hb": [
+    44925,
+    500418
+   ],
+   "warm": null
+  },
+  "warm": {
+   "ok": true,
+   "hb": [
+    44924,
+    442354
+   ],
+   "warm": {
+    "ok": false,
+    "hb_raw": 1135880,
+    "ms": 397
+   }
+  }
+ },
+ {
+  "id": "17bbe7e7efda2acc968c168185c2cf3d55dc9c686387f1b88b4ca5ba37a4cbd1",
+  "decl": "List.Perm.flatten",
+  "path": [
+   "simp_all",
+   "exact?"
+  ],
+  "cold": {
+   "ok": true,
+   "hb": [
+    106185,
+    356538
+   ],
+   "warm": null
+  },
+  "warm": {
+   "ok": true,
+   "hb": [
+    106174,
+    115127
+   ],
+   "warm": {
+    "ok": false,
+    "hb_raw": 782050,
+    "ms": 772
+   }
+  }
+ },
+ {
+  "id": "59102e33e3f671755531a52d4abc226c1a78bf5c13b8b6ec367289ce4445e7b1",
+  "decl": "List.takeWhile_replicate",
+  "path": [
+   "simp_all",
+   "exact?"
+  ],
+  "cold": {
+   "ok": true,
+   "hb": [
+    136448,
+    351833
+   ],
+   "warm": null
+  },
+  "warm": {
+   "ok": true,
+   "hb": [
+    136433,
+    115938
+   ],
+   "warm": {
+    "ok": false,
+    "hb_raw": 4386477,
+    "ms": 1349
+   }
+  }
+ },
+ {
+  "id": "71e43b44ce48db20d863a9fd02427024db23f902c29bcb3b83d260c8b552fef9",
+  "decl": "Nat.dvd_eq_true_of_mod_eq_zero",
+  "path": [
+   "simp_all",
+   "exact?"
+  ],
+  "cold": {
+   "ok": true,
+   "hb": [
+    63027,
+    115494
+   ],
+   "warm": null
+  },
+  "warm": {
+   "ok": true,
+   "hb": [
+    63007,
+    50631
+   ],
+   "warm": {
+    "ok": false,
+    "hb_raw": 463815,
+    "ms": 237
+   }
+  }
+ },
+ {
+  "id": "9cc807a210abdb0332aa9579acd289541c81fbb4fed0c3a3d700af44d061646b",
+  "decl": "Nat.div_mul_cancel",
+  "path": [
+   "simp [Nat.mul_comm]",
+   "exact?"
+  ],
+  "cold": {
+   "ok": true,
+   "hb": [
+    32990,
+    169227
+   ],
+   "warm": null
+  },
+  "warm": {
+   "ok": true,
+   "hb": [
+    33006,
+    57767
+   ],
+   "warm": {
+    "ok": false,
+    "hb_raw": 1400573,
+    "ms": 669
+   }
+  }
+ }
+]
