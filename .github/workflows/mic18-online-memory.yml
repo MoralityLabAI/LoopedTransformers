@@ -1,0 +1,24 @@
+name: MIC18 exact recurrent memory
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'mechinterp/mic18_online_memory/**'
+      - '.github/workflows/mic18-online-memory.yml'
+  push:
+    paths:
+      - 'mechinterp/mic18_online_memory/**'
+      - '.github/workflows/mic18-online-memory.yml'
+permissions:
+  contents: read
+jobs:
+  exact-cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s mechinterp/mic18_online_memory/tests -v
+      - run: python mechinterp/mic18_online_memory/run.py --check

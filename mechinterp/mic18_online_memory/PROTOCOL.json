@@ -1,0 +1,31 @@
+{
+  "schema": "MIC-18/neural-register-protocol/v1",
+  "evidence_class": "exact finite domain",
+  "frozen_before_main_execution": true,
+  "widths": [1, 2, 3, 4, 5, 6, 7, 8],
+  "observations": "J binary facts streamed MSB first; one bit per update",
+  "query_timing": "coordinate query supplied after the state is committed",
+  "decoder_inputs": ["committed dynamic state", "public query index"],
+  "public_update_inputs": ["incoming bit", "phase encoded by a one-hot write gate"],
+  "arithmetic": "exact Python integers and ReLU",
+  "architectures": ["register", "padded parity", "padded last bit", "compact one-bit parity"],
+  "primary_checks": {
+    "all_state_transitions": "every binary state, every phase and both incoming bits",
+    "all_readouts": "every binary state and every coordinate query",
+    "complete_words": "every binary word with every delayed query",
+    "parity_control": "every binary word at both compact and padded state budgets",
+    "finite_controller_bridge": "same neural update/readout compiled into the pinned MIC-18 evaluator"
+  },
+  "matched_budget_contrast": "J coordinates, 2J update ReLUs, J readout ReLUs, identical dense matrix shapes and J updates for register/parity/last-bit query arms",
+  "compact_parity_comparison": "separately charged one-bit state; 2 update ReLUs per observation",
+  "candidate_selection": "fixed constructive weights; zero optimizer updates",
+  "training_models": 0,
+  "independent_trained_roots": 0,
+  "statistical_population": null,
+  "population_inference": "blocked: complete deterministic finite census supplies no trained-model pilot or independent sham roots",
+  "source_results": {
+    "LS12": "75aeb9ae914636a4d70b576e331fbfb72c0daf7d",
+    "scope": "state count supplies an information requirement; this construction supplies one physical realization with explicit work and storage"
+  },
+  "failure_policy": "any matrix mismatch, illegal state, receipt mismatch or source-lock mismatch fails the command"
+}

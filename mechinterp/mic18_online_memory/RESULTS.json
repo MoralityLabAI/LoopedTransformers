@@ -1,0 +1,1377 @@
+{
+  "arithmetic_scope": "exact integer matrices over enumerated binary states",
+  "by_width": [
+    {
+      "distinct_future_query_signatures": 2,
+      "parity": {
+        "compact_dynamic_bits": 1,
+        "compact_episode_relu_evaluations": 3,
+        "compact_update_relu_evaluations": 2,
+        "correct": 2,
+        "padded_resources": {
+          "allocated_binary_state_bits": 1,
+          "codebook_lookup_entries": 0,
+          "episode_dense_products": 11,
+          "episode_relu_evaluations": 3,
+          "one_query": {
+            "dense_coefficient_slots": 5,
+            "dense_products": 3,
+            "max_abs_coefficient": 1,
+            "nonzero_coefficients": 2,
+            "relu_evaluations": 1
+          },
+          "public_phase_bits_if_stored": 1,
+          "public_phase_categories": 2,
+          "public_query_gate_coordinates": 1,
+          "public_write_gate_coordinates": 1,
+          "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+          "terminal_reachable_states": 2,
+          "update": {
+            "dense_coefficient_slots": 11,
+            "dense_products": 8,
+            "max_abs_coefficient": 2,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 2
+          },
+          "updates_per_word": 1
+        },
+        "total": 2
+      },
+      "query_modes": {
+        "last_bit": {
+          "correct": 2,
+          "fraction": "1",
+          "matrix_readout_checks": 2,
+          "matrix_transition_checks": 4,
+          "reachable_state_counts": [
+            1,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 1,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 11,
+            "episode_relu_evaluations": 3,
+            "one_query": {
+              "dense_coefficient_slots": 5,
+              "dense_products": 3,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 4,
+              "relu_evaluations": 1
+            },
+            "public_phase_bits_if_stored": 1,
+            "public_phase_categories": 2,
+            "public_query_gate_coordinates": 1,
+            "public_write_gate_coordinates": 1,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 11,
+              "dense_products": 8,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 2
+            },
+            "updates_per_word": 1
+          },
+          "total": 2
+        },
+        "parity": {
+          "correct": 2,
+          "fraction": "1",
+          "matrix_readout_checks": 2,
+          "matrix_transition_checks": 4,
+          "reachable_state_counts": [
+            1,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 1,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 11,
+            "episode_relu_evaluations": 3,
+            "one_query": {
+              "dense_coefficient_slots": 5,
+              "dense_products": 3,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 1
+            },
+            "public_phase_bits_if_stored": 1,
+            "public_phase_categories": 2,
+            "public_query_gate_coordinates": 1,
+            "public_write_gate_coordinates": 1,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 11,
+              "dense_products": 8,
+              "max_abs_coefficient": 2,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 2
+            },
+            "updates_per_word": 1
+          },
+          "total": 2
+        },
+        "register": {
+          "correct": 2,
+          "fraction": "1",
+          "matrix_readout_checks": 2,
+          "matrix_transition_checks": 4,
+          "reachable_state_counts": [
+            1,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 1,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 11,
+            "episode_relu_evaluations": 3,
+            "one_query": {
+              "dense_coefficient_slots": 5,
+              "dense_products": 3,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 4,
+              "relu_evaluations": 1
+            },
+            "public_phase_bits_if_stored": 1,
+            "public_phase_categories": 2,
+            "public_query_gate_coordinates": 1,
+            "public_write_gate_coordinates": 1,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 11,
+              "dense_products": 8,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 2
+            },
+            "updates_per_word": 1
+          },
+          "total": 2
+        }
+      },
+      "width": 1,
+      "zero_error_query_bit_lower_bound": 1,
+      "zero_error_query_state_lower_bound": 2
+    },
+    {
+      "distinct_future_query_signatures": 4,
+      "parity": {
+        "compact_dynamic_bits": 1,
+        "compact_episode_relu_evaluations": 5,
+        "compact_update_relu_evaluations": 2,
+        "correct": 4,
+        "padded_resources": {
+          "allocated_binary_state_bits": 2,
+          "codebook_lookup_entries": 0,
+          "episode_dense_products": 66,
+          "episode_relu_evaluations": 10,
+          "one_query": {
+            "dense_coefficient_slots": 13,
+            "dense_products": 10,
+            "max_abs_coefficient": 1,
+            "nonzero_coefficients": 3,
+            "relu_evaluations": 2
+          },
+          "public_phase_bits_if_stored": 2,
+          "public_phase_categories": 3,
+          "public_query_gate_coordinates": 2,
+          "public_write_gate_coordinates": 2,
+          "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+          "terminal_reachable_states": 2,
+          "update": {
+            "dense_coefficient_slots": 34,
+            "dense_products": 28,
+            "max_abs_coefficient": 2,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 4
+          },
+          "updates_per_word": 2
+        },
+        "total": 4
+      },
+      "query_modes": {
+        "last_bit": {
+          "correct": 6,
+          "fraction": "3/4",
+          "matrix_readout_checks": 8,
+          "matrix_transition_checks": 16,
+          "reachable_state_counts": [
+            1,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 2,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 66,
+            "episode_relu_evaluations": 10,
+            "one_query": {
+              "dense_coefficient_slots": 13,
+              "dense_products": 10,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 5,
+              "relu_evaluations": 2
+            },
+            "public_phase_bits_if_stored": 2,
+            "public_phase_categories": 3,
+            "public_query_gate_coordinates": 2,
+            "public_write_gate_coordinates": 2,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 34,
+              "dense_products": 28,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 4
+            },
+            "updates_per_word": 2
+          },
+          "total": 8
+        },
+        "parity": {
+          "correct": 4,
+          "fraction": "1/2",
+          "matrix_readout_checks": 8,
+          "matrix_transition_checks": 16,
+          "reachable_state_counts": [
+            1,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 2,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 66,
+            "episode_relu_evaluations": 10,
+            "one_query": {
+              "dense_coefficient_slots": 13,
+              "dense_products": 10,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 2
+            },
+            "public_phase_bits_if_stored": 2,
+            "public_phase_categories": 3,
+            "public_query_gate_coordinates": 2,
+            "public_write_gate_coordinates": 2,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 34,
+              "dense_products": 28,
+              "max_abs_coefficient": 2,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 4
+            },
+            "updates_per_word": 2
+          },
+          "total": 8
+        },
+        "register": {
+          "correct": 8,
+          "fraction": "1",
+          "matrix_readout_checks": 8,
+          "matrix_transition_checks": 16,
+          "reachable_state_counts": [
+            1,
+            2,
+            4
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 2,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 66,
+            "episode_relu_evaluations": 10,
+            "one_query": {
+              "dense_coefficient_slots": 13,
+              "dense_products": 10,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 8,
+              "relu_evaluations": 2
+            },
+            "public_phase_bits_if_stored": 2,
+            "public_phase_categories": 3,
+            "public_query_gate_coordinates": 2,
+            "public_write_gate_coordinates": 2,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 4,
+            "update": {
+              "dense_coefficient_slots": 34,
+              "dense_products": 28,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 14,
+              "relu_evaluations": 4
+            },
+            "updates_per_word": 2
+          },
+          "total": 8
+        }
+      },
+      "width": 2,
+      "zero_error_query_bit_lower_bound": 2,
+      "zero_error_query_state_lower_bound": 4
+    },
+    {
+      "distinct_future_query_signatures": 8,
+      "parity": {
+        "compact_dynamic_bits": 1,
+        "compact_episode_relu_evaluations": 7,
+        "compact_update_relu_evaluations": 2,
+        "correct": 8,
+        "padded_resources": {
+          "allocated_binary_state_bits": 3,
+          "codebook_lookup_entries": 0,
+          "episode_dense_products": 201,
+          "episode_relu_evaluations": 21,
+          "one_query": {
+            "dense_coefficient_slots": 25,
+            "dense_products": 21,
+            "max_abs_coefficient": 1,
+            "nonzero_coefficients": 4,
+            "relu_evaluations": 3
+          },
+          "public_phase_bits_if_stored": 2,
+          "public_phase_categories": 4,
+          "public_query_gate_coordinates": 3,
+          "public_write_gate_coordinates": 3,
+          "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+          "terminal_reachable_states": 2,
+          "update": {
+            "dense_coefficient_slots": 69,
+            "dense_products": 60,
+            "max_abs_coefficient": 2,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 6
+          },
+          "updates_per_word": 3
+        },
+        "total": 8
+      },
+      "query_modes": {
+        "last_bit": {
+          "correct": 16,
+          "fraction": "2/3",
+          "matrix_readout_checks": 24,
+          "matrix_transition_checks": 48,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 3,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 201,
+            "episode_relu_evaluations": 21,
+            "one_query": {
+              "dense_coefficient_slots": 25,
+              "dense_products": 21,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 6,
+              "relu_evaluations": 3
+            },
+            "public_phase_bits_if_stored": 2,
+            "public_phase_categories": 4,
+            "public_query_gate_coordinates": 3,
+            "public_write_gate_coordinates": 3,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 69,
+              "dense_products": 60,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 6
+            },
+            "updates_per_word": 3
+          },
+          "total": 24
+        },
+        "parity": {
+          "correct": 12,
+          "fraction": "1/2",
+          "matrix_readout_checks": 24,
+          "matrix_transition_checks": 48,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 3,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 201,
+            "episode_relu_evaluations": 21,
+            "one_query": {
+              "dense_coefficient_slots": 25,
+              "dense_products": 21,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 3,
+              "relu_evaluations": 3
+            },
+            "public_phase_bits_if_stored": 2,
+            "public_phase_categories": 4,
+            "public_query_gate_coordinates": 3,
+            "public_write_gate_coordinates": 3,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 69,
+              "dense_products": 60,
+              "max_abs_coefficient": 2,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 6
+            },
+            "updates_per_word": 3
+          },
+          "total": 24
+        },
+        "register": {
+          "correct": 24,
+          "fraction": "1",
+          "matrix_readout_checks": 24,
+          "matrix_transition_checks": 48,
+          "reachable_state_counts": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 3,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 201,
+            "episode_relu_evaluations": 21,
+            "one_query": {
+              "dense_coefficient_slots": 25,
+              "dense_products": 21,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 12,
+              "relu_evaluations": 3
+            },
+            "public_phase_bits_if_stored": 2,
+            "public_phase_categories": 4,
+            "public_query_gate_coordinates": 3,
+            "public_write_gate_coordinates": 3,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 8,
+            "update": {
+              "dense_coefficient_slots": 69,
+              "dense_products": 60,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 21,
+              "relu_evaluations": 6
+            },
+            "updates_per_word": 3
+          },
+          "total": 24
+        }
+      },
+      "width": 3,
+      "zero_error_query_bit_lower_bound": 3,
+      "zero_error_query_state_lower_bound": 8
+    },
+    {
+      "distinct_future_query_signatures": 16,
+      "parity": {
+        "compact_dynamic_bits": 1,
+        "compact_episode_relu_evaluations": 9,
+        "compact_update_relu_evaluations": 2,
+        "correct": 16,
+        "padded_resources": {
+          "allocated_binary_state_bits": 4,
+          "codebook_lookup_entries": 0,
+          "episode_dense_products": 452,
+          "episode_relu_evaluations": 36,
+          "one_query": {
+            "dense_coefficient_slots": 41,
+            "dense_products": 36,
+            "max_abs_coefficient": 1,
+            "nonzero_coefficients": 5,
+            "relu_evaluations": 4
+          },
+          "public_phase_bits_if_stored": 3,
+          "public_phase_categories": 5,
+          "public_query_gate_coordinates": 4,
+          "public_write_gate_coordinates": 4,
+          "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+          "terminal_reachable_states": 2,
+          "update": {
+            "dense_coefficient_slots": 116,
+            "dense_products": 104,
+            "max_abs_coefficient": 2,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 8
+          },
+          "updates_per_word": 4
+        },
+        "total": 16
+      },
+      "query_modes": {
+        "last_bit": {
+          "correct": 40,
+          "fraction": "5/8",
+          "matrix_readout_checks": 64,
+          "matrix_transition_checks": 128,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 4,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 452,
+            "episode_relu_evaluations": 36,
+            "one_query": {
+              "dense_coefficient_slots": 41,
+              "dense_products": 36,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 4
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 5,
+            "public_query_gate_coordinates": 4,
+            "public_write_gate_coordinates": 4,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 116,
+              "dense_products": 104,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 8
+            },
+            "updates_per_word": 4
+          },
+          "total": 64
+        },
+        "parity": {
+          "correct": 32,
+          "fraction": "1/2",
+          "matrix_readout_checks": 64,
+          "matrix_transition_checks": 128,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 4,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 452,
+            "episode_relu_evaluations": 36,
+            "one_query": {
+              "dense_coefficient_slots": 41,
+              "dense_products": 36,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 4,
+              "relu_evaluations": 4
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 5,
+            "public_query_gate_coordinates": 4,
+            "public_write_gate_coordinates": 4,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 116,
+              "dense_products": 104,
+              "max_abs_coefficient": 2,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 8
+            },
+            "updates_per_word": 4
+          },
+          "total": 64
+        },
+        "register": {
+          "correct": 64,
+          "fraction": "1",
+          "matrix_readout_checks": 64,
+          "matrix_transition_checks": 128,
+          "reachable_state_counts": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 4,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 452,
+            "episode_relu_evaluations": 36,
+            "one_query": {
+              "dense_coefficient_slots": 41,
+              "dense_products": 36,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 16,
+              "relu_evaluations": 4
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 5,
+            "public_query_gate_coordinates": 4,
+            "public_write_gate_coordinates": 4,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 16,
+            "update": {
+              "dense_coefficient_slots": 116,
+              "dense_products": 104,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 28,
+              "relu_evaluations": 8
+            },
+            "updates_per_word": 4
+          },
+          "total": 64
+        }
+      },
+      "width": 4,
+      "zero_error_query_bit_lower_bound": 4,
+      "zero_error_query_state_lower_bound": 16
+    },
+    {
+      "distinct_future_query_signatures": 32,
+      "parity": {
+        "compact_dynamic_bits": 1,
+        "compact_episode_relu_evaluations": 11,
+        "compact_update_relu_evaluations": 2,
+        "correct": 32,
+        "padded_resources": {
+          "allocated_binary_state_bits": 5,
+          "codebook_lookup_entries": 0,
+          "episode_dense_products": 855,
+          "episode_relu_evaluations": 55,
+          "one_query": {
+            "dense_coefficient_slots": 61,
+            "dense_products": 55,
+            "max_abs_coefficient": 1,
+            "nonzero_coefficients": 6,
+            "relu_evaluations": 5
+          },
+          "public_phase_bits_if_stored": 3,
+          "public_phase_categories": 6,
+          "public_query_gate_coordinates": 5,
+          "public_write_gate_coordinates": 5,
+          "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+          "terminal_reachable_states": 2,
+          "update": {
+            "dense_coefficient_slots": 175,
+            "dense_products": 160,
+            "max_abs_coefficient": 2,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 10
+          },
+          "updates_per_word": 5
+        },
+        "total": 32
+      },
+      "query_modes": {
+        "last_bit": {
+          "correct": 96,
+          "fraction": "3/5",
+          "matrix_readout_checks": 160,
+          "matrix_transition_checks": 320,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 5,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 855,
+            "episode_relu_evaluations": 55,
+            "one_query": {
+              "dense_coefficient_slots": 61,
+              "dense_products": 55,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 8,
+              "relu_evaluations": 5
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 6,
+            "public_query_gate_coordinates": 5,
+            "public_write_gate_coordinates": 5,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 175,
+              "dense_products": 160,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 10
+            },
+            "updates_per_word": 5
+          },
+          "total": 160
+        },
+        "parity": {
+          "correct": 80,
+          "fraction": "1/2",
+          "matrix_readout_checks": 160,
+          "matrix_transition_checks": 320,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 5,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 855,
+            "episode_relu_evaluations": 55,
+            "one_query": {
+              "dense_coefficient_slots": 61,
+              "dense_products": 55,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 5,
+              "relu_evaluations": 5
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 6,
+            "public_query_gate_coordinates": 5,
+            "public_write_gate_coordinates": 5,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 175,
+              "dense_products": 160,
+              "max_abs_coefficient": 2,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 10
+            },
+            "updates_per_word": 5
+          },
+          "total": 160
+        },
+        "register": {
+          "correct": 160,
+          "fraction": "1",
+          "matrix_readout_checks": 160,
+          "matrix_transition_checks": 320,
+          "reachable_state_counts": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            32
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 5,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 855,
+            "episode_relu_evaluations": 55,
+            "one_query": {
+              "dense_coefficient_slots": 61,
+              "dense_products": 55,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 20,
+              "relu_evaluations": 5
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 6,
+            "public_query_gate_coordinates": 5,
+            "public_write_gate_coordinates": 5,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 32,
+            "update": {
+              "dense_coefficient_slots": 175,
+              "dense_products": 160,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 35,
+              "relu_evaluations": 10
+            },
+            "updates_per_word": 5
+          },
+          "total": 160
+        }
+      },
+      "width": 5,
+      "zero_error_query_bit_lower_bound": 5,
+      "zero_error_query_state_lower_bound": 32
+    },
+    {
+      "distinct_future_query_signatures": 64,
+      "parity": {
+        "compact_dynamic_bits": 1,
+        "compact_episode_relu_evaluations": 13,
+        "compact_update_relu_evaluations": 2,
+        "correct": 64,
+        "padded_resources": {
+          "allocated_binary_state_bits": 6,
+          "codebook_lookup_entries": 0,
+          "episode_dense_products": 1446,
+          "episode_relu_evaluations": 78,
+          "one_query": {
+            "dense_coefficient_slots": 85,
+            "dense_products": 78,
+            "max_abs_coefficient": 1,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 6
+          },
+          "public_phase_bits_if_stored": 3,
+          "public_phase_categories": 7,
+          "public_query_gate_coordinates": 6,
+          "public_write_gate_coordinates": 6,
+          "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+          "terminal_reachable_states": 2,
+          "update": {
+            "dense_coefficient_slots": 246,
+            "dense_products": 228,
+            "max_abs_coefficient": 2,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 12
+          },
+          "updates_per_word": 6
+        },
+        "total": 64
+      },
+      "query_modes": {
+        "last_bit": {
+          "correct": 224,
+          "fraction": "7/12",
+          "matrix_readout_checks": 384,
+          "matrix_transition_checks": 768,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 6,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 1446,
+            "episode_relu_evaluations": 78,
+            "one_query": {
+              "dense_coefficient_slots": 85,
+              "dense_products": 78,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 9,
+              "relu_evaluations": 6
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 7,
+            "public_query_gate_coordinates": 6,
+            "public_write_gate_coordinates": 6,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 246,
+              "dense_products": 228,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 12
+            },
+            "updates_per_word": 6
+          },
+          "total": 384
+        },
+        "parity": {
+          "correct": 192,
+          "fraction": "1/2",
+          "matrix_readout_checks": 384,
+          "matrix_transition_checks": 768,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 6,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 1446,
+            "episode_relu_evaluations": 78,
+            "one_query": {
+              "dense_coefficient_slots": 85,
+              "dense_products": 78,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 6,
+              "relu_evaluations": 6
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 7,
+            "public_query_gate_coordinates": 6,
+            "public_write_gate_coordinates": 6,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 246,
+              "dense_products": 228,
+              "max_abs_coefficient": 2,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 12
+            },
+            "updates_per_word": 6
+          },
+          "total": 384
+        },
+        "register": {
+          "correct": 384,
+          "fraction": "1",
+          "matrix_readout_checks": 384,
+          "matrix_transition_checks": 768,
+          "reachable_state_counts": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 6,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 1446,
+            "episode_relu_evaluations": 78,
+            "one_query": {
+              "dense_coefficient_slots": 85,
+              "dense_products": 78,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 24,
+              "relu_evaluations": 6
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 7,
+            "public_query_gate_coordinates": 6,
+            "public_write_gate_coordinates": 6,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 64,
+            "update": {
+              "dense_coefficient_slots": 246,
+              "dense_products": 228,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 42,
+              "relu_evaluations": 12
+            },
+            "updates_per_word": 6
+          },
+          "total": 384
+        }
+      },
+      "width": 6,
+      "zero_error_query_bit_lower_bound": 6,
+      "zero_error_query_state_lower_bound": 64
+    },
+    {
+      "distinct_future_query_signatures": 128,
+      "parity": {
+        "compact_dynamic_bits": 1,
+        "compact_episode_relu_evaluations": 15,
+        "compact_update_relu_evaluations": 2,
+        "correct": 128,
+        "padded_resources": {
+          "allocated_binary_state_bits": 7,
+          "codebook_lookup_entries": 0,
+          "episode_dense_products": 2261,
+          "episode_relu_evaluations": 105,
+          "one_query": {
+            "dense_coefficient_slots": 113,
+            "dense_products": 105,
+            "max_abs_coefficient": 1,
+            "nonzero_coefficients": 8,
+            "relu_evaluations": 7
+          },
+          "public_phase_bits_if_stored": 3,
+          "public_phase_categories": 8,
+          "public_query_gate_coordinates": 7,
+          "public_write_gate_coordinates": 7,
+          "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+          "terminal_reachable_states": 2,
+          "update": {
+            "dense_coefficient_slots": 329,
+            "dense_products": 308,
+            "max_abs_coefficient": 2,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 14
+          },
+          "updates_per_word": 7
+        },
+        "total": 128
+      },
+      "query_modes": {
+        "last_bit": {
+          "correct": 512,
+          "fraction": "4/7",
+          "matrix_readout_checks": 896,
+          "matrix_transition_checks": 1792,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 7,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 2261,
+            "episode_relu_evaluations": 105,
+            "one_query": {
+              "dense_coefficient_slots": 113,
+              "dense_products": 105,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 10,
+              "relu_evaluations": 7
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 8,
+            "public_query_gate_coordinates": 7,
+            "public_write_gate_coordinates": 7,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 329,
+              "dense_products": 308,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 14
+            },
+            "updates_per_word": 7
+          },
+          "total": 896
+        },
+        "parity": {
+          "correct": 448,
+          "fraction": "1/2",
+          "matrix_readout_checks": 896,
+          "matrix_transition_checks": 1792,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 7,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 2261,
+            "episode_relu_evaluations": 105,
+            "one_query": {
+              "dense_coefficient_slots": 113,
+              "dense_products": 105,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 7
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 8,
+            "public_query_gate_coordinates": 7,
+            "public_write_gate_coordinates": 7,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 329,
+              "dense_products": 308,
+              "max_abs_coefficient": 2,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 14
+            },
+            "updates_per_word": 7
+          },
+          "total": 896
+        },
+        "register": {
+          "correct": 896,
+          "fraction": "1",
+          "matrix_readout_checks": 896,
+          "matrix_transition_checks": 1792,
+          "reachable_state_counts": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 7,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 2261,
+            "episode_relu_evaluations": 105,
+            "one_query": {
+              "dense_coefficient_slots": 113,
+              "dense_products": 105,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 28,
+              "relu_evaluations": 7
+            },
+            "public_phase_bits_if_stored": 3,
+            "public_phase_categories": 8,
+            "public_query_gate_coordinates": 7,
+            "public_write_gate_coordinates": 7,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 128,
+            "update": {
+              "dense_coefficient_slots": 329,
+              "dense_products": 308,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 49,
+              "relu_evaluations": 14
+            },
+            "updates_per_word": 7
+          },
+          "total": 896
+        }
+      },
+      "width": 7,
+      "zero_error_query_bit_lower_bound": 7,
+      "zero_error_query_state_lower_bound": 128
+    },
+    {
+      "distinct_future_query_signatures": 256,
+      "parity": {
+        "compact_dynamic_bits": 1,
+        "compact_episode_relu_evaluations": 17,
+        "compact_update_relu_evaluations": 2,
+        "correct": 256,
+        "padded_resources": {
+          "allocated_binary_state_bits": 8,
+          "codebook_lookup_entries": 0,
+          "episode_dense_products": 3336,
+          "episode_relu_evaluations": 136,
+          "one_query": {
+            "dense_coefficient_slots": 145,
+            "dense_products": 136,
+            "max_abs_coefficient": 1,
+            "nonzero_coefficients": 9,
+            "relu_evaluations": 8
+          },
+          "public_phase_bits_if_stored": 4,
+          "public_phase_categories": 9,
+          "public_query_gate_coordinates": 8,
+          "public_write_gate_coordinates": 8,
+          "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+          "terminal_reachable_states": 2,
+          "update": {
+            "dense_coefficient_slots": 424,
+            "dense_products": 400,
+            "max_abs_coefficient": 2,
+            "nonzero_coefficients": 7,
+            "relu_evaluations": 16
+          },
+          "updates_per_word": 8
+        },
+        "total": 256
+      },
+      "query_modes": {
+        "last_bit": {
+          "correct": 1152,
+          "fraction": "9/16",
+          "matrix_readout_checks": 2048,
+          "matrix_transition_checks": 4096,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 8,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 3336,
+            "episode_relu_evaluations": 136,
+            "one_query": {
+              "dense_coefficient_slots": 145,
+              "dense_products": 136,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 11,
+              "relu_evaluations": 8
+            },
+            "public_phase_bits_if_stored": 4,
+            "public_phase_categories": 9,
+            "public_query_gate_coordinates": 8,
+            "public_write_gate_coordinates": 8,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 424,
+              "dense_products": 400,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 2,
+              "relu_evaluations": 16
+            },
+            "updates_per_word": 8
+          },
+          "total": 2048
+        },
+        "parity": {
+          "correct": 1024,
+          "fraction": "1/2",
+          "matrix_readout_checks": 2048,
+          "matrix_transition_checks": 4096,
+          "reachable_state_counts": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 8,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 3336,
+            "episode_relu_evaluations": 136,
+            "one_query": {
+              "dense_coefficient_slots": 145,
+              "dense_products": 136,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 8,
+              "relu_evaluations": 8
+            },
+            "public_phase_bits_if_stored": 4,
+            "public_phase_categories": 9,
+            "public_query_gate_coordinates": 8,
+            "public_write_gate_coordinates": 8,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 2,
+            "update": {
+              "dense_coefficient_slots": 424,
+              "dense_products": 400,
+              "max_abs_coefficient": 2,
+              "nonzero_coefficients": 7,
+              "relu_evaluations": 16
+            },
+            "updates_per_word": 8
+          },
+          "total": 2048
+        },
+        "register": {
+          "correct": 2048,
+          "fraction": "1",
+          "matrix_readout_checks": 2048,
+          "matrix_transition_checks": 4096,
+          "reachable_state_counts": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256
+          ],
+          "resources": {
+            "allocated_binary_state_bits": 8,
+            "codebook_lookup_entries": 0,
+            "episode_dense_products": 3336,
+            "episode_relu_evaluations": 136,
+            "one_query": {
+              "dense_coefficient_slots": 145,
+              "dense_products": 136,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 32,
+              "relu_evaluations": 8
+            },
+            "public_phase_bits_if_stored": 4,
+            "public_phase_categories": 9,
+            "public_query_gate_coordinates": 8,
+            "public_write_gate_coordinates": 8,
+            "state_storage_unit": "logical binary coordinates; Python object overhead unmeasured",
+            "terminal_reachable_states": 256,
+            "update": {
+              "dense_coefficient_slots": 424,
+              "dense_products": 400,
+              "max_abs_coefficient": 1,
+              "nonzero_coefficients": 56,
+              "relu_evaluations": 16
+            },
+            "updates_per_word": 8
+          },
+          "total": 2048
+        }
+      },
+      "width": 8,
+      "zero_error_query_bit_lower_bound": 8,
+      "zero_error_query_state_lower_bound": 256
+    }
+  ],
+  "counts": {
+    "finite_controller_replays": 32,
+    "matrix_readout_checks": 10758,
+    "matrix_transition_checks": 21516,
+    "parity_words": 510,
+    "query_scores": 10758
+  },
+  "evidence_class": "exact finite domain",
+  "population_gate": "NO_TRAINED_ROOTS_OR_SHAM_CALIBRATION",
+  "provenance": {
+    "COL01_commit": "0b4d66822978590f1150ae2a152ea54f882ec238",
+    "CQ08_commit": "6d3ca23a817095f38789751004594777f54cf7d8",
+    "LS12_commit": "75aeb9ae914636a4d70b576e331fbfb72c0daf7d",
+    "base_commit": "b14a51015996f0dee81ef033e2e198d9f84951b2",
+    "register_origin": "original code authored for the MIC-18 LoopedTransformers and BPD ports",
+    "register_sha256": "c46273e1d49e14dbd8f81e881be08f2c5220f597efaae817a5bf4fec3772609f",
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "shared_core_commit": "cbab90625887153f57af5f1211d4307e053232b7",
+    "shared_core_license": "Apache-2.0",
+    "shared_core_path": "gyms/MIC18/finite_memory.py",
+    "shared_core_repository": "MoralityLabAI/EvalMath",
+    "shared_core_sha256": "9fa386bd52c6925e41e7151e163b34df01f553eb6a214fe4737960dfd2109abc",
+    "shared_core_url": "https://github.com/MoralityLabAI/EvalMath/blob/cbab90625887153f57af5f1211d4307e053232b7/gyms/MIC18/finite_memory.py",
+    "shared_protocol_commit": "9bf11c5e55b0fd5bc14390a3cfacfd11fd73070d"
+  },
+  "raw_replay_sha256": "02f90eabe6d1785e34818506c15d3db5042ccccccfaabf1918a2b23107a114fa",
+  "schema": "MIC-18/neural-register-results/v1",
+  "source_files": {
+    "../../.github/workflows/mic18-online-memory.yml": "89f04a4a2f350ff2ab664332b062f675cdcf7a0048aef0f7672617af577af74b",
+    "CORE_LICENSE.txt": "50e6751797c50dedd75ef1b8a0d9e42f5f8472e9fbce91f34718e9f97b0c780a",
+    "PROTOCOL.json": "94fa8e49e89b182a82f469611ddc92ab7e7c73ebc22217987f636fefb9bcad2d",
+    "README.md": "93eb0a06a2aae5f40f84b7b651eaf73dee52f1132f38b7302035ec87c42321a7",
+    "finite_memory.py": "9fa386bd52c6925e41e7151e163b34df01f553eb6a214fe4737960dfd2109abc",
+    "register.py": "c46273e1d49e14dbd8f81e881be08f2c5220f597efaae817a5bf4fec3772609f",
+    "run.py": "a6522967df2663e81f113ecb0ebab5b6bb0ee3d5a9214a2e4deb8dd04170c0d2",
+    "tests/test_register.py": "0caec92a381eec04f6ae6276cfc8436f5579620f36f9b64515f4f258ae759177"
+  },
+  "status": "PASS_EXACT_CONSTRUCTED_CELL",
+  "trained_checkpoints": 0,
+  "training_updates": 0
+}
