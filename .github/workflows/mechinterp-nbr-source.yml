@@ -1,0 +1,51 @@
+name: NBR candidate source-only admission
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/nbr_source/**'
+      - '.github/workflows/mechinterp-nbr-source.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Recover pinned historical source receipts
+        run: |
+          set -eux
+          mkdir -p nbr_history
+          git fetch --no-tags --depth=1 origin 4af25152b6b0cb0a5a87f86ba9a9f4b477d5a05a
+          git show 4af25152b6b0cb0a5a87f86ba9a9f4b477d5a05a:mechinterp/sae_causal_transfer/results/ls_sae11/receipts/source_20.json > nbr_history/ls11.json
+          git show 4af25152b6b0cb0a5a87f86ba9a9f4b477d5a05a:mechinterp/sae_causal_transfer/results/ls_sae12/source_48.json > nbr_history/ls12.json
+          test "$(git hash-object nbr_history/ls11.json)" = 2821089697e6fc80ecae30f4353f2743cf0d3f87
+          test "$(git hash-object nbr_history/ls12.json)" = b6457adeade59f3c69d8cea0a2372117b7d0c7e0
+          cp mechinterp/loopscope02/results/benchmark_bundle.json nbr_history/loopscope.json
+          test "$(git hash-object nbr_history/loopscope.json)" = 01ec63b4b2a4ae5399f783c6036a7fc018825a87
+      - uses: actions/download-artifact@v4
+        with:
+          name: ls-sae08-hard-52-54-native-all81-causal-evidence-and-audit
+          run-id: 43851165980
+          github-token: ${{ github.token }}
+          path: nbr_history/ls08
+      - uses: actions/download-artifact@v4
+        with:
+          name: nbr-toy
+          run-id: 45515740820
+          github-token: ${{ github.token }}
+          path: nbr_history/pilot
+      - run: |
+          echo 'bcf9b3c47f5703d8e33222bbb66f34e057277476c44a555b896dc5325dd50a5b  nbr_history/pilot/nbr_roster.json' | sha256sum -c
+          echo '69c4cd1a2e09760ed2d463e598550bdd1da42fb1bc0ad83a8a95825c47bea7f9  nbr_history/ls08/full.json' | sha256sum -c
+          python -m mechinterp.nbr_source.admit --ls11 nbr_history/ls11.json --ls12 nbr_history/ls12.json --ls08 nbr_history/ls08/full.json --loopscope nbr_history/loopscope.json --pilot nbr_history/pilot/nbr_roster.json --out nbr_source
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nbr-candidate-source
+          path: nbr_source/
+          if-no-files-found: warn
