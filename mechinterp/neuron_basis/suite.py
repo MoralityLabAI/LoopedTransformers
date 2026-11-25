@@ -317,7 +317,82 @@ def graph_test(model,r,src_ids,dst_ids):
             "relative_error":float(np.linalg.norm(a-b)/max(np.linalg.norm(a),1e-12))}
 
 
-def run(roster,out,checkpoint,toy=False):
+
+@torch.no_grad()
+def fake_quantize(model):
+    """Symmetric per-row signed 4-bit weight rounding, evaluated in FP32."""
+    for p in model.parameters():
+        if p.ndim!=2:
+            continue
+        scale=p.abs().amax(dim=1,keepdim=True).clamp_min(1e-12)/7
+        p.copy_((p/scale).round().clamp(-7,7)*scale)
+
+
+@torch.no_grad()
+def synthetic_audit(model,cal,evals,w,head):
+    """Benign synthetic call-local adapters; not a finetuning/reward hacking test.
+
+    A planted column plus norm-matched decoys. Compare weight-informed
+    transported and static predictions with output-only calibration evidence.
+    The target is specified by the construction, not necessarily realized.
+    """
+    rng=np.random.default_rng(SEED+7)
+    avg=np.mean([r["d"]["g"] for r in cal],axis=0)
+    mean_a=np.mean([r["d"]["a"] for r in cal],axis=0)
+    ranked=np.argsort(-np.abs(mean_a),kind="stable")[:min(24,w.shape[1])]
+    results=[]
+    def actual(r,delta):
+        h,l,x=r["anchor"]; token=model.puzzle_emb_len+r["site"]
+        def hook(_m,args,out):
+            q=out.clone()
+            diff=args[0][0,token].detach().numpy()@delta.T
+            q[0,token]+=torch.tensor(diff,dtype=q.dtype)
+            return q
+        hh=model.layers[0].down_proj.register_forward_hook(hook)
+        try:
+            l=model.run_l_level(l,h+x)
+        finally:
+            hh.remove()
+        h=model.run_l_level(h,l)
+        y=model.digit_logits(h)[0,r["site"]].numpy()-r["d"]["y"]
+        return y-y.mean()
+    for i in range(6):
+        target=int(rng.integers(9))
+        ids=rng.choice(ranked,5,replace=False)
+        j=int(ids[0]); direction=avg[:,target]*np.sign(mean_a[j])
+        n=np.linalg.norm(direction)
+        if n<=1e-12:
+            continue
+        delta=np.zeros_like(w)
+        delta[:,j]=0.05*direction/n
+        for k in ids[1:]:
+            v=rng.normal(size=w.shape[0]);delta[:,k]=0.05*v/np.linalg.norm(v)
+        dynamic=np.mean([r["d"]["a"]@delta.T@r["d"]["g"] for r in cal],axis=0)
+        static=np.mean([r["d"]["a"]@delta.T@head.T for r in cal],axis=0)
+        observed=np.mean([actual(r,delta) for r in cal],axis=0)
+        held=np.stack([actual(r,delta) for r in evals])
+        # Negative control: same edited columns and Frobenius norm, all random.
+        sham=np.zeros_like(w)
+        for k in ids:
+            v=rng.normal(size=w.shape[0]);sham[:,k]=0.05*v/np.linalg.norm(v)
+        neg=np.stack([actual(r,sham) for r in evals])
+        results.append({"case":i,"planted_target":target+1,"planted_column":j,
+            "decoy_columns":ids[1:].tolist(),
+            "dynamic_guess":int(dynamic.argmax())+1,"static_guess":int(static.argmax())+1,
+            "output_guess":int(observed.argmax())+1,
+            "held_target_wins":int((held.argmax(1)==target).sum()),
+            "negative_target_wins":int((neg.argmax(1)==target).sum()),
+            "held_centered_logit_delta":held.tolist(),
+            "negative_centered_logit_delta":neg.tolist(),
+            "adapter_frobenius":float(np.linalg.norm(delta)),
+            "negative_frobenius":float(np.linalg.norm(sham)),
+            "adapter_columns":delta[:,ids].T.tolist(),
+            "negative_columns":sham[:,ids].T.tolist()})
+    return {"synthetic_only":True,"cases":results,"n_held_boards":len(evals),
+            "warning":"Target guesses are conditional on a known toy construction; no hidden finetuned behavior or reward hacking claims."}
+
+
+def run(roster,out,checkpoint,toy=False,precision="fp32"):
     rows=N.load_roster(roster)
     if set(r["split"] for r in rows)!={"cal","eval","rep"}:
         raise ValueError("all three splits required")
@@ -330,6 +405,8 @@ def run(roster,out,checkpoint,toy=False):
     else:
         model,digest=trm.load_trm_checkpoint(checkpoint,"cpu",dtype=torch.float32)
     model.float().eval().requires_grad_(False)
+    if precision=="w4":
+        fake_quantize(model)
     w=model.layers[0].down_proj.weight.detach().numpy().astype(np.float64)
     head=model.lm_head.weight[2:11].detach().numpy()
     with sdpa_kernel(backends=[SDPBackend.MATH]):
@@ -365,6 +442,7 @@ def run(roster,out,checkpoint,toy=False):
         src_ids=prune_ids[:4]
         report={"schema":"NBR/suite-engineering-v1","engineering_only":True,
                 "checkpoint":checkpoint,"checkpoint_sha256":digest,"toy":toy,
+                "precision":precision,"parameters":sum(p.numel() for p in model.parameters()),
                 "platform":platform.platform(),"torch":torch.__version__,
                 "numpy":np.__version__,"seed":SEED,"roster_sha256":N.sha(roster),
                 "fit":bases["fit"],"native_ids":bases["ids"].tolist(),
@@ -394,6 +472,7 @@ def run(roster,out,checkpoint,toy=False):
                     "failed":r["failed"],"causal":iv,"graph":graph})
                 print("NBR suite",split,r["id"],flush=True)
             report["families"][split]=fam
+        report["synthetic_audit"]=synthetic_audit(model,cal,[r for r in data if r["split"]!="cal"],w,head)
     (out/"report.json").write_text(json.dumps(report,indent=2,allow_nan=False)+"\n")
 
 
@@ -403,7 +482,8 @@ def main():
     p.add_argument("--out",type=Path,required=True)
     p.add_argument("--checkpoint",choices=("gaoxin492","yagizdevre"),default="gaoxin492")
     p.add_argument("--toy",action="store_true")
-    a=p.parse_args();run(a.roster,a.out,a.checkpoint,a.toy)
+    p.add_argument("--precision",choices=("fp32","w4"),default="fp32")
+    a=p.parse_args();run(a.roster,a.out,a.checkpoint,a.toy,a.precision)
 
 
 if __name__=="__main__":
