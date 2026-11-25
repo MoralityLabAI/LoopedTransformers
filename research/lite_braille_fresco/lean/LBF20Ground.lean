@@ -143,7 +143,8 @@ theorem run_step {R : Rules} {Q : Term → Prop} {E : Eps} {H : Nat}
   | root hr =>
       intro q n hn run
       have edge := hs (q := q) hr run hn
-      exact run_extend hc edge _ 0 hn (run_refl hq hrefl _ (hR hr))
+      exact run_extend (Q := Q) (E := E) (H := H) (q := q) (a := n + 1) hc edge _ 0 hn
+        (run_refl (Q := Q) (E := E) hq hrefl _ (hR hr))
   | un f st ih =>
       intro q n hn run
       obtain ⟨s, a, b, hq', e, r, eq⟩ := run
