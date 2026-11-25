@@ -1,0 +1,63 @@
+name: LBF-19 sandbox retrospective audit
+on:
+  pull_request:
+    paths:
+      - "reports/lbf19_sandbox_review_20261125/**"
+      - ".github/workflows/lbf19-sandbox-review.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: false
+          test: false
+          use-mathlib-cache: false
+      - name: Reproduce archived counters and certify deferred paths
+        run: |
+          python reports/lbf19_sandbox_review_20261125/audit_deferred.py --out "$RUNNER_TEMP/lbf19-audit" --lean "$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+      - name: Retrospective ground weighted automata smoke
+        run: |
+          mkdir -p "$RUNNER_TEMP/lbf19-audit"
+          python reports/lbf19_sandbox_review_20261125/graded_ground_audit.py > "$RUNNER_TEMP/lbf19-audit/graded_ground_summary.json"
+      - name: Independently reproduce the missing graph-bridge comparator
+        run: |
+          node reports/lbf19_sandbox_review_20261125/audit_heuristics.mjs research/lite_braille_fresco/results/lbf19/confirm_cohort/cases.jsonl > "$RUNNER_TEMP/lbf19-audit/heuristics_summary.json"
+          python - <<'PY'
+          import gzip, json, os
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"lbf19-audit"
+          data=json.loads((d/"heuristics_summary.json").read_text())
+          with gzip.open("research/lite_braille_fresco/results/lbf19/confirm_out/episodes_lean_B512.jsonl.gz", "rt", encoding="utf-8-sig") as f:
+              geom={r["root"]:r for r in map(json.loads,f) if r["arm"]=="geom_mm"}
+          for r in data["geom_mm"]["rows"]:
+              g=geom[r["root"]]
+              assert r["closed"]==g["closed"] and r["work"]==g["work"] and r["novel_calls"]==g["v_verifier_calls"],r["root"]
+          assert data["graph_bridge"]["closed"]==0 and len(data["graph_bridge"]["rows"])==24
+          print("Geom MM matches all archived per-root counters; graph bridge", data["graph_bridge"]["closed"], "/24")
+          PY
+      - name: Independently recompile original successful proof batches
+        run: |
+          lean_bin="$HOME/.elan/toolchains/leanprover--lean4---v4.19.0/bin/lean"
+          log="$RUNNER_TEMP/lbf19-audit/original_certificates.log"
+          : > "$log"
+          for file in research/lite_braille_fresco/results/lbf19/confirm_out/certs/*.lean; do
+            "$lean_bin" --threads=1 "$file" >> "$log" 2>&1
+          done
+          test "$(grep -c 'does not depend on any axioms' "$log")" -eq 28
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf19-retrospective-audit
+          path: ${{ runner.temp }}/lbf19-audit
+          if-no-files-found: warn
