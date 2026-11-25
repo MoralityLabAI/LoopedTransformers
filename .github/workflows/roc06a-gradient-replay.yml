@@ -40,7 +40,7 @@ jobs:
           c=json.loads(Path('configs/roc06a_train_counterfactual_gradient_observer_v1.json').read_text())
           assert c['parent']['original_train_run']==44101721734
           assert c['gradient_basis']['rank']==7
-          assert c['primary']['radius']==.20
+          assert c['primary']['cohort'].startswith('six ORIGINAL') and c['interventions']['primary_radius']==.20
           assert len(c['parent']['original_1920step_checkpoint_sha256'])==6
           assert len(c['parent']['source_sha256'])==3
           assert c['source']['original_roc02_sealed_families']==[6,7]
