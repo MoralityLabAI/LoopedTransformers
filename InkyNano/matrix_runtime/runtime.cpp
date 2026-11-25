@@ -67,6 +67,39 @@ struct routing {
     std::array<by_phase, 2> result;
     int phase = 0;
     bool invalid = false;
+    bool ordered = false;
+    int token_position = -1;
+    json events = json::array();
+    std::array<std::vector<float>, n_slot> raw_scores, rank_scores;
+    std::array<int, n_slot> event_index{};
+
+    void begin_token(int position) {
+        token_position = position;
+        event_index.fill(-1);
+        for (auto & v : raw_scores) v.clear();
+        for (auto & v : rank_scores) v.clear();
+    }
+    void finish_token() const {
+        for (int slot = 0; slot < n_slot; ++slot) {
+            if (event_index[slot] < 0) throw std::runtime_error("missing ordered router visit");
+            const auto & e = events.at(event_index[slot]);
+            if (!e.contains("scaled_weights")) throw std::runtime_error("missing native scaled mixture weights");
+        }
+    }
+    static std::vector<float> read_scores(ggml_tensor * tensor) {
+        if (tensor->type != GGML_TYPE_F32 || tensor->ne[0] < n_active || tensor->ne[0] > n_expert ||
+            tensor->ne[1] != 1 || tensor->ne[2] != 1 || tensor->ne[3] != 1) {
+            throw std::runtime_error("unexpected single-token router score shape");
+        }
+        std::vector<char> bytes(ggml_nbytes(tensor));
+        ggml_backend_tensor_get(tensor, bytes.data(), 0, bytes.size());
+        std::vector<float> out(tensor->ne[0]);
+        for (size_t i = 0; i < out.size(); ++i) {
+            std::memcpy(&out[i], bytes.data() + i * tensor->nb[0], sizeof(float));
+            if (!std::isfinite(out[i])) throw std::runtime_error("nonfinite router score");
+        }
+        return out;
+    }
 
     template<typename T> static void read(ggml_tensor * tensor, std::vector<T> & out) {
         const bool two_dimensional = tensor->ne[0] == n_active && tensor->ne[2] == 1;
@@ -92,6 +125,37 @@ struct routing {
 
     bool capture(ggml_tensor * tensor, bool ask) {
         const std::string name = ggml_get_name(tensor);
+        if (ordered) {
+            // The pinned build_moe_ffn exposes the unbiased sigmoid scores,
+            // the bias-adjusted ranking scores, and final normalized/scaled
+            // mixture coefficients as distinct tensors. Read exact names,
+            // never derived views. This mode deliberately uses batch=1.
+            const std::array<std::string,3> names = {"ffn_moe_probs-", "ffn_moe_probs_biased-", "ffn_moe_weights_scaled-"};
+            for (size_t kind=0; kind<names.size(); ++kind) {
+                if (name.rfind(names[kind],0) != 0) continue;
+                const auto tail = name.substr(names[kind].size());
+                if (tail.empty() || tail.find_first_not_of("0123456789") != std::string::npos) continue;
+                if (ask) return true;
+                const int slot = std::stoi(tail);
+                if (slot < 0 || slot >= n_slot) throw std::runtime_error("invalid ordered router slot");
+                if (kind < 2) {
+                    auto & target = kind == 0 ? raw_scores[slot] : rank_scores[slot];
+                    if (!target.empty()) throw std::runtime_error("duplicate router score snapshot");
+                    target = read_scores(tensor);
+                } else {
+                    if (event_index[slot] < 0 || tensor->type != GGML_TYPE_F32)
+                        throw std::runtime_error("scaled mixture arrived before selected IDs");
+                    std::vector<float> scaled;
+                    read(tensor, scaled);
+                    if (scaled.size() != n_active) throw std::runtime_error("invalid scaled mixture shape");
+                    for (float w : scaled) if (!std::isfinite(w) || w < 0) throw std::runtime_error("invalid scaled mixture");
+                    auto & event = events.at(event_index[slot]);
+                    if (event.contains("scaled_weights")) throw std::runtime_error("duplicate scaled mixture");
+                    event["scaled_weights"] = scaled;
+                }
+                return true;
+            }
+        }
         constexpr const char * weight_name = "ffn_moe_weights-";
         if (name.rfind(weight_name, 0) != 0) {
             return false;
@@ -119,6 +183,17 @@ struct routing {
                 + " (" + std::to_string(ids.size()) + ", " + std::to_string(weights.size()) + ")");
         }
         const int physical = slot < n_layer ? slot : 6 + (slot - n_layer) % 12;
+        if (ordered) {
+            if (ids.size() != n_active || event_index[slot] >= 0 || raw_scores[slot].empty() ||
+                rank_scores[slot].size() != raw_scores[slot].size()) {
+                throw std::runtime_error("incomplete or duplicate single-token routing snapshot");
+            }
+            const int pass = slot < n_layer ? 0 : 1 + (slot - n_layer) / 12;
+            event_index[slot] = static_cast<int>(events.size());
+            events.push_back({{"token",token_position},{"phase",phase==0?"prefill":"decode"},
+                {"slot",slot},{"layer",physical},{"pass",pass},{"experts",ids},
+                {"selected_scores",weights},{"scores",raw_scores[slot]},{"rank_scores",rank_scores[slot]}});
+        }
         auto & stage = result.at(phase);
         for (size_t i = 0; i < ids.size(); i += n_active) {
             double total = 0;
@@ -228,13 +303,14 @@ size_t planned_cuda_bytes(const char * path, llama_model_params params,
 int main(int argc, char ** argv) {
     try {
         if (argc != 10 && argc != 11 && argc != 13) {
-            throw std::runtime_error("usage: inky-matrix MODEL PROMPT OUT MAX_NEW CTX THREADS trace|trace-ram|mmap|ram|inspect MAX_RSS_BYTES PARSE_SPECIAL [BATCH_TOKENS [GPU_LAYERS MAX_VRAM_BYTES]]");
+            throw std::runtime_error("usage: inky-matrix MODEL PROMPT OUT MAX_NEW CTX THREADS trace|trace-ram|trace-events|trace-events-ram|mmap|ram|inspect MAX_RSS_BYTES PARSE_SPECIAL [BATCH_TOKENS [GPU_LAYERS MAX_VRAM_BYTES]]");
         }
         const int max_new = std::stoi(argv[4]);
         const int context = std::stoi(argv[5]);
         const int threads = std::stoi(argv[6]);
         const std::string mode = argv[7];
-        const bool capture_routing = mode == "trace" || mode == "trace-ram";
+        const bool ordered_routing = mode == "trace-events" || mode == "trace-events-ram";
+        const bool capture_routing = mode == "trace" || mode == "trace-ram" || ordered_routing;
         const uint64_t rss_limit = std::stoull(argv[8]);
         const std::string parse_special = argv[9];
         const int batch_tokens = argc >= 11 ? std::stoi(argv[10]) : 128;
@@ -263,6 +339,7 @@ int main(int argc, char ** argv) {
         if (max_new < 2 || context < 128 || threads < 1 || batch_tokens < 1 || batch_tokens > context ||
             !rss_limit || gpu_layers < 0 || (gpu_layers > 0) != (vram_limit > 0) ||
             (parse_special != "0" && parse_special != "1") ||
+            (ordered_routing && (batch_tokens != 1 || context > 1024)) ||
             (!capture_routing && mode != "mmap" && mode != "ram" && mode != "inspect")) {
             throw std::runtime_error("invalid runtime mode or dimensions");
         }
@@ -274,7 +351,7 @@ int main(int argc, char ** argv) {
         llama_backend_init();
         auto model_parameters = llama_model_default_params();
         model_parameters.n_gpu_layers = gpu_layers;
-        model_parameters.load_mode = mode == "ram" || mode == "trace-ram" || mode == "inspect" ?
+        model_parameters.load_mode = mode == "ram" || mode == "trace-ram" || mode == "trace-events-ram" || mode == "inspect" ?
             LLAMA_LOAD_MODE_NONE : LLAMA_LOAD_MODE_MMAP;
         model_parameters.no_alloc = mode == "inspect";
         auto context_parameters = llama_context_default_params();
@@ -333,6 +410,7 @@ int main(int argc, char ** argv) {
             throw std::runtime_error("prompt and output budget exceed context");
         }
         routing trace;
+        trace.ordered = ordered_routing;
         if (capture_routing) {
             context_parameters.cb_eval = routing::callback;
             context_parameters.cb_eval_user_data = &trace;
@@ -350,6 +428,10 @@ int main(int argc, char ** argv) {
         }
         llama_pos position = 0;
         const auto evaluate = [&](const llama_token * input_tokens, int n) {
+            if (ordered_routing) {
+                if (n != 1) throw std::runtime_error("ordered trace requires single-token forward");
+                trace.begin_token(position);
+            }
             llama_batch_ext_clear(batch.get());
             for (int i = 0; i < n; ++i) {
                 const int index = llama_batch_ext_add_token(batch.get(), 0, input_tokens[i]);
@@ -365,6 +447,7 @@ int main(int argc, char ** argv) {
             if (capture_routing && trace.invalid) {
                 throw std::runtime_error("could not capture valid native routing weights and their expert IDs");
             }
+            if (ordered_routing) trace.finish_token();
             check_resources();
         };
         const double load_seconds = seconds(load_start) - tokenize_seconds;
@@ -418,6 +501,7 @@ int main(int argc, char ** argv) {
         }
         if (capture_routing) {
             result["phases"] = trace.receipt();
+            if (ordered_routing) result["routing_events"] = std::move(trace.events);
         }
         std::ofstream out(argv[3], std::ios::binary);
         out << result.dump(-1, ' ', false, json::error_handler_t::replace) << '\n';

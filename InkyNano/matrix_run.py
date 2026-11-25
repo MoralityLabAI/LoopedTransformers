@@ -99,6 +99,8 @@ def run(args):
         "plans_sha256": sha(args.plans) if args.command == "benchmark" else None,
         "controller_checkpoint_sha256": {name: sha(path) for name, path in checkpoint_paths.items()},
     }
+    if getattr(args, "ordered_events", False):
+        spec["ordered_events"] = True
     if composition:
         spec["published_composition_sha256"] = sha(args.published_composition)
     if args.gpu_layers:
@@ -182,8 +184,10 @@ def run(args):
                         max_bytes = args.rss_limit_bytes - (768 << 20)
                         layout = (bank.pack(gguf, model, selection, max_bytes, guard) if bank else
                                   pack(gguf, args.model, model, selection, max_bytes, guard, composition))
-                    native_mode = (("trace-ram" if args.teacher_in_ram else "trace") if policy is None
-                                   else ("ram" if plan or args.teacher_in_ram else "mmap"))
+                    capture_mode = "trace-events" if getattr(args, "ordered_events", False) else "trace"
+                    if args.teacher_in_ram:
+                        capture_mode += "-ram"
+                    native_mode = capture_mode if policy is None else ("ram" if plan or args.teacher_in_ram else "mmap")
                     output = decode_native(args, model, prompt, args.max_new or case["max_tokens"],
                                            native_mode, directory, log_folder / f"{tag}.log")
                 row = {
@@ -196,6 +200,14 @@ def run(args):
                         raise ValueError("native teacher capture requires the real Inkling Mini embedding width")
                     if output["decoded_tokens"] < 1:
                         raise ValueError(f"no observed decode routing for {case['id']}")
+                    if getattr(args, "ordered_events", False):
+                        from ld_moe_cache import normalize_events
+                        support = composition.available if composition else tuple(tuple(range(128)) for _ in range(24))
+                        row["routing_events"] = normalize_events(output.pop("routing_events"), support,
+                                                                  output["input_tokens"], output["decoded_tokens"])
+                        row["expert_support"] = [list(ids) for ids in support]
+                        row["ordered_trace_version"] = 1
+                        row["split"] = case["split"]
                     row.update(trace_kind="llama_cpp_inkling2_native", phases=output.pop("phases"),
                                traced_runtime=output)
                     if composition:
@@ -228,6 +240,7 @@ def main():
         p = sub.add_parser(name)
         p.add_argument("--cases", type=Path, required=True)
         if name == "capture":
+            p.add_argument("--ordered-events", action="store_true", help="single-token native score/selection/mixture trace")
             p.add_argument("--model", type=Path, required=True)
         else:
             inputs = p.add_mutually_exclusive_group(required=True)
@@ -267,6 +280,8 @@ def main():
             or a.runtime_library_manifest and os.name == "nt" and not a.wsl
             or a.published_composition and not a.model or a.teacher_in_ram and not a.model):
         parser.error("invalid runtime limits")
+    if getattr(a, "ordered_events", False) and (a.batch_tokens != 1 or a.context > 1024):
+        parser.error("ordered events require --batch-tokens 1 and --context <=1024")
     run(a)
 
 
