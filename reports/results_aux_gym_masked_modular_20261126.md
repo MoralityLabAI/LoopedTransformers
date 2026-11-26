@@ -9,7 +9,7 @@ Revised after an external review of `cc07e5ef`. Every number in the first versio
 | Eval | LOOP-T | FF-U | What the receipts support |
 |---|---|---|---|
 | `masked_pointer_chase` | Crosses the gate on 3 of 3 seeds in the plain stage, at 6,250 / 18,750 / 15,750 steps | Does not cross in 60,000 plain steps on any seed (full-validation exact 0.634 / 0.977 / 0.808); crosses on 3 of 3 seeds after deep supervision, 11,250 / 6,750 / 27,750 steps later | LOOP-T crosses in at most 18,750 plain steps where FF-U does not cross in 60,000. The two arms were not run under the same schedule, so no step ratio is claimed. |
-| `modular_recurrence` | One seed, no depth curriculum: at chance after 30,000 steps (0.054 exact; chance is 1/17 = 0.059) | Running (one seed, no depth curriculum, same settings); not in this report | Nothing beyond one seed at chance. |
+| `modular_recurrence` | One seed, no depth curriculum: at chance after 30,000 steps (0.054 exact; chance is 1/17 = 0.059) | One seed, no depth curriculum, same settings: at chance after 30,000 steps (0.063 exact) | Nothing beyond one seed per arm at chance. |
 
 ## `masked_pointer_chase`, gate-time full validation
 
@@ -37,7 +37,7 @@ How much weight the crossings carry:
 
 - **Under the depth curriculum** the cell never leaves depth 1. The depth-1 training pool has 131,435 examples but only 2,448 distinct inputs, and none of the 211 validation depth-1 inputs occur in it. A checkpoint scores 0.996 on the training pool and 0.09 to 0.10 on validation, which is memorisation. The reviewer traces the cause to the bundle's split: it splits by structure hash, which for this family is the operation list. At depth 1 that is 272 operations, 144 of them in training and the rest in validation, so unlocking depth 2 requires generalising to unseen operations. I have not checked the 272 / 144 counts.
 - **Without the curriculum** (`LOOP-T-modnc-s1`, all depths from step 0, 30,000 steps, 256 examples per batch, one seed) full-validation exact is 0.0544 on 3,711 examples, with 0.034 to 0.078 at every depth. Training loss is 2.83 against a recorded target entropy of 2.8332 nats (ln 17), and exact match is about 1/17. That is chance. The cell did not even memorise the depth-1 pool that the curriculum cell memorised, so this is an optimisation plateau on one seed. Whether model size is the limit was not tested, because size was never varied.
-- **FF-U on this family** is running with the same settings (one seed, no depth curriculum). It is not in these results.
+- **FF-U on this family** (`FF-U-modnc-s1`, same settings: one seed, no depth curriculum, 30,000 steps, 1,839,616 parameters) is also at chance: full-validation exact 0.0628 on 3,711 examples (0.054 to 0.085 at every depth), 0.0575 on held-out depths 9-12, against 1/17 = 0.0588 (one standard error at chance is about 0.004). Its final training loss is 2.67 against the 2.8332 entropy, a small drop that has not carried over to validation. Four times the parameters and an untied stack do not change the outcome in this setting; I did not run deep supervision or the curriculum for FF-U on this family.
 - The CPU twin `LOOP-T-modnccpu-s1` stopped at step 4,500 (0.043 interim) and is not used in the conclusion.
 
 ## Throughput on this machine
