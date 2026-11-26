@@ -78,6 +78,14 @@ def validate_roster(files, original, inv, source):
     return {k: sorted(v) for k, v in sorted(fams.items())}
 
 
+def trace_key(rel):
+    """Trace directory for one source file. The 08A key (family + stem) collides for nested
+    files such as Int/Bitwise/Basic and Int/DivMod/Basic; this key keeps every subdirectory.
+    For a file directly under its family directory it equals the 08A key."""
+    p = Path(rel)
+    return p.parts[3] + "_" + "_".join(p.parts[4:])[:-len(".lean")]
+
+
 def seal_registry(out, rows, provenance):
     p = out / "registry.json"
     if p.exists() or (out / "registry.sha256").exists():
@@ -96,12 +104,19 @@ def freeze_new(args, original, inv):
     if scratch.exists():
         raise ValueError("freeze requires a fresh trace directory")
     # Reuse the exact 08A pre-command trace selector. It never runs menu outcomes.
-    prior_fresh = old.FRESH
+    # Each file gets its own trace directory; with the 08A key, two nested files with the
+    # same family and stem overwrite each other's traces and the registry mixes them.
+    keys = [trace_key(f) for f in roster]
+    if len(set(keys)) != len(keys):
+        raise ValueError("trace directory collision in roster")
+    prior_fresh, prior_key = old.FRESH, old.probe.key
     try:
         old.FRESH = {"calibration": fams}
+        old.probe.key = lambda fam, rel: trace_key(rel)
         selected = old.freeze(args.source, args.exe, scratch, "full", args.workers)
     finally:
         old.FRESH = prior_fresh
+        old.probe.key = prior_key
     seen_goals = set(inv["spent_goal_sha256"])
     seen_goals |= {hashlib.sha256(r["goal"].encode()).hexdigest() for r in original}
     seen_decls = {r["decl"] for r in original} | {d for _, d in inv["spent_decls"]}

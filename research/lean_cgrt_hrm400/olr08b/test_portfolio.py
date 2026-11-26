@@ -78,6 +78,17 @@ class PortfolioTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             campaign.search(None,None,{"role":"evaluation"},None,"s1",300,0)
 
+    def test_trace_keys_unique_for_nested_files(self):
+        import json
+        self.assertEqual(campaign.trace_key("src/Init/Data/Array/Zip.lean"),
+                         campaign.old.probe.key("Array", "src/Init/Data/Array/Zip.lean"))
+        pair = ["src/Init/Data/Int/Bitwise/Basic.lean", "src/Init/Data/Int/DivMod/Basic.lean"]
+        self.assertEqual(len({campaign.old.probe.key("Int", f) for f in pair}), 1)
+        self.assertEqual(len({campaign.trace_key(f) for f in pair}), 2)
+        for name in ("calibration_roster.json", "calibration_roster_amended.json"):
+            roster = json.loads((campaign.HERE / name).read_text(encoding="utf-8"))
+            self.assertEqual(len({campaign.trace_key(f) for f in roster}), len(roster))
+
     def test_roster_rejects_spent_reserved_and_duplicate(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
