@@ -101,6 +101,43 @@ def export_pair(g,row,col,cap):
                       "utility":"owned+occupied supply centers, global scale","phase":frozen["phase"],
                       "retreat_policy":"disband","scope":"movement plus immediate retreat; fixed other powers"}}
 
+def pure_profiles(g,cap):
+    """Exact restricted pure-profile deviations for every power, with no pairwise shortcut."""
+    frozen=signature(g)
+    possible=g.get_all_possible_orders()
+    powers=sorted(g.powers)
+    target_sets={p:{v[0] for v in pool(g,p,possible)[1]} for p in powers}
+    shared={t for p in powers for t in target_sets[p] if sum(t in target_sets[q] for q in powers)>=2}
+    rosters={p:roster(g,p,possible,shared,cap) for p in powers}
+    centers={s[:3] for s in g.map.scs}
+    results=[]
+    for mode in ("all_hold","fixed_pressure"):
+        anchor={p:rosters[p][int(mode=="fixed_pressure" and len(rosters[p])>1)] for p in powers}
+        orders={p:anchor[p]["orders"] for p in powers}
+        baseline=resolve(g,orders)
+        incumbent={p:utility(baseline,p,centers)["numerator"] for p in powers}
+        deviations={}
+        for p in powers:
+            options=[]
+            for a in rosters[p]:
+                if a["id"]==anchor[p]["id"]:
+                    value=incumbent[p]
+                    post=digest(signature(baseline))
+                else:
+                    h=resolve(g,{**orders,p:a["orders"]})
+                    value=utility(h,p,centers)["numerator"]
+                    post=digest(signature(h))
+                options.append({"id":a["id"],"numerator":value,"post_state_hash":post})
+            deviations[p]=options
+        results.append({"id":f"dip-pure:{digest(frozen)[:16]}:{mode}","players":powers,
+                        "board_hash":digest(frozen),"denominator":2*len(centers),"mode":mode,
+                        "rosters":rosters,"anchor":{p:anchor[p]["id"] for p in powers},
+                        "incumbent":incumbent,"deviations":deviations,
+                        "native_adjudications":1+sum(len(rosters[p])-1 for p in powers)})
+    assert signature(g)==frozen
+    return results
+
+
 def main():
     from diplomacy import Game
     p=argparse.ArgumentParser()
@@ -111,13 +148,15 @@ def main():
         raise ValueError("cap must be 2..8")
     game=Game(map_name="standard")
     roots=[]
+    pure=[]
     for phase in range(2):
         for row,col in [("FRANCE","GERMANY"),("ENGLAND","FRANCE"),("AUSTRIA","RUSSIA")]:
             roots.append(export_pair(game,row,col,a.cap))
+        pure.extend(pure_profiles(game,a.cap))
         if phase==0:
             game=resolve(game,{p:holds(game,p) for p in game.powers})
     a.out.parent.mkdir(parents=True,exist_ok=True)
-    a.out.write_text(json.dumps({"roots":roots},indent=2)+"\n")
+    a.out.write_text(json.dumps({"roots":roots,"pure_profiles":pure},indent=2)+"\n")
     print(f"NATIVE_DIPLOMACY_ROOTS {len(roots)}")
 
 if __name__=="__main__":
