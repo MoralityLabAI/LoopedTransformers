@@ -1,0 +1,23 @@
+name: OLR-08B portfolio regression
+on:
+  push:
+    branches: [research/olr08b-frontier-mms-20261126]
+    paths:
+      - 'research/lean_cgrt_hrm400/olr08b/**'
+      - '.github/workflows/olr08b-portfolio.yml'
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/olr08b/**'
+      - '.github/workflows/olr08b-portfolio.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s research/lean_cgrt_hrm400/olr08b -p 'test_*.py' -v
