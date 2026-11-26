@@ -564,13 +564,32 @@ def train(a):
         exact_carry = cfg.arch == "trm" or exact_carry
     if exact_carry and cfg.arch != "trm":
         raise GymError("bad_argument","exact carry resume is TRM-only")
+    pool_rows = int(getattr(a,'train_pool_rows',0))
+    pool_seed = int(getattr(a,'train_pool_seed',314159))
+    if pool_rows < 0 or pool_seed < 0 or (pool_rows and a.continue_from):
+        raise GymError("bad_argument","invalid training pool or continuation fork")
+    train_pool = None
+    packed_train = None
+    if pool_rows or mms_options is not None:
+        packed_train = pack(a.data,'train')
+        if pool_rows:
+            # Read only the packed train row count. Selection never reads labels.
+            with np.load(packed_train) as source:
+                n_train = len(source['enc_len'])
+            if pool_rows > n_train:
+                raise GymError("bad_argument","training pool exceeds train row count")
+            train_pool = np.sort(np.random.default_rng(pool_seed).choice(n_train,pool_rows,replace=False))
     ident = {k: getattr(a, k) for k in IDENTITY} | {"model": cfg_identity(cfg), "split_sha256": manifest["split_sha256"]}
     if a.val_items != 2048:
         ident["val_items"] = a.val_items
     if a.val_batch != 256:
         ident["val_batch"] = a.val_batch
+    if train_pool is not None:
+        ident['train_pool'] = {'rows':pool_rows,'seed':pool_seed,
+            'indices_sha256':hashlib.sha256(train_pool.astype('<i8').tobytes()).hexdigest(),
+            'packed_train_sha256':sha256(packed_train)}
     if mms_options is not None:
-        ident['mms'] = mms_options | {'packed_train_sha256':sha256(pack(a.data,'train')),
+        ident['mms'] = mms_options | {'packed_train_sha256':sha256(packed_train),
                                       'grad_ckpt':False,'device':'cpu'}
     if exact_carry:
         ident['exact_carry_resume'] = True
@@ -614,7 +633,8 @@ def train(a):
     va = Store(pack(a.data, a.val_split))            # file-level validation split: monitoring and best-checkpoint choice
     params = count_parameters(model)
     (out / "config.json").write_text(json.dumps({"identity": ident, "identity_hash": ident_hash, "parameters": params,
-                                                 "train_rows": tr.n, "device": device, "precision": "bf16" if amp else "fp32",
+                                                 "train_rows": tr.n, "active_train_pool_rows": len(train_pool) if train_pool is not None else tr.n,
+                                                 "device": device, "precision": "bf16" if amp else "fp32",
                                                  "gpu_duty": duty, "torch": torch.__version__,
                                                  "grad_ckpt": a.grad_ckpt,
                                                  **({"continue_from": str(Path(a.continue_from).resolve())} if a.continue_from else {})},
@@ -646,7 +666,10 @@ def train(a):
     for step in range(first, end):
         t_step = time.perf_counter()
         r = np.random.default_rng([a.seed, step + data_offset])   # pure function of (seed, global step)
-        draw = r.integers(0, tr.n, a.batch)
+        if train_pool is None:
+            draw = r.integers(0, tr.n, a.batch)
+        else:
+            draw = train_pool[r.integers(0,len(train_pool),a.batch)]
         b = tr.batch(draw, device)
         T = None
         if a.random_depth and cfg.arch != "flat":
@@ -742,6 +765,7 @@ def train(a):
                    'exit_code':code,'wall_seconds':time.time()-t_start,
                    'process_cpu_seconds':time.process_time()-cpu_started,'cpu_budget_seconds':cpu_limit,
                    'host':hw.host(out),'fresh_admissions':fresh if ema is not None else (done-first)*a.batch,
+                   'active_train_pool_rows':len(train_pool) if train_pool is not None else tr.n,
                    'mms':mms.receipt() if mms is not None else None}
         (out / 'mms_receipt.json').write_text(json.dumps(receipt,indent=2,allow_nan=False)+'\n')
         with (out/'mms_segments.jsonl').open('a',encoding='utf-8') as fh:
@@ -777,6 +801,8 @@ def parser():
     p.add_argument("--continue-from", default=None, help="fork a verified loop/hrm optimizer checkpoint into a new run")
     p.add_argument("--stop-at", type=int, default=None, help="checkpoint at this local step without changing recipe identity")
     p.add_argument("--batch", type=int, default=128)
+    p.add_argument("--train-pool-rows",type=int,default=0,help="fixed train-only subsample for repeated-visit pilot; 0 uses all rows")
+    p.add_argument("--train-pool-seed",type=int,default=314159)
     p.add_argument("--val-batch", type=int, default=256, help="validation microbatch; lower for bounded-memory pilots")
     p.add_argument("--val-items", type=int, default=2048, help="fixed validation sample size (part of run identity)")
     p.add_argument("--lr", type=float, default=5e-4)

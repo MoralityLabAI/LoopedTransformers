@@ -80,7 +80,7 @@ def test_native_trainer_checkpoint_resume(tmp_path,monkeypatch):
         'dec_width=16','dec_heads=2','layers=1','mlp_ratio=2','trm_n=1','trm_T=2','trm_sup=2',
         '--device','cpu','--steps','4','--batch','2','--threads','1','--warmup','1',
         '--log-every','4','--eval-every','4','--val-items','2','--val-batch','2',
-        '--save-every','2','--mms-mib','1','--mms-mode','bpd','--mms-sites','trm0.ff',
+        '--save-every','2','--train-pool-rows','1','--mms-mib','1','--mms-mode','bpd','--mms-sites','trm0.ff',
         '--mms-rank','4','--mms-topk','2']
     whole,resumed=tmp_path/'whole',tmp_path/'resumed'
     assert T.main(cli+['--out',str(whole)])==0
@@ -88,6 +88,7 @@ def test_native_trainer_checkpoint_resume(tmp_path,monkeypatch):
     assert T.main(cli+['--out',str(resumed)])==0
     _,a=T.load_verified(whole,'cpu');_,b=T.load_verified(resumed,'cpu')
     assert a['identity_hash']==b['identity_hash'] and a['fresh']==b['fresh']
+    assert a['identity']['train_pool']['rows']==1 and a['act_row_ids'].unique().numel()==1
     for k in ('model','ema','act_carry'):
         for name in a[k]:assert torch.equal(a[k][name],b[k][name]),(k,name)
     assert torch.equal(a['act_row_ids'],b['act_row_ids'])

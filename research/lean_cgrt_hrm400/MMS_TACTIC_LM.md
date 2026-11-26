@@ -58,3 +58,18 @@ close@k, plus fresh-admission and compute budgets. Apply EvalMath preflight
 to independent training roots and theorem lineages before opening a sealed
 confirmation. The engineering tests use tiny synthetic token data, not Lean
 proofs. No new certified proof or causal BPD learning benefit is claimed.
+
+## Repetition admission before a full-corpus sweep
+
+Uniform draws from the full ~193k-row corpus can make exact row/stage hits
+too rare to identify a memory scaling effect. The optional
+--train-pool-rows 2048 --train-pool-seed 314159 selects a fixed sorted subset
+of the existing TRAIN split, without consulting labels. It works in both
+zero-budget and MMS arms. Identity binds original packed train SHA, pool
+seed, row count and index SHA. Default full-corpus sampling is unchanged.
+Use this as an exposed development stress test only, not a claim of
+full-Mathlib generalization. At TRM sup=4, the subset has at most 8192
+row-stage pairs per selected recurrent visit/site. A 2 GiB bank can hold
+more of them than a 128 MiB bank if actual occupancy/hit counts differ.
+Pilot with the same site and batch across arms before multi-site and full
+corpus; record zero-hit/saturation failures and retain all arms.
