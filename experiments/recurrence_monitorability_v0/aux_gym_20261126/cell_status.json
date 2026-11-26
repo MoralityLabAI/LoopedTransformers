@@ -1,5 +1,5 @@
 {
- "snapshot_utc": "2026-11-26T07:48:14.379904+00:00",
+ "snapshot_utc": "2026-11-26T11:00:24.010385+00:00",
  "cells": [
   {
    "cell": "FF-U-mask2-ds-s1",
@@ -152,6 +152,31 @@
    }
   },
   {
+   "cell": "FF-U-modnc-s1",
+   "device": "cuda",
+   "step": 30000,
+   "status": "budget_exhausted",
+   "gate_passed": false,
+   "families": {
+    "modular_recurrence": [
+     0.0781,
+     {
+      "1": 0.078125,
+      "2": 0.046875,
+      "3": 0.078125,
+      "4": 0.125,
+      "5": 0.09375,
+      "6": 0.0625,
+      "7": 0.046875,
+      "8": 0.09375
+     }
+    ]
+   },
+   "max_unlocked": {
+    "modular_recurrence": 8
+   }
+  },
+  {
    "cell": "LOOP-T-aux2cpu-s1",
    "device": "cpu",
    "step": 22000,
@@ -187,7 +212,7 @@
    },
    "max_unlocked": {
     "masked_pointer_chase": 8,
-    "modular_recurrence": null
+    "modular_recurrence": 1
    }
   },
   {
@@ -287,7 +312,7 @@
     ]
    },
    "max_unlocked": {
-    "modular_recurrence": null
+    "modular_recurrence": 8
    }
   },
   {
@@ -312,7 +337,7 @@
     ]
    },
    "max_unlocked": {
-    "modular_recurrence": null
+    "modular_recurrence": 8
    }
   }
  ]
