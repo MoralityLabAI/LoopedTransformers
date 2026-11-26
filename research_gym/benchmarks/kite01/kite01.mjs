@@ -40,4 +40,4 @@ function pilot(){const depths=[0,8,16,32,64],families=["iid","zero_sum","coordin
 
 function perturbAudit(){let checks=0;for(let seed=1;seed<=64;seed++){const g=game("iid",4,seed),r=rng(seed+347),h={D:g.D,R:g.R.map(row=>row.map(v=>{const z=v+BigInt(r(7)-3);return z<0n?0n:z>100n?100n:z})),C:g.C.map(row=>row.map(v=>{const z=v+BigInt(r(7)-3);return z<0n?0n:z>100n?100n:z}))};const x=Array.from({length:4},()=>BigInt(1+r(7))),y=Array.from({length:4},()=>BigInt(1+r(7)));const a=score(g,x,y),b=score(h,x,y);assert(a.d===b.d,"same denominator");for(const [v,w] of [[a.a,b.a],[a.b,b.b],[a.a>a.b?a.a:a.b,b.a>b.b?b.a:b.b]]){const delta=v>w?v-w:w-v;assert(100n*delta<=6n*a.d,"payoff stability");checks++}}return checks}
 
-export {score, inKite, accepted, repair, reference, game, trajectory, audit, perturbAudit, pilot};
+export {score, inKite, accepted, repair, reference, game, trajectory, audit, perturbAudit, pilot, windowCounts, mix, rng, assert};
