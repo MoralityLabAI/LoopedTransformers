@@ -78,12 +78,14 @@ class CellConfig:
     mms_map: str = ""
     mms_map_sha: str = ""
     mms_checkpoint_every: int = 2000
+    mms_sites: str = "mlp"
+    mms_schedule: str = "round_robin"
 
     @property
     def cell_id(self) -> str:
         base = f"{self.arm}-{self.variant}-s{self.seed}"
         if self.mms_mib:
-            return base + "-mms-" + digest({k: v for k, v in asdict(self).items() if k.startswith("mms_")})[:12]
+            return base + "-mms-" + digest({k: v for k, v in asdict(self).items() if k.startswith("mms_") and not (k in ("mms_sites", "mms_schedule") and v == LATE_FIELD_DEFAULTS[k])})[:12]
         return base
 
 
@@ -143,7 +145,7 @@ def load_pool(path: Path, sha256: str | None = None) -> Pool:
 
 # Fields added after cells had already been hashed. Left at these defaults they are omitted from
 # a cell's identity, so existing cells keep their hash and can resume.
-LATE_FIELD_DEFAULTS: Mapping[str, Any] = {"init_from": "", "permute_targets": False, "mms_mib": 0.0, "mms_mode": "bpd", "mms_ratio": 0.2, "mms_rank": 16, "mms_topk": 4, "mms_refresh": 128, "mms_max_age": 32768, "mms_visit": -1, "mms_map": "", "mms_map_sha": "", "mms_checkpoint_every": 2000}
+LATE_FIELD_DEFAULTS: Mapping[str, Any] = {"init_from": "", "permute_targets": False, "mms_mib": 0.0, "mms_mode": "bpd", "mms_ratio": 0.2, "mms_rank": 16, "mms_topk": 4, "mms_refresh": 128, "mms_max_age": 32768, "mms_visit": -1, "mms_map": "", "mms_map_sha": "", "mms_checkpoint_every": 2000, "mms_sites": "mlp", "mms_schedule": "round_robin"}
 
 
 def cell_identity(config: CellConfig) -> dict[str, Any]:
@@ -335,10 +337,23 @@ def run_cell(
             raise ValueError("MMS v0 requires CPU LOOP-T and a positive budget")
         if config.mms_checkpoint_every < 1:
             raise ValueError("MMS checkpoint cadence must be positive")
-        from .mms import MechanisticMemory
-        mms = MechanisticMemory(model.blocks[0].mlp[-1], mib=config.mms_mib, mode=config.mms_mode, rank=config.mms_rank,
-            topk=config.mms_topk, ratio=config.mms_ratio, refresh=config.mms_refresh,
-            max_age=config.mms_max_age, map_file=config.mms_map, map_sha=config.mms_map_sha)
+        from .mms import MechanisticMemory, MultiSiteMemory
+        block = model.blocks[0]
+        modules = {"mlp": block.mlp[-1], "mlp_in": block.mlp[0],
+                   "attention": block.attention_out, "qkv": block.qkv}
+        names = config.mms_sites.split(",")
+        if len(set(names)) != len(names) or not set(names).issubset(modules):
+            raise ValueError("invalid or duplicate MMS sites")
+        options = dict(mib=config.mms_mib, mode=config.mms_mode, rank=config.mms_rank,
+                       topk=config.mms_topk, ratio=config.mms_ratio, refresh=config.mms_refresh,
+                       max_age=config.mms_max_age)
+        if config.mms_sites == "mlp" and config.mms_schedule == "round_robin":
+            mms = MechanisticMemory(block.mlp[-1], **options,
+                                     map_file=config.mms_map, map_sha=config.mms_map_sha)
+        else:
+            if config.mms_map:
+                raise ValueError("single-map export requires default single MLP site; multisite uses live SVD proxies")
+            mms = MultiSiteMemory({name:modules[name] for name in names}, schedule=config.mms_schedule, **options)
         visit = config.visits // 2 if config.mms_visit == -1 else config.mms_visit
         if not 0 <= visit < config.visits:
             raise ValueError("MMS visit outside recurrent schedule")

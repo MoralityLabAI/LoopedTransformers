@@ -106,3 +106,42 @@ def test_streamed_checkpoint_hash_matches_original(tmp_path):
     path = tmp_path/'checkpoint'
     path.write_bytes(b'abcd'*1500000)
     assert _sha256_file(path) == hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def test_shared_bank_lru_and_multisite_resume():
+    from research_gym.interp.mms import MultiSiteMemory
+    torch.manual_seed(93)
+    a,b = torch.nn.Linear(8,8),torch.nn.Linear(8,8)
+    # 60 rows at 32 bytes each; two active pages from distinct sites must compete.
+    memory = MultiSiteMemory({'a':a,'b':b},mib=.0019,mode='observe',rank=4)
+    keys=torch.arange(32)
+    x=torch.randn(32,8)
+    for step in range(4):
+        a.zero_grad();b.zero_grad()
+        with memory.capture(keys,step,0,1):
+            b(a(x)).square().mean().backward()
+        assert memory.pool.used <= memory.pool.budget_bytes
+        assert memory.pool.used == sum(m.bank.allocated_bytes for m in memory.sites.values() if m.bank)
+    assert memory.pool.evictions>0
+    assert memory.selections=={'a':2,'b':2}
+    c,d=copy.deepcopy(a),copy.deepcopy(b)
+    restored=MultiSiteMemory({'a':c,'b':d},mib=.0019,mode='observe',rank=4)
+    restored.load_state_dict(copy.deepcopy(memory.state_dict()))
+    assert restored.pool.state_dict()==memory.pool.state_dict()
+    a.zero_grad();b.zero_grad();c.zero_grad();d.zero_grad()
+    with memory.capture(keys,4,0,1):
+        b(a(x)).square().mean().backward()
+    with restored.capture(keys,4,0,1):
+        d(c(x)).square().mean().backward()
+    assert torch.equal(a.weight.grad,c.weight.grad)
+    assert memory.pool.state_dict()==restored.pool.state_dict()
+
+
+def test_adaptive_schedule_explores_all_sites():
+    from research_gym.interp.mms import MultiSiteMemory
+    m=MultiSiteMemory({str(i):torch.nn.Linear(4,4) for i in range(4)},mib=.1,schedule='adaptive')
+    chosen=[m.select(s) for s in range(16)]
+    assert [chosen[i] for i in (0,4,8,12)] == ['0','1','2','3']
+    prior=dict(m.selections)
+    assert m.select(15)==chosen[15]
+    assert prior==m.selections

@@ -83,3 +83,16 @@ for example rank-16/128 random initialization can have cosine below 0.5.
 SVD and native live maps require a nonzero reconstruction cosine, and all
 feedback still requires positive current/historical gradient alignment.
 Neither gate establishes causal fidelity.
+
+## MMS-02 multi-site
+RMP now accepts --mms-sites mlp,attention,qkv,mlp_in and
+--mms-schedule round_robin|adaptive. A shared global LRU page pool caps BF16
+tensor payload + tags across every site, evicting old pages before allocating
+new ones. Each optimizer step selects one site and one visit; all microbatches
+use that choice. It adds no forward/backward pass. Adaptive uses historical
+admitted rows per sample (observe: hit fraction), plus deterministic exploration
+every fourth update. This is a coverage/alignment heuristic, not validated
+learning utility. Use fixed round-robin for matched mechanistic controls.
+Saved RMP latest checkpoints include pool eviction order and schedule state;
+old default single-site IDs and checkpoints are unchanged. Multi-site currently
+uses current SVD proxies; the single default site supports learned BPD exports.

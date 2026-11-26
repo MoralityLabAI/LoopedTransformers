@@ -5,6 +5,7 @@ SHA-pinned exported factor map or an explicitly labelled SVD seed proxy.
 Store detached physical cotangents, not historical component indices.
 """
 from contextlib import contextmanager
+from collections import OrderedDict
 import hashlib
 import math
 from pathlib import Path
@@ -36,6 +37,8 @@ class GradientBank:
             raise ValueError('MMS budget cannot hold one row')
         self.page_rows = min(page_rows, self.capacity)
         self.pages = {}
+        self.pool = None
+        self.site = None
         self.hits = self.queries = self.writes = self.collisions = 0
 
     @property
@@ -59,6 +62,8 @@ class GradientBank:
             if p not in self.pages:
                 continue
             ix = (pages == p).nonzero().flatten()
+            if self.pool is not None:
+                self.pool.touch(self.site, p)
             values, tags, age = self.pages[p]
             r = rows[ix]
             ok = (tags[r] == keys[ix]) & (age[r] < step) & (step - age[r] <= max_age)
@@ -75,9 +80,13 @@ class GradientBank:
         for p in pages.unique().tolist():
             if p not in self.pages:
                 size = min(self.page_rows, self.capacity - p * self.page_rows)
+                if self.pool is not None:
+                    self.pool.claim(self.site, p, size * (2 * math.prod(self.shape) + 16))
                 self.pages[p] = (torch.zeros((size, *self.shape), dtype=torch.bfloat16),
                                  torch.full((size,), -1, dtype=torch.long),
                                  torch.full((size,), -1, dtype=torch.long))
+            if self.pool is not None:
+                self.pool.touch(self.site, p)
             data, tags, age = self.pages[p]
             ix = (pages == p).nonzero().flatten()
             r = rows[ix]
@@ -128,6 +137,7 @@ class MechanisticMemory:
         self.refresh, self.max_age = refresh, max_age
         self.min_map_cosine = min_map_cosine
         self.bank, self.v, self.u = None, None, None
+        self.page_pool, self.site_name = None, None
         self.map_step, self.map_cosine = -1, None
         self.admitted = self.updates = self.map_refreshes = 0
         self.cpu_seconds = 0.
@@ -182,6 +192,8 @@ class MechanisticMemory:
             return gradient
         if self.bank is None:
             self.bank = GradientBank(self.mib, g.shape[1:])
+            if self.page_pool is not None:
+                self.page_pool.attach(self.site_name, self.bank)
         if tuple(g.shape[1:]) != self.bank.shape:
             raise ValueError('MMS requires fixed output row shape')
         old, hit = self.bank.read(keys, step, self.max_age)
@@ -272,3 +284,131 @@ class MechanisticMemory:
                     map_refreshes=self.map_refreshes, admitted=self.admitted,
                     sampled_rows=self.updates, extra_process_cpu_seconds=self.cpu_seconds,
                     bank=None if self.bank is None else self.bank.receipt())
+
+
+class SharedPagePool:
+    """One tensor-payload ceiling across sites; global deterministic LRU eviction.
+
+    Each site's hash address space remains fixed even when pages are evicted.
+    Maps, allocator overhead, live tensors and serialization are outside this
+    cap. The selected site may evict its own or another site's old pages.
+    """
+    def __init__(self, mib):
+        if not math.isfinite(mib) or mib <= 0:
+            raise ValueError('invalid shared memory budget')
+        self.budget_bytes = int(mib * 2**20)
+        self.banks = {}
+        self.order = OrderedDict()
+        self.used = self.evictions = self.peak = 0
+
+    def attach(self, site, bank):
+        if site in self.banks and self.banks[site] is not bank:
+            raise ValueError('duplicate bank site')
+        self.banks[site] = bank
+        bank.pool, bank.site = self, site
+
+    def touch(self, site, page):
+        self.order.move_to_end((site, page))
+
+    def claim(self, site, page, size):
+        key = (site, page)
+        if key in self.order or not 0 < size <= self.budget_bytes:
+            raise ValueError('invalid shared page allocation')
+        while self.used + size > self.budget_bytes:
+            (other, p), old = self.order.popitem(last=False)
+            del self.banks[other].pages[p]
+            self.used -= old
+            self.evictions += 1
+        self.order[key] = size
+        self.used += size
+        self.peak = max(self.peak, self.used)
+
+    def state_dict(self):
+        return dict(order=list(self.order.items()), used=self.used,
+                    peak=self.peak, evictions=self.evictions)
+
+    def load_state_dict(self, state):
+        actual = {(site, p): sum(t.numel()*t.element_size() for t in page)
+                  for site, bank in self.banks.items() for p, page in bank.pages.items()}
+        order = OrderedDict((tuple(k), v) for k,v in state['order'])
+        if dict(order) != actual or sum(order.values()) != state['used'] or not 0 <= state['used'] <= state['peak'] <= self.budget_bytes:
+            raise ValueError('inconsistent MMS shared page checkpoint')
+        self.order, self.used, self.peak, self.evictions = order, state['used'], state['peak'], state['evictions']
+
+
+class MultiSiteMemory:
+    """One selected physical write per optimizer step across shared RAM.
+
+    Fixed round-robin is the matched scheduling control. Adaptive chooses
+    the site with highest historical admission fraction (hit fraction in
+    observe), with an exploration step every four updates. Admission is a
+    cheap engineering proxy, not causal task utility. Never reads heldout.
+    """
+    def __init__(self, modules, *, mib, schedule='round_robin', maps=None, **kwargs):
+        if schedule not in ('round_robin', 'adaptive') or not modules:
+            raise ValueError('invalid MMS site schedule')
+        if len({id(m) for m in modules.values()}) != len(modules):
+            raise ValueError('MMS site aliases must not share a physical module')
+        self.pool = SharedPagePool(mib)
+        self.schedule = schedule
+        self.sites = {}
+        maps = maps or {}
+        if not set(maps).issubset(modules):
+            raise ValueError('unrecognized MMS map site')
+        for name, module in modules.items():
+            options = maps.get(name, {})
+            mem = MechanisticMemory(module, mib=mib, **kwargs, **options)
+            mem.page_pool, mem.site_name = self.pool, name
+            self.sites[name] = mem
+        self.last_step, self.selected = -1, None
+        self.selections = dict.fromkeys(self.sites, 0)
+
+    def select(self, step):
+        if step < self.last_step:
+            raise ValueError('MMS time reversed')
+        if step == self.last_step:
+            return self.selected
+        names = tuple(self.sites)
+        if self.schedule == 'round_robin':
+            name = names[step % len(names)]
+        elif step % 4 == 0:
+            name = names[(step//4) % len(names)]
+        else:
+            def score(n):
+                m = self.sites[n]
+                if m.bank is None:
+                    return 1.0
+                hits = m.bank.hits if m.mode == 'observe' else m.admitted
+                return (hits+1)/(m.updates+2)
+            name = max(names, key=score)
+        self.last_step, self.selected = step, name
+        self.selections[name] += 1
+        return name
+
+    @contextmanager
+    def capture(self, keys, step, visit, visits):
+        name = self.select(step)
+        with self.sites[name].capture(keys, step, visit, visits):
+            yield
+
+    def state_dict(self):
+        return dict(sites={n:m.state_dict() for n,m in self.sites.items()},
+                    pool=self.pool.state_dict(), schedule=self.schedule,
+                    selections=self.selections, last_step=self.last_step, selected=self.selected)
+
+    def load_state_dict(self, state):
+        if tuple(state['sites']) != tuple(self.sites) or state['schedule'] != self.schedule:
+            raise ValueError('MMS site schedule mismatch')
+        for name, mem in self.sites.items():
+            mem.load_state_dict(state['sites'][name])
+            if mem.bank is not None:
+                self.pool.attach(name, mem.bank)
+        self.pool.load_state_dict(state['pool'])
+        self.selections = dict(state['selections'])
+        self.last_step, self.selected = state['last_step'], state['selected']
+
+    def receipt(self):
+        return dict(schedule=self.schedule, budget_bytes=self.pool.budget_bytes,
+                    allocated_bytes=self.pool.used, peak_bank_bytes=self.pool.peak,
+                    page_evictions=self.pool.evictions, site_selections=self.selections,
+                    sites={n:m.receipt() for n,m in self.sites.items()})

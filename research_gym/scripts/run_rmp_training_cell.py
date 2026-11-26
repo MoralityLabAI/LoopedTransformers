@@ -52,6 +52,8 @@ def main() -> None:
     parser.add_argument("--mms-visit", type=int, default=-1)
     parser.add_argument("--mms-map", default="")
     parser.add_argument("--mms-checkpoint-every", type=int, default=2000)
+    parser.add_argument("--mms-sites", default="mlp", help="comma-separated mlp,mlp_in,attention,qkv")
+    parser.add_argument("--mms-schedule", choices=("round_robin","adaptive"), default="round_robin")
     args = parser.parse_args()
     if args.mms_mib and (args.device != "cpu" or args.arm != "LOOP-T"):
         parser.error("MMS v0 requires CPU LOOP-T")
@@ -106,6 +108,8 @@ def main() -> None:
         mms_map=args.mms_map,
         mms_map_sha=map_sha,
         mms_checkpoint_every=args.mms_checkpoint_every,
+        mms_sites=args.mms_sites,
+        mms_schedule=args.mms_schedule,
     )
     provenance = {
         "bundle_hash": manifest["bundle_hash"],
