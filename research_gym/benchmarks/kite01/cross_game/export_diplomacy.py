@@ -18,7 +18,7 @@ def holds(g,p):
 def submit(g,p,orders):
     g.set_orders(p,list(orders),expand=False)
     if sorted(g.get_orders(p))!=sorted(orders):
-        raise ValueError(f"Order mismatch {p}: {orders!r} -> {g.get_orders(p)!r}")
+        raise ValueError(f"Order mismatch {p}: {orders!r} -> {g.get_orders(p)!r}; errors={g.error!r}")
 
 def pool(g,p,possible):
     base=holds(g,p)
@@ -47,6 +47,11 @@ def roster(g,p,possible,shared,cap):
 
 def resolve(base,orders):
     g=deepcopy(base)
+    # The custom deepcopy independently copies the owner cache and powers.
+    # Cached owner identities may therefore fail _add_order's identity check.
+    g.clear_cache()
+    g.renderer=None
+    g.error=[]
     g.clear_orders()
     for p in sorted(orders):
         submit(g,p,orders[p])
