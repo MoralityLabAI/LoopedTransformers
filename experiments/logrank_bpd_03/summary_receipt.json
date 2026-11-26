@@ -1,0 +1,280 @@
+{
+  "evidence": "exploratory synthetic GRU development; four seeds, one isomorphism family",
+  "source_sha256": "395ede9cdd6188b9ceae6224f7140abd08643d8ba52b6204a448bc4e1bf00cc2",
+  "source_git_blob": "72ed585f76d4e09c1b86f3c7908cbec7bdcb6b72",
+  "raw_receipt_sha256": "7802529a4b752da0b217f056b69c149e14df0c21c9699a47b9f5a467d4974d5d",
+  "audit": {
+    "status": "PASS",
+    "models": 28,
+    "scored_transcript_rows": 114688,
+    "distinct_full_cases": 57344,
+    "collision_group_sizes_checked": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  "steps": 500,
+  "lambda_nats": 0.5,
+  "heldout_cases_per_model": 1024,
+  "full_cases_per_model": 2048,
+  "rows": [
+    {
+      "root": 503,
+      "arm": "interactive",
+      "heldout_correct": 583,
+      "full_correct": 1198,
+      "codes": 2,
+      "joint_bits_rounded": 0,
+      "marginal_bits_rounded": 0
+    },
+    {
+      "root": 503,
+      "arm": "quadratic",
+      "heldout_correct": 595,
+      "full_correct": 1202,
+      "codes": 4,
+      "joint_bits_rounded": 0.001,
+      "marginal_bits_rounded": 0.001
+    },
+    {
+      "root": 503,
+      "arm": "marginal",
+      "heldout_correct": 703,
+      "full_correct": 1407,
+      "codes": 2,
+      "joint_bits_rounded": 0.954,
+      "marginal_bits_rounded": 2.863
+    },
+    {
+      "root": 503,
+      "arm": "joint",
+      "heldout_correct": 780,
+      "full_correct": 1577,
+      "codes": 4,
+      "joint_bits_rounded": 1.81,
+      "marginal_bits_rounded": 2.964
+    },
+    {
+      "root": 503,
+      "arm": "joint_quadratic",
+      "heldout_correct": 768,
+      "full_correct": 1549,
+      "codes": 4,
+      "joint_bits_rounded": 1.812,
+      "marginal_bits_rounded": 2.884
+    },
+    {
+      "root": 503,
+      "arm": "guided",
+      "heldout_correct": 1016,
+      "full_correct": 2040,
+      "codes": 8,
+      "joint_bits_rounded": 2.996,
+      "marginal_bits_rounded": 2.994
+    },
+    {
+      "root": 503,
+      "arm": "fixed",
+      "heldout_correct": 1020,
+      "full_correct": 2043,
+      "codes": 8,
+      "joint_bits_rounded": 3,
+      "marginal_bits_rounded": 3
+    },
+    {
+      "root": 607,
+      "arm": "interactive",
+      "heldout_correct": 615,
+      "full_correct": 1265,
+      "codes": 4,
+      "joint_bits_rounded": 0.005,
+      "marginal_bits_rounded": 0.004
+    },
+    {
+      "root": 607,
+      "arm": "quadratic",
+      "heldout_correct": 617,
+      "full_correct": 1263,
+      "codes": 2,
+      "joint_bits_rounded": 0.001,
+      "marginal_bits_rounded": 0
+    },
+    {
+      "root": 607,
+      "arm": "marginal",
+      "heldout_correct": 651,
+      "full_correct": 1314,
+      "codes": 2,
+      "joint_bits_rounded": 1,
+      "marginal_bits_rounded": 3
+    },
+    {
+      "root": 607,
+      "arm": "joint",
+      "heldout_correct": 791,
+      "full_correct": 1563,
+      "codes": 4,
+      "joint_bits_rounded": 1.811,
+      "marginal_bits_rounded": 2.891
+    },
+    {
+      "root": 607,
+      "arm": "joint_quadratic",
+      "heldout_correct": 720,
+      "full_correct": 1474,
+      "codes": 5,
+      "joint_bits_rounded": 2.154,
+      "marginal_bits_rounded": 2.709
+    },
+    {
+      "root": 607,
+      "arm": "guided",
+      "heldout_correct": 965,
+      "full_correct": 1955,
+      "codes": 8,
+      "joint_bits_rounded": 2.994,
+      "marginal_bits_rounded": 2.993
+    },
+    {
+      "root": 607,
+      "arm": "fixed",
+      "heldout_correct": 1004,
+      "full_correct": 2014,
+      "codes": 8,
+      "joint_bits_rounded": 3,
+      "marginal_bits_rounded": 3
+    },
+    {
+      "root": 709,
+      "arm": "interactive",
+      "heldout_correct": 664,
+      "full_correct": 1304,
+      "codes": 2,
+      "joint_bits_rounded": 0.002,
+      "marginal_bits_rounded": 0.002
+    },
+    {
+      "root": 709,
+      "arm": "quadratic",
+      "heldout_correct": 707,
+      "full_correct": 1420,
+      "codes": 2,
+      "joint_bits_rounded": 0.981,
+      "marginal_bits_rounded": 2.655
+    },
+    {
+      "root": 709,
+      "arm": "marginal",
+      "heldout_correct": 731,
+      "full_correct": 1427,
+      "codes": 2,
+      "joint_bits_rounded": 0.954,
+      "marginal_bits_rounded": 2.863
+    },
+    {
+      "root": 709,
+      "arm": "joint",
+      "heldout_correct": 780,
+      "full_correct": 1536,
+      "codes": 4,
+      "joint_bits_rounded": 1.75,
+      "marginal_bits_rounded": 2.763
+    },
+    {
+      "root": 709,
+      "arm": "joint_quadratic",
+      "heldout_correct": 745,
+      "full_correct": 1494,
+      "codes": 3,
+      "joint_bits_rounded": 1.406,
+      "marginal_bits_rounded": 2.908
+    },
+    {
+      "root": 709,
+      "arm": "guided",
+      "heldout_correct": 1010,
+      "full_correct": 2031,
+      "codes": 8,
+      "joint_bits_rounded": 2.995,
+      "marginal_bits_rounded": 2.995
+    },
+    {
+      "root": 709,
+      "arm": "fixed",
+      "heldout_correct": 1016,
+      "full_correct": 2037,
+      "codes": 8,
+      "joint_bits_rounded": 3,
+      "marginal_bits_rounded": 3
+    },
+    {
+      "root": 811,
+      "arm": "interactive",
+      "heldout_correct": 653,
+      "full_correct": 1317,
+      "codes": 2,
+      "joint_bits_rounded": 0.296,
+      "marginal_bits_rounded": 0.366
+    },
+    {
+      "root": 811,
+      "arm": "quadratic",
+      "heldout_correct": 611,
+      "full_correct": 1250,
+      "codes": 3,
+      "joint_bits_rounded": 0.006,
+      "marginal_bits_rounded": 0.005
+    },
+    {
+      "root": 811,
+      "arm": "marginal",
+      "heldout_correct": 716,
+      "full_correct": 1408,
+      "codes": 2,
+      "joint_bits_rounded": 1,
+      "marginal_bits_rounded": 3
+    },
+    {
+      "root": 811,
+      "arm": "joint",
+      "heldout_correct": 780,
+      "full_correct": 1570,
+      "codes": 4,
+      "joint_bits_rounded": 1.749,
+      "marginal_bits_rounded": 2.763
+    },
+    {
+      "root": 811,
+      "arm": "joint_quadratic",
+      "heldout_correct": 789,
+      "full_correct": 1567,
+      "codes": 4,
+      "joint_bits_rounded": 1.811,
+      "marginal_bits_rounded": 2.899
+    },
+    {
+      "root": 811,
+      "arm": "guided",
+      "heldout_correct": 1016,
+      "full_correct": 2038,
+      "codes": 8,
+      "joint_bits_rounded": 2.997,
+      "marginal_bits_rounded": 2.996
+    },
+    {
+      "root": 811,
+      "arm": "fixed",
+      "heldout_correct": 1022,
+      "full_correct": 2046,
+      "codes": 8,
+      "joint_bits_rounded": 3,
+      "marginal_bits_rounded": 3
+    }
+  ]
+}
