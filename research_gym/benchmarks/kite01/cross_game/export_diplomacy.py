@@ -97,7 +97,7 @@ def export_pair(g,row,col,cap):
     return {"schema":"kite.conditional-bimatrix.v1","id":f"diplomacy:{digest(frozen)[:16]}:{row}:{col}",
             "actors":[row,col],"actions":{"row":rows,"col":cols},"denominator":2*len(centers),
             "worlds":worlds,"beliefs":{"row":[1,1],"col":[1,1]},
-            "source":{"engine":"native Game.process","board_hash":digest(frozen),"board":frozen,
+            "source":{"engine":"native Game.process","campaign_id":"standard-1901-hold-chain","board_hash":digest(frozen),"board":frozen,
                       "utility":"owned+occupied supply centers, global scale","phase":frozen["phase"],
                       "retreat_policy":"disband","scope":"movement plus immediate retreat; fixed other powers"}}
 
