@@ -180,14 +180,14 @@ def continuation(args, teacher, train, validation, q, w, bank):
     rng = torch.Generator().manual_seed(args.seed + 1013)
     schedule = torch.randint(len(bank), (args.updates, args.batch), generator=rng).tolist()
     gt = w.T @ w
-    results, baseline_grads, baseline_state = [], None, None
-    baseline_losses = None
+    results, baseline_grads, baseline_state = [], {}, None
+    baseline_losses, baseline_auxs = None, None
     teacher_id = parameter_hash(teacher)
     for arm in ARMS:
         student = copy.deepcopy(teacher).train()
         optimizer = torch.optim.AdamW(student.parameters(), lr=0.0005)
         losses, auxs = [], []
-        first_grad_error = None
+        gradient_errors = {}
         start = time.perf_counter()
         for step, ids in enumerate(schedule):
             records = [bank[i] for i in ids]
@@ -215,15 +215,16 @@ def continuation(args, teacher, train, validation, q, w, bank):
                 raise RuntimeError("nonfinite response loss")
             loss = task + args.aux_weight * aux
             loss.backward()
-            if step == 0:
-                first = gradients(student)
+            if step in {0, args.updates - 1}:
+                current = gradients(student)
                 if arm == "dense":
-                    baseline_grads = first
-                    first_grad_error = 0.0
+                    baseline_grads[step] = current
+                    gradient_errors[step] = 0.0
                 else:
-                    first_grad_error = gradient_error(first, baseline_grads)
-                    if first_grad_error > ATOL:
-                        raise RuntimeError(f"first-step gradient parity failed: {arm} {first_grad_error}")
+                    error = gradient_error(current, baseline_grads[step])
+                    gradient_errors[step] = error
+                    if error > (ATOL if step == 0 else 1e-7):
+                        raise RuntimeError(f"gradient parity failed: {arm} {step} {error}")
             torch.nn.utils.clip_grad_norm_(student.parameters(), 1.0)
             optimizer.step()
             losses.append(float(loss.detach()))
@@ -231,19 +232,22 @@ def continuation(args, teacher, train, validation, q, w, bank):
         elapsed = time.perf_counter() - start
         state = {n: p.detach().clone() for n, p in student.state_dict().items()}
         if arm == "dense":
-            baseline_state, baseline_losses = state, losses
-            final_error = loss_error = 0.0
+            baseline_state, baseline_losses, baseline_auxs = state, losses, auxs
+            final_error = loss_error = aux_error = 0.0
         else:
             final_error = max(max_error(state[n], baseline_state[n]) for n in state)
             loss_error = max(abs(a - b) for a, b in zip(losses, baseline_losses, strict=True))
-            if final_error > 1e-7 or loss_error > 1e-7:
+            aux_error = max(abs(a - b) for a, b in zip(auxs, baseline_auxs, strict=True))
+            if final_error > 1e-7 or loss_error > 1e-7 or aux_error > ATOL:
                 raise RuntimeError(f"continuation parity failed: {arm} {final_error} {loss_error}")
         val, predictions = evaluate(student, validation, train, args.batch)
         results.append({"arm": arm, "updates": args.updates, "batch": args.batch,
                         "student_forward_example_visits": 2 * args.updates * args.batch * 8,
                         "teacher_recompute_example_visits": (
                             2 * args.updates * args.batch * 8 if arm == "recompute" else 0),
-                        "first_gradient_max_abs_error": first_grad_error,
+                        "first_gradient_max_abs_error": gradient_errors[0],
+                        "last_gradient_max_abs_error": gradient_errors[args.updates - 1],
+                        "max_aux_loss_error": aux_error,
                         "final_parameter_max_abs_error": final_error,
                         "max_training_loss_error": loss_error,
                         "mean_aux_loss": sum(auxs) / len(auxs),
@@ -294,6 +298,7 @@ def main():
     dump(args.out / "receipt.json", report)
     print(json.dumps({"status": report["status"], "payload": payload, "anchors": receipts,
                       "arms": [{k: r[k] for k in ("arm", "first_gradient_max_abs_error",
+                                                  "last_gradient_max_abs_error", "max_aux_loss_error",
                                                   "final_parameter_max_abs_error", "max_training_loss_error",
                                                   "mean_aux_loss", "min_aux_loss", "wall_seconds")}
                                | {"validation_exact": r["validation"]["exact"]} for r in result]},
