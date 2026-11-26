@@ -153,7 +153,8 @@ def sha_state(model):
     digest = hashlib.sha256()
     for name, value in model.state_dict().items():
         digest.update(name.encode())
-        digest.update(value.detach().contiguous().numpy().tobytes())
+        digest.update(str((value.dtype, tuple(value.shape))).encode())
+        digest.update(bytes(value.detach().cpu().contiguous().view(torch.uint8).reshape(-1).tolist()))
     return digest.hexdigest()
 
 
