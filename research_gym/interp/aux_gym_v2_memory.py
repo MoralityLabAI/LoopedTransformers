@@ -263,7 +263,7 @@ def training(args):
     if args.mib < 0 or args.weight < 0 or args.rank < 1:
         raise ValueError("invalid memory or loss parameters")
     if (args.mode in ("off", "batch") and args.mib != 0
-            or args.mode in ("memory", "shuffled_memory", "random_basis") and args.mib == 0):
+            or args.mode in ("memory", "shuffled_memory", "random_basis", "native_memory") and args.mib == 0):
         raise ValueError("zero RAM for off/batch, positive RAM for memory arms")
     torch.set_num_threads(args.threads)
     torch.manual_seed(args.seed)
@@ -280,6 +280,23 @@ def training(args):
         return rows(path)
     train, val = checked("train"), checked("validation")
     model = build_model("LOOP-T", visits=8).to(device)
+    initial = None
+    native_basis = None
+    if args.init_run is not None:
+        initial = json.loads((args.init_run / "receipt.json").read_text())
+        if (initial["arm"] != "LOOP-T" or initial["family"] != args.family
+                or initial["manifest_sha256"] != digest_file(args.data / "manifest.json")
+                or initial["checkpoint_sha256"] != digest_file(args.init_run / "model.pt")):
+            raise ValueError("warmstart provenance mismatch")
+        model.load_state_dict(torch.load(args.init_run / "model.pt", map_location="cpu", weights_only=True))
+    if args.mode == "native_memory":
+        if initial is None or args.factor_dir is None:
+            raise ValueError("native_memory requires --init-run and --factor-dir")
+        from research_gym.interp.aux_gym_v2_native_bpd import load_native_basis
+        native_basis = load_native_basis(args.factor_dir, initial["checkpoint_sha256"],
+                                         args.rank, model.blocks[0].mlp[-1].weight)
+    elif args.factor_dir is not None:
+        raise ValueError("factor directory only for native_memory")
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr)
     site = model.blocks[0].mlp[-1]
     memory = FactorMemory(args.mib * 2**20, site.out_features, FAMILIES[args.family].answer_tokens)
@@ -298,10 +315,15 @@ def training(args):
     start = time.perf_counter()
     try:
         for step in range(args.steps):
-            if step % args.refresh == 0:
+            if step == 0 or (not args.freeze_basis and step % args.refresh == 0):
                 before = time.perf_counter()
-                basis, retained = physical_basis(site.weight, args.rank,
-                    "random" if args.mode == "random_basis" else "svd", basis_rng)
+                if native_basis is not None:
+                    basis = native_basis
+                    w = site.weight.detach().float().cpu()
+                    retained = float((basis.T @ w).square().sum() / w.square().sum().clamp_min(1e-12))
+                else:
+                    basis, retained = physical_basis(site.weight, args.rank,
+                        "random" if args.mode == "random_basis" else "svd", basis_rng)
                 basis = basis.to(device)
                 basis_time += time.perf_counter() - before
                 refreshes += 1
@@ -371,7 +393,12 @@ def training(args):
         "manifest_sha256": digest_file(args.data / "manifest.json"),
         "checkpoint_sha256": digest_file(args.out / "model.pt"),
         "predictions_sha256": digest_file(args.out / "validation_predictions.jsonl"),
-        "site": "blocks.0.mlp.2", "method": "physical_weight_svd_proxy",
+        "site": "blocks.0.mlp.2",
+        "method": ("native_bpd_learned_output_span" if args.mode == "native_memory"
+                   else "physical_weight_svd_proxy"),
+        "init_checkpoint_sha256": initial["checkpoint_sha256"] if initial else None,
+        "native_factor_receipt_sha256": digest_file(args.factor_dir / "receipt.json") if args.factor_dir else None,
+        "freeze_basis": args.freeze_basis or args.mode == "native_memory",
         "memory": memory.receipt(), "basis_refreshes": refreshes,
         "basis_retained_energy": energy, "basis_seconds": basis_time,
         "paired_donor_coverage": coverage / (args.steps * args.batch * 8),
@@ -482,8 +509,11 @@ def main():
     t.add_argument("--data", type=Path, required=True)
     t.add_argument("--out", type=Path, required=True)
     t.add_argument("--family", choices=FAMILIES_V2, required=True)
-    t.add_argument("--mode", choices=("off", "batch", "memory", "shuffled_memory", "random_basis"), required=True)
+    t.add_argument("--mode", choices=("off", "batch", "memory", "shuffled_memory", "random_basis", "native_memory"), required=True)
     t.add_argument("--mib", type=int, default=0)
+    t.add_argument("--init-run", type=Path)
+    t.add_argument("--factor-dir", type=Path)
+    t.add_argument("--freeze-basis", action="store_true")
     t.add_argument("--seed", type=int, required=True)
     t.add_argument("--steps", type=int, default=1000)
     t.add_argument("--batch", type=int, default=64)
