@@ -51,16 +51,18 @@ def main() -> None:
     parser.add_argument("--mms-max-age", type=int, default=32768)
     parser.add_argument("--mms-visit", type=int, default=-1)
     parser.add_argument("--mms-map", default="")
+    parser.add_argument("--mms-map-manifest", default="", help="JSON physical site to path/SHA-256 export")
     parser.add_argument("--mms-checkpoint-every", type=int, default=2000)
     parser.add_argument("--mms-sites", default="mlp", help="comma-separated mlp,mlp_in,attention,qkv")
     parser.add_argument("--mms-schedule", choices=("round_robin","adaptive"), default="round_robin")
     args = parser.parse_args()
     if args.mms_mib and (args.device != "cpu" or args.arm != "LOOP-T"):
         parser.error("MMS v0 requires CPU LOOP-T")
-    if args.mms_map and not args.mms_mib:
+    if (args.mms_map or args.mms_map_manifest) and not args.mms_mib:
         parser.error("MMS map requires positive MMS budget")
     from research_gym.interp.mms import file_sha256
     map_sha = file_sha256(args.mms_map) if args.mms_map else ""
+    manifest_sha = file_sha256(args.mms_map_manifest) if args.mms_map_manifest else ""
 
     if args.threads:
         torch.set_num_threads(args.threads)
@@ -110,6 +112,8 @@ def main() -> None:
         mms_checkpoint_every=args.mms_checkpoint_every,
         mms_sites=args.mms_sites,
         mms_schedule=args.mms_schedule,
+        mms_map_manifest=args.mms_map_manifest,
+        mms_map_manifest_sha=manifest_sha,
     )
     provenance = {
         "bundle_hash": manifest["bundle_hash"],

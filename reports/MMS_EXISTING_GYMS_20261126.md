@@ -96,3 +96,5 @@ learning utility. Use fixed round-robin for matched mechanistic controls.
 Saved RMP latest checkpoints include pool eviction order and schedule state;
 old default single-site IDs and checkpoints are unchanged. Multi-site currently
 uses current SVD proxies; the single default site supports learned BPD exports.
+
+Multi-site map amendment: --mms-map-manifest accepts a JSON map from physical site name to {path,sha256}. Manifest and exported files are SHA-256 checked. Unspecified sites use SVD proxies; learned map lineage and causal fidelity still need audit. Prior single-map CLI remains supported.

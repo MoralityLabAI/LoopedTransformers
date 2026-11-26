@@ -412,3 +412,21 @@ class MultiSiteMemory:
                     allocated_bytes=self.pool.used, peak_bank_bytes=self.pool.peak,
                     page_evictions=self.pool.evictions, site_selections=self.selections,
                     sites={n:m.receipt() for n,m in self.sites.items()})
+
+
+def read_map_manifest(path, expected_sha=None):
+    """Resolve hash-pinned site V/U exports relative to the manifest."""
+    import json
+    path=Path(path)
+    if expected_sha is not None and file_sha256(path)!=expected_sha:
+        raise ValueError('MMS map manifest SHA-256 mismatch')
+    data=json.loads(path.read_text(encoding='utf-8'))
+    if not isinstance(data,dict) or not data:
+        raise ValueError('MMS map manifest must name physical sites')
+    maps={}
+    for name,record in data.items():
+        source=(path.parent/record['path']).resolve()
+        if file_sha256(source)!=record['sha256']:
+            raise ValueError(f'MMS factor digest mismatch for {name}')
+        maps[name]=dict(map_file=str(source),map_sha=record['sha256'])
+    return maps

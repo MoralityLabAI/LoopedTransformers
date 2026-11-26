@@ -145,3 +145,23 @@ def test_adaptive_schedule_explores_all_sites():
     prior=dict(m.selections)
     assert m.select(15)==chosen[15]
     assert prior==m.selections
+
+
+def test_hash_pinned_multisite_map_manifest(tmp_path):
+    import json
+    import hashlib
+    from research_gym.interp.mms import read_map_manifest, MultiSiteMemory
+    layer=torch.nn.Linear(8,4)
+    v=torch.eye(8)[:,:4];u=torch.eye(4)
+    source=tmp_path/'factors.pt'
+    torch.save({'V':v,'U':u},source)
+    manifest=tmp_path/'maps.json'
+    manifest.write_text(json.dumps({'mlp':{'path':'factors.pt',
+                          'sha256':hashlib.sha256(source.read_bytes()).hexdigest()}}))
+    sha=hashlib.sha256(manifest.read_bytes()).hexdigest()
+    maps=read_map_manifest(manifest,sha)
+    memory=MultiSiteMemory({'mlp':layer},mib=.1,maps=maps)
+    assert memory.sites['mlp'].map_kind=='native_export_unverified_semantics'
+    source.write_bytes(b'changed')
+    import pytest
+    with pytest.raises(ValueError): read_map_manifest(manifest,sha)

@@ -35,3 +35,5 @@ and fit seed. Use fixed exposure and fixed CPU studies separately, plus
 observe/dense/sham controls, fresh confirmation lineage and EvalMath
 preflight before promotion. No sealed datasets are opened. No large-memory
 gain has been measured. The smaller datasets may saturate well below GiB.
+
+All learned LBF adapters now accept --mms-map-manifest; keys block (20D/F), candidate and gate (19). V/U exports must match their physical layer. Hash verification establishes identity only; SVD fallback and exported-map admission remain explicitly labelled.

@@ -17,7 +17,7 @@ from pathlib import Path
 import torch
 from torch.nn import functional as F
 
-from research_gym.interp.mms import MechanisticMemory, SharedPagePool, MultiSiteMemory
+from research_gym.interp.mms import MechanisticMemory, SharedPagePool, read_map_manifest, file_sha256
 
 
 def memory_kwargs(args):
@@ -58,7 +58,9 @@ def native_fit(args):
             rows=gym.evaluate(held,info,'lcv',model)
             return dict(rows=rows,mean_nodes=statistics.mean(r['nodes'] for r in rows),
                         statuses={k:sum(r['status']==k for r in rows) for k in ('solved','refuted','budget')})
-    mem=MechanisticMemory(model.blocks[0],**memory_kwargs(args)) if args.mms_mib else None
+    maps=read_map_manifest(args.mms_map_manifest,args.map_manifest_sha) if args.mms_map_manifest else {}
+    if not set(maps).issubset({"block"}): raise ValueError("use block site for LBF20D/F")
+    mem=MechanisticMemory(model.blocks[0],**memory_kwargs(args),**maps.get("block",{})) if args.mms_mib else None
     opt=torch.optim.AdamW(model.parameters(),lr=lr,weight_decay=.0001)
     gen=torch.Generator().manual_seed(args.seed+(7919 if args.gym=='20d' else 3001))
     stream=hashlib.sha256()
@@ -98,11 +100,13 @@ def transfer_fit(args):
     pool=SharedPagePool(args.mms_mib) if args.mms_mib else None
     # Separate row shapes by length, while sharing one physical budget.
     memories={}
+    maps=read_map_manifest(args.mms_map_manifest,args.map_manifest_sha) if args.mms_map_manifest else {}
+    if not set(maps).issubset({"candidate","gate"}): raise ValueError("unknown transfer map site")
     if pool:
         for length in lengths:
             for name,site in [('candidate',model.blocks[0].cand),('gate',model.blocks[0].gate)]:
                 key=f'{length}/{name}'
-                mem=MechanisticMemory(site,**memory_kwargs(args))
+                mem=MechanisticMemory(site,**memory_kwargs(args),**maps.get(name,{}))
                 mem.page_pool,mem.site_name=pool,key
                 memories[key]=mem
     stream=hashlib.sha256()
@@ -148,6 +152,8 @@ def main(args):
     if min(args.updates,args.threads,args.train_roots,args.dev_roots)<1 or args.mms_mib<0:
         raise ValueError('invalid LBF MMS budget')
     if args.cpu_seconds is not None and args.cpu_seconds<=0: raise ValueError('invalid CPU budget')
+    if args.mms_map_manifest and not args.mms_mib: raise ValueError('map requires positive MMS budget')
+    args.map_manifest_sha=file_sha256(args.mms_map_manifest) if args.mms_map_manifest else ''
     torch.manual_seed(args.seed);torch.set_num_threads(args.threads)
     torch.use_deterministic_algorithms(True)
     started,cpu=time.perf_counter(),time.process_time()
@@ -157,7 +163,7 @@ def main(args):
     record.update(scope='development_only',gym=args.gym,seed=args.seed,threads=args.threads,
         total_wall_seconds=time.perf_counter()-started,total_process_cpu_seconds=time.process_time()-cpu,
         config={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},
-        map_scope='SVD proxy, not a learned causal BPD map')
+        map_scope='hash-pinned exported BPD or SVD proxy per site; causal fidelity unverified')
     (args.out/'receipt.json').write_text(json.dumps(record,indent=2,allow_nan=False)+'\n')
     print(json.dumps({k:v for k,v in record.items() if k!='development'}))
 
@@ -174,6 +180,7 @@ if __name__=='__main__':
     p.add_argument('--cpu-seconds',type=float)
     p.add_argument('--mms-mib',type=float,default=0)
     p.add_argument('--mms-mode',choices=('observe','dense','bpd','sham'),default='bpd')
+    p.add_argument('--mms-map-manifest',default='')
     p.add_argument('--rank',type=int,default=16)
     p.add_argument('--topk',type=int,default=4)
     p.add_argument('--ratio',type=float,default=.2)
