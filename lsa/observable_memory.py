@@ -64,7 +64,8 @@ class Sketch:
         if not 1 <= max_rank <= d <= MAX_DIMENSION:
             raise ValueError("invalid rank/dimension")
         # Full V supplies an orthonormal completion even for a short observer.
-        _, values, vh = torch.linalg.svd(observer.detach().cpu().double(), full_matrices=True)
+        _, values, vh = torch.linalg.svd(observer.detach().cpu().double(),
+                                         full_matrices=observer.shape[0] < d)
         sigma = torch.zeros(d, dtype=torch.float64)
         sigma[:len(values)] = values
         return cls(vh[:max_rank].T.contiguous(), sigma)
