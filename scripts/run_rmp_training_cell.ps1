@@ -45,8 +45,8 @@ param(
     [double]$MemoryWaitMinutes = 45,
     # Host-wide cap on training workers, shared by every runner through named mutexes: a cell takes a slot before its first
     # slice and keeps it until the cell ends, so cells take turns instead of restarting each other. Four CUDA workers at
-    # once starved each other and exhausted the commit limit; two leave room for other jobs on the card and in RAM.
-    [int]$MaxConcurrentCuda = 2,
+    # once starved each other and exhausted the commit limit; one worker leaves the CPU, RAM and card to other jobs.
+    [int]$MaxConcurrentCuda = 1,
     [int]$MaxConcurrentCpu = 1
 )
 
