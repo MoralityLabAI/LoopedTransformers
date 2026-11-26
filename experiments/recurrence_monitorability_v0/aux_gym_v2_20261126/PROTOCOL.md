@@ -38,4 +38,12 @@ Only after symbolic trace supervision shows a credible development gain:
 * At each visit predict next symbolic state; patch one factor from a matched counterfactual whose true next state differs. Use mask_move, edge_rewire, op_change siblings and matched unchanged-target controls; recompute the entire trace, preserve region disjointness, and score both predictions and intervention specificity.
 * MMS 0/4/16/64 MiB RAM tiers: persistent maps keyed by family/depth/visit/factor, hard byte cap, measured RSS, fixed update FLOPs and verifier-call budgets. Compare random/cache-size-only controls; log effective resident bytes and eviction/lookup counts. No extra visits or batches hidden in the memory arm.
 * TRM adapter and tied-loop extended-visits sweep are separate experiments. FF-U 8 visits versus LOOP-T 8 visits is the primary compute-controlled architecture comparison. Extended tied visits are a distinct test-time compute arm.
-* Implement these adapters, locked evaluator and counterfactual datasets before launching confirmation; they are specified here, not implemented in this patch.
+* Implement these adapters and counterfactual datasets before launching confirmation; they are specified here, not implemented in this patch. A frozen-checkpoint evaluator is included, with explicit --unlock and per-visit trace scores; the flag is a procedural guard, not an access-control boundary.
+
+## Engineering CI and checkpoint evaluation
+
+The dedicated CPU workflow uses an alternate seed (2026112699) for the tiny smoke dataset, never the default registered development seed. Its locked evaluation only checks the code path. It also audits V1 shipped bytes. V0 prepare_rmp_train_pool now rejects unsupported staircase families before creating files instead of failing inside worker processes; V0 generator sources remain unchanged.
+
+    python -m research_gym.interp.aux_gym_v2 evaluate --data /tmp/aux-v2 --run /tmp/aux-v2-smoke --split validation --out /tmp/aux-v2-eval
+
+For a frozen confirmatory run use --split locked_familiar or locked_novel (modular only), --unlock, and a pre-registered fixed visit count. This evaluator saves prediction IDs and per-visit decoded states. The extra-visit tied-model diagnostic is optional and separately reported. Natural prevalence is evaluated on V1 OOD with its original checkpoints via rescore; a new natural locked split and counterfactual pairs still need implementation before confirmation.

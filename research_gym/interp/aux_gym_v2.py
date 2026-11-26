@@ -127,7 +127,16 @@ def metrics(data, predictions, constant):
         "by_depth": {},
     }
     for d, pairs in sorted(by_depth.items()):
+        supports = Counter(t for t, _ in pairs)
+        correct = Counter(t for t, p in pairs if t == p)
+        nodes = [(t, p) for t, p in pairs if t != ABSTAIN]
+        abstains = [(t, p) for t, p in pairs if t == ABSTAIN]
         out["by_depth"][str(d)] = {
+            "macro_recall_observed_classes": sum(correct[t] / n for t, n in supports.items()) / len(supports),
+            "node_exact_if_masked": (sum(t == p for t, p in nodes) / len(nodes)
+                                     if nodes and "mapping" in data[0]["semantic"] else None),
+            "abstain_recall": (sum(t == p for t, p in abstains) / len(abstains)
+                               if abstains else None),
             "n": len(pairs),
             "exact": sum(t == p for t, p in pairs) / len(pairs),
             "constant_exact": sum(t == constant for t, _ in pairs) / len(pairs),
@@ -147,6 +156,7 @@ def metrics(data, predictions, constant):
             "node_n": node_n, "abstain_n": abstain_n,
             "node_false_abstain": sum(t != ABSTAIN and p == ABSTAIN for t, p in a),
             "node_answer_rate": sum(p != ABSTAIN for _, p in a) / len(a),
+            "always_abstain_exact": abstain_n / len(a),
         }
         if abstain_n and node_n:
             out["masked"]["binary_outcome_macro_exact"] = (tp / abstain_n + node_correct / node_n) / 2
@@ -302,6 +312,8 @@ def run_pilot(args):
             raise ValueError("dataset hash mismatch")
         return rows(path)
 
+    if args.out.exists():
+        raise FileExistsError(args.out)
     train = checked("train")
     # Do not read the locked files during development training.
     val = checked("validation")
@@ -350,6 +362,77 @@ def run_pilot(args):
     })
 
 
+def evaluate(args):
+    """Evaluate a frozen pilot checkpoint; explicit opt-in required for locked splits."""
+    import torch
+    from research_gym.interp.models import build_model
+
+    receipt = json.loads((args.run / "receipt.json").read_text())
+    manifest = json.loads((args.data / "manifest.json").read_text())
+    if digest_file(args.data / "manifest.json") != receipt["manifest_sha256"]:
+        raise ValueError("checkpoint and dataset manifest mismatch")
+    if digest_file(args.run / "model.pt") != receipt["checkpoint_sha256"]:
+        raise ValueError("checkpoint hash mismatch")
+    if args.split.startswith("locked") and not args.unlock:
+        raise ValueError("locked evaluation requires --unlock and a frozen analysis plan")
+    if args.out.exists():
+        raise FileExistsError(args.out)
+    name = f"{args.split}/{receipt['family']}.jsonl"
+    path = args.data / name
+    if digest_file(path) != manifest["files"][name]["sha256"]:
+        raise ValueError("shard hash mismatch")
+    if args.threads:
+        torch.set_num_threads(args.threads)
+    data = rows(path)
+    model = build_model(receipt["arm"], visits=receipt["visits"])
+    model.load_state_dict(torch.load(args.run / "model.pt", map_location="cpu", weights_only=True))
+    model.eval()
+    device = torch.device(args.device)
+    model.to(device)
+    visits = receipt["visits"]
+    if args.visits is not None:
+        visits = args.visits
+        if visits != receipt["visits"] and receipt["arm"] != "LOOP-T":
+            raise ValueError("only tied arm supports the extra-visit diagnostic")
+    if visits < 1:
+        raise ValueError("positive visit count required")
+    pred, trace_hits, trace_count = [], Counter(), Counter()
+    pred_rows = []
+    with torch.no_grad():
+        for offset in range(0, len(data), args.batch):
+            chunk = data[offset:offset + args.batch]
+            x = torch.tensor([r["tokens"] for r in chunk], device=device)
+            output = model(x, depth_visits=visits)
+            final = output.logits[:, -1].argmax(-1).cpu().tolist()
+            all_states = [model.lens(state[:, -1]).argmax(-1).cpu().tolist()
+                          for state in output.visit_outputs]
+            pred.extend(final)
+            for j, r in enumerate(chunk):
+                path_pred = [p[j] for p in all_states]
+                for i, prediction in enumerate(path_pred, 1):
+                    expected = r["symbolic_trace_tokens"][min(i, r["difficulty"])]
+                    key = f"{r['difficulty']}:{i}"
+                    trace_count[key] += 1
+                    trace_hits[key] += int(prediction == expected)
+                pred_rows.append({"example_id": r["example_id"], "depth": r["difficulty"],
+                                  "target": r["target_token"], "prediction": final[j],
+                                  "visit_predictions": path_pred})
+    args.out.mkdir(parents=True, exist_ok=False)
+    write_rows(args.out / "predictions.jsonl", pred_rows)
+    dump(args.out / "evaluation.json", {
+        "run_receipt_sha256": digest_file(args.run / "receipt.json"),
+        "checkpoint_sha256": receipt["checkpoint_sha256"], "shard_sha256": digest_file(path),
+        "split": args.split, "device": str(device), "visits": visits,
+        "training_visits": receipt["visits"],
+        "predictions_sha256": digest_file(args.out / "predictions.jsonl"),
+        "score": metrics(data, pred, receipt["validation"]["constant_token"]),
+        "trace_exact_by_depth_visit": {
+            key: {"correct": trace_hits[key], "n": n, "exact": trace_hits[key] / n}
+            for key, n in sorted(trace_count.items())
+        },
+    })
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -381,8 +464,22 @@ def main():
     t.add_argument("--lr", type=float, default=0.001)
     t.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     t.add_argument("--threads", type=int, default=0)
+    e = sub.add_parser("evaluate")
+    e.add_argument("--run", type=Path, required=True)
+    e.add_argument("--data", type=Path, required=True)
+    e.add_argument("--out", type=Path, required=True)
+    e.add_argument("--split", choices=("validation", "locked_familiar", "locked_novel"), required=True)
+    e.add_argument("--unlock", action="store_true")
+    e.add_argument("--batch", type=int, default=64)
+    e.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
+    e.add_argument("--threads", type=int, default=0)
+    e.add_argument("--visits", type=int)
     args = parser.parse_args()
-    if args.cmd == "audit":
+    if args.cmd == "evaluate":
+        if args.batch < 1:
+            parser.error("positive batch required")
+        evaluate(args)
+    elif args.cmd == "audit":
         dump(args.out, audit(args.root, pools=args.pools))
     elif args.cmd == "rescore":
         dump(args.out, rescore(args.shard, args.predfile, args.calibration))
