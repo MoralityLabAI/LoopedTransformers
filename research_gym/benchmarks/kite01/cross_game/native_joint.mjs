@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {pathToFileURL} from 'node:url';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {plan,certify,truncate,frac} from './sparse_joint.mjs';
 const digest=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
@@ -69,6 +70,7 @@ function auditPlans(manifest,native){
  }
  return {schema:'kite.native-joint-audit.v1',scope:'development-only fixed background, fixed seed, seven declared action rosters; no independent campaign generalization',jobs:results,unique_native_cells:results.reduce((s,r)=>s+r.required_cells,0),campaign_clusters:new Set(results.map(r=>r.source.campaign_id)).size};
 }
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
 if(process.argv[2]==='plan'){
  const j=makePlans(JSON.parse(readFileSync(process.argv[3],'utf8')),JSON.parse(readFileSync(process.argv[4],'utf8')));
  writeFileSync(process.argv[5],JSON.stringify(j,null,2)+'\n');console.log('JOINT_PLAN '+JSON.stringify(j.jobs.map(x=>({id:x.spec.id,cells:x.plan.required_cells,full:x.plan.full_tensor_cells,profiles:x.plan.profiles}))));
@@ -76,3 +78,5 @@ if(process.argv[2]==='plan'){
  const j=auditPlans(JSON.parse(readFileSync(process.argv[3],'utf8')),JSON.parse(readFileSync(process.argv[4],'utf8')));
  writeFileSync(process.argv[5],JSON.stringify(j,null,2)+'\n');console.log('JOINT_NATIVE_SUMMARY '+JSON.stringify({cells:j.unique_native_cells,clusters:j.campaign_clusters,jobs:j.jobs.map(r=>({id:r.id,cells:r.required_cells,profiles:r.profiles.map(p=>({id:p.id,global:p.global_max_regret,local:p.local_max_regret_observed_range,exact:p.restricted_exact_nash,profitable:p.players.filter(x=>x.profitable).map(x=>x.player)}))}))}));
 }else throw Error('expected plan or audit');
+}
+export {makePlans,auditPlans};

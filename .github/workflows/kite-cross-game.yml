@@ -34,6 +34,7 @@ jobs:
         run: |
           node looped/research_gym/benchmarks/kite01/cross_game/test_report.mjs
           node looped/research_gym/benchmarks/kite01/cross_game/test_sparse_joint.mjs
+          node looped/research_gym/benchmarks/kite01/cross_game/test_native_joint.mjs
       - name: Native counterfactual adjudication
         working-directory: diplomacy-native
         run: |
@@ -80,6 +81,7 @@ jobs:
         run: |
           node looped/research_gym/benchmarks/kite01/cross_game/test_report.mjs
           node looped/research_gym/benchmarks/kite01/cross_game/test_sparse_joint.mjs
+          node looped/research_gym/benchmarks/kite01/cross_game/test_native_joint.mjs
       - name: Native counterfactual adjudication
         run: node looped/research_gym/benchmarks/kite01/cross_game/export_theysing.cjs theysing-native/dist-harness/engine/TheySingEngine.js sing-roots.json
       - name: Exact certificate evaluation
