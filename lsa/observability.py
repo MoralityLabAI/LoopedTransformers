@@ -42,7 +42,7 @@ def spectrum(o: torch.Tensor, relative: float = 1e-6, absolute: float = 1e-10) -
         raise ValueError("invalid observability or threshold")
     if not bool(torch.isfinite(o).all()):
         raise ValueError("nonfinite observability")
-    values = torch.linalg.svdvals(o.double())
+    values = torch.linalg.svdvals(o.detach().double())
     threshold = max(absolute, relative * float(values[0]))
     rank = int((values > threshold).sum())
     return {"observations": o.shape[0], "support_dimension": o.shape[1],
