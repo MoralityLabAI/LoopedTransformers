@@ -1,0 +1,43 @@
+name: AUX-GYM V2 memory engineering
+on:
+  pull_request:
+    paths:
+      - 'research_gym/interp/aux_gym_v2_memory.py'
+      - 'experiments/recurrence_monitorability_v0/aux_gym_v2_20261126/**'
+      - '.github/workflows/aux-gym-v2-memory.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  memory-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m unittest discover -s experiments/recurrence_monitorability_v0/aux_gym_v2_20261126 -p 'test_*.py'
+      - name: Fresh engineering dataset
+        run: python -m research_gym.interp.aux_gym_v2 build --out /tmp/aux-mms/data --seed 2026112698 --train-quota 4 --eval-quota 2
+      - name: Counterfactual pair verification
+        run: python -m research_gym.interp.aux_gym_v2_memory pairs --data /tmp/aux-mms/data --out /tmp/aux-mms/pairs --quota 1
+      - name: Matched eight-step physical-factor memory controls
+        run: |
+          for spec in 'off 0' 'batch 0' 'memory 4' 'shuffled_memory 4' 'random_basis 4'; do
+            set -- $spec
+            python -m research_gym.interp.aux_gym_v2_memory train --data /tmp/aux-mms/data --out /tmp/aux-mms/$1 --family modular_recurrence --mode "$1" --mib "$2" --seed 1 --steps 8 --batch 8 --rank 8 --refresh 4
+          done
+      - name: Physical write intervention
+        run: python -m research_gym.interp.aux_gym_v2_memory patch --run /tmp/aux-mms/memory --pairs /tmp/aux-mms/pairs --split validation --out /tmp/aux-mms/patch --rank 8
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aux-gym-v2-memory-smoke
+          path: /tmp/aux-mms
+          if-no-files-found: warn

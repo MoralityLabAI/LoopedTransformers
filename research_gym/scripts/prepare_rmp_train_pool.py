@@ -31,6 +31,14 @@ def main() -> None:
     args = parser.parse_args()
     raw = json.loads(args.config.read_text(encoding="utf-8"))
     config = BundleConfig.from_mapping(raw)
+    if args.staircase:
+        from research_gym.interp.tasks import FAMILIES
+        unsupported = [name for name in args.families if not FAMILIES[name].staircase_depths]
+        if unsupported:
+            parser.error(
+                "V0 has no staircase depths for " + ", ".join(unsupported)
+                + "; use the AUX-GYM V2 builder for modular identity examples"
+            )
     args.out.mkdir(parents=True, exist_ok=True)
     receipt_path = args.out / "pool_receipt.json"
     receipt = json.loads(receipt_path.read_text(encoding="utf-8")) if receipt_path.exists() else {}

@@ -1,0 +1,42 @@
+name: AUX-GYM V2 engineering
+on:
+  pull_request:
+    paths:
+      - 'research_gym/interp/aux_gym_v2.py'
+      - 'research_gym/scripts/prepare_rmp_train_pool.py'
+      - 'experiments/recurrence_monitorability_v0/aux_gym_v2_20261126/**'
+      - '.github/workflows/aux-gym-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU dependencies
+        run: python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Independent oracle and generator tests
+        run: python -m unittest discover -s experiments/recurrence_monitorability_v0/aux_gym_v2_20261126 -p 'test_*.py'
+      - name: Audit original data
+        run: python -m research_gym.interp.aux_gym_v2 audit --root experiments/recurrence_monitorability_v0/aux_gym_20261126/datasets --pools --out /tmp/aux-v2-ci/audit.json
+      - name: Smoke build (alternate seed)
+        run: python -m research_gym.interp.aux_gym_v2 build --out /tmp/aux-v2-ci/data --seed 2026112699 --train-quota 2 --eval-quota 1
+      - name: Eight-step CPU pilot and checkpoint evaluation
+        run: |
+          python -m research_gym.interp.aux_gym_v2 pilot --data /tmp/aux-v2-ci/data --out /tmp/aux-v2-ci/model --family modular_recurrence --arm LOOP-T --mode symbolic_trace --seed 1 --steps 8 --batch 8 --threads 2
+          python -m research_gym.interp.aux_gym_v2 evaluate --data /tmp/aux-v2-ci/data --run /tmp/aux-v2-ci/model --split locked_familiar --unlock --out /tmp/aux-v2-ci/eval --threads 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aux-gym-v2-smoke
+          path: /tmp/aux-v2-ci
+          if-no-files-found: warn
