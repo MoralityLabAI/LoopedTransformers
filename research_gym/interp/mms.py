@@ -189,7 +189,10 @@ class MechanisticMemory:
         norm = flat.norm(dim=1)
         self.bank.write(keys, (flat / norm.clamp_min(1e-12)[:, None]).reshape_as(g), step)
         self.updates += len(g)
-        if self.mode == 'observe' or not bool(hit.any()) or self.map_cosine < self.min_map_cosine:
+        # Truncated SVD cosine is explained energy, which depends on rank.
+        # Only a frozen exported map uses the absolute drift/fidelity gate.
+        minimum = self.min_map_cosine if self.export is not None else 1e-8
+        if self.mode == 'observe' or not bool(hit.any()) or self.map_cosine < minimum:
             self.cpu_seconds += time.process_time() - started
             return gradient
         h = old[hit].reshape(int(hit.sum()), -1, g.shape[-1])

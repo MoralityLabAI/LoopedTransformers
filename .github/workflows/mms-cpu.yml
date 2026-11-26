@@ -17,6 +17,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install pytest && pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install pytest numpy && pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
       - run: python -m py_compile research_gym/interp/training.py research_gym/scripts/run_rmp_training_cell.py experiments/lean_ram02/train_local.py
       - run: python -m pytest -q tests/test_mms.py

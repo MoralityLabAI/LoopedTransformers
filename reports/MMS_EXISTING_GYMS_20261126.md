@@ -76,3 +76,10 @@ mandatory exit evaluation/checkpoint. Invocation timing receipts include exit
 checkpoint/evaluation, so report actual budget overshoot; use an external
 whole-process timer for the complete CLI. Historical runs' accumulated CPU
 ledger starts when this code first resumes them.
+
+Map admission amendment: the absolute 0.5 weight cosine gate applies only to
+a frozen exported map. Rank-truncated SVD explained energy is rank-dependent;
+for example rank-16/128 random initialization can have cosine below 0.5.
+SVD and native live maps require a nonzero reconstruction cosine, and all
+feedback still requires positive current/historical gradient alignment.
+Neither gate establishes causal fidelity.

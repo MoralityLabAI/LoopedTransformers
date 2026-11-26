@@ -59,3 +59,50 @@ def test_resume_next_gradient():
     with n.capture(keys, 1, 0, 2):
         b(b(x)).square().mean().backward()
     assert torch.equal(a.weight.grad, b.weight.grad)
+
+
+def test_rmp_actual_decoder_observe_and_resume_identity():
+    from research_gym.interp.training import CellConfig, cell_identity, cell_loss
+    from research_gym.interp.models import build_model
+    torch.manual_seed(31)
+    config = CellConfig(arm='LOOP-T', seed=31, families=('pointer_chase',),
+                        hidden_size=16, num_heads=4, visits=3, batch_per_family=4,
+                        deep_supervision=True)
+    assert not any(k.startswith('mms_') for k in cell_identity(config))
+    model = build_model(config.arm, hidden_size=config.hidden_size, num_heads=config.num_heads,
+                        visits=config.visits, beta=config.beta)
+    baseline = copy.deepcopy(model)
+    memory = MechanisticMemory(model.blocks[0].mlp[-1], mib=.1, mode='observe', rank=4)
+    tokens, targets = torch.randint(1,32,(4,8)), torch.randint(1,32,(4,))
+    keys = torch.arange(4)
+    for step in range(2):
+        model.zero_grad()
+        baseline.zero_grad()
+        cell_loss(baseline,tokens,targets,config).mean().backward()
+        with memory.capture(keys,step,1,3):
+            cell_loss(model,tokens,targets,config).mean().backward()
+        for p,q in zip(model.parameters(),baseline.parameters(),strict=True):
+            assert torch.equal(p.grad,q.grad)
+    assert memory.bank.hits == 4
+
+
+def test_small_rank_proxy_can_admit_below_point_five():
+    torch.manual_seed(44)
+    layer = torch.nn.Linear(64,32)
+    m = MechanisticMemory(layer,mib=.02,rank=1,topk=1)
+    x = torch.randn(5,64)
+    keys = torch.arange(5)
+    for step in range(2):
+        layer.zero_grad()
+        with m.capture(keys,step,0,1):
+            layer(x).square().mean().backward()
+    assert m.map_cosine < .5
+    assert m.admitted > 0
+
+
+def test_streamed_checkpoint_hash_matches_original(tmp_path):
+    import hashlib
+    from research_gym.architecture_discovery.checkpoint import _sha256_file
+    path = tmp_path/'checkpoint'
+    path.write_bytes(b'abcd'*1500000)
+    assert _sha256_file(path) == hashlib.sha256(path.read_bytes()).hexdigest()
