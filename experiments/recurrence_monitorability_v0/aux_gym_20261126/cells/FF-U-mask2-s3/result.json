@@ -1,0 +1,5540 @@
+{
+  "c3": null,
+  "cell_hash": "29d78835d3705b4f1a50886716a814daf4aef6065f882f4d5d2465a85b6d06d8",
+  "cell_id": "FF-U-mask2-s3",
+  "checkpoints": [
+    {
+      "bytes": 7382868,
+      "label": "C0",
+      "path": "C0.pt",
+      "sha256": "181e919b12c1b9a06ff16948bea47852a7f5e17d49e707dbaf4a130203bfeba4",
+      "step": 0
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_16",
+      "path": "step_16.pt",
+      "sha256": "71dd080001d5f7c48eef7413b62cffcd7ba590abf4159f4fd2b32ebc840beebb",
+      "step": 16
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_32",
+      "path": "step_32.pt",
+      "sha256": "01a79650cc7757dce0650487a90d16be23f0260d819c699af428651ba96b09cb",
+      "step": 32
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_64",
+      "path": "step_64.pt",
+      "sha256": "26b0901f51e20077a74df6e721544223321660db4b18d2c3dd42683261452a5e",
+      "step": 64
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_128",
+      "path": "step_128.pt",
+      "sha256": "a44455f610cdb961b9e868f39ef2a7e4e875931a2914dc7ccb56fdbd98f9db02",
+      "step": 128
+    },
+    {
+      "bytes": 7382868,
+      "label": "C1",
+      "path": "C1.pt",
+      "sha256": "711d7d2bb5f7992036ff82783e6f6da238a3d247c3db28412525c069386655a3",
+      "step": 250
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_256",
+      "path": "step_256.pt",
+      "sha256": "2aea4314b28a77adc754ea87d9b54cc861df66d11b80f2872751029ec88c67f3",
+      "step": 256
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_512",
+      "path": "step_512.pt",
+      "sha256": "40b563805a74a0c2e66078986792f70519e2d26cd53ac9db420cce30f472ae1f",
+      "step": 512
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_1024",
+      "path": "step_1024.pt",
+      "sha256": "0ed13afd13d0e47d7c026b6b0536915fdc5684ddecb30a11fa17410ea5eb19ec",
+      "step": 1024
+    },
+    {
+      "bytes": 7382868,
+      "label": "C2_1",
+      "path": "C2_1.pt",
+      "sha256": "5f48da3c4770584902579de5eec2c6674cb2bb73d8c6f625d09ff489fb0434ff",
+      "step": 2000
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_2048",
+      "path": "step_2048.pt",
+      "sha256": "2de260ad16e06641c02c9417e597a278fdc73b03a8f631ef573a2d40b70e2ca0",
+      "step": 2048
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_4096",
+      "path": "step_4096.pt",
+      "sha256": "3ec51ec244a895415e87c9971f677767849b401bafeb2823c8c51d1eafc3977a",
+      "step": 4096
+    },
+    {
+      "bytes": 7382868,
+      "label": "C2_2",
+      "path": "C2_2.pt",
+      "sha256": "50f1ccbdfbc19d7d79111de28153387d99dc1b5ce70d28ca0074b15d3e492837",
+      "step": 8000
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_8192",
+      "path": "step_8192.pt",
+      "sha256": "92f55056b77357107a5ca74080cf2a75763cca23fbd2457ca19e2d83a6d599b5",
+      "step": 8192
+    },
+    {
+      "bytes": 7382868,
+      "label": "C2_3",
+      "path": "C2_3.pt",
+      "sha256": "1377a8bcdda6961607c9c5ad80a43500717d61e56b0e2744dc19bdacd391b90a",
+      "step": 9750
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_16384",
+      "path": "step_16384.pt",
+      "sha256": "d442e3abe8709eaa197ef38098428c86c9fc17e10e0a4564ad56b3765ee0eb1b",
+      "step": 16384
+    },
+    {
+      "bytes": 7382868,
+      "label": "step_32768",
+      "path": "step_32768.pt",
+      "sha256": "e396d39265e1129fa3b2e84267ae008a58264bfab3f8d946d54ca14331117a25",
+      "step": 32768
+    },
+    {
+      "bytes": 7382868,
+      "label": "C2_4",
+      "path": "C2_4.pt",
+      "sha256": "e2dddb98c7ef071a1d3e28e2ddd0b487781dd2bd6086b56848af8ec2e306bc18",
+      "step": 56500
+    }
+  ],
+  "config": {
+    "arm": "FF-U",
+    "batch_per_family": 256,
+    "beta": 1.0,
+    "c4_multiple": 4,
+    "curriculum": true,
+    "deep_supervision": false,
+    "eval_every": 250,
+    "eval_per_depth": 64,
+    "families": [
+      "masked_pointer_chase"
+    ],
+    "frontier_share": 0.5,
+    "gate": 0.98,
+    "gradient_clip": 1.0,
+    "hidden_size": 128,
+    "init_from": "",
+    "input_injection": false,
+    "learning_rate": 0.001,
+    "max_steps": 60000,
+    "microbatch": 256,
+    "num_heads": 4,
+    "permute_targets": false,
+    "seed": 3,
+    "unlock_accuracy": 0.9,
+    "variant": "mask2",
+    "visits": 8,
+    "warmup_steps": 200,
+    "weight_decay": 0.01
+  },
+  "deepest_unlocked": {
+    "masked_pointer_chase": 6
+  },
+  "device": "cuda",
+  "events": {
+    "C1": 250,
+    "C2_1": 2000,
+    "C2_2": 8000,
+    "C2_3": 9750,
+    "C2_4": 56500
+  },
+  "examples_seen": 15360000,
+  "final": {
+    "label": "final",
+    "ood_stress": {
+      "masked_pointer_chase": {
+        "by_depth": {
+          "10": 0.30399999022483826,
+          "11": 0.2460000067949295,
+          "12": 0.23000000417232513,
+          "9": 0.33399999141693115
+        },
+        "exact": 0.2784999907016754,
+        "examples": 2000,
+        "predictions_sha256": "f1f2631692aaf99c1558014368ffa18f00600447ddd278440c6b252c26868bed"
+      }
+    },
+    "step": 60000,
+    "validation": {
+      "masked_pointer_chase": {
+        "by_depth": {
+          "1": 1.0,
+          "2": 1.0,
+          "3": 0.9940000176429749,
+          "4": 0.9800000190734863,
+          "5": 0.9440000057220459,
+          "6": 0.8140000104904175,
+          "7": 0.421999990940094,
+          "8": 0.3059999942779541
+        },
+        "exact": 0.8075000047683716,
+        "examples": 4000,
+        "predictions_sha256": "f082ab31cce21e3ef94c94404e507ca29fe2c6d68250b9d6460e4a88d34d7862"
+      }
+    }
+  },
+  "gate": 0.98,
+  "gate_passed": false,
+  "history": [
+    {
+      "step": 0,
+      "train_loss": {
+        "masked_pointer_chase": null
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.0,
+            "2": 0.0,
+            "3": 0.0,
+            "4": 0.0,
+            "5": 0.0,
+            "6": 0.0,
+            "7": 0.0,
+            "8": 0.0
+          },
+          "exact": 0.0,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 250,
+      "train_loss": {
+        "masked_pointer_chase": 2.3812821078300477
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.5,
+            "2": 0.5625,
+            "3": 0.421875,
+            "4": 0.5,
+            "5": 0.5,
+            "6": 0.5,
+            "7": 0.53125,
+            "8": 0.546875
+          },
+          "exact": 0.5078125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 500,
+      "train_loss": {
+        "masked_pointer_chase": 1.0830790095329286
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.5,
+            "2": 0.484375,
+            "3": 0.421875,
+            "4": 0.5,
+            "5": 0.5,
+            "6": 0.515625,
+            "7": 0.53125,
+            "8": 0.546875
+          },
+          "exact": 0.5,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 750,
+      "train_loss": {
+        "masked_pointer_chase": 0.9908552944660187
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.5,
+            "2": 0.234375,
+            "3": 0.171875,
+            "4": 0.015625,
+            "5": 0.046875,
+            "6": 0.15625,
+            "7": 0.125,
+            "8": 0.21875
+          },
+          "exact": 0.18359375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 1000,
+      "train_loss": {
+        "masked_pointer_chase": 0.6963824270963669
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.796875,
+            "2": 0.1875,
+            "3": 0.234375,
+            "4": 0.046875,
+            "5": 0.078125,
+            "6": 0.109375,
+            "7": 0.09375,
+            "8": 0.109375
+          },
+          "exact": 0.20703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 1250,
+      "train_loss": {
+        "masked_pointer_chase": 0.17406982618570327
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.953125,
+            "2": 0.25,
+            "3": 0.25,
+            "4": 0.0625,
+            "5": 0.0625,
+            "6": 0.109375,
+            "7": 0.0625,
+            "8": 0.03125
+          },
+          "exact": 0.22265625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 1500,
+      "train_loss": {
+        "masked_pointer_chase": 1.0413226070404054
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.96875,
+            "2": 0.5625,
+            "3": 0.359375,
+            "4": 0.484375,
+            "5": 0.5,
+            "6": 0.421875,
+            "7": 0.46875,
+            "8": 0.546875
+          },
+          "exact": 0.5390625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 1750,
+      "train_loss": {
+        "masked_pointer_chase": 0.9296626312732696
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.984375,
+            "2": 0.578125,
+            "3": 0.359375,
+            "4": 0.484375,
+            "5": 0.46875,
+            "6": 0.390625,
+            "7": 0.46875,
+            "8": 0.484375
+          },
+          "exact": 0.52734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 2000,
+      "train_loss": {
+        "masked_pointer_chase": 0.8191341955661774
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.625,
+            "3": 0.234375,
+            "4": 0.3125,
+            "5": 0.390625,
+            "6": 0.203125,
+            "7": 0.359375,
+            "8": 0.359375
+          },
+          "exact": 0.435546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 2250,
+      "train_loss": {
+        "masked_pointer_chase": 0.6038844668865204
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.765625,
+            "3": 0.328125,
+            "4": 0.375,
+            "5": 0.3125,
+            "6": 0.234375,
+            "7": 0.28125,
+            "8": 0.328125
+          },
+          "exact": 0.453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 2500,
+      "train_loss": {
+        "masked_pointer_chase": 0.46310852038860323
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.765625,
+            "3": 0.296875,
+            "4": 0.3125,
+            "5": 0.296875,
+            "6": 0.234375,
+            "7": 0.1875,
+            "8": 0.203125
+          },
+          "exact": 0.412109375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 2750,
+      "train_loss": {
+        "masked_pointer_chase": 0.4495732634067535
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.796875,
+            "3": 0.3125,
+            "4": 0.359375,
+            "5": 0.3125,
+            "6": 0.296875,
+            "7": 0.234375,
+            "8": 0.3125
+          },
+          "exact": 0.453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 3000,
+      "train_loss": {
+        "masked_pointer_chase": 0.4216937995553017
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.828125,
+            "3": 0.3125,
+            "4": 0.34375,
+            "5": 0.328125,
+            "6": 0.234375,
+            "7": 0.171875,
+            "8": 0.3125
+          },
+          "exact": 0.44140625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 3250,
+      "train_loss": {
+        "masked_pointer_chase": 0.38336844074726106
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.8125,
+            "3": 0.3125,
+            "4": 0.21875,
+            "5": 0.296875,
+            "6": 0.21875,
+            "7": 0.15625,
+            "8": 0.25
+          },
+          "exact": 0.408203125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 3500,
+      "train_loss": {
+        "masked_pointer_chase": 0.3737516766190529
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.859375,
+            "3": 0.296875,
+            "4": 0.265625,
+            "5": 0.234375,
+            "6": 0.25,
+            "7": 0.203125,
+            "8": 0.234375
+          },
+          "exact": 0.41796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 3750,
+      "train_loss": {
+        "masked_pointer_chase": 0.32737992984056474
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.859375,
+            "3": 0.3125,
+            "4": 0.28125,
+            "5": 0.21875,
+            "6": 0.21875,
+            "7": 0.15625,
+            "8": 0.15625
+          },
+          "exact": 0.400390625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 4000,
+      "train_loss": {
+        "masked_pointer_chase": 0.30041706168651583
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.890625,
+            "3": 0.328125,
+            "4": 0.25,
+            "5": 0.296875,
+            "6": 0.203125,
+            "7": 0.21875,
+            "8": 0.140625
+          },
+          "exact": 0.416015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 4250,
+      "train_loss": {
+        "masked_pointer_chase": 0.2689648707509041
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.890625,
+            "3": 0.296875,
+            "4": 0.25,
+            "5": 0.296875,
+            "6": 0.171875,
+            "7": 0.203125,
+            "8": 0.15625
+          },
+          "exact": 0.408203125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 4500,
+      "train_loss": {
+        "masked_pointer_chase": 0.23075330606102942
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.890625,
+            "3": 0.296875,
+            "4": 0.25,
+            "5": 0.296875,
+            "6": 0.1875,
+            "7": 0.21875,
+            "8": 0.125
+          },
+          "exact": 0.408203125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 4750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2062407547533512
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.890625,
+            "3": 0.3125,
+            "4": 0.234375,
+            "5": 0.28125,
+            "6": 0.203125,
+            "7": 0.25,
+            "8": 0.140625
+          },
+          "exact": 0.4140625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 5000,
+      "train_loss": {
+        "masked_pointer_chase": 0.17658617433905602
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.890625,
+            "3": 0.328125,
+            "4": 0.25,
+            "5": 0.265625,
+            "6": 0.1875,
+            "7": 0.1875,
+            "8": 0.109375
+          },
+          "exact": 0.40234375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 5250,
+      "train_loss": {
+        "masked_pointer_chase": 0.16859767001867293
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.921875,
+            "3": 0.3125,
+            "4": 0.234375,
+            "5": 0.28125,
+            "6": 0.15625,
+            "7": 0.171875,
+            "8": 0.125
+          },
+          "exact": 0.400390625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 5500,
+      "train_loss": {
+        "masked_pointer_chase": 1.0752873666286469
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.921875,
+            "3": 0.421875,
+            "4": 0.5,
+            "5": 0.5,
+            "6": 0.5,
+            "7": 0.53125,
+            "8": 0.484375
+          },
+          "exact": 0.607421875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 5750,
+      "train_loss": {
+        "masked_pointer_chase": 0.954219215631485
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.921875,
+            "3": 0.453125,
+            "4": 0.484375,
+            "5": 0.5,
+            "6": 0.46875,
+            "7": 0.46875,
+            "8": 0.390625
+          },
+          "exact": 0.5859375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 6000,
+      "train_loss": {
+        "masked_pointer_chase": 0.8973161506652833
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.890625,
+            "3": 0.5625,
+            "4": 0.484375,
+            "5": 0.453125,
+            "6": 0.46875,
+            "7": 0.4375,
+            "8": 0.40625
+          },
+          "exact": 0.587890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 6250,
+      "train_loss": {
+        "masked_pointer_chase": 0.8322943792343139
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.90625,
+            "3": 0.5625,
+            "4": 0.5,
+            "5": 0.46875,
+            "6": 0.40625,
+            "7": 0.4375,
+            "8": 0.359375
+          },
+          "exact": 0.580078125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 6500,
+      "train_loss": {
+        "masked_pointer_chase": 0.7827944049835205
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.921875,
+            "3": 0.625,
+            "4": 0.484375,
+            "5": 0.375,
+            "6": 0.390625,
+            "7": 0.46875,
+            "8": 0.296875
+          },
+          "exact": 0.5703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 6750,
+      "train_loss": {
+        "masked_pointer_chase": 0.6147107188701629
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.9375,
+            "3": 0.75,
+            "4": 0.453125,
+            "5": 0.390625,
+            "6": 0.328125,
+            "7": 0.421875,
+            "8": 0.328125
+          },
+          "exact": 0.576171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 7000,
+      "train_loss": {
+        "masked_pointer_chase": 0.4870835171937942
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.96875,
+            "3": 0.796875,
+            "4": 0.4375,
+            "5": 0.375,
+            "6": 0.296875,
+            "7": 0.390625,
+            "8": 0.234375
+          },
+          "exact": 0.5625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 7250,
+      "train_loss": {
+        "masked_pointer_chase": 0.44419091176986697
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.828125,
+            "4": 0.40625,
+            "5": 0.390625,
+            "6": 0.28125,
+            "7": 0.359375,
+            "8": 0.234375
+          },
+          "exact": 0.560546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 7500,
+      "train_loss": {
+        "masked_pointer_chase": 0.396004223048687
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.953125,
+            "3": 0.8125,
+            "4": 0.421875,
+            "5": 0.328125,
+            "6": 0.28125,
+            "7": 0.34375,
+            "8": 0.25
+          },
+          "exact": 0.548828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 7750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2961298851966858
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.890625,
+            "4": 0.40625,
+            "5": 0.375,
+            "6": 0.28125,
+            "7": 0.296875,
+            "8": 0.1875
+          },
+          "exact": 0.552734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 8000,
+      "train_loss": {
+        "masked_pointer_chase": 0.19701636710762976
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.390625,
+            "5": 0.34375,
+            "6": 0.265625,
+            "7": 0.265625,
+            "8": 0.140625
+          },
+          "exact": 0.548828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 8250,
+      "train_loss": {
+        "masked_pointer_chase": 1.0630157301425933
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.84375,
+            "4": 0.546875,
+            "5": 0.421875,
+            "6": 0.390625,
+            "7": 0.390625,
+            "8": 0.265625
+          },
+          "exact": 0.60546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 8500,
+      "train_loss": {
+        "masked_pointer_chase": 0.7613201532363891
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.890625,
+            "4": 0.640625,
+            "5": 0.46875,
+            "6": 0.359375,
+            "7": 0.328125,
+            "8": 0.234375
+          },
+          "exact": 0.615234375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 8750,
+      "train_loss": {
+        "masked_pointer_chase": 0.6019182929992676
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.875,
+            "4": 0.71875,
+            "5": 0.453125,
+            "6": 0.390625,
+            "7": 0.359375,
+            "8": 0.234375
+          },
+          "exact": 0.626953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 9000,
+      "train_loss": {
+        "masked_pointer_chase": 0.41162191617488864
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.921875,
+            "4": 0.828125,
+            "5": 0.4375,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.15625
+          },
+          "exact": 0.625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 9250,
+      "train_loss": {
+        "masked_pointer_chase": 0.30885199445486067
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.9375,
+            "4": 0.84375,
+            "5": 0.40625,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.171875
+          },
+          "exact": 0.626953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 9500,
+      "train_loss": {
+        "masked_pointer_chase": 0.2404480326771736
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.96875,
+            "4": 0.859375,
+            "5": 0.40625,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.21875
+          },
+          "exact": 0.638671875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 9750,
+      "train_loss": {
+        "masked_pointer_chase": 0.20047963011264802
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.90625,
+            "5": 0.4375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.171875
+          },
+          "exact": 0.64453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 10000,
+      "train_loss": {
+        "masked_pointer_chase": 0.8423880183696747
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.890625,
+            "5": 0.578125,
+            "6": 0.359375,
+            "7": 0.34375,
+            "8": 0.21875
+          },
+          "exact": 0.673828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 10250,
+      "train_loss": {
+        "masked_pointer_chase": 0.6851578552722931
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.96875,
+            "4": 0.921875,
+            "5": 0.578125,
+            "6": 0.375,
+            "7": 0.359375,
+            "8": 0.234375
+          },
+          "exact": 0.6796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 10500,
+      "train_loss": {
+        "masked_pointer_chase": 0.6640000728368759
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.875,
+            "5": 0.5625,
+            "6": 0.359375,
+            "7": 0.34375,
+            "8": 0.25
+          },
+          "exact": 0.671875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 10750,
+      "train_loss": {
+        "masked_pointer_chase": 0.6625689988136292
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.90625,
+            "5": 0.59375,
+            "6": 0.359375,
+            "7": 0.328125,
+            "8": 0.25
+          },
+          "exact": 0.6796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 11000,
+      "train_loss": {
+        "masked_pointer_chase": 0.6641669768095017
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.84375,
+            "5": 0.59375,
+            "6": 0.359375,
+            "7": 0.328125,
+            "8": 0.25
+          },
+          "exact": 0.669921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 11250,
+      "train_loss": {
+        "masked_pointer_chase": 0.6611042206287384
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.90625,
+            "5": 0.59375,
+            "6": 0.359375,
+            "7": 0.3125,
+            "8": 0.234375
+          },
+          "exact": 0.673828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 11500,
+      "train_loss": {
+        "masked_pointer_chase": 0.6575524257421493
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.890625,
+            "5": 0.59375,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.21875
+          },
+          "exact": 0.669921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 11750,
+      "train_loss": {
+        "masked_pointer_chase": 0.6432615514993668
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.96875,
+            "4": 0.859375,
+            "5": 0.578125,
+            "6": 0.34375,
+            "7": 0.296875,
+            "8": 0.21875
+          },
+          "exact": 0.658203125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 12000,
+      "train_loss": {
+        "masked_pointer_chase": 0.6463807518482209
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.90625,
+            "5": 0.578125,
+            "6": 0.359375,
+            "7": 0.296875,
+            "8": 0.21875
+          },
+          "exact": 0.66796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 12250,
+      "train_loss": {
+        "masked_pointer_chase": 0.6217536771297455
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.90625,
+            "5": 0.609375,
+            "6": 0.359375,
+            "7": 0.328125,
+            "8": 0.25
+          },
+          "exact": 0.681640625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 12500,
+      "train_loss": {
+        "masked_pointer_chase": 0.6343887107372284
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.96875,
+            "3": 0.96875,
+            "4": 0.890625,
+            "5": 0.5625,
+            "6": 0.359375,
+            "7": 0.328125,
+            "8": 0.234375
+          },
+          "exact": 0.6640625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 12750,
+      "train_loss": {
+        "masked_pointer_chase": 0.6292088031768799
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.890625,
+            "5": 0.609375,
+            "6": 0.359375,
+            "7": 0.328125,
+            "8": 0.25
+          },
+          "exact": 0.677734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 13000,
+      "train_loss": {
+        "masked_pointer_chase": 0.6175905658006668
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 1.0,
+            "4": 0.890625,
+            "5": 0.59375,
+            "6": 0.375,
+            "7": 0.328125,
+            "8": 0.234375
+          },
+          "exact": 0.67578125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 13250,
+      "train_loss": {
+        "masked_pointer_chase": 0.5952854375839234
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.875,
+            "5": 0.609375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.666015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 13500,
+      "train_loss": {
+        "masked_pointer_chase": 0.5972537151575088
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.875,
+            "5": 0.59375,
+            "6": 0.34375,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.666015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 13750,
+      "train_loss": {
+        "masked_pointer_chase": 0.6099837281703949
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.875,
+            "5": 0.609375,
+            "6": 0.34375,
+            "7": 0.328125,
+            "8": 0.203125
+          },
+          "exact": 0.669921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 14000,
+      "train_loss": {
+        "masked_pointer_chase": 0.5994475470781326
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.890625,
+            "5": 0.625,
+            "6": 0.359375,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.673828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 14250,
+      "train_loss": {
+        "masked_pointer_chase": 0.598279693365097
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.90625,
+            "5": 0.609375,
+            "6": 0.359375,
+            "7": 0.3125,
+            "8": 0.21875
+          },
+          "exact": 0.673828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 14500,
+      "train_loss": {
+        "masked_pointer_chase": 0.6178570319414138
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.984375,
+            "4": 0.90625,
+            "5": 0.609375,
+            "6": 0.359375,
+            "7": 0.328125,
+            "8": 0.234375
+          },
+          "exact": 0.67578125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 14750,
+      "train_loss": {
+        "masked_pointer_chase": 0.5934287548065186
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 1.0,
+            "4": 0.90625,
+            "5": 0.59375,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.66796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 15000,
+      "train_loss": {
+        "masked_pointer_chase": 0.6002533650398254
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.90625,
+            "5": 0.59375,
+            "6": 0.359375,
+            "7": 0.328125,
+            "8": 0.21875
+          },
+          "exact": 0.673828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 15250,
+      "train_loss": {
+        "masked_pointer_chase": 0.6049387389421463
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.9375,
+            "5": 0.609375,
+            "6": 0.34375,
+            "7": 0.328125,
+            "8": 0.21875
+          },
+          "exact": 0.6796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 15500,
+      "train_loss": {
+        "masked_pointer_chase": 0.593032637476921
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.890625,
+            "5": 0.625,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.21875
+          },
+          "exact": 0.671875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 15750,
+      "train_loss": {
+        "masked_pointer_chase": 0.5490771445035935
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.90625,
+            "5": 0.640625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.671875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 16000,
+      "train_loss": {
+        "masked_pointer_chase": 0.5757151005268097
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.90625,
+            "5": 0.625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.66796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 16250,
+      "train_loss": {
+        "masked_pointer_chase": 0.5399689431190491
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.9375,
+            "5": 0.671875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.6796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 16500,
+      "train_loss": {
+        "masked_pointer_chase": 0.5755088323354721
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.677734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 16750,
+      "train_loss": {
+        "masked_pointer_chase": 0.5307241388559342
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.9375,
+            "5": 0.640625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.67578125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 17000,
+      "train_loss": {
+        "masked_pointer_chase": 0.5335388330221176
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.640625,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.6796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 17250,
+      "train_loss": {
+        "masked_pointer_chase": 0.5071090024709701
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.6875,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.203125
+          },
+          "exact": 0.6875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 17500,
+      "train_loss": {
+        "masked_pointer_chase": 0.49748222064971925
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.671875,
+            "6": 0.3125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.677734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 17750,
+      "train_loss": {
+        "masked_pointer_chase": 0.5345685639381409
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.6875,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.685546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 18000,
+      "train_loss": {
+        "masked_pointer_chase": 0.4977404239177704
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.703125,
+            "6": 0.3125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.68359375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 18250,
+      "train_loss": {
+        "masked_pointer_chase": 0.5009815320968628
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 1.0,
+            "4": 0.921875,
+            "5": 0.71875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.681640625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 18500,
+      "train_loss": {
+        "masked_pointer_chase": 0.4903304921388626
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.75,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.69140625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 18750,
+      "train_loss": {
+        "masked_pointer_chase": 0.4898670451641083
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.75,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.203125
+          },
+          "exact": 0.6953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 19000,
+      "train_loss": {
+        "masked_pointer_chase": 0.4882308821678162
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.71875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.6875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 19250,
+      "train_loss": {
+        "masked_pointer_chase": 0.49086600065231323
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.703125,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.68359375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 19500,
+      "train_loss": {
+        "masked_pointer_chase": 0.4782614234685898
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.703125,
+            "6": 0.34375,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.689453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 19750,
+      "train_loss": {
+        "masked_pointer_chase": 0.4694597226381302
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.734375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.689453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 20000,
+      "train_loss": {
+        "masked_pointer_chase": 0.4723275372385979
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.71875,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.689453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 20250,
+      "train_loss": {
+        "masked_pointer_chase": 0.451249969124794
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.703125,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.6875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 20500,
+      "train_loss": {
+        "masked_pointer_chase": 0.4626256377696991
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.71875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.689453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 20750,
+      "train_loss": {
+        "masked_pointer_chase": 0.48480764937400816
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.9375,
+            "5": 0.71875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.6875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 21000,
+      "train_loss": {
+        "masked_pointer_chase": 0.44327891993522645
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.71875,
+            "6": 0.34375,
+            "7": 0.34375,
+            "8": 0.203125
+          },
+          "exact": 0.693359375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 21250,
+      "train_loss": {
+        "masked_pointer_chase": 0.43832960510253904
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.75,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.6953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 21500,
+      "train_loss": {
+        "masked_pointer_chase": 0.4316576706171036
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.9375,
+            "5": 0.75,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.693359375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 21750,
+      "train_loss": {
+        "masked_pointer_chase": 0.4379685817956924
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.796875,
+            "6": 0.328125,
+            "7": 0.296875,
+            "8": 0.1875
+          },
+          "exact": 0.69921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 22000,
+      "train_loss": {
+        "masked_pointer_chase": 0.42510404086112974
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.796875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 22250,
+      "train_loss": {
+        "masked_pointer_chase": 0.4445769094228745
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.96875,
+            "2": 0.984375,
+            "3": 0.9375,
+            "4": 0.84375,
+            "5": 0.65625,
+            "6": 0.328125,
+            "7": 0.34375,
+            "8": 0.1875
+          },
+          "exact": 0.65625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 22500,
+      "train_loss": {
+        "masked_pointer_chase": 0.44029577815532683
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.78125,
+            "6": 0.3125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.69140625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 22750,
+      "train_loss": {
+        "masked_pointer_chase": 0.43427859246730804
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 1.0,
+            "4": 0.9375,
+            "5": 0.765625,
+            "6": 0.359375,
+            "7": 0.296875,
+            "8": 0.1875
+          },
+          "exact": 0.69140625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 23000,
+      "train_loss": {
+        "masked_pointer_chase": 0.41490289306640626
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.78125,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.21875
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 23250,
+      "train_loss": {
+        "masked_pointer_chase": 0.43452990102767947
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.78125,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.69921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 23500,
+      "train_loss": {
+        "masked_pointer_chase": 0.43738091057538986
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.78125,
+            "6": 0.34375,
+            "7": 0.328125,
+            "8": 0.203125
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 23750,
+      "train_loss": {
+        "masked_pointer_chase": 0.4283371249437332
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.734375,
+            "6": 0.34375,
+            "7": 0.296875,
+            "8": 0.1875
+          },
+          "exact": 0.689453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 24000,
+      "train_loss": {
+        "masked_pointer_chase": 0.40509584081172945
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 0.96875,
+            "2": 1.0,
+            "3": 0.96875,
+            "4": 0.953125,
+            "5": 0.734375,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.203125
+          },
+          "exact": 0.685546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 24250,
+      "train_loss": {
+        "masked_pointer_chase": 0.40891652274131773
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.765625,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.697265625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 24500,
+      "train_loss": {
+        "masked_pointer_chase": 0.3882107685804367
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.8125,
+            "6": 0.359375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 24750,
+      "train_loss": {
+        "masked_pointer_chase": 0.4065177139043808
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.796875,
+            "6": 0.359375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 25000,
+      "train_loss": {
+        "masked_pointer_chase": 0.3896934551000595
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.796875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.69921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 25250,
+      "train_loss": {
+        "masked_pointer_chase": 0.37619422960281373
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.75,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.203125
+          },
+          "exact": 0.6953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 25500,
+      "train_loss": {
+        "masked_pointer_chase": 0.4101017438173294
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.8125,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 25750,
+      "train_loss": {
+        "masked_pointer_chase": 0.39843403339385985
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.828125,
+            "6": 0.34375,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 26000,
+      "train_loss": {
+        "masked_pointer_chase": 0.3874620633125305
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.828125,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 26250,
+      "train_loss": {
+        "masked_pointer_chase": 0.3710122665166855
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.78125,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.697265625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 26500,
+      "train_loss": {
+        "masked_pointer_chase": 0.39218024611473085
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.796875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.6953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 26750,
+      "train_loss": {
+        "masked_pointer_chase": 0.3664098817706108
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.828125,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 27000,
+      "train_loss": {
+        "masked_pointer_chase": 0.37437394618988035
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.921875,
+            "5": 0.8125,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.6953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 27250,
+      "train_loss": {
+        "masked_pointer_chase": 0.3577758876681328
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.78125,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.69921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 27500,
+      "train_loss": {
+        "masked_pointer_chase": 0.36350066924095153
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.9375,
+            "5": 0.796875,
+            "6": 0.359375,
+            "7": 0.3125,
+            "8": 0.171875
+          },
+          "exact": 0.6953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 27750,
+      "train_loss": {
+        "masked_pointer_chase": 0.36788034230470656
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.84375,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 28000,
+      "train_loss": {
+        "masked_pointer_chase": 0.33476212388277055
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.859375,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 28250,
+      "train_loss": {
+        "masked_pointer_chase": 0.324304139316082
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.796875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.69921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 28500,
+      "train_loss": {
+        "masked_pointer_chase": 0.32763992303609846
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.78125,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.203125
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 28750,
+      "train_loss": {
+        "masked_pointer_chase": 0.32779546254873276
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.828125,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 29000,
+      "train_loss": {
+        "masked_pointer_chase": 0.322177531003952
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.84375,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 29250,
+      "train_loss": {
+        "masked_pointer_chase": 0.314240300655365
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.796875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.697265625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 29500,
+      "train_loss": {
+        "masked_pointer_chase": 0.327465391099453
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.8125,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 29750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2919587035179138
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.7109375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 30000,
+      "train_loss": {
+        "masked_pointer_chase": 0.27821519750356677
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.796875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 30250,
+      "train_loss": {
+        "masked_pointer_chase": 0.296456727206707
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.9375,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.796875,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.689453125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 30500,
+      "train_loss": {
+        "masked_pointer_chase": 0.2632307923734188
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.7109375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 30750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2591883678436279
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.828125,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 31000,
+      "train_loss": {
+        "masked_pointer_chase": 0.24052964818477632
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.8125,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.69921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 31250,
+      "train_loss": {
+        "masked_pointer_chase": 0.24255565303564072
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.9375,
+            "5": 0.859375,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.705078125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 31500,
+      "train_loss": {
+        "masked_pointer_chase": 0.2839998923540115
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.859375,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 31750,
+      "train_loss": {
+        "masked_pointer_chase": 0.224439895182848
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.859375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 32000,
+      "train_loss": {
+        "masked_pointer_chase": 0.20389098763465882
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.84375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 32250,
+      "train_loss": {
+        "masked_pointer_chase": 0.19012767827510835
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.84375,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 32500,
+      "train_loss": {
+        "masked_pointer_chase": 0.17987495440244675
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.859375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.705078125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 32750,
+      "train_loss": {
+        "masked_pointer_chase": 0.17663791754841804
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.84375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 33000,
+      "train_loss": {
+        "masked_pointer_chase": 0.17921292209625245
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.84375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 33250,
+      "train_loss": {
+        "masked_pointer_chase": 0.1786084268987179
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.7109375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 33500,
+      "train_loss": {
+        "masked_pointer_chase": 0.16243616625666618
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.712890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 33750,
+      "train_loss": {
+        "masked_pointer_chase": 0.1642766304910183
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 34000,
+      "train_loss": {
+        "masked_pointer_chase": 0.17434479025006294
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.84375,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 34250,
+      "train_loss": {
+        "masked_pointer_chase": 0.2034760495722294
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.712890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 34500,
+      "train_loss": {
+        "masked_pointer_chase": 0.1710770521759987
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 34750,
+      "train_loss": {
+        "masked_pointer_chase": 0.1702092562019825
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.859375,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 35000,
+      "train_loss": {
+        "masked_pointer_chase": 0.15743908679485322
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.859375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 35250,
+      "train_loss": {
+        "masked_pointer_chase": 0.15221426913142205
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.9375,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 35500,
+      "train_loss": {
+        "masked_pointer_chase": 0.1707526822090149
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.859375,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 35750,
+      "train_loss": {
+        "masked_pointer_chase": 0.14103660318255423
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 36000,
+      "train_loss": {
+        "masked_pointer_chase": 0.13630721955001354
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.712890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 36250,
+      "train_loss": {
+        "masked_pointer_chase": 0.15019558575749398
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.953125,
+            "4": 0.9375,
+            "5": 0.859375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.697265625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 36500,
+      "train_loss": {
+        "masked_pointer_chase": 0.13614298525452614
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.859375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 36750,
+      "train_loss": {
+        "masked_pointer_chase": 0.14095486362278462
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.859375,
+            "6": 0.34375,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 37000,
+      "train_loss": {
+        "masked_pointer_chase": 0.14658951410651208
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.712890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 37250,
+      "train_loss": {
+        "masked_pointer_chase": 0.13195542638003827
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.828125,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 37500,
+      "train_loss": {
+        "masked_pointer_chase": 0.13342830754816531
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 37750,
+      "train_loss": {
+        "masked_pointer_chase": 0.14427877649664878
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.859375,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.70703125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 38000,
+      "train_loss": {
+        "masked_pointer_chase": 0.16308134649693967
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 38250,
+      "train_loss": {
+        "masked_pointer_chase": 0.15293317873775958
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 38500,
+      "train_loss": {
+        "masked_pointer_chase": 0.13044770410656928
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.7109375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 38750,
+      "train_loss": {
+        "masked_pointer_chase": 0.13701266427338124
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.708984375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 39000,
+      "train_loss": {
+        "masked_pointer_chase": 0.13969968587160111
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.328125,
+            "8": 0.1875
+          },
+          "exact": 0.71484375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 39250,
+      "train_loss": {
+        "masked_pointer_chase": 0.140242754727602
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.712890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 39500,
+      "train_loss": {
+        "masked_pointer_chase": 0.13012859128415585
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.712890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 39750,
+      "train_loss": {
+        "masked_pointer_chase": 0.11619608616828918
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.7109375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 40000,
+      "train_loss": {
+        "masked_pointer_chase": 0.13200015768408777
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.712890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 40250,
+      "train_loss": {
+        "masked_pointer_chase": 0.13135995490849017
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.203125
+          },
+          "exact": 0.71484375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 40500,
+      "train_loss": {
+        "masked_pointer_chase": 0.12140577445924282
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.921875,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.34375,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.701171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 40750,
+      "train_loss": {
+        "masked_pointer_chase": 0.1686959185898304
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.921875,
+            "6": 0.328125,
+            "7": 0.3125,
+            "8": 0.1875
+          },
+          "exact": 0.71484375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 41000,
+      "train_loss": {
+        "masked_pointer_chase": 0.8560796763896942
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.578125,
+            "7": 0.390625,
+            "8": 0.3125
+          },
+          "exact": 0.76171875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 41250,
+      "train_loss": {
+        "masked_pointer_chase": 0.6026787638664246
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.640625,
+            "7": 0.359375,
+            "8": 0.328125
+          },
+          "exact": 0.771484375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 41500,
+      "train_loss": {
+        "masked_pointer_chase": 0.5725490125417709
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.625,
+            "7": 0.359375,
+            "8": 0.3125
+          },
+          "exact": 0.76953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 41750,
+      "train_loss": {
+        "masked_pointer_chase": 0.5660837939977645
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.859375,
+            "6": 0.640625,
+            "7": 0.375,
+            "8": 0.3125
+          },
+          "exact": 0.76953125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 42000,
+      "train_loss": {
+        "masked_pointer_chase": 0.5392019497156143
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.859375,
+            "6": 0.640625,
+            "7": 0.359375,
+            "8": 0.296875
+          },
+          "exact": 0.767578125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 42250,
+      "train_loss": {
+        "masked_pointer_chase": 0.5358006850481033
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.890625,
+            "6": 0.609375,
+            "7": 0.375,
+            "8": 0.328125
+          },
+          "exact": 0.771484375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 42500,
+      "train_loss": {
+        "masked_pointer_chase": 0.5160642696619033
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.90625,
+            "6": 0.640625,
+            "7": 0.375,
+            "8": 0.328125
+          },
+          "exact": 0.779296875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 42750,
+      "train_loss": {
+        "masked_pointer_chase": 0.506161763548851
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.671875,
+            "7": 0.359375,
+            "8": 0.3125
+          },
+          "exact": 0.77734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 43000,
+      "train_loss": {
+        "masked_pointer_chase": 0.49762027847766876
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.90625,
+            "6": 0.671875,
+            "7": 0.390625,
+            "8": 0.328125
+          },
+          "exact": 0.783203125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 43250,
+      "train_loss": {
+        "masked_pointer_chase": 0.47962479245662687
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.671875,
+            "7": 0.359375,
+            "8": 0.328125
+          },
+          "exact": 0.779296875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 43500,
+      "train_loss": {
+        "masked_pointer_chase": 0.4782999217510223
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.671875,
+            "7": 0.375,
+            "8": 0.359375
+          },
+          "exact": 0.78515625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 43750,
+      "train_loss": {
+        "masked_pointer_chase": 0.46720003020763395
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.65625,
+            "7": 0.375,
+            "8": 0.328125
+          },
+          "exact": 0.77734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 44000,
+      "train_loss": {
+        "masked_pointer_chase": 0.469134418964386
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.859375,
+            "6": 0.734375,
+            "7": 0.390625,
+            "8": 0.3125
+          },
+          "exact": 0.78515625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 44250,
+      "train_loss": {
+        "masked_pointer_chase": 0.4517165734767914
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.890625,
+            "6": 0.671875,
+            "7": 0.375,
+            "8": 0.328125
+          },
+          "exact": 0.77734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 44500,
+      "train_loss": {
+        "masked_pointer_chase": 0.44562128114700317
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.6875,
+            "7": 0.375,
+            "8": 0.3125
+          },
+          "exact": 0.78125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 44750,
+      "train_loss": {
+        "masked_pointer_chase": 0.42706766474246977
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.703125,
+            "7": 0.359375,
+            "8": 0.28125
+          },
+          "exact": 0.775390625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 45000,
+      "train_loss": {
+        "masked_pointer_chase": 0.4166630945205688
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.703125,
+            "7": 0.359375,
+            "8": 0.296875
+          },
+          "exact": 0.775390625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 45250,
+      "train_loss": {
+        "masked_pointer_chase": 0.40796079504489896
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.90625,
+            "6": 0.703125,
+            "7": 0.359375,
+            "8": 0.328125
+          },
+          "exact": 0.78515625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 45500,
+      "train_loss": {
+        "masked_pointer_chase": 0.39895430839061735
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.71875,
+            "7": 0.359375,
+            "8": 0.296875
+          },
+          "exact": 0.78125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 45750,
+      "train_loss": {
+        "masked_pointer_chase": 0.38602841663360593
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.703125,
+            "7": 0.375,
+            "8": 0.28125
+          },
+          "exact": 0.779296875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 46000,
+      "train_loss": {
+        "masked_pointer_chase": 0.38037676179409025
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.90625,
+            "6": 0.71875,
+            "7": 0.359375,
+            "8": 0.28125
+          },
+          "exact": 0.78125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 46250,
+      "train_loss": {
+        "masked_pointer_chase": 0.38617070043087004
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.640625,
+            "7": 0.390625,
+            "8": 0.3125
+          },
+          "exact": 0.77734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 46500,
+      "train_loss": {
+        "masked_pointer_chase": 0.3654332093000412
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.6875,
+            "7": 0.375,
+            "8": 0.28125
+          },
+          "exact": 0.77734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 46750,
+      "train_loss": {
+        "masked_pointer_chase": 0.3580969622135162
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.875,
+            "6": 0.8125,
+            "7": 0.375,
+            "8": 0.296875
+          },
+          "exact": 0.7890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 47000,
+      "train_loss": {
+        "masked_pointer_chase": 0.373226968228817
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.96875,
+            "4": 0.96875,
+            "5": 0.90625,
+            "6": 0.671875,
+            "7": 0.40625,
+            "8": 0.296875
+          },
+          "exact": 0.77734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 47250,
+      "train_loss": {
+        "masked_pointer_chase": 0.3834710227847099
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.75,
+            "7": 0.421875,
+            "8": 0.28125
+          },
+          "exact": 0.794921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 47500,
+      "train_loss": {
+        "masked_pointer_chase": 0.34980943208932874
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.703125,
+            "7": 0.375,
+            "8": 0.3125
+          },
+          "exact": 0.779296875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 47750,
+      "train_loss": {
+        "masked_pointer_chase": 0.3494493152499199
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.84375,
+            "6": 0.703125,
+            "7": 0.375,
+            "8": 0.3125
+          },
+          "exact": 0.7734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 48000,
+      "train_loss": {
+        "masked_pointer_chase": 0.34072189378738404
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.90625,
+            "6": 0.734375,
+            "7": 0.390625,
+            "8": 0.3125
+          },
+          "exact": 0.7890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 48250,
+      "train_loss": {
+        "masked_pointer_chase": 0.3658473992943764
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.75,
+            "7": 0.375,
+            "8": 0.328125
+          },
+          "exact": 0.7890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 48500,
+      "train_loss": {
+        "masked_pointer_chase": 0.32924314904212953
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.703125,
+            "7": 0.359375,
+            "8": 0.28125
+          },
+          "exact": 0.775390625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 48750,
+      "train_loss": {
+        "masked_pointer_chase": 0.33078596484661105
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.9375,
+            "6": 0.734375,
+            "7": 0.375,
+            "8": 0.296875
+          },
+          "exact": 0.791015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 49000,
+      "train_loss": {
+        "masked_pointer_chase": 0.32359355127811434
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.875,
+            "6": 0.6875,
+            "7": 0.375,
+            "8": 0.296875
+          },
+          "exact": 0.77734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 49250,
+      "train_loss": {
+        "masked_pointer_chase": 0.3056918680667877
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.90625,
+            "6": 0.765625,
+            "7": 0.375,
+            "8": 0.328125
+          },
+          "exact": 0.794921875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 49500,
+      "train_loss": {
+        "masked_pointer_chase": 0.2914112300276756
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.734375,
+            "7": 0.390625,
+            "8": 0.296875
+          },
+          "exact": 0.791015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 49750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2962902113199234
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.734375,
+            "7": 0.375,
+            "8": 0.3125
+          },
+          "exact": 0.791015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 50000,
+      "train_loss": {
+        "masked_pointer_chase": 0.30051006358861926
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.90625,
+            "6": 0.75,
+            "7": 0.359375,
+            "8": 0.28125
+          },
+          "exact": 0.78125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 50250,
+      "train_loss": {
+        "masked_pointer_chase": 0.30461575543880465
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.90625,
+            "6": 0.671875,
+            "7": 0.359375,
+            "8": 0.296875
+          },
+          "exact": 0.775390625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 50500,
+      "train_loss": {
+        "masked_pointer_chase": 0.2797259877920151
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.75,
+            "7": 0.40625,
+            "8": 0.3125
+          },
+          "exact": 0.7890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 50750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2819455003142357
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.9375,
+            "6": 0.78125,
+            "7": 0.390625,
+            "8": 0.28125
+          },
+          "exact": 0.796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 51000,
+      "train_loss": {
+        "masked_pointer_chase": 0.2770508857369423
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.90625,
+            "6": 0.6875,
+            "7": 0.40625,
+            "8": 0.34375
+          },
+          "exact": 0.7890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 51250,
+      "train_loss": {
+        "masked_pointer_chase": 0.2715333965420723
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 1.0,
+            "4": 0.96875,
+            "5": 0.9375,
+            "6": 0.765625,
+            "7": 0.40625,
+            "8": 0.328125
+          },
+          "exact": 0.798828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 51500,
+      "train_loss": {
+        "masked_pointer_chase": 0.2596468484401703
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.78125,
+            "7": 0.40625,
+            "8": 0.3125
+          },
+          "exact": 0.796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 51750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2662036188840866
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.9375,
+            "6": 0.78125,
+            "7": 0.390625,
+            "8": 0.34375
+          },
+          "exact": 0.80078125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 52000,
+      "train_loss": {
+        "masked_pointer_chase": 0.25398418021202085
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.9375,
+            "5": 0.953125,
+            "6": 0.796875,
+            "7": 0.40625,
+            "8": 0.296875
+          },
+          "exact": 0.796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 52250,
+      "train_loss": {
+        "masked_pointer_chase": 0.26402958369255064
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.921875,
+            "6": 0.75,
+            "7": 0.375,
+            "8": 0.328125
+          },
+          "exact": 0.791015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 52500,
+      "train_loss": {
+        "masked_pointer_chase": 0.2546689169406891
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.890625,
+            "6": 0.75,
+            "7": 0.390625,
+            "8": 0.34375
+          },
+          "exact": 0.791015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 52750,
+      "train_loss": {
+        "masked_pointer_chase": 0.26270771676301957
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.734375,
+            "7": 0.390625,
+            "8": 0.3125
+          },
+          "exact": 0.791015625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 53000,
+      "train_loss": {
+        "masked_pointer_chase": 0.24755773895978928
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.921875,
+            "6": 0.765625,
+            "7": 0.421875,
+            "8": 0.328125
+          },
+          "exact": 0.798828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 53250,
+      "train_loss": {
+        "masked_pointer_chase": 0.22950708538293838
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.890625,
+            "6": 0.734375,
+            "7": 0.390625,
+            "8": 0.328125
+          },
+          "exact": 0.7890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 53500,
+      "train_loss": {
+        "masked_pointer_chase": 0.24212794065475463
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.9375,
+            "6": 0.734375,
+            "7": 0.375,
+            "8": 0.3125
+          },
+          "exact": 0.7890625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 53750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2572902455329895
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.703125,
+            "7": 0.359375,
+            "8": 0.28125
+          },
+          "exact": 0.779296875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 54000,
+      "train_loss": {
+        "masked_pointer_chase": 0.23997829014062882
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.953125,
+            "6": 0.703125,
+            "7": 0.40625,
+            "8": 0.34375
+          },
+          "exact": 0.796875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 54250,
+      "train_loss": {
+        "masked_pointer_chase": 0.24520257210731505
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.953125,
+            "6": 0.734375,
+            "7": 0.40625,
+            "8": 0.34375
+          },
+          "exact": 0.80078125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 54500,
+      "train_loss": {
+        "masked_pointer_chase": 0.23223966705799104
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.953125,
+            "5": 0.921875,
+            "6": 0.828125,
+            "7": 0.390625,
+            "8": 0.328125
+          },
+          "exact": 0.802734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 54750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2246606193780899
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.765625,
+            "7": 0.421875,
+            "8": 0.3125
+          },
+          "exact": 0.798828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 55000,
+      "train_loss": {
+        "masked_pointer_chase": 0.2160651345551014
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.921875,
+            "6": 0.78125,
+            "7": 0.375,
+            "8": 0.28125
+          },
+          "exact": 0.787109375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 55250,
+      "train_loss": {
+        "masked_pointer_chase": 0.2225078229010105
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.953125,
+            "5": 0.921875,
+            "6": 0.796875,
+            "7": 0.4375,
+            "8": 0.34375
+          },
+          "exact": 0.8046875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 55500,
+      "train_loss": {
+        "masked_pointer_chase": 0.20630882343649865
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.921875,
+            "6": 0.78125,
+            "7": 0.421875,
+            "8": 0.3125
+          },
+          "exact": 0.798828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 55750,
+      "train_loss": {
+        "masked_pointer_chase": 0.21692591193318367
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.953125,
+            "6": 0.78125,
+            "7": 0.4375,
+            "8": 0.3125
+          },
+          "exact": 0.806640625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 56000,
+      "train_loss": {
+        "masked_pointer_chase": 0.23459673130512237
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.875,
+            "6": 0.78125,
+            "7": 0.390625,
+            "8": 0.28125
+          },
+          "exact": 0.78515625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 56250,
+      "train_loss": {
+        "masked_pointer_chase": 0.2231390153169632
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.8125,
+            "7": 0.421875,
+            "8": 0.3125
+          },
+          "exact": 0.8046875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 56500,
+      "train_loss": {
+        "masked_pointer_chase": 0.1955992307662964
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 1.0,
+            "5": 0.953125,
+            "6": 0.8125,
+            "7": 0.40625,
+            "8": 0.328125
+          },
+          "exact": 0.810546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 56750,
+      "train_loss": {
+        "masked_pointer_chase": 0.19675343096256256
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.953125,
+            "6": 0.796875,
+            "7": 0.390625,
+            "8": 0.296875
+          },
+          "exact": 0.798828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 57000,
+      "train_loss": {
+        "masked_pointer_chase": 0.22154890471696853
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.953125,
+            "6": 0.828125,
+            "7": 0.421875,
+            "8": 0.296875
+          },
+          "exact": 0.806640625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 57250,
+      "train_loss": {
+        "masked_pointer_chase": 0.21886117887496948
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 0.984375,
+            "3": 0.96875,
+            "4": 1.0,
+            "5": 0.9375,
+            "6": 0.796875,
+            "7": 0.4375,
+            "8": 0.296875
+          },
+          "exact": 0.802734375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 57500,
+      "train_loss": {
+        "masked_pointer_chase": 0.21336766302585602
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.953125,
+            "6": 0.828125,
+            "7": 0.421875,
+            "8": 0.328125
+          },
+          "exact": 0.810546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 57750,
+      "train_loss": {
+        "masked_pointer_chase": 0.203910037368536
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 1.0,
+            "5": 0.890625,
+            "6": 0.828125,
+            "7": 0.4375,
+            "8": 0.3125
+          },
+          "exact": 0.806640625,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 58000,
+      "train_loss": {
+        "masked_pointer_chase": 0.19874548581242563
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.953125,
+            "6": 0.75,
+            "7": 0.40625,
+            "8": 0.328125
+          },
+          "exact": 0.80078125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 58250,
+      "train_loss": {
+        "masked_pointer_chase": 0.20989423015713693
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.9375,
+            "6": 0.796875,
+            "7": 0.40625,
+            "8": 0.296875
+          },
+          "exact": 0.798828125,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 58500,
+      "train_loss": {
+        "masked_pointer_chase": 0.22092329379916192
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.984375,
+            "5": 0.9375,
+            "6": 0.765625,
+            "7": 0.375,
+            "8": 0.28125
+          },
+          "exact": 0.79296875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 58750,
+      "train_loss": {
+        "masked_pointer_chase": 0.2093214381337166
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.96875,
+            "6": 0.8125,
+            "7": 0.421875,
+            "8": 0.3125
+          },
+          "exact": 0.810546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 59000,
+      "train_loss": {
+        "masked_pointer_chase": 0.18907386615872382
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.96875,
+            "5": 0.953125,
+            "6": 0.828125,
+            "7": 0.421875,
+            "8": 0.328125
+          },
+          "exact": 0.810546875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 59250,
+      "train_loss": {
+        "masked_pointer_chase": 0.1887981931269169
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.8125,
+            "7": 0.421875,
+            "8": 0.3125
+          },
+          "exact": 0.8046875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 59500,
+      "train_loss": {
+        "masked_pointer_chase": 0.18217617055773735
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.9375,
+            "6": 0.859375,
+            "7": 0.40625,
+            "8": 0.296875
+          },
+          "exact": 0.80859375,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 59750,
+      "train_loss": {
+        "masked_pointer_chase": 0.1948530053794384
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.921875,
+            "6": 0.84375,
+            "7": 0.375,
+            "8": 0.328125
+          },
+          "exact": 0.8046875,
+          "examples": 512
+        }
+      }
+    },
+    {
+      "step": 60000,
+      "train_loss": {
+        "masked_pointer_chase": 0.18047261399030684
+      },
+      "validation": {
+        "masked_pointer_chase": {
+          "by_depth": {
+            "1": 1.0,
+            "2": 1.0,
+            "3": 0.984375,
+            "4": 0.984375,
+            "5": 0.9375,
+            "6": 0.8125,
+            "7": 0.390625,
+            "8": 0.3125
+          },
+          "exact": 0.802734375,
+          "examples": 512
+        }
+      }
+    }
+  ],
+  "last_interval_train_loss": {
+    "masked_pointer_chase": 0.18047261399030684
+  },
+  "optimizer_steps": 60000,
+  "peak_vram_allocated_mb": 1499.88916015625,
+  "provenance": {
+    "bundle_hash": "f1d81a3afde4fab4cc07d70949e6f87eb8c1ff5766e1b0cace206a7456e4d265",
+    "pools": {
+      "masked_pointer_chase": {
+        "sha256": "9a0bab43a69c635cf0aea372b79df0cc71f6dad0d6702c84c3b776fb2c616d47",
+        "size": 1000000
+      },
+      "masked_pointer_chase.staircase": {
+        "sha256": "7737f30665645c8f5facfff1743465cf7de2d5ded225535a93224264f69e9339",
+        "size": 125000
+      }
+    }
+  },
+  "resumed": true,
+  "status": "budget_exhausted",
+  "target_entropy_nats": {
+    "masked_pointer_chase": 2.226762533187866
+  },
+  "training_seconds": 8385.215879900003,
+  "unique_parameters": 1839616
+}

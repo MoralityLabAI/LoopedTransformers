@@ -1,37 +1,187 @@
 {
- "snapshot_utc": "2026-11-25T22:53:28.505927+00:00",
+ "snapshot_utc": "2026-11-26T07:48:14.379904+00:00",
  "cells": [
   {
-   "cell": "LOOP-T-aux2cpu-s1",
-   "device": "cpu",
-   "step": 20000,
-   "status": "paused",
-   "gate_passed": false,
+   "cell": "FF-U-mask2-ds-s1",
+   "device": "cuda",
+   "step": 11250,
+   "status": "gate_passed_c4_pending",
+   "gate_passed": true,
    "families": {
     "masked_pointer_chase": [
-     0.9512,
+     0.9805,
+     {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 1.0,
+      "4": 0.984375,
+      "5": 1.0,
+      "6": 1.0,
+      "7": 0.953125,
+      "8": 0.90625
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": 8
+   }
+  },
+  {
+   "cell": "FF-U-mask2-ds-s2",
+   "device": "cuda",
+   "step": 6750,
+   "status": "gate_passed_c4_pending",
+   "gate_passed": true,
+   "families": {
+    "masked_pointer_chase": [
+     0.9902,
      {
       "1": 1.0,
       "2": 1.0,
       "3": 1.0,
       "4": 1.0,
       "5": 1.0,
+      "6": 0.984375,
+      "7": 0.984375,
+      "8": 0.953125
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": 8
+   }
+  },
+  {
+   "cell": "FF-U-mask2-ds-s3",
+   "device": "cuda",
+   "step": 27750,
+   "status": "gate_passed_c4_pending",
+   "gate_passed": true,
+   "families": {
+    "masked_pointer_chase": [
+     0.9922,
+     {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 1.0,
+      "4": 1.0,
+      "5": 1.0,
+      "6": 1.0,
+      "7": 0.984375,
+      "8": 0.953125
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": 8
+   }
+  },
+  {
+   "cell": "FF-U-mask2-s1",
+   "device": "cuda",
+   "step": 60000,
+   "status": "budget_exhausted",
+   "gate_passed": false,
+   "families": {
+    "masked_pointer_chase": [
+     0.6387,
+     {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 0.9375,
+      "4": 0.84375,
+      "5": 0.46875,
+      "6": 0.34375,
+      "7": 0.3125,
+      "8": 0.203125
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": 4
+   }
+  },
+  {
+   "cell": "FF-U-mask2-s2",
+   "device": "cuda",
+   "step": 60000,
+   "status": "budget_exhausted",
+   "gate_passed": false,
+   "families": {
+    "masked_pointer_chase": [
+     0.9746,
+     {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 1.0,
+      "4": 1.0,
+      "5": 1.0,
+      "6": 0.984375,
+      "7": 0.96875,
+      "8": 0.84375
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": 8
+   }
+  },
+  {
+   "cell": "FF-U-mask2-s3",
+   "device": "cuda",
+   "step": 60000,
+   "status": "budget_exhausted",
+   "gate_passed": false,
+   "families": {
+    "masked_pointer_chase": [
+     0.8027,
+     {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 0.984375,
+      "4": 0.984375,
+      "5": 0.9375,
+      "6": 0.8125,
+      "7": 0.390625,
+      "8": 0.3125
+     }
+    ]
+   },
+   "max_unlocked": {
+    "masked_pointer_chase": 6
+   }
+  },
+  {
+   "cell": "LOOP-T-aux2cpu-s1",
+   "device": "cpu",
+   "step": 22000,
+   "status": "paused",
+   "gate_passed": false,
+   "families": {
+    "masked_pointer_chase": [
+     0.9434,
+     {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 1.0,
+      "4": 1.0,
+      "5": 0.921875,
       "6": 0.96875,
       "7": 0.921875,
-      "8": 0.71875
+      "8": 0.734375
      }
     ],
     "modular_recurrence": [
-     0.0664,
+     0.0469,
      {
-      "1": 0.078125,
-      "2": 0.09375,
+      "1": 0.09375,
+      "2": 0.078125,
       "3": 0.03125,
-      "4": 0.078125,
-      "5": 0.046875,
-      "6": 0.046875,
-      "7": 0.046875,
-      "8": 0.109375
+      "4": 0.03125,
+      "5": 0.078125,
+      "6": 0.015625,
+      "7": 0.03125,
+      "8": 0.015625
      }
     ]
    },
@@ -43,21 +193,21 @@
   {
    "cell": "LOOP-T-mask2-s1",
    "device": "cuda",
-   "step": 4750,
-   "status": "running",
-   "gate_passed": null,
+   "step": 6250,
+   "status": "gate_passed_c4_pending",
+   "gate_passed": true,
    "families": {
     "masked_pointer_chase": [
-     0.9395,
+     0.9824,
      {
       "1": 1.0,
       "2": 1.0,
       "3": 1.0,
-      "4": 0.96875,
+      "4": 1.0,
       "5": 1.0,
-      "6": 0.984375,
+      "6": 0.96875,
       "7": 1.0,
-      "8": 0.5625
+      "8": 0.890625
      }
     ]
    },
@@ -68,71 +218,96 @@
   {
    "cell": "LOOP-T-mask2-s2",
    "device": "cuda",
-   "step": 1250,
-   "status": "running",
-   "gate_passed": null,
+   "step": 18750,
+   "status": "gate_passed_c4_pending",
+   "gate_passed": true,
    "families": {
     "masked_pointer_chase": [
-     0.0957,
+     0.9844,
      {
-      "1": 0.5,
-      "2": 0.015625,
-      "3": 0.03125,
-      "4": 0.0,
-      "5": 0.015625,
-      "6": 0.09375,
-      "7": 0.09375,
-      "8": 0.015625
+      "1": 1.0,
+      "2": 1.0,
+      "3": 1.0,
+      "4": 0.984375,
+      "5": 1.0,
+      "6": 0.984375,
+      "7": 0.953125,
+      "8": 0.953125
      }
     ]
    },
    "max_unlocked": {
-    "masked_pointer_chase": null
+    "masked_pointer_chase": 8
    }
   },
   {
    "cell": "LOOP-T-mask2-s3",
    "device": "cuda",
-   "step": 500,
-   "status": "running",
-   "gate_passed": null,
+   "step": 15750,
+   "status": "gate_passed_c4_pending",
+   "gate_passed": true,
    "families": {
     "masked_pointer_chase": [
-     0.4238,
+     0.9824,
      {
-      "1": 0.5,
-      "2": 0.5625,
-      "3": 0.421875,
-      "4": 0.5,
-      "5": 0.296875,
-      "6": 0.5,
-      "7": 0.515625,
-      "8": 0.09375
+      "1": 1.0,
+      "2": 1.0,
+      "3": 1.0,
+      "4": 1.0,
+      "5": 1.0,
+      "6": 0.96875,
+      "7": 0.984375,
+      "8": 0.90625
      }
     ]
    },
    "max_unlocked": {
-    "masked_pointer_chase": null
+    "masked_pointer_chase": 8
+   }
+  },
+  {
+   "cell": "LOOP-T-modnc-s1",
+   "device": "cuda",
+   "step": 30000,
+   "status": "budget_exhausted",
+   "gate_passed": false,
+   "families": {
+    "modular_recurrence": [
+     0.0469,
+     {
+      "1": 0.03125,
+      "2": 0.046875,
+      "3": 0.03125,
+      "4": 0.046875,
+      "5": 0.03125,
+      "6": 0.03125,
+      "7": 0.09375,
+      "8": 0.0625
+     }
+    ]
+   },
+   "max_unlocked": {
+    "modular_recurrence": null
    }
   },
   {
    "cell": "LOOP-T-modnccpu-s1",
    "device": "cpu",
-   "step": 250,
-   "status": "running",
-   "gate_passed": null,
+   "step": 4500,
+   "status": "paused",
+   "gate_passed": false,
    "families": {
     "modular_recurrence": [
-     0.0703,
+     0.043,
      {
-      "1": 0.078125,
-      "2": 0.109375,
-      "3": 0.046875,
-      "4": 0.078125,
-      "5": 0.0625,
-      "6": 0.0625,
-      "7": 0.015625,
-      "8": 0.109375
+      "1": 0.046875,
+      "2": 0.015625,
+      "3": 0.0625,
+      "4": 0.015625,
+      "5": 0.015625,
+      "6": 0.09375,
+      "7": 0.078125,
+      "8": 0.015625
      }
     ]
    },
