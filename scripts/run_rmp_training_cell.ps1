@@ -35,7 +35,19 @@ param(
     # A worker that writes no event and no checkpoint for this long is stalled (typically GPU memory oversubscribed by
     # another job: it keeps its host RAM, spins a little CPU and makes no progress). It is killed and retried from its
     # last evaluation point. Evaluations land every few minutes even on a shared card, so 15 leaves a wide margin.
-    [double]$StallMinutes = 15
+    [double]$StallMinutes = 15,
+    # Each CUDA training worker commits about 5 GB (about 3 GB resident) however small the model is, so several cells in
+    # parallel can exhaust the commit limit, after which allocations fail and the host pages heavily. A slice is not
+    # started until the host has this much available RAM and commit headroom, for up to MemoryWaitMinutes; after that it
+    # starts anyway so a busy host cannot stop a cell for good.
+    [int]$MinAvailableRamMb = 3000,
+    [int]$MinCommitHeadroomMb = 8000,
+    [double]$MemoryWaitMinutes = 45,
+    # Host-wide cap on training workers, shared by every runner through named mutexes: a cell takes a slot before its first
+    # slice and keeps it until the cell ends, so cells take turns instead of restarting each other. Four CUDA workers at
+    # once starved each other and exhausted the commit limit; two leave room for other jobs on the card and in RAM.
+    [int]$MaxConcurrentCuda = 2,
+    [int]$MaxConcurrentCpu = 1
 )
 
 # Runs one RMP training cell in time slices under the caps of the registered resource profile.
@@ -93,6 +105,14 @@ function Stop-CellOrphans {
             & taskkill.exe /PID $candidate.ProcessId /T /F 2>$null | Out-Null
         }
     }
+}
+
+function Test-HostMemoryReady {
+    $counters = (Get-Counter '\Memory\Available MBytes', '\Memory\Committed Bytes', '\Memory\Commit Limit' -ErrorAction SilentlyContinue).CounterSamples
+    if (-not $counters) { return $true }
+    $available = ($counters | Where-Object { $_.Path -like '*available mbytes' }).CookedValue
+    $headroom = (($counters | Where-Object { $_.Path -like '*commit limit' }).CookedValue - ($counters | Where-Object { $_.Path -like '*committed bytes' }).CookedValue) / 1MB
+    return ($available -ge $MinAvailableRamMb) -and ($headroom -ge $MinCommitHeadroomMb)
 }
 
 function Get-ForeignGpuProcesses {
@@ -208,6 +228,19 @@ if ($Staircase) { $arguments += "--staircase" }
 if ($StopAtGate) { $arguments += "--stop-at-gate" }
 if ($InitFrom) { $arguments += @("--init-from", (Resolve-RepoPath $InitFrom)) }
 
+$slotPool = if ($Device -eq "cpu") { "cpu" } else { "cuda" }
+$slotLimit = if ($slotPool -eq "cpu") { $MaxConcurrentCpu } else { $MaxConcurrentCuda }
+$slotMutex = $null
+if ($slotLimit -gt 0) {
+    $slots = @(0..($slotLimit - 1) | ForEach-Object { New-Object System.Threading.Mutex($false, "Global\rmp-aux-slot-$slotPool-$_") })
+    while ($null -eq $slotMutex) {
+        foreach ($candidate in ($slots | Get-Random -Count $slots.Count)) {
+            try { if ($candidate.WaitOne(0)) { $slotMutex = $candidate; break } }
+            catch [System.Threading.AbandonedMutexException] { $slotMutex = $candidate; break }  # the holder was killed; the slot is ours
+        }
+        if ($null -eq $slotMutex) { Start-Sleep -Seconds (15 + (Get-Random -Maximum 10)) }
+    }
+}
 $final = "attempts_exhausted"
 $consecutiveFailures = 0
 # Attempts are numbered across invocations so a later run never overwrites an earlier receipt.
@@ -230,6 +263,8 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
         if ($Device -eq "auto") { $attemptDevice = if ($gpu.ready) { "cuda" } else { "cpu" } }
     }
     Stop-CellOrphans
+    $memoryDeadline = (Get-Date).AddMinutes($MemoryWaitMinutes)
+    while (-not (Test-HostMemoryReady) -and (Get-Date) -lt $memoryDeadline) { Start-Sleep -Seconds 30 }
     $status = "running"; $abortReason = $null; $proc = $null
     $peakRamMb = 0.0; $peakIoMbS = 0.0; $peakVramMb = 0.0; $sumCpuPct = 0.0; $ioViolations = 0; $samples = 0
     if ($attemptDevice -eq "cuda" -and -not $gpu.ready) {
@@ -358,4 +393,5 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
     $consecutiveFailures = 0
     if ($status -ne "paused") { $final = $status; break }
 }
+if ($slotMutex) { try { $slotMutex.ReleaseMutex() } catch { } }
 if ($final -ne "completed") { exit 1 }
