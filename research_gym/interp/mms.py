@@ -230,21 +230,26 @@ class MechanisticMemory:
         return out.to(gradient.dtype)
 
     @contextmanager
-    def capture(self, keys, step, visit, visits):
+    def capture(self, keys, step, visit, visits, *, grad_only=False, key_stride=None):
         if not 0 <= visit < visits or step < 0:
             raise ValueError('invalid visit/step')
         if next(self.module.parameters()).device.type != 'cpu':
             raise ValueError('MMS v0 is CPU-only')
         keys = keys.detach().long().cpu()
-        if bool((keys < 0).any()) or bool((keys > (2**63-1-visit)//visits).any()):
+        stride = visits if key_stride is None else key_stride
+        if stride < visits:
+            raise ValueError('MMS key stride too small')
+        if bool((keys < 0).any()) or bool((keys > (2**63-1-visit)//stride).any()):
             raise ValueError('MMS key out of range')
-        keys = keys * visits + visit
+        keys = keys * stride + visit
         started = time.process_time()
         self._refresh(step)
         self.cpu_seconds += time.process_time() - started
         calls = backward_calls = 0
         def hook(module, inputs, output):
             nonlocal calls
+            if grad_only and not torch.is_grad_enabled():
+                return
             ordinal = calls
             calls += 1
             if ordinal != visit:
