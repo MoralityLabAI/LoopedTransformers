@@ -1,0 +1,277 @@
+{
+ "files": {
+  "ood_stress/gated_pointer_chase.jsonl": {
+   "bytes": 1829830,
+   "sha256": "68ab7de700c884356a15a595c18979b3f7ff078aa7cdac9f32e717782cdd7c4a"
+  },
+  "ood_stress/masked_pointer_chase.jsonl": {
+   "bytes": 1587022,
+   "sha256": "b8b3497b5a2b548e5723c81cc6ee270b603e8bcece850c490364889e08f60537"
+  },
+  "ood_stress/modular_recurrence.jsonl": {
+   "bytes": 1453631,
+   "sha256": "adf7b36ec4535fd2bbba0bf6e9da1214786cf10d0f2d5080c8ee7ea8a879b357"
+  },
+  "ood_stress/pointer_chase.jsonl": {
+   "bytes": 1413446,
+   "sha256": "c2c4bda190526ccbccf35c1fc0051b74dee211d63702c258531f4234729351dd"
+  },
+  "ood_stress/reachability.jsonl": {
+   "bytes": 2200104,
+   "sha256": "a0306f87e49449e29d5ef7aff89907ec07e97ae7ac755b22b7c2e455b1a82b87"
+  },
+  "train_pools/masked_pointer_chase.pt.gz": {
+   "bytes": 20360171,
+   "examples": 1000000,
+   "sha256": "7ab0f0a3d9877fd3d25ddd2f3570cdd04fd2f1cedeae32a47dfa095ccdd7ad1e",
+   "uncompressed_bytes": 131002262,
+   "uncompressed_sha256": "9a0bab43a69c635cf0aea372b79df0cc71f6dad0d6702c84c3b776fb2c616d47"
+  },
+  "train_pools/masked_pointer_chase.staircase.pt.gz": {
+   "bytes": 2390611,
+   "examples": 125000,
+   "sha256": "eb1c0a6753c531fba9a4f13d7c1e0ceedfca3e5ded32326f851313a2bf2aa470",
+   "uncompressed_bytes": 16377392,
+   "uncompressed_sha256": "7737f30665645c8f5facfff1743465cf7de2d5ded225535a93224264f69e9339"
+  },
+  "train_pools/modular_recurrence.pt.gz": {
+   "bytes": 12298400,
+   "examples": 1000000,
+   "sha256": "cd1858c55756d6dea09486b1ba9f54cee8163a9df65bc3f86b05c7cfcae6571a",
+   "uncompressed_bytes": 131002244,
+   "uncompressed_sha256": "68191748acda216489f121cb834e62e7d58a752eefad719671f5b9851dded92b"
+  },
+  "validation/gated_pointer_chase.jsonl": {
+   "bytes": 3494133,
+   "sha256": "3ee1d8aad0e999b20cc2eab545cb76a3be37538335fc0a815c01d79b2f48d225"
+  },
+  "validation/masked_pointer_chase.jsonl": {
+   "bytes": 2993095,
+   "sha256": "bfbed3b431573a5a267f613d2f3aa5098e24cebbff98652e35867f44bae135e7"
+  },
+  "validation/modular_recurrence.jsonl": {
+   "bytes": 2343082,
+   "sha256": "1090e5245129ed2c1b150a858c051f1f0450e3900e57ef97f7145c6cc59486a2"
+  },
+  "validation/pointer_chase.jsonl": {
+   "bytes": 2709797,
+   "sha256": "8b2da7ce5c5a2dac0801e25a636995ca2718be01ccec514ada720725350f2241"
+  },
+  "validation/reachability.jsonl": {
+   "bytes": 3768765,
+   "sha256": "2d2e56ae1b3cb14d8845ee8a60750562470f65c2620839c20f41f8c649627927"
+  },
+  "validation/sudoku4.jsonl": {
+   "bytes": 2991169,
+   "sha256": "e24e6932d5dd0a0cd2e3208a5f9220456dca0d82a710034374e721f86ce0e665"
+  }
+ },
+ "stats": {
+  "ood_stress/gated_pointer_chase": {
+   "by_difficulty": {
+    "9": 500,
+    "10": 500,
+    "11": 500,
+    "12": 500
+   },
+   "distinct_fingerprints": 2000,
+   "distinct_groups": 2000,
+   "distinct_target_tokens": 17,
+   "examples": 2000,
+   "most_common_target_share": 0.4895,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "ood_stress/masked_pointer_chase": {
+   "by_difficulty": {
+    "9": 500,
+    "10": 500,
+    "11": 500,
+    "12": 500
+   },
+   "distinct_fingerprints": 2000,
+   "distinct_groups": 2000,
+   "distinct_target_tokens": 17,
+   "examples": 2000,
+   "most_common_target_share": 0.4935,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "ood_stress/modular_recurrence": {
+   "by_difficulty": {
+    "9": 500,
+    "10": 500,
+    "11": 500,
+    "12": 500
+   },
+   "distinct_fingerprints": 2000,
+   "distinct_groups": 2000,
+   "distinct_target_tokens": 17,
+   "examples": 2000,
+   "most_common_target_share": 0.071,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "ood_stress/pointer_chase": {
+   "by_difficulty": {
+    "9": 500,
+    "10": 500,
+    "11": 500,
+    "12": 500
+   },
+   "distinct_fingerprints": 2000,
+   "distinct_groups": 2000,
+   "distinct_target_tokens": 16,
+   "examples": 2000,
+   "most_common_target_share": 0.0715,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "ood_stress/reachability": {
+   "by_difficulty": {
+    "9": 500,
+    "10": 500,
+    "11": 500,
+    "12": 500
+   },
+   "distinct_fingerprints": 2000,
+   "distinct_groups": 2000,
+   "distinct_target_tokens": 2,
+   "examples": 2000,
+   "most_common_target_share": 0.504,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "validation/gated_pointer_chase": {
+   "by_difficulty": {
+    "1": 500,
+    "2": 500,
+    "3": 500,
+    "4": 500,
+    "5": 500,
+    "6": 500,
+    "7": 500,
+    "8": 500
+   },
+   "distinct_fingerprints": 4000,
+   "distinct_groups": 4000,
+   "distinct_target_tokens": 17,
+   "examples": 4000,
+   "most_common_target_share": 0.5062,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "validation/masked_pointer_chase": {
+   "by_difficulty": {
+    "1": 500,
+    "2": 500,
+    "3": 500,
+    "4": 500,
+    "5": 500,
+    "6": 500,
+    "7": 500,
+    "8": 500
+   },
+   "distinct_fingerprints": 4000,
+   "distinct_groups": 4000,
+   "distinct_target_tokens": 17,
+   "examples": 4000,
+   "most_common_target_share": 0.5092,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "validation/modular_recurrence": {
+   "by_difficulty": {
+    "1": 211,
+    "2": 500,
+    "3": 500,
+    "4": 500,
+    "5": 500,
+    "6": 500,
+    "7": 500,
+    "8": 500
+   },
+   "distinct_fingerprints": 3711,
+   "distinct_groups": 3489,
+   "distinct_target_tokens": 17,
+   "examples": 3711,
+   "most_common_target_share": 0.0628,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "validation/pointer_chase": {
+   "by_difficulty": {
+    "1": 500,
+    "2": 500,
+    "3": 500,
+    "4": 500,
+    "5": 500,
+    "6": 500,
+    "7": 500,
+    "8": 500
+   },
+   "distinct_fingerprints": 4000,
+   "distinct_groups": 4000,
+   "distinct_target_tokens": 16,
+   "examples": 4000,
+   "most_common_target_share": 0.0725,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "validation/reachability": {
+   "by_difficulty": {
+    "1": 500,
+    "2": 500,
+    "3": 500,
+    "4": 500,
+    "5": 500,
+    "6": 500,
+    "7": 500,
+    "8": 500
+   },
+   "distinct_fingerprints": 4000,
+   "distinct_groups": 4000,
+   "distinct_target_tokens": 2,
+   "examples": 4000,
+   "most_common_target_share": 0.5108,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  },
+  "validation/sudoku4": {
+   "by_difficulty": {
+    "1": 1334,
+    "2": 1333,
+    "3": 1333
+   },
+   "distinct_fingerprints": 4000,
+   "distinct_groups": 3941,
+   "distinct_target_tokens": 4,
+   "examples": 4000,
+   "most_common_target_share": 0.2597,
+   "token_length_min_max": [
+    64,
+    64
+   ]
+  }
+ }
+}
