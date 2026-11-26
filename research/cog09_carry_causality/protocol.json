@@ -1,0 +1,53 @@
+{
+  "schema": "cog09.protocol.v1",
+  "experiment": "COG-09",
+  "phase": "development_calibration_only",
+  "model_commit": "c1c903b3f0664ee19838fcba45bd67e24f779aab",
+  "datagoblin_commit": "ae0dbecffc1d246778ee47d8f3d8ec59b5948f2b",
+  "evalmath_commit": "606056d60f51a680512afb6603ba03c92e8d02f3",
+  "generator_sha256": "eb6bf1605a293c6b8871e0f14c7eb6fd4af99609d97516ef29d21b712eb001dc",
+  "corpus_sha256": "cf8292144cfd37b42c9a8a4d86ac1517ef4c6cb4c26400210d1a840de310a83c",
+  "checkpoints": {
+    "17": "4b50692bf1f1e61b599749a8905dfb7f5f71fd2419cb26790b0a9284d0c664e3",
+    "29": "97b181adba3b2da62a8ca3bc1b9c52c3da6b1a69acd132503c38d96effdcdec6"
+  },
+  "seeds": [
+    17,
+    29
+  ],
+  "pilot_seed": 2026112609,
+  "pilot_roots": 64,
+  "budget": 16,
+  "depth": 4,
+  "sham_seeds": [
+    1103,
+    1109,
+    1117,
+    1123
+  ],
+  "dose": 1,
+  "primary": "root mean baseline minus target-erasure normalized completion AUC",
+  "secondary": "same-state change in useful top action and useful softmax mass; root completion and charged calls",
+  "scientific_min_effect": "1/10",
+  "target_effect": "1/5",
+  "measurement_resolution": "1/32",
+  "alpha": "1/20",
+  "sham_quantile": "19/20",
+  "sham_confidence": "19/20",
+  "planned_comparisons": 1,
+  "confirm_units_planned": 128,
+  "heldout_sealed": false,
+  "pilot_from_development_only": true,
+  "confirmation": "Do not generate or score confirmation roots in this campaign. Register a separate unseen population only after preflight.",
+  "independent_unit": "synthetic source Horn graph; seeds, decisions and shams repeat within root",
+  "arms": [
+    "baseline",
+    "erase",
+    "sham0",
+    "sham1",
+    "sham2",
+    "sham3",
+    "reset_history",
+    "goal_ancestry"
+  ]
+}
