@@ -31,7 +31,11 @@ param(
     [string]$ResultDir = "experiments/recurrence_monitorability_v0/runs",
     [string]$BundleDir = "experiments/recurrence_monitorability_v0/datasets",
     [string]$ResourceConfig = "configs/rmp_resource_profile_v0.json",
-    [int]$MaxConsecutiveFailures = 5
+    [int]$MaxConsecutiveFailures = 5,
+    # A worker that writes no event and no checkpoint for this long is stalled (typically GPU memory oversubscribed by
+    # another job: it keeps its host RAM, spins a little CPU and makes no progress). It is killed and retried from its
+    # last evaluation point. Evaluations land every few minutes even on a shared card, so 15 leaves a wide margin.
+    [double]$StallMinutes = 15
 )
 
 # Runs one RMP training cell in time slices under the caps of the registered resource profile.
@@ -66,6 +70,29 @@ function Stop-OwnedTree([System.Diagnostics.Process]$Process) {
     if ($null -eq $Process -or $Process.HasExited) { return }
     & taskkill.exe /PID $Process.Id /T /F 2>$null | Out-Null
     if (-not $Process.HasExited) { Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue }
+}
+
+$EventsFile = Join-Path $ResultPath "$CellName\events.jsonl"
+$CheckpointDir = Join-Path (Resolve-RepoPath $ArtifactDir) "$CellName\checkpoints"
+
+# Newest write to the cell's event log or checkpoints: the cell's heartbeat.
+function Get-CellHeartbeat {
+    $latest = [datetime]::MinValue
+    foreach ($item in @(Get-Item -LiteralPath $EventsFile -ErrorAction SilentlyContinue) + @(Get-ChildItem -LiteralPath $CheckpointDir -Filter "*.pt" -ErrorAction SilentlyContinue)) {
+        if ($item -and $item.LastWriteTime -gt $latest) { $latest = $item.LastWriteTime }
+    }
+    return $latest
+}
+
+# Workers of this exact cell (arm, seed, variant) that outlived their runner or slice. Only this cell's command line
+# matches, so other jobs on the host are never touched.
+function Stop-CellOrphans {
+    $pattern = "--arm $Arm --seed $Seed --variant $Variant "
+    foreach ($candidate in @(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='cmd.exe'" -ErrorAction SilentlyContinue)) {
+        if ($candidate.CommandLine -and $candidate.CommandLine.Contains("run_rmp_training_cell") -and $candidate.CommandLine.Contains($pattern)) {
+            & taskkill.exe /PID $candidate.ProcessId /T /F 2>$null | Out-Null
+        }
+    }
 }
 
 function Get-ForeignGpuProcesses {
@@ -202,6 +229,7 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
         # "auto" takes the GPU when it is ready and otherwise spends this slice on the CPU.
         if ($Device -eq "auto") { $attemptDevice = if ($gpu.ready) { "cuda" } else { "cpu" } }
     }
+    Stop-CellOrphans
     $status = "running"; $abortReason = $null; $proc = $null
     $peakRamMb = 0.0; $peakIoMbS = 0.0; $peakVramMb = 0.0; $sumCpuPct = 0.0; $ioViolations = 0; $samples = 0
     if ($attemptDevice -eq "cuda" -and -not $gpu.ready) {
@@ -261,6 +289,11 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
                 if ($ioViolations -ge [int]$Caps.io_sustained_samples) { $abortReason = "sustained_io_cap_exceeded"; break }
                 if ($peakVramMb -gt [double]$Caps.vram_mb) { $abortReason = "vram_cap_exceeded"; break }
                 if (($now - $procStarted).TotalSeconds -gt $TimeoutSeconds) { $abortReason = "timeout"; break }
+                if (($samples % 15) -eq 0) {
+                    $beat = Get-CellHeartbeat
+                    $since = if ($beat -gt $procStarted) { $beat } else { $procStarted }
+                    if (($now - $since).TotalMinutes -gt $StallMinutes) { $abortReason = "stalled_no_progress"; break }
+                }
             }
             if ($null -ne $abortReason -and -not $proc.HasExited) {
                 Stop-OwnedTree $proc
@@ -313,7 +346,10 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
     # treated the same way: the cap is enforced by stopping it, and the burst is usually the cell
     # reloading its training pools on resume after the host evicted them from the file cache.
     $ioAbort = $status -eq "aborted" -and $abortReason -eq "sustained_io_cap_exceeded"
-    if ($ioAbort -or $status -in @("gpu_out_of_memory", "failed")) {
+    # A stalled slice is killed and retried like an out-of-memory failure: it resumes from its last evaluation point.
+    $stallAbort = $status -eq "aborted" -and $abortReason -eq "stalled_no_progress"
+    if ($stallAbort) { Stop-CellOrphans }
+    if ($ioAbort -or $stallAbort -or $status -in @("gpu_out_of_memory", "failed")) {
         $consecutiveFailures++
         if ($consecutiveFailures -ge $MaxConsecutiveFailures) { $final = $status; break }
         Start-Sleep -Seconds $OomRetryWaitSeconds
