@@ -165,3 +165,39 @@ def test_hash_pinned_multisite_map_manifest(tmp_path):
     source.write_bytes(b'changed')
     import pytest
     with pytest.raises(ValueError): read_map_manifest(manifest,sha)
+
+
+def test_canonical_factor_rescaling_and_permutation_invariance(tmp_path):
+    """Equivalent factorizations (rescaled, sign-flipped, permuted) must inject identical gradients."""
+    import hashlib
+    from research_gym.interp.mms import MechanisticMemory
+    torch.manual_seed(2026)
+    layer_a = torch.nn.Linear(12, 16)
+    layer_b = copy.deepcopy(layer_a)
+    v0 = torch.randn(12, 6)
+    u0 = torch.randn(6, 16)
+    # Match layer weight so reconstruction cosine is 1.0
+    with torch.no_grad():
+        layer_a.weight.copy_((v0 @ u0).T)
+        layer_b.weight.copy_((v0 @ u0).T)
+    scales = torch.tensor([1e-3, -40.0, 0.25, 250.0, -0.02, 7.0])
+    perm = torch.tensor([4, 1, 5, 0, 3, 2])
+    v1 = (v0 * scales[None, :])[:, perm]
+    u1 = (u0 / scales[:, None])[perm, :]
+    fa, fb = tmp_path / 'fa.pt', tmp_path / 'fb.pt'
+    torch.save({'V': v0, 'U': u0}, fa)
+    torch.save({'V': v1, 'U': u1}, fb)
+    ma = MechanisticMemory(layer_a, mib=0.5, mode='bpd', rank=6, topk=2, ratio=0.2,
+                           map_file=str(fa), map_sha=hashlib.sha256(fa.read_bytes()).hexdigest())
+    mb = MechanisticMemory(layer_b, mib=0.5, mode='bpd', rank=6, topk=2, ratio=0.2,
+                           map_file=str(fb), map_sha=hashlib.sha256(fb.read_bytes()).hexdigest())
+    keys = torch.arange(8)
+    x = torch.randn(8, 12)
+    for step in (0, 1):
+        layer_a.zero_grad(); layer_b.zero_grad()
+        with ma.capture(keys, step, 0, 1):
+            layer_a(x).square().mean().backward()
+        with mb.capture(keys, step, 0, 1):
+            layer_b(x).square().mean().backward()
+    assert torch.allclose(layer_a.weight.grad, layer_b.weight.grad, atol=1e-5)
+    assert ma.admitted == mb.admitted and ma.admitted > 0
