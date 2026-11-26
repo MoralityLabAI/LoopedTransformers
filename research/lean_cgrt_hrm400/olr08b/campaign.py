@@ -70,11 +70,11 @@ def validate_roster(files, original, inv, source):
             raise ValueError("noncanonical roster path")
         p = Path(f)
         if (p.is_absolute() or ".." in p.parts or p.as_posix() != f
-                or p.parts[:3] != ("src", "Init", "Data") or len(p.parts) != 5
+                or p.parts[:3] != ("src", "Init", "Data") or len(p.parts) < 5
                 or p.suffix != ".lean" or f in denied or reserved(f)
                 or not (source / p).is_file()):
             raise ValueError("unsafe, unavailable or spent file: " + f)
-        fams[p.parts[3]].append(p.stem)
+        fams[p.parts[3]].append("/".join(p.parts[4:])[:-5])
     return {k: sorted(v) for k, v in sorted(fams.items())}
 
 
