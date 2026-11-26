@@ -22,4 +22,4 @@ function pureProfiles(Engine,seed,turn,cap){
 }
 
 function main(){const engine=process.argv[2],out=process.argv[3];assert(engine&&out,'engine path and output required');const {TheySingEngine}=require(path.resolve(engine));const roots=[],pure=[];for(const seed of [7301,7303])for(const turn of [1,2]){for(const [a,b] of [['HEGEMON','STATE'],['BROKER','CONVENOR']])roots.push(exportPair(TheySingEngine,seed,turn,a,b,4));pure.push(...pureProfiles(TheySingEngine,seed,turn,4))}fs.mkdirSync(path.dirname(path.resolve(out)),{recursive:true});fs.writeFileSync(out,JSON.stringify({roots,pure_profiles:pure},null,2)+'\n');console.log('NATIVE_THEYSING_ROOTS '+roots.length)}
-module.exports={exportPair,pureProfiles};if(require.main===module)main();
+module.exports={exportPair,pureProfiles,fresh,signature,hash,utility};if(require.main===module)main();
