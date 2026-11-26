@@ -40,6 +40,7 @@ def main() -> None:
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     parser.add_argument("--vram-mb", type=float, default=2500.0)
     parser.add_argument("--max-seconds", type=float, default=1500.0)
+    parser.add_argument("--max-cpu-seconds", type=float, default=None, help="soft per-invocation process CPU budget")
     parser.add_argument("--threads", type=int, default=0)
     parser.add_argument("--mms-mib", type=float, default=0)
     parser.add_argument("--mms-mode", choices=("observe", "dense", "bpd", "sham"), default="bpd")
@@ -50,6 +51,7 @@ def main() -> None:
     parser.add_argument("--mms-max-age", type=int, default=32768)
     parser.add_argument("--mms-visit", type=int, default=-1)
     parser.add_argument("--mms-map", default="")
+    parser.add_argument("--mms-checkpoint-every", type=int, default=2000)
     args = parser.parse_args()
     if args.mms_mib and (args.device != "cpu" or args.arm != "LOOP-T"):
         parser.error("MMS v0 requires CPU LOOP-T")
@@ -103,6 +105,7 @@ def main() -> None:
         mms_visit=args.mms_visit,
         mms_map=args.mms_map,
         mms_map_sha=map_sha,
+        mms_checkpoint_every=args.mms_checkpoint_every,
     )
     provenance = {
         "bundle_hash": manifest["bundle_hash"],
@@ -121,6 +124,7 @@ def main() -> None:
         provenance=provenance,
         device=device,
         max_seconds=args.max_seconds,
+        max_cpu_seconds=args.max_cpu_seconds,
         stop_at_gate=args.stop_at_gate,
     )
     summary = {key: result[key] for key in ("cell_id", "status", "optimizer_steps", "gate_passed", "events")}

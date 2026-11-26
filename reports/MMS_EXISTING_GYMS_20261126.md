@@ -62,3 +62,17 @@ fresh held-out lineages, and EvalMath resolution preflight before claiming a
 causal mechanism. No protected cohorts are opened. Start with a learnable
 pointer chase task; modular-recurrence depth-one coverage defect stays a
 separate problem.
+
+## Checkpoint and CPU accounting amendment
+The checkpoint helper now hashes files in 4 MiB chunks (same SHA-256 bytes).
+Enabled RMP cells save their latest full cache every --mms-checkpoint-every
+updates (default 2000) and on exit; named model-only snapshots still retain
+the original schedule. This changes crash recovery frequency only in MMS
+cells. A 4 GiB checkpoint at the existing 40 MiB/s cap can take about 102 s
+before hashing/fsync. Keep at least space for both old and temporary files.
+--max-cpu-seconds limits each run_cell invocation at an update boundary,
+including initialization inside run_cell but excluding CLI pool loading and
+mandatory exit evaluation/checkpoint. Invocation timing receipts include exit
+checkpoint/evaluation, so report actual budget overshoot; use an external
+whole-process timer for the complete CLI. Historical runs' accumulated CPU
+ledger starts when this code first resumes them.

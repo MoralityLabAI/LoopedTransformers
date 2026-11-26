@@ -10,6 +10,14 @@ import time
 from typing import Any, BinaryIO
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open('rb') as handle:
+        for chunk in iter(lambda: handle.read(4 * 1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 class PacedWriter:
     def __init__(
         self,
@@ -83,7 +91,7 @@ def save_paced_checkpoint(
             temporary.unlink()
     receipt = {
         "path": path.name,
-        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "sha256": _sha256_file(path),
         "bytes": path.stat().st_size,
         "elapsed_seconds": time.perf_counter() - started,
         "bytes_per_second_cap": int(bytes_per_second),
@@ -104,7 +112,7 @@ def load_verified_checkpoint(path: Path, *, map_location: str | None = None) -> 
         raise ImportError("checkpointing requires the neural extra") from exc
     sidecar = path.with_suffix(path.suffix + ".receipt.json")
     receipt = json.loads(sidecar.read_text(encoding="utf-8"))
-    actual = hashlib.sha256(path.read_bytes()).hexdigest()
+    actual = _sha256_file(path)
     if actual != receipt["sha256"]:
         raise ValueError("checkpoint hash mismatch")
     return torch.load(path, map_location=map_location, weights_only=False)
