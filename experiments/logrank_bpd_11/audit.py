@@ -20,6 +20,7 @@ def verify_score(pr,y,row):
     assert row['correct']==int((pred==y).sum()) and row['covered']==int(take.sum()) and row['covered_correct']==int(((pred==y)&take).sum())
     assert abs(row['brier']-np.mean((p-y)**2))<1e-12
     return len(y)
+
 def posterior(rows,obs,p,r,queries):
     n=1<<r;state=np.arange(n);lut=np.fromiter((i.bit_count()%2 for i in range(n)),np.int8,n);errors=np.zeros(n,dtype=int)
     for a,b in zip(rows,obs):errors+=(lut[state&a]!=b)
@@ -27,6 +28,7 @@ def posterior(rows,obs,p,r,queries):
     def prob(q):
         counts=np.bincount(errors[lut[state&q]==1],minlength=m+1);return float(Fraction(sum(int(c)*v for c,v in zip(counts,weights)),den))
     return np.array([prob(q) for q in queries]),int(np.argmin(errors))
+
 def edge_bp(rows,obs,p,r):
     weights={};ll=30 if p==0 else math.log((1-p)/p)
     for q,b in zip(rows,obs):weights[q]=weights.get(q,0)+(1-2*b)*ll
