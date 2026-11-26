@@ -1,0 +1,33 @@
+name: MOLT-08 nonlinear observer error
+on:
+  pull_request:
+    paths:
+      - 'experiments/molt_goblin_v1/observer_error.py'
+      - 'experiments/molt_goblin_v1/mms_error_study.py'
+      - 'tests/test_molt_observer_error.py'
+      - '.github/workflows/molt-observer-error.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  observer-error:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pytest
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pytest -q tests/test_molt_observer_error.py
+      - run: python -m experiments.molt_goblin_v1.mms_error_study --out /tmp/molt08.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: molt08-observer-error
+          path: /tmp/molt08.json
+          retention-days: 7
