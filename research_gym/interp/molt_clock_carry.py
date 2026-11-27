@@ -138,8 +138,11 @@ def geometry(model, recipient, operations, native_basis):
     tangency = float(jc.sum(0).abs().max())
     if error > TOL or tangency > TOL:
         raise RuntimeError("carry-cut derivative factorization failed")
+    future_rank = spectrum(direct, relative=0, absolute=1e-8)
+    if future_rank["d_obs"] > MOD - 1:
+        raise RuntimeError("future observer exceeds the carry tangent dimension")
     return {
-        "future": spectrum(direct, relative=0, absolute=1e-8),
+        "future": future_rank,
         "future_native_span": spectrum(direct @ native_basis, relative=0, absolute=1e-8),
         "cut_included": spectrum(torch.cat((first, direct)), relative=0, absolute=1e-8),
         "carry_derivative": spectrum(jc, relative=0, absolute=1e-8),
@@ -245,6 +248,8 @@ def main():
               "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               "roots": len(results), "rows": results,
               "peak_rss_bytes": int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) * 1024,
+              "native_api_swap_parity_tested": False,
+              "intervention": "additive_write_from_fitted_native_BPD_factors",
               "confirmation_ready": False, "promotion_authorized": False}
     args.out.mkdir(parents=True, exist_ok=False)
     dump(args.out / "receipt.json", report)
