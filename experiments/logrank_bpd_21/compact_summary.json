@@ -1,0 +1,230 @@
+{
+  "evidence": "development only; compact primary aggregate transcription; 132 full aggregates and 792 root records in bundle",
+  "counts": {
+    "graph_replays": 54,
+    "admitted": 36,
+    "refusals": 18,
+    "exact_partitions": 288,
+    "reference_queries": 4608,
+    "enumerated_states": 393216,
+    "arm_query_checks": 50688,
+    "greedy_steps": 18779,
+    "arithmetic_ledgers": 3168,
+    "demand_replays": 2880,
+    "cache_transitions": 326950,
+    "epoch_ledgers": 2880,
+    "invalidation_replays": 2160,
+    "plan_replays": 1728,
+    "trajectories": 792
+  },
+  "fixtures": {
+    "status": "PASS",
+    "marginal_and_diminishing_returns_checks": 6601,
+    "fixture_greedy_plans": 192
+  },
+  "non_timing_repeat_matches": 18,
+  "source_and_raw_sha256": {
+    "PROTOCOL.md": "d1a57042986ae304be693ca83386d48141915c171d314cc0c2715003eb0b4442",
+    "pilot21.py": "652b68c570b06be9cdda1d3f12d2815981c8681f3b0eea137088f929799eb1a1",
+    "audit21.py": "1407c0a122291583bdda08395631fb9413051dae94d983c70f82e70b39f222b9",
+    "base19.py": "f4329aed7e1f89be651c7605c8fbb822e1914a23163bf241c6dadb9b77187f39",
+    "base20.py": "73a86bfc2cfaeb3766adc3bda6537c743a86201f012235259436f9238682cc8b",
+    "reference19.py": "df370b656d858b9885ad1e239573e2439133e85f7e3290debf194998cfb872e2",
+    "summarize21.py": "a29a30eb5dcc388257cceec439e8f3e75786946cb802645feaceab63f80c4e7e",
+    "fixture.json": "e81e65950a27fb48d8a365511354e34a669c5338631560775981fc2bdf9bda7b",
+    "timing_repeat.json": "ea9b9c4967e64e46883eb9f991ad4dd102a1813cea52f255dbcf27fb4e9731bc",
+    "receipt12.json": "7322e2066e757ccbb2fd97005aeca73261a0330712c260877cfa8c4fb0e763bd",
+    "audit12.json": "2337d84d4bec6cc1b4b1bd2ab4d6e06a35686d44482447e5e1166779f9c8539d",
+    "receipt48.json": "a7c4b52a3c633be2021e99944c7786d6ffa313952cc88b3bfe0e5f93698697ad",
+    "audit48.json": "d09995c902290615a6ee6900534b03448739fad505bdd8bb14094f1d9b7c8009",
+    "receipt96.json": "6a2fd2f89af2fc59015d06ed524fcd85ae419742ae1075369c7dcaf07a51b140",
+    "audit96.json": "0b14bb8b50139d50de61c30d6957b669a7bf96277f2ccfb6e4dc34fdb56b51b9",
+    "summary_receipt.json": "4ee20cdd955113c4cfdca32d97c8c8ff81bc4158cd0c2a69d02d8f3f1e4f7444"
+  },
+  "primary_columns": [
+    "regime",
+    "kib",
+    "policy",
+    "mean_arithmetic_rounded",
+    "mean_ms",
+    "isolated_ms"
+  ],
+  "primary_rows": [
+    [
+      "stable_local",
+      0,
+      "direct",
+      202050.67,
+      67.28,
+      64.455
+    ],
+    [
+      "shift_distributed",
+      0,
+      "direct",
+      202050.67,
+      66.26,
+      65.173
+    ],
+    [
+      "stable_local",
+      64,
+      "lru",
+      55586.33,
+      31.55,
+      31.358
+    ],
+    [
+      "stable_local",
+      64,
+      "online_cold",
+      43220.67,
+      29.81,
+      30.127
+    ],
+    [
+      "stable_local",
+      64,
+      "planned_cold",
+      31654.67,
+      20.95,
+      20.52
+    ],
+    [
+      "stable_local",
+      64,
+      "marginal",
+      31193.33,
+      28.36,
+      29.488
+    ],
+    [
+      "stable_local",
+      64,
+      "lagged",
+      33602.67,
+      33.33,
+      30.688
+    ],
+    [
+      "shift_distributed",
+      64,
+      "lru",
+      83932.83,
+      43.94,
+      45.211
+    ],
+    [
+      "shift_distributed",
+      64,
+      "online_cold",
+      64379.5,
+      39.9,
+      41.328
+    ],
+    [
+      "shift_distributed",
+      64,
+      "planned_cold",
+      50068.33,
+      29.04,
+      28.911
+    ],
+    [
+      "shift_distributed",
+      64,
+      "marginal",
+      50068.33,
+      37.66,
+      40.12
+    ],
+    [
+      "shift_distributed",
+      64,
+      "lagged",
+      55489.67,
+      43.96,
+      40.332
+    ],
+    [
+      "stable_local",
+      16,
+      "lru",
+      82546.5,
+      44.17,
+      44.735
+    ],
+    [
+      "stable_local",
+      16,
+      "online_cold",
+      59609.67,
+      33.14,
+      34.824
+    ],
+    [
+      "stable_local",
+      16,
+      "planned_cold",
+      62983.83,
+      34.84,
+      34.892
+    ],
+    [
+      "stable_local",
+      16,
+      "marginal",
+      38907.67,
+      31.39,
+      31.66
+    ],
+    [
+      "stable_local",
+      16,
+      "lagged",
+      41586,
+      32.28,
+      32.729
+    ],
+    [
+      "shift_distributed",
+      16,
+      "lru",
+      114968.83,
+      101.49,
+      60.844
+    ],
+    [
+      "shift_distributed",
+      16,
+      "online_cold",
+      86515.67,
+      47.88,
+      46.87
+    ],
+    [
+      "shift_distributed",
+      16,
+      "planned_cold",
+      88524.5,
+      45.92,
+      48.701
+    ],
+    [
+      "shift_distributed",
+      16,
+      "marginal",
+      60128.67,
+      42.69,
+      44.126
+    ],
+    [
+      "shift_distributed",
+      16,
+      "lagged",
+      65917.83,
+      44.14,
+      45.289
+    ]
+  ]
+}
