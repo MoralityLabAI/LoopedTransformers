@@ -179,12 +179,12 @@ def metta_logic(prev: dict, new: dict) -> tuple[dict, list[str], str]:
     return checks, logic, "accept" if ok else "reject"
 
 
-def from_metta_steps(path: Path, source: str) -> Iterator[dict]:
+def from_metta_steps(path: Path, source: str, trace: str | None = None) -> Iterator[dict]:
     for i, h in enumerate(iter_jsonl(path)):
         checks, logic, by_rule = metta_logic(h["incumbent_metrics"], h["candidate_metrics"])
         keep = ("solved_and_stopped", "exact_first_edit", "premature_stops", "new_violation_additions",
                 "unsafe_additions", "mean_remaining_canonical_edits", "mean_inference_iterations")
-        yield step(source, "cpu_numpy_training", f"{Path(path).stem}", i,
+        yield step(source, "cpu_numpy_training", trace or Path(path).stem, i,
                    {"id": json.dumps(h["incumbent_config"], sort_keys=True),
                     "metrics": {k: h["incumbent_metrics"][k] for k in keep}, "arm": h["arm"]},
                    {"id": json.dumps(h["candidate_config"], sort_keys=True),
@@ -239,7 +239,7 @@ def export_research(trace_paths: list[Path], out: Path) -> dict:
 
 
 def collect(out: Path, campaign: Path | None = None, hillclimb: Path | None = None,
-            metta: Path | None = None, extra_ledgers: list[tuple[Path, str, str]] = ()) -> dict:
+            metta: list[Path] | None = None, extra_ledgers: list[tuple[Path, str, str]] = ()) -> dict:
     """Write one trace file per source and the combined research export."""
     out.mkdir(parents=True, exist_ok=True)
     fixture = Path(__file__).with_name("fixtures") / "upstream_gspo_gate_765453d.json"
@@ -257,10 +257,11 @@ def collect(out: Path, campaign: Path | None = None, hillclimb: Path | None = No
         for p in sorted(hillclimb.glob("bpd_hillclimb_seed*.jsonl")):
             summary[p.stem] = sum(1 for _ in iter_jsonl(p))
             paths.append(p)
-    if metta is not None:
-        for mp in sorted(metta.glob("metta_*_c*.jsonl")):
-            p = out / f"{mp.stem}.jsonl"
-            summary[mp.stem] = write(from_metta_steps(mp, "datagoblin_metta_ram"), p)
+    for mdir in metta or []:
+        for mp in sorted(Path(mdir).rglob("metta_*_c*.jsonl")):
+            tag = mp.stem if mp.parent == Path(mdir) else f"{mp.parent.name}_{mp.stem}"
+            p = out / f"{tag}.jsonl"
+            summary[tag] = write(from_metta_steps(mp, "datagoblin_metta_ram", tag), p)
             paths.append(p)
     for led, name, ev in extra_ledgers:
         p = out / f"{name}.jsonl"
@@ -281,7 +282,7 @@ def main():
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--campaign", type=Path)
     ap.add_argument("--hillclimb", type=Path)
-    ap.add_argument("--metta", type=Path)
+    ap.add_argument("--metta", type=Path, nargs="*")
     a = ap.parse_args()
     print(json.dumps(collect(a.out, a.campaign, a.hillclimb, a.metta), indent=1))
 

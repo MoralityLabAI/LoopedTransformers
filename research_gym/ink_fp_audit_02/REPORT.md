@@ -200,14 +200,14 @@ The full local campaign ran inside a 4 GiB Job Object at below-normal priority, 
 
 Inky is still unreachable: no `TINKER_API_KEY`. `InkyNano/` on `research/inky-nano-prep` is a compression scaffold with no inference path. This section therefore extracts and generates hill-climb traces on CPU and turns them into gym material for when Inky becomes available.
 
-**Trace schema** `ink02.hillclimb_trace.v1` (`traces.py`). Each step records: incumbent, proposal (what changed and who proposed it), paired evaluation, criteria, per-check results, binding checks, rule decision, recorded decision and next incumbent. The `logic` list is derived mechanically from the recorded numbers and the registered rule; it is not model-written. All traces live in [`receipts/traces_20261128/`](receipts/traces_20261128/manifest.json): 352 steps and 352 Aleph `research` rows (exercise `hillclimb_verdict`).
+**Trace schema** `ink02.hillclimb_trace.v1` (`traces.py`). Each step records: incumbent, proposal (what changed and who proposed it), paired evaluation, criteria, per-check results, binding checks, rule decision, recorded decision and next incumbent. The `logic` list is derived mechanically from the recorded numbers and the registered rule; it is not model-written. All traces live in [`receipts/traces_20261128/`](receipts/traces_20261128/manifest.json): 608 steps and 608 Aleph `research` rows (exercise `hillclimb_verdict`).
 
 | source | steps | evidence class | rule vs recorded |
 |---|---:|---|---|
 | upstream RSI record, every examined candidate | 9 | published_record_replay | 4 discrepancies (the selected winners of gens 1-4) |
 | engine arms B-G | 24 | engineering_simulation | 0 |
 | BPD update-strategy hill climb, 6 seeds | 63 | synthetic_cpu | (rule is the source) |
-| DataGoblin MeTTa RAM hill climb, 16 climbs | 256 | cpu_numpy_training | 0 of 256 |
+| DataGoblin MeTTa RAM hill climb, 32 climbs (8 train roots, both proposers; 16 and 24 train roots, seeded random) | 512 | cpu_numpy_training | 0 of 512 |
 
 **Upstream, per candidate.** At generation 0, the higher-scoring scale-1.0 candidate (114) fails the per-mode loss rule (RK2 -4), so the 0.6 candidate (112) is the correct pick. From generation 1 on, *every* examined candidate fails the rule, yet each generation records a winner as accepted. A rule-following run would have stopped at 112.
 
@@ -225,6 +225,16 @@ Inky is still unreachable: no `TINKER_API_KEY`. `InkyNano/` on `research/inky-na
 | coordinate_sweep | 2-3 (mean 2.75) | 12 total | 4-5 | 0 / 0 |
 
 No edit in this grammar moved the primary metric `solved_and_stopped` off 0 of 15 dev cases. TRM stayed at 15 premature stops. Every accepted edit improved only a lower-priority component of the lexicographic key. Under the current 8-root bundle, the hill climb is optimising tie-breakers; the next lever is the training bundle size or the grammar, not more proposals.
+
+Bundle-size follow-up (seeded random, 8 climbs × 16 steps each, same 15 dev cases, `receipts/metta_bundle_20261128/`):
+
+| train roots | final TRM (solved / exact-first-edit / premature stops) | final LDT proxy | climbs where TRM moved |
+|---:|---|---|---:|
+| 8 | 0 / 0 / 15 | 0 / 6 / 0 | 0 of 8 |
+| 16 | 0 / 0 / 15 | 0 / 5 / 0 | 0 of 8 |
+| 24 (module cap) | 0 / 6 / 1 in 3 climbs; 0 / 0 / 15 in 5 | 0 / 6 / 1 | 3 of 8 |
+
+At 24 train roots TRM can leave the premature-stop basin, but only when the proposer happens on the right edit sequence. `solved_and_stopped` stays 0 at every bundle size, and LDT-proxy finals are identical across climbs at each size (a single attractor). The module caps train roots at 24, so the remaining lever is the grammar (wider lr/steps/loop ranges) or the student itself.
 
 **New gym family `hillclimb_judgment`** (12th family). The prompt is a paired incumbent/candidate table plus the frozen four-check rule. The answer is `ACCEPT` or `REJECT <first failing check>`, computed by `acceptance.decide` and stored as a certificate. 60 dev tasks cover all five labels (23 ACCEPT, 37 split across the four rejects).
 
