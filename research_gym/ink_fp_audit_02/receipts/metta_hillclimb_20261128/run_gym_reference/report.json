@@ -1,0 +1,443 @@
+{
+  "accepted_edits": 1,
+  "baseline_and_search_candidates": 6,
+  "champion_arm": "ldt_proxy",
+  "champion_model_checkpoint_sha256": "b69a7523446dbd9228681e57798ff548ce3bc136b7652f7acd3af25ad1856b63",
+  "development_cases": 15,
+  "development_roots_sha256": "1378a0cd0b03f07f160249600c0e237661b99349f0c072ab329877e40b943bf8",
+  "external_teacher_model_invoked": false,
+  "gpu_required": false,
+  "hillclimb_steps_sha256": "e3cab4f940ca1fb31db95095d43ee9afc00556013d0851046f2d841104a01d04",
+  "independent_synthetic_oracle": true,
+  "max_source_presentations_per_root": 4,
+  "measured_source": "fresh_generator_owned_synthetic_only",
+  "model_comparison_warning": "TRM-style recurrent and LDT-proxy linear have unequal parameters",
+  "model_trained_on_cpu": true,
+  "native_metta_query_verified": false,
+  "next_teacher_prompt": {
+    "action_grammar": {
+      "ldt_proxy": {
+        "lr": [
+          0.04,
+          0.08,
+          0.12,
+          0.2
+        ],
+        "steps": [
+          12,
+          16,
+          24,
+          32
+        ],
+        "stop_policy": [
+          "action_class",
+          "train_calibrated"
+        ]
+      },
+      "trm": {
+        "hidden": [
+          8,
+          12,
+          16,
+          24
+        ],
+        "inference_loops": [
+          2,
+          4,
+          6,
+          8
+        ],
+        "lr": [
+          0.04,
+          0.08,
+          0.12,
+          0.2
+        ],
+        "steps": [
+          12,
+          16,
+          24,
+          32
+        ],
+        "stop_policy": [
+          "action_class",
+          "train_calibrated"
+        ],
+        "train_loops": [
+          2,
+          4,
+          6
+        ]
+      }
+    },
+    "current_configs": {
+      "ldt_proxy": {
+        "lr": 0.2,
+        "steps": 16,
+        "stop_policy": "train_calibrated"
+      },
+      "trm": {
+        "hidden": 12,
+        "inference_loops": 4,
+        "lr": 0.2,
+        "steps": 16,
+        "stop_policy": "action_class",
+        "train_loops": 4
+      }
+    },
+    "instruction": "Propose one JSON edit for the next CPU training trial. Restrict action to listed knobs; maximize verified solved-and-stopped on held-out public development while minimizing unsafe additions and verifier calls. Keep claims limited to measured results.",
+    "labels_in_prompt": false,
+    "public_development_metrics": {
+      "ldt_proxy": {
+        "abstentions": 0,
+        "cases": 15,
+        "exact_first_edit": 4,
+        "mean_inference_iterations": 8.0,
+        "mean_remaining_canonical_edits": 3.13333,
+        "new_violation_additions": 0,
+        "premature_stops": 0,
+        "solved_and_stopped": 0,
+        "unsafe_additions": 0,
+        "verifier_queries": 89,
+        "verifier_vetoes": 9
+      },
+      "trm": {
+        "abstentions": 0,
+        "cases": 15,
+        "exact_first_edit": 0,
+        "mean_inference_iterations": 4.0,
+        "mean_remaining_canonical_edits": 3.8,
+        "new_violation_additions": 0,
+        "premature_stops": 15,
+        "solved_and_stopped": 0,
+        "unsafe_additions": 0,
+        "verifier_queries": 0,
+        "verifier_vetoes": 0
+      }
+    },
+    "ram_limit_mib": 1024
+  },
+  "observed_peak_rss_mib": 37.58,
+  "ood_conflict_roots_materialized": 0,
+  "proposals_executed": 4,
+  "public_test_root_registry_sha256": "70839d2d76f09517badacd668d30acc3dce3d5a73087efea58414f41083f0f52",
+  "public_test_roots_materialized": 0,
+  "ram": {
+    "gpu_used": false,
+    "linux_hard_virtual_address_space_limit": false,
+    "other_platform_memory_check": true,
+    "ram_limit_mib": 1024
+  },
+  "results_scope": "public development selected after repeated hillclimb observations",
+  "schema_version": "metta-ram-hillclimb-v1",
+  "sealed_eval_eligible": false,
+  "synthetic_research_fit_eligible": true,
+  "teacher_mode": "deterministic_control",
+  "teacher_model_identity_verified": false,
+  "train_cases": 156,
+  "train_repair_traces": 156,
+  "train_repair_traces_sha256": "8200e21dbf0dc8514080dc466e68216f638dfa405a687b754628e0a38add350c",
+  "train_roots_sha256": "cb74c57cedb7dd27c6c0de9c3443396a636c9034c08825cbe9861677a0d8ad46",
+  "training_arms": {
+    "ldt_proxy": {
+      "checkpoint_sha256": "b69a7523446dbd9228681e57798ff548ce3bc136b7652f7acd3af25ad1856b63",
+      "config": {
+        "lr": 0.2,
+        "steps": 16,
+        "stop_policy": "train_calibrated"
+      },
+      "dev_aggregate": {
+        "abstentions": 0,
+        "cases": 15,
+        "exact_first_edit": 4,
+        "mean_inference_iterations": 8.0,
+        "mean_remaining_canonical_edits": 3.13333,
+        "new_violation_additions": 0,
+        "premature_stops": 0,
+        "solved_and_stopped": 0,
+        "unsafe_additions": 0,
+        "verifier_queries": 89,
+        "verifier_vetoes": 9
+      },
+      "family_metrics": {
+        "budget": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 0,
+          "final_valid": 3,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 0.66667,
+          "mean_inference_iterations": 8.0,
+          "mean_learned_stop_head_calls": 8.0,
+          "mean_remaining_canonical_edits": 3.66667,
+          "mean_repair_edits": 8.0,
+          "new_violation_additions": 0,
+          "premature_stops": 0,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 16,
+          "verifier_vetoes": 0
+        },
+        "coverage": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 1,
+          "final_valid": 3,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 1.33333,
+          "mean_inference_iterations": 8.0,
+          "mean_learned_stop_head_calls": 8.0,
+          "mean_remaining_canonical_edits": 4.0,
+          "mean_repair_edits": 8.0,
+          "new_violation_additions": 0,
+          "premature_stops": 0,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 16,
+          "verifier_vetoes": 0
+        },
+        "dependency": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 1,
+          "final_valid": 3,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 0.0,
+          "mean_inference_iterations": 8.0,
+          "mean_learned_stop_head_calls": 8.0,
+          "mean_remaining_canonical_edits": 2.66667,
+          "mean_repair_edits": 8.0,
+          "new_violation_additions": 0,
+          "premature_stops": 0,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 18,
+          "verifier_vetoes": 0
+        },
+        "lineage": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 1,
+          "final_valid": 3,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 0.66667,
+          "mean_inference_iterations": 8.0,
+          "mean_learned_stop_head_calls": 8.0,
+          "mean_remaining_canonical_edits": 2.33333,
+          "mean_repair_edits": 8.0,
+          "new_violation_additions": 0,
+          "premature_stops": 0,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 14,
+          "verifier_vetoes": 0
+        },
+        "revision": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 1,
+          "final_valid": 3,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 0.0,
+          "mean_inference_iterations": 8.0,
+          "mean_learned_stop_head_calls": 8.0,
+          "mean_remaining_canonical_edits": 3.0,
+          "mean_repair_edits": 8.0,
+          "new_violation_additions": 0,
+          "premature_stops": 0,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 25,
+          "verifier_vetoes": 9
+        }
+      },
+      "final_training_loss": 1.685913,
+      "model_scope": "linear_learner_plus_host_verified_lattice_refinement_proxy",
+      "model_trained": true,
+      "native_metta_training": false,
+      "parameter_count": 3444,
+      "peak_process_rss_mib": 37.41,
+      "public_synthetic_only": true,
+      "real_cpu_gradient_updates": 32,
+      "selection_key": [
+        0,
+        0,
+        0,
+        4,
+        0,
+        -89,
+        -3133,
+        -8000
+      ],
+      "train_only_stop_calibration": {
+        "checkpoint_sha256": "d4c3b1a638e49b3fe7228baf44ae4645d4232924220690f7997e67a2c4be3f13",
+        "no_development_label_calibration": true,
+        "no_native_act": true,
+        "nominal_train_false_stop_bound": 0.05,
+        "parameters": 164,
+        "schema_version": "metta-airis02-train-stop-gate-v1",
+        "threshold": 0.28966863,
+        "threshold_selected_on": "training_only",
+        "train_false_stop": 5,
+        "train_false_stop_rate": 0.043103,
+        "train_negative": 116,
+        "train_positive": 40,
+        "train_true_stop": 7,
+        "train_true_stop_rate": 0.175,
+        "training_ready": false
+      },
+      "training_examples": 156,
+      "training_ready": false,
+      "training_wall_ms": 0
+    },
+    "trm": {
+      "checkpoint_sha256": "86772aec8e95dfcd83ed046edfa89d2b5ae8ebd20b37faaf7b5cb5ad6dd1ef28",
+      "config": {
+        "hidden": 12,
+        "inference_loops": 4,
+        "lr": 0.2,
+        "steps": 16,
+        "stop_policy": "action_class",
+        "train_loops": 4
+      },
+      "dev_aggregate": {
+        "abstentions": 0,
+        "cases": 15,
+        "exact_first_edit": 0,
+        "mean_inference_iterations": 4.0,
+        "mean_remaining_canonical_edits": 3.8,
+        "new_violation_additions": 0,
+        "premature_stops": 15,
+        "solved_and_stopped": 0,
+        "unsafe_additions": 0,
+        "verifier_queries": 0,
+        "verifier_vetoes": 0
+      },
+      "family_metrics": {
+        "budget": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 0,
+          "final_valid": 0,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 2.33333,
+          "mean_inference_iterations": 4.0,
+          "mean_learned_stop_head_calls": 0.0,
+          "mean_remaining_canonical_edits": 3.66667,
+          "mean_repair_edits": 0.0,
+          "new_violation_additions": 0,
+          "premature_stops": 3,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 0,
+          "verifier_vetoes": 0
+        },
+        "coverage": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 0,
+          "final_valid": 2,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 4.0,
+          "mean_inference_iterations": 4.0,
+          "mean_learned_stop_head_calls": 0.0,
+          "mean_remaining_canonical_edits": 4.0,
+          "mean_repair_edits": 0.0,
+          "new_violation_additions": 0,
+          "premature_stops": 3,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 0,
+          "verifier_vetoes": 0
+        },
+        "dependency": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 0,
+          "final_valid": 3,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 3.0,
+          "mean_inference_iterations": 4.0,
+          "mean_learned_stop_head_calls": 0.0,
+          "mean_remaining_canonical_edits": 2.0,
+          "mean_repair_edits": 0.0,
+          "new_violation_additions": 0,
+          "premature_stops": 3,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 0,
+          "verifier_vetoes": 0
+        },
+        "lineage": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 0,
+          "final_valid": 0,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 4.0,
+          "mean_inference_iterations": 4.0,
+          "mean_learned_stop_head_calls": 0.0,
+          "mean_remaining_canonical_edits": 5.0,
+          "mean_repair_edits": 0.0,
+          "new_violation_additions": 0,
+          "premature_stops": 3,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 0,
+          "verifier_vetoes": 0
+        },
+        "revision": {
+          "abstentions": 0,
+          "cases": 3,
+          "ever_reached_optimum": 0,
+          "exact_first_edit": 0,
+          "final_valid": 0,
+          "inapplicable_actions": 0,
+          "mean_goals_covered": 3.33333,
+          "mean_inference_iterations": 4.0,
+          "mean_learned_stop_head_calls": 0.0,
+          "mean_remaining_canonical_edits": 4.33333,
+          "mean_repair_edits": 0.0,
+          "new_violation_additions": 0,
+          "premature_stops": 3,
+          "solved_and_stopped": 0,
+          "unsafe_additions": 0,
+          "verifier_queries": 0,
+          "verifier_vetoes": 0
+        }
+      },
+      "final_training_loss": 2.042019,
+      "model_scope": "weight_tied_tanh_trm_style_numpy_student",
+      "model_trained": true,
+      "native_metta_training": false,
+      "parameter_count": 2385,
+      "peak_process_rss_mib": 36.79,
+      "public_synthetic_only": true,
+      "real_cpu_gradient_updates": 16,
+      "selection_key": [
+        0,
+        0,
+        0,
+        0,
+        -15,
+        0,
+        -3800,
+        -4000
+      ],
+      "train_only_stop_calibration": null,
+      "training_examples": 156,
+      "training_ready": false,
+      "training_wall_ms": 30
+    }
+  },
+  "training_ready": false
+}

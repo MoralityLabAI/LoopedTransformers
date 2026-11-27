@@ -195,3 +195,37 @@ The full local campaign ran inside a 4 GiB Job Object at below-normal priority, 
 * Lean tactic ranking and proof repair: not integrated (torch plus Lean pool).
 * Claims about internal recurrence, Layer 17 mechanisms or contraction: none made. Reasoning effort
   is an observable inference control.
+
+## 9. Hill-climb research-logic traces (added 2026-11-28)
+
+Inky is still unreachable: no `TINKER_API_KEY`. `InkyNano/` on `research/inky-nano-prep` is a compression scaffold with no inference path. This section therefore extracts and generates hill-climb traces on CPU and turns them into gym material for when Inky becomes available.
+
+**Trace schema** `ink02.hillclimb_trace.v1` (`traces.py`). Each step records: incumbent, proposal (what changed and who proposed it), paired evaluation, criteria, per-check results, binding checks, rule decision, recorded decision and next incumbent. The `logic` list is derived mechanically from the recorded numbers and the registered rule; it is not model-written. All traces live in [`receipts/traces_20261128/`](receipts/traces_20261128/manifest.json): 352 steps and 352 Aleph `research` rows (exercise `hillclimb_verdict`).
+
+| source | steps | evidence class | rule vs recorded |
+|---|---:|---|---|
+| upstream RSI record, every examined candidate | 9 | published_record_replay | 4 discrepancies (the selected winners of gens 1-4) |
+| engine arms B-G | 24 | engineering_simulation | 0 |
+| BPD update-strategy hill climb, 6 seeds | 63 | synthetic_cpu | (rule is the source) |
+| DataGoblin MeTTa RAM hill climb, 16 climbs | 256 | cpu_numpy_training | 0 of 256 |
+
+**Upstream, per candidate.** At generation 0, the higher-scoring scale-1.0 candidate (114) fails the per-mode loss rule (RK2 -4), so the 0.6 candidate (112) is the correct pick. From generation 1 on, *every* examined candidate fails the rule, yet each generation records a winner as accepted. A rule-following run would have stopped at 112.
+
+**BPD update-strategy hill climb** (`hillclimb.py`, synthetic_cpu). Start: ridge λ=10. Moves change the method (ridge, truncated SVD, projected, projected low-rank), the rank by ±1/±2/±4 or halving, and λ by ×/÷3 or ×/÷10. Evaluation: 18 paired dev cases (3 conflict levels × 6 seeds), utility = R2 - 2 × held-out protected error. Rule: mean gain at least 0.005, and no conflict family dropping more than 0.05.
+* All 6 climbs end at projected low-rank, rank 8, the true rank of the target edit. Each exhausts its neighbourhood in 9-13 steps.
+* Truncated SVD is repeatedly rejected despite the higher mean utility (0.462 vs 0.311), because of the family-regression veto at conflict 0.1.
+* On 20 untouched held-out seeds the final incumbent beats the start by +0.167 mean utility (conflict 0.1: +0.200, 0.5: +0.173, 0.9: +0.127) and passes the same rule.
+* Dev seeds were reused at every step; held-out seeds were read once.
+
+**DataGoblin MeTTa RAM hill climb** (`metta_driver.py`, run with DataGoblin on `sys.path`; NumPy students trained on CPU). The driver uses the module's own fitting, edit grammar and `select_key`. Its restated accept rule reproduces `run_gym` on the module's default proposals (4/4, `rule_equivalence.json`). 8 climbs × 16 steps for each proposer:
+
+| proposer | accepted edits per climb | safety-veto rejections | final LDT-proxy exact-first-edit | final solved_and_stopped (TRM / LDT proxy) |
+|---|---|---:|---|---|
+| seeded_random | 2-4 (mean 2.9) | 4 total | 6 in all 8 | 0 / 0 |
+| coordinate_sweep | 2-3 (mean 2.75) | 12 total | 4-5 | 0 / 0 |
+
+No edit in this grammar moved the primary metric `solved_and_stopped` off 0 of 15 dev cases. TRM stayed at 15 premature stops. Every accepted edit improved only a lower-priority component of the lexicographic key. Under the current 8-root bundle, the hill climb is optimising tie-breakers; the next lever is the training bundle size or the grammar, not more proposals.
+
+**New gym family `hillclimb_judgment`** (12th family). The prompt is a paired incumbent/candidate table plus the frozen four-check rule. The answer is `ACCEPT` or `REJECT <first failing check>`, computed by `acceptance.decide` and stored as a certificate. 60 dev tasks cover all five labels (23 ACCEPT, 37 split across the four rejects).
+
+**For Inky.** Once the key is present, Inky can (a) answer `hillclimb_judgment` tasks and the 352 trace verdicts, and (b) act as the MeTTa proposer through `metta_driver.py --proposer file --queue <inky proposals>`. Seeded-random and coordinate-sweep climbs serve as the matched controls.
