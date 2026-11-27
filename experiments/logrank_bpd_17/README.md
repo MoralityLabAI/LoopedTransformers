@@ -25,7 +25,7 @@ Degree2 reduces the maximum counted live slots by 63.0% versus none5 (550 vs 148
 
 ## Audit
 
-Independent replay PASS: 216 runs, 648 disjoint partition cells, 5832 integer kernel weight replays, 864 posterior intervals, 144 exact root-weight enclosures, 576 exact interval enclosures on 24 conditions. Absolute-mask mini-bucket arithmetic and independent conditioning from 16; exact reference uses exhaustive state summation for all n12 and chronological frontier DP with offline hub-first ordering for larger structured worlds. The audit verifies recorded grouping and weight arithmetic, query conditioning, cut partitions and prefix/random cuts. Degree/scope selection and cost counters are not independently reimplemented; no timing replay. Raw receipts contain all branch bounds, grouping traces and root outcomes. Three independent roots per stratum, no significance test or causal claim.
+Independent replay PASS: 216 runs, 648 disjoint partition cells, 5832 integer kernel weight replays, 864 posterior intervals, 144 exact root-weight enclosures, 576 exact interval enclosures on 24 conditions. Absolute-mask mini-bucket arithmetic and independent conditioning from 16; exact reference uses exhaustive state summation for all n12 and chronological frontier DP with offline hub-first ordering for larger structured worlds. The audit verifies recorded grouping and weight arithmetic, query conditioning, cut partitions and prefix/random cuts. Cost counters are not independently reimplemented; no timing replay. Additional selector_audit.py independently replays all 216 cut choices and 216 residual scope scores using set-graph fill simulation (108 unique world/arm choices); all passed. Raw receipts contain all branch bounds, grouping traces and root outcomes. Three independent roots per stratum, no significance test or causal claim.
 
 ## Reproduce
 
@@ -34,6 +34,7 @@ Python 3.11+, standard library only. Linux process RSS and forkserver used for t
 ```
 python pilot17.py
 python audit17.py
+python selector_audit.py
 ```
 
-The kernel and auditor from 16 are included as pinned copies. The compact summary receipt includes all 72 aggregate groups, with floating-point values rounded to nine decimal places, and source/raw hashes. Complete receipt, full-precision summary, source and logs are in the experimental bundle; raw receipt is not committed to git. Next: adaptive cutset growth with budget-gated exact/approximate routing, compare residual width prediction and certified interval reduction per cost on fresh graph families. Prioritize reusable factor messages and streaming rather than retaining all branch receipts in RAM. A true RAM cap needs allocator/workspace instrumentation. Native BPD/MMS integration, Lean formalization and CI remain outstanding.
+The kernel and auditor from 16 are included as pinned copies. The repository compact summary records key aggregates and source/raw hashes; the downloadable bundle contains all 72 full-precision aggregate rows, raw receipt and logs. Next: adaptive cutset growth with budget-gated exact/approximate routing, compare residual width prediction and certified interval reduction per cost on fresh graph families. Prioritize reusable factor messages and streaming rather than retaining all branch receipts in RAM. A true RAM cap needs allocator/workspace instrumentation. Native BPD/MMS integration, Lean formalization and CI remain outstanding.
