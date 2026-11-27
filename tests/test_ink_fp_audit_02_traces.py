@@ -139,3 +139,24 @@ class MettaTraceTests(unittest.TestCase):
         for f in files:
             for s in traces.from_metta_steps(f, "t"):
                 self.assertFalse(s["discrepancy"], (f.name, s["step"]))
+
+
+class CurationTraceTests(unittest.TestCase):
+    def rec(self, root, window, sel, reason, pg, rg, acc_, before=1.0, after=0.9):
+        return {"provenance": {"root": root, "window": window, "experiment": "x", "arm": "D"},
+                "input": {"edit_slot": 0}, "mechanistic_features": {"predicted_gain": pg},
+                "outcome": {"selected": sel, "selection_reason": reason, "realized_gain": rg,
+                            "sign_match": (pg > 0) == (rg > 0), "window_accepted": acc_,
+                            "window_cal_before": before, "window_cal_after": after}}
+
+    def test_window_rule_and_regret(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "d.jsonl"
+            rows = [self.rec(1, 0, True, "ranked", 0.5, 0.2, True), self.rec(1, 0, False, "rejected_pool", -0.1, 0.4, True),
+                    self.rec(1, 1, True, "ranked", 0.5, 0.1, True, before=1.0, after=1.1)]
+            p.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+            steps = list(traces.from_curation_decisions(p))
+            self.assertEqual([s["decision_by_rule"] for s in steps], ["accept", "reject"])
+            self.assertAlmostEqual(steps[0]["evaluation"]["metrics"]["regret_per_slot"], 0.2)
+            self.assertFalse(steps[0]["discrepancy"])
+            self.assertTrue(steps[1]["discrepancy"])  # recorded accept, rule says reject

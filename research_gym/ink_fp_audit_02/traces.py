@@ -197,6 +197,51 @@ def from_metta_steps(path: Path, source: str, trace: str | None = None) -> Itera
                    json.dumps(h["candidate_config"] if h["accepted"] else h["incumbent_config"], sort_keys=True),
                    {"arm": h["arm"], "recorded_decision_code": h["decision"]})
 
+
+# ---- BPD TRM curation windows (datagoblin.trm_curation_decision.v1) ----------------------------
+def from_curation_decisions(path: Path, source: str = "bpd_trm_curate02") -> Iterator[dict]:
+    """One step per (root, window): selected edges vs the rejected pool, calibration rule
+    (accept iff cal_after <= cal_before + 1e-6, BPD trm_curation/campaign.py), and the
+    counterfactual realized gains the record keeps for unselected candidates."""
+    groups: dict = {}
+    for r in iter_jsonl(path):
+        pv = r["provenance"]
+        groups.setdefault((pv["root"], pv["window"]), []).append(r)
+    for i, ((root, window), rows) in enumerate(sorted(groups.items())):
+        sel = [x for x in rows if x["outcome"]["selected"]]
+        pool = [x for x in rows if not x["outcome"]["selected"]]
+        o = rows[0]["outcome"]
+        before, after = o["window_cal_before"], o["window_cal_after"]
+        rg = lambda xs: [x["outcome"]["realized_gain"] for x in xs]
+        pg = lambda xs: [x["mechanistic_features"]["predicted_gain"] for x in xs]
+        mean = lambda v: sum(v) / len(v) if v else None
+        best_all = sorted(rg(rows), reverse=True)[:len(sel)]
+        regret = (sum(best_all) - sum(rg(sel))) / max(1, len(sel))
+        signs = [x["outcome"]["sign_match"] for x in rows]
+        reasons = {}
+        for x in sel:
+            reasons[x["outcome"]["selection_reason"]] = reasons.get(x["outcome"]["selection_reason"], 0) + 1
+        ok = after <= before + 1e-6
+        logic = [f"window {window} of root {root}: {len(sel)} selected of {len(rows)} candidates ({', '.join(f'{k} {v}' for k, v in sorted(reasons.items()))})",
+                 f"predicted gain: selected mean {mean(pg(sel)):+.4f}, rejected pool mean {mean(pg(pool)) if pool else float('nan'):+.4f}",
+                 f"realized gain (counterfactual kept for every candidate): selected mean {mean(rg(sel)):+.4f}, "
+                 f"pool mean {mean(rg(pool)) if pool else float('nan'):+.4f}; per-slot regret vs best possible {regret:+.4f}",
+                 f"predicted/realized sign agreement {sum(signs)}/{len(signs)}",
+                 f"calibration loss {before:.6f} -> {after:.6f}; rule accepts iff after <= before + 1e-6: {'pass' if ok else 'fail'}",
+                 "decision: accept step, keep update" if ok else "decision: reject step, roll back model and optimizer"]
+        yield step(source, "cpu_torch_training_record", f"root{root}", i,
+                   {"id": f"root{root}-w{window}-before", "metrics": {"calibration_loss": before}},
+                   {"id": f"root{root}-w{window}-update",
+                    "change": {"selected_edges": [x["input"] for x in sel], "selection_reasons": reasons}},
+                   {"metrics": {"calibration_loss": after, "selected_realized_gain_mean": mean(rg(sel)),
+                                "pool_realized_gain_mean": mean(rg(pool)), "regret_per_slot": regret,
+                                "sign_agreement": sum(signs) / len(signs)}, "paired_n": len(rows)},
+                   {"rule": "accept iff calibration loss after <= before + 1e-6"},
+                   {"calibration_non_increasing": ok}, logic, "accept" if ok else "reject",
+                   "accept" if o["window_accepted"] else "reject",
+                   f"root{root}-w{window}-update" if o["window_accepted"] else f"root{root}-w{window}-before",
+                   {"experiment": rows[0]["provenance"]["experiment"], "arm": rows[0]["provenance"]["arm"]})
+
 # ---- export ----------------------------------------------------------------------------------
 def to_research_row(s: dict) -> dict:
     """Aleph `research` presentation: predict and justify the verdict from the evidence."""
@@ -239,7 +284,7 @@ def export_research(trace_paths: list[Path], out: Path) -> dict:
 
 
 def collect(out: Path, campaign: Path | None = None, hillclimb: Path | None = None,
-            metta: list[Path] | None = None, extra_ledgers: list[tuple[Path, str, str]] = ()) -> dict:
+            metta: list[Path] | None = None, curation: list[Path] | None = None, extra_ledgers: list[tuple[Path, str, str]] = ()) -> dict:
     """Write one trace file per source and the combined research export."""
     out.mkdir(parents=True, exist_ok=True)
     fixture = Path(__file__).with_name("fixtures") / "upstream_gspo_gate_765453d.json"
@@ -263,6 +308,10 @@ def collect(out: Path, campaign: Path | None = None, hillclimb: Path | None = No
             p = out / f"{tag}.jsonl"
             summary[tag] = write(from_metta_steps(mp, "datagoblin_metta_ram", tag), p)
             paths.append(p)
+    for cp in curation or []:
+        p = out / f"curation_{Path(cp).parent.parent.parent.name}.jsonl"
+        summary[p.stem] = write(from_curation_decisions(Path(cp)), p)
+        paths.append(p)
     for led, name, ev in extra_ledgers:
         p = out / f"{name}.jsonl"
         summary[name] = write(from_acceptance_ledger(led, name, ev), p)
@@ -283,8 +332,9 @@ def main():
     ap.add_argument("--campaign", type=Path)
     ap.add_argument("--hillclimb", type=Path)
     ap.add_argument("--metta", type=Path, nargs="*")
+    ap.add_argument("--curation", type=Path, nargs="*", help="datagoblin.trm_curation_decision.v1 JSONL files")
     a = ap.parse_args()
-    print(json.dumps(collect(a.out, a.campaign, a.hillclimb, a.metta), indent=1))
+    print(json.dumps(collect(a.out, a.campaign, a.hillclimb, a.metta, a.curation), indent=1))
 
 
 if __name__ == "__main__":
