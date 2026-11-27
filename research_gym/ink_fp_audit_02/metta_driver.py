@@ -31,6 +31,19 @@ def load():
     return rh
 
 
+# Within the student's hard bounds (unrolls <= 8, hidden width <= 64; airis02_student.py).
+WIDE = {"trm": {"steps": (48, 64, 96), "lr": (0.30, 0.40), "hidden": (32, 48), "train_loops": (8,)},
+        "ldt_proxy": {"steps": (48, 64, 96), "lr": (0.30, 0.40)}}
+
+
+def widen(rh) -> dict:
+    """Extend the module's bounded grammar in memory only (DataGoblin files untouched)."""
+    for arm, fields in WIDE.items():
+        for f, extra in fields.items():
+            rh.OPTIONS[arm][f] = tuple(sorted(set(rh.OPTIONS[arm][f]) | set(extra)))
+    return {a: {f: list(v) for f, v in fs.items()} for a, fs in rh.OPTIONS.items()}
+
+
 def decide(rh, prev: dict, new: dict) -> tuple[bool, str]:
     safety = (new["new_violation_additions"] > prev["new_violation_additions"]
               or new["unsafe_additions"] > prev["unsafe_additions"])
@@ -156,9 +169,14 @@ def main():
     ap.add_argument("--dev-roots", type=int, default=3)
     ap.add_argument("--ram-limit-mib", type=int, default=1024)
     ap.add_argument("--verify-against-run-gym", action="store_true")
+    ap.add_argument("--wide-grammar", action="store_true", help="extend OPTIONS in memory (see WIDE)")
     a = ap.parse_args()
     rh = load()
     a.out.mkdir(parents=True, exist_ok=True)
+    grammar = widen(rh) if a.wide_grammar else {k: {f: list(v) for f, v in fs.items()} for k, fs in rh.OPTIONS.items()}
+    (a.out / "grammar.json").write_text(json.dumps({"wide": a.wide_grammar, "options": grammar,
+                                                    "train_roots": a.train_roots, "dev_roots": a.dev_roots},
+                                                   indent=2) + "\n", encoding="utf-8")
     if a.verify_against_run_gym:
         v = verify_against_run_gym(rh, a.out, a.seed)
         (a.out / "rule_equivalence.json").write_text(json.dumps(v, indent=2) + "\n", encoding="utf-8")

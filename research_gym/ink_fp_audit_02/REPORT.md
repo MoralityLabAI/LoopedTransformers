@@ -200,14 +200,14 @@ The full local campaign ran inside a 4 GiB Job Object at below-normal priority, 
 
 Inky is still unreachable: no `TINKER_API_KEY`. `InkyNano/` on `research/inky-nano-prep` is a compression scaffold with no inference path. This section therefore extracts and generates hill-climb traces on CPU and turns them into gym material for when Inky becomes available.
 
-**Trace schema** `ink02.hillclimb_trace.v1` (`traces.py`). Each step records: incumbent, proposal (what changed and who proposed it), paired evaluation, criteria, per-check results, binding checks, rule decision, recorded decision and next incumbent. The `logic` list is derived mechanically from the recorded numbers and the registered rule; it is not model-written. All traces live in [`receipts/traces_20261128/`](receipts/traces_20261128/manifest.json): 1,248 steps and 1,248 Aleph `research` rows (exercise `hillclimb_verdict`).
+**Trace schema** `ink02.hillclimb_trace.v1` (`traces.py`). Each step records: incumbent, proposal (what changed and who proposed it), paired evaluation, criteria, per-check results, binding checks, rule decision, recorded decision and next incumbent. The `logic` list is derived mechanically from the recorded numbers and the registered rule; it is not model-written. All traces live in [`receipts/traces_20261128/`](receipts/traces_20261128/manifest.json): 1,440 steps and 1,440 Aleph `research` rows (exercise `hillclimb_verdict`).
 
 | source | steps | evidence class | rule vs recorded |
 |---|---:|---|---|
 | upstream RSI record, every examined candidate | 9 | published_record_replay | 4 discrepancies (the selected winners of gens 1-4) |
 | engine arms B-G | 24 | engineering_simulation | 0 |
 | BPD update-strategy hill climb, 6 seeds | 63 | synthetic_cpu | (rule is the source) |
-| DataGoblin MeTTa RAM hill climb, 32 climbs (8 train roots, both proposers; 16 and 24 train roots, seeded random) | 512 | cpu_numpy_training | 0 of 512 |
+| DataGoblin MeTTa RAM hill climb, 40 climbs (8 train roots, both proposers; 16 and 24 train roots and 24 wide-grammar, seeded random) | 704 | cpu_numpy_training | 0 of 704 |
 | BPD-TRM-CURATE-02 arm D curation windows (`BPD-sccg10/.../candidate_decisions.jsonl`, 10,240 candidate records) | 640 | cpu_torch_training_record | 0 of 640 |
 
 **Upstream, per candidate.** At generation 0, the higher-scoring scale-1.0 candidate (114) fails the per-mode loss rule (RK2 -4), so the 0.6 candidate (112) is the correct pick. From generation 1 on, *every* examined candidate fails the rule, yet each generation records a winner as accepted. A rule-following run would have stopped at 112.
@@ -236,6 +236,12 @@ Bundle-size follow-up (seeded random, 8 climbs × 16 steps each, same 15 dev cas
 | 24 (module cap) | 0 / 6 / 1 in 3 climbs; 0 / 0 / 15 in 5 | 0 / 6 / 1 | 3 of 8 |
 
 At 24 train roots TRM can leave the premature-stop basin, but only when the proposer happens on the right edit sequence. `solved_and_stopped` stays 0 at every bundle size, and LDT-proxy finals are identical across climbs at each size (a single attractor). The module caps train roots at 24, so the remaining lever is the grammar (wider lr/steps/loop ranges) or the student itself.
+
+Wide-grammar follow-up (`metta_driver.py --wide-grammar`, 24 train roots, 8 climbs × 24 steps, `receipts/metta_bundle_20261128/train24_wide/`). The grammar is extended in memory within the student's hard bounds (unrolls ≤ 8, hidden ≤ 64): steps 48/64/96, lr 0.30/0.40, TRM hidden 32/48, train_loops 8.
+* `solved_and_stopped` stays 0 in all 8 climbs.
+* LDT proxy reaches exact-first-edit 7 in one climb (6 in the narrow grammar).
+* TRM settles at exact-first-edit 2 with 15 premature stops in 7 of 8 climbs. That is a different local optimum from the narrow grammar's 6/1 and is never escaped within 24 steps: once a candidate gains on `exact_first_edit`, which ranks above `premature_stops` in the key, later proposals have to beat it on that component first.
+* Across bundle size, both proposers and the widened grammar, no search reaches a solved case. The bottleneck is the student or the task at this scale, not the hill-climb search.
 
 **BPD curation windows.** Each window selects 4 of 16 candidate edges (ranked, explore or ordinary fallback), takes one step, and keeps it only if mechanistic calibration loss does not rise (`after <= before + 1e-6`, `trm_curation/campaign.py`). The record keeps realized gains for unselected candidates too, so every window carries its counterfactual:
 * the calibration rule rejects 437 of 640 steps (68%);
