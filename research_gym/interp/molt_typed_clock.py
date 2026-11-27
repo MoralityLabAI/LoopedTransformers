@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import random
+import resource
 import time
 from pathlib import Path
 
@@ -238,6 +239,7 @@ def main():
         "gate": {"primitive_unrestricted": 0.98, "depth4_unrestricted": 0.90, "depth8_unrestricted": 0.80},
         "rows": rows, "native_bpd_fit_performed": False,
         "confirmation_ready": False, "promotion_authorized": False,
+        "peak_rss_bytes": int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) * 1024,
     }
     with (args.out / "receipt.json").open("x", encoding="utf-8") as stream:
         json.dump(report, stream, sort_keys=True, indent=2, allow_nan=False)
