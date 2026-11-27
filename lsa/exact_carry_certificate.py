@@ -226,6 +226,14 @@ def verify(bundle):
     if set(bundle["charts"]) != {"native", "observer", "random"}:
         raise ValueError("incomplete chart roster")
     charts = {name: Chart(matrix(q, n, k)) for name, q in bundle["charts"].items()}
+    binding = bundle["binding"]
+    for key in ("checkpoint_sha256", "factor_sha256", "controller_sha256", "bpd_source_receipt_sha256",
+                "parent_source_sha256", "export_source_sha256", "root_roster_sha256"):
+        value = binding.get(key)
+        if not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value):
+            raise ValueError("invalid source digest")
+    if binding.get("site") != "decoder.blocks.0.mlp.2" or binding.get("cut") != 4:
+        raise ValueError("unexpected typed intervention address")
     records = bundle["records"]
     if not isinstance(records, list) or not 1 <= len(records) <= 384:
         raise ValueError("invalid problem roster")
@@ -234,7 +242,9 @@ def verify(bundle):
     for row in records:
         key = (row["root"], row["kind"], row["chart"])
         if (key in seen or row["kind"] not in {"same", "changed"}
-                or row["chart"] not in charts or not isinstance(row["root"], str)):
+                or row["chart"] not in charts or not isinstance(row["root"], str)
+                or len(row["root"]) != 64 or any(c not in "0123456789abcdef" for c in row["root"])
+                or row["parent_status"] not in {"witnessed", "conditional_obstruction", "unresolved"}):
             raise ValueError("invalid or duplicate case identity")
         seen.add(key)
         result = check_case(readout, charts[row["chart"]], vector(row["h"], n),
@@ -243,7 +253,8 @@ def verify(bundle):
         results.append({"root": row["root"], "kind": row["kind"], "chart": row["chart"],
                         "parent_status": row["parent_status"], **result})
     roots = {r["root"] for r in records}
-    if seen != {(r, kind, chart) for r in roots for kind in ("same", "changed") for chart in charts}:
+    if (type(bundle["world_roots"]) is not int or bundle["world_roots"] != len(roots)
+            or seen != {(r, kind, chart) for r in roots for kind in ("same", "changed") for chart in charts}):
         raise ValueError("incomplete paired chart roster")
     summary = []
     for chart in charts:
@@ -253,7 +264,7 @@ def verify(bundle):
                             **{name: sum(r["status"] == name for r in group)
                                for name in ("exact_primal", "exact_obstruction", "unresolved")}})
     return {"schema": "molt17-exact-cut-check-v1", "status": "exact_rational_model_checked",
-            "world_roots": len(roots), "summary": summary, "rows": results,
+            "world_roots": len(roots), "binding": binding, "summary": summary, "rows": results,
             "radius_slack": fraction_text(SLACK), "sqrt_fraction_bits": BITS,
             "input_origin_verified": False, "native_float_execution_certified": False,
             "future_suffix_certified": False, "promotion_authorized": False}
