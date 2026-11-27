@@ -1,0 +1,112 @@
+{
+  "schema_version": "rlt_gym.aleph_corpus.v1",
+  "split": "train",
+  "streams": {
+    "sft": {
+      "sha256": "92b926abb183178d1cc173dd4adf4cb831cf2335d28cc2cca6b7a38c38f223d4",
+      "unique_examples": 54,
+      "roots": 54,
+      "families": {
+        "mcp_retrieval": 6,
+        "boolean_parity": 5,
+        "register_overwrite": 6,
+        "pointer_chase": 4,
+        "experiment_design": 3,
+        "multislot_copy": 6,
+        "recurrent_stopping": 6,
+        "dyck": 8,
+        "modular_arith": 5,
+        "bpd_nullspace": 2,
+        "storyworld": 3
+      }
+    },
+    "repairs": {
+      "sha256": "fe76585c8c5f09ceaed44d31b85f905f3438f1e91a743702a5238b0899dcd9c5",
+      "unique_examples": 71,
+      "roots": 53,
+      "families": {
+        "mcp_retrieval": 9,
+        "boolean_parity": 5,
+        "register_overwrite": 10,
+        "pointer_chase": 4,
+        "experiment_design": 4,
+        "multislot_copy": 6,
+        "recurrent_stopping": 8,
+        "dyck": 12,
+        "modular_arith": 8,
+        "bpd_nullspace": 2,
+        "storyworld": 3
+      }
+    },
+    "outcomes": {
+      "sha256": "b1cc632606eabd2eeb02f96c21619d9aabb0decc4bfe4711395613957fe26ad6",
+      "unique_examples": 162,
+      "roots": 58,
+      "families": {
+        "mcp_retrieval": 20,
+        "boolean_parity": 14,
+        "recurrent_stopping": 25,
+        "pointer_chase": 15,
+        "register_overwrite": 21,
+        "experiment_design": 6,
+        "multislot_copy": 12,
+        "dyck": 16,
+        "modular_arith": 21,
+        "storyworld": 8,
+        "bpd_nullspace": 4
+      }
+    },
+    "routing": {
+      "sha256": "12df3db31fa29a17ec2f236b45e2108305159c8a914cfe4e7405827da5f0af3c",
+      "unique_examples": 54,
+      "roots": 54,
+      "families": {
+        "mcp_retrieval": 6,
+        "boolean_parity": 5,
+        "register_overwrite": 6,
+        "pointer_chase": 4,
+        "experiment_design": 3,
+        "multislot_copy": 6,
+        "recurrent_stopping": 6,
+        "dyck": 8,
+        "modular_arith": 5,
+        "bpd_nullspace": 2,
+        "storyworld": 3
+      }
+    },
+    "research": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unique_examples": 0,
+      "roots": 0,
+      "families": {}
+    }
+  },
+  "sources": [
+    {
+      "path": "rollouts_g0.jsonl",
+      "sha256": "948f7241f5ff842a477c568bc4a996092f44707e1ec7068483ac91a263ce5c86"
+    },
+    {
+      "path": "rollouts_g1.jsonl",
+      "sha256": "ec8f211253ee08fa2bc4b3e6c59af3fe1982addb2825b8726430965eaaf4d4c1"
+    },
+    {
+      "path": "rollouts_g2.jsonl",
+      "sha256": "77b79432b6a9d3bf8dd5bae8d11cfdd9a0d28a7eb6090d37572ab9e9e10117f0"
+    },
+    {
+      "path": "rollouts_g3.jsonl",
+      "sha256": "8a59f6ea48c1a1b5b8d7c54779deccc7b0dec79a204374c541fc164752b211eb"
+    }
+  ],
+  "provider_execution_attested": false,
+  "explanations_are_model_generated": true,
+  "sampling_plan": {
+    "max_presentations_per_root_across_streams": 4,
+    "accounting_lane_by_family": {
+      "experiment_design": "research_mechinterp",
+      "bpd_nullspace": "research_mechinterp",
+      "default": "games_procedural"
+    }
+  }
+}

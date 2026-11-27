@@ -1,0 +1,68 @@
+{
+  "api": {
+    "context_ceiling": 16384,
+    "credential_present": false,
+    "default_context": 12288,
+    "default_max_tokens": 512,
+    "model": "thinkingmachines/Inkling-2-Mini:peft:65536:free",
+    "sdk": {
+      "custom_loss": "forward_backward_custom (client-side torch on returned logprobs)",
+      "installed": true,
+      "loss_fns": [
+        "cross_entropy",
+        "importance_sampling",
+        "ppo",
+        "cispo",
+        "dro",
+        "gspo",
+        "stable_reinforce",
+        "custom"
+      ],
+      "native_reasoning_effort": false,
+      "sampling_param_fields": [
+        "max_tokens",
+        "seed",
+        "stop",
+        "temperature",
+        "top_k",
+        "top_p"
+      ],
+      "tensor_access": "logprobs and loss outputs only; no activations, gradients or adapter weight tensors are returned by the documented client",
+      "training_methods": [
+        "forward",
+        "forward_backward",
+        "forward_backward_custom",
+        "load_state",
+        "load_state_with_optimizer",
+        "optim_step",
+        "save_state",
+        "save_weights_and_get_sampling_client",
+        "save_weights_for_sampler"
+      ],
+      "version": "0.40.1"
+    }
+  },
+  "gates": {
+    "blocked_reasons": [
+      "available DRAM 4.73 GiB < 6 GiB startup minimum",
+      "TINKER_API_KEY not present in process environment",
+      "--allow-remote not given"
+    ],
+    "local_stages_allowed": true,
+    "remote_stages_allowed": false
+  },
+  "resources": {
+    "available_bytes": 5080223744,
+    "cuda_visible_devices": "-1",
+    "gpu_allocation_bytes": 0,
+    "job_object_error": null,
+    "job_object_supported": true,
+    "max_concurrency": 1,
+    "max_threads": 4,
+    "platform": "Windows-11-10.0.26200-SP0",
+    "process_tree_rss_bytes": 38514688,
+    "python": "3.12.10",
+    "startup_memory_ok": false,
+    "startup_min_available_bytes": 6442450944
+  }
+}

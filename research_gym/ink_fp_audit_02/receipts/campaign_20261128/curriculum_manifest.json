@@ -1,0 +1,101 @@
+{
+  "counts": {
+    "accept": 8,
+    "dev": 8,
+    "sealed": 8,
+    "train": 16
+  },
+  "families": [
+    {
+      "family": "modular_arith",
+      "generator": "ink02.gyms.modular_arith",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_02 (new)",
+      "verifier": "exact_int.v1"
+    },
+    {
+      "family": "boolean_parity",
+      "generator": "ink02.gyms.boolean_parity",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_02 (new)",
+      "verifier": "exact_int.v1"
+    },
+    {
+      "family": "dyck",
+      "generator": "ink02.gyms.dyck",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_02 (new)",
+      "verifier": "exact_token.v1"
+    },
+    {
+      "family": "pointer_chase",
+      "generator": "research_gym.ink_fp_audit_01.core.roots",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_01",
+      "verifier": "exact_int.v1"
+    },
+    {
+      "family": "register_overwrite",
+      "generator": "ink02.gyms.register_overwrite",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_02 (new)",
+      "verifier": "exact_int.v1"
+    },
+    {
+      "family": "multislot_copy",
+      "generator": "ink02.gyms.multislot_copy",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_02 (new)",
+      "verifier": "exact_token.v1"
+    },
+    {
+      "family": "mcp_retrieval",
+      "generator": "HybridTRMLDT/MCP/environment.py:make_cases",
+      "generator_version": "mcp-fixture-v1",
+      "source_repo": "HybridTRMLDT@0dced9299740",
+      "verifier": "exact_token.v1"
+    },
+    {
+      "family": "storyworld",
+      "generator": "research_gym.envs.coupled_storyworld.CoupledStoryworldEnv.reachable",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/research_gym/envs/coupled_storyworld.py",
+      "verifier": "storyworld_plan.v1"
+    },
+    {
+      "family": "recurrent_stopping",
+      "generator": "ink02.gyms.recurrent_stopping",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_02 (new)",
+      "verifier": "exact_int.v1"
+    },
+    {
+      "family": "bpd_nullspace",
+      "generator": "ink02.gyms.bpd_nullspace",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_02 (new)",
+      "verifier": "exact_set.v1"
+    },
+    {
+      "family": "experiment_design",
+      "generator": "ink02.gyms.experiment_design",
+      "generator_version": "v1",
+      "source_repo": "LoopedTransformers/ink_fp_audit_02 (new)",
+      "verifier": "exact_token.v1"
+    }
+  ],
+  "manifest_sha256": "493d52d8f2e38011cdf18d8d69704ce45f9b3b184e70f048138d028ff2adfbcd",
+  "partition_rule": "world root range; descendants inherit world",
+  "root_base": {
+    "accept": 30000000,
+    "dev": 20000000,
+    "sealed": 40000000,
+    "train": 10000000
+  },
+  "schema": "ink-fp-audit-02.curriculum.v1",
+  "sealed_task_ids_sha256": "e1369e6150dbd032983a72e55f3c847eb1bde6392dd2051507ace26f7837ceb2",
+  "shortfall": {},
+  "unavailable_families": {
+    "lean_tactic": "DataGoblin rlt_lean_rank/rlt_lean_labels require torch and a Lean-checked tactic pool; neither is loaded on the CPU-lean path"
+  }
+}

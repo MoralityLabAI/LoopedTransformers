@@ -1,0 +1,69 @@
+{
+  "accuracy_intervals": {
+    "baseline": [
+      0.36962127685546875,
+      0.5864982604980469
+    ],
+    "candidate": [
+      0.435760498046875,
+      0.6520042419433594
+    ],
+    "method": "outward_exact_Clopper_Pearson_iid_cases"
+  },
+  "alpha": 0.05,
+  "baseline_accuracy": 0.4772727272727273,
+  "baseline_correct": 42,
+  "baseline_only": 0,
+  "candidate_accuracy": 0.5454545454545454,
+  "candidate_correct": 48,
+  "candidate_only": 6,
+  "case_effect_exact": "3/44",
+  "case_weighted_effect": 0.06818181818181818,
+  "cluster_bootstrap_interval": [
+    0.022727272727272728,
+    0.125
+  ],
+  "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+  "cluster_bootstrap_resamples": 4096,
+  "cluster_effect_exact": "3/44",
+  "cluster_macro_effect": 0.06818181818181818,
+  "clusters_independent": true,
+  "discordant": 6,
+  "evaluation_mode": "sampled",
+  "exchangeable_pair_labels": true,
+  "experiment_id": "ink-fp-audit-02-bridge-check-simulated",
+  "familywise_alpha": 0.05,
+  "gate_reasons": [
+    "hypothesis_not_preregistered",
+    "readout_used_in_selection_or_unsealed",
+    "cluster_interval_crosses_effect_floor",
+    "nonasymptotic_effect_floor_bound_not_met"
+  ],
+  "hoeffding_one_sided_effect_bounds": [
+    -0.19274887069734442,
+    0.3291125070609808
+  ],
+  "hypothesis_preregistered": false,
+  "input_filenames": [
+    "fsi_bridge_cases.jsonl",
+    "fsi_bridge_registration.json"
+  ],
+  "min_independent_clusters": 20,
+  "minimum_effect": 0.1,
+  "n_cases": 88,
+  "n_clusters": 88,
+  "outcomes_sha256": "a503f771cc04c99d74cc7fcc2c70d20306a23b9936a872f01df0c5e85b2bdd37",
+  "p_bonferroni": 0.03125,
+  "p_exact_fraction": "1/32",
+  "p_unadjusted": 0.03125,
+  "planned_comparisons": 1,
+  "registration_sha256": "bed49c7d8ff308c14ee012a24f343f502fa7284c4a7ea6f239f5c57e631b6a26",
+  "resample_seed": 20261117,
+  "schema_version": 1,
+  "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+  "sealed_readout": false,
+  "target_population": "simulated dev roots (plumbing check only)",
+  "test": "exact_McNemar_independent_pairs",
+  "ties": 82,
+  "verdict": "inconclusive"
+}

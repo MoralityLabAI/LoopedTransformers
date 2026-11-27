@@ -1,0 +1,68 @@
+{
+  "schema": "ink-fp-audit-02.preflight.v1",
+  "utc": "2026-11-27T15:59:49Z",
+  "resources": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "available_bytes": 7480905728,
+    "startup_min_available_bytes": 6442450944,
+    "startup_memory_ok": true,
+    "cuda_visible_devices": "-1",
+    "gpu_allocation_bytes": 0,
+    "process_tree_rss_bytes": 27365376,
+    "job_object_supported": true,
+    "job_object_error": null,
+    "max_threads": 4,
+    "max_concurrency": 1
+  },
+  "api": {
+    "credential_present": false,
+    "model": "thinkingmachines/Inkling-2-Mini:peft:65536:free",
+    "sdk": {
+      "installed": true,
+      "version": "0.40.1",
+      "loss_fns": [
+        "cross_entropy",
+        "importance_sampling",
+        "ppo",
+        "cispo",
+        "dro",
+        "gspo",
+        "stable_reinforce",
+        "custom"
+      ],
+      "sampling_param_fields": [
+        "max_tokens",
+        "seed",
+        "stop",
+        "temperature",
+        "top_k",
+        "top_p"
+      ],
+      "native_reasoning_effort": false,
+      "training_methods": [
+        "forward",
+        "forward_backward",
+        "forward_backward_custom",
+        "load_state",
+        "load_state_with_optimizer",
+        "optim_step",
+        "save_state",
+        "save_weights_and_get_sampling_client",
+        "save_weights_for_sampler"
+      ],
+      "tensor_access": "logprobs and loss outputs only; no activations, gradients or adapter weight tensors are returned by the documented client",
+      "custom_loss": "forward_backward_custom (client-side torch on returned logprobs)"
+    },
+    "default_context": 12288,
+    "context_ceiling": 16384,
+    "default_max_tokens": 512
+  },
+  "gates": {
+    "remote_stages_allowed": false,
+    "blocked_reasons": [
+      "TINKER_API_KEY not present in process environment"
+    ],
+    "local_stages_allowed": true
+  }
+}
