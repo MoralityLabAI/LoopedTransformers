@@ -1,0 +1,181 @@
+OLR referee review logs, 2026-11-24. Repo: MoralityLabAI/LoopedTransformers at PR #318 head 8372973.
+Usage: python3 replicate05.py <repo>/research/lean_cgrt_hrm400 160 ; python3 variants05.py <same dir> addressed,dense,gated,kv,explicit_mlp 12 160,640,2000 ; python3 variants05b.py <same dir> x 1 1 ; python3 ledger_pilot.py none,td,bu,bi,bi_ds,dense_tied,dense_untied 0,1,2 2000 ; python3 softmin_check.py
+Environment: torch 2.5.1+cu124 on CPU, 1 thread, no Lean, receipts from generator truth.
+
+===== replicate05.py (registered seeds, 160 steps) =====
+train unique model inputs 64 of 64
+dev inputs identical to a train input 0 of 24
+train (addr,branch,verdict) triples seen 20 of 20 min count 6
+dev receipt triples unseen in train 0
+transfer receipt triples unseen in train 0
+train address subsets 9 of 10
+
+=== steps=160 seeds=(17, 29, 43)
+seed  17 addressed    params  5930 loss 0.690->0.075 train_acc 1.000 | dev addr 72/72 proofs 24/24 | transfer addr 119/120 proofs 23/24 | erased dev 36/72 | focal nat/tgt/sham dev (24, 0, 24) transfer (24, 0, 24)
+seed  17 dense        params  5930 loss 0.693->0.688 train_acc 0.500 | dev addr 36/72 proofs 3/24 | transfer addr 63/120 proofs 0/24
+seed  17 explicit_mlp params   746 loss 0.713->0.003 train_acc 1.000 | dev addr 72/72 proofs 24/24 | transfer addr 120/120 proofs 24/24
+seed  29 addressed    params  5930 loss 0.698->0.498 train_acc 0.740 | dev addr 55/72 proofs 9/24 | transfer addr 85/120 proofs 8/24 | erased dev 36/72 | focal nat/tgt/sham dev (17, 7, 16) transfer (18, 6, 18)
+seed  29 dense        params  5930 loss 0.696->0.691 train_acc 0.500 | dev addr 36/72 proofs 3/24 | transfer addr 64/120 proofs 0/24
+seed  29 explicit_mlp params   746 loss 0.684->0.003 train_acc 1.000 | dev addr 72/72 proofs 24/24 | transfer addr 120/120 proofs 24/24
+seed  43 addressed    params  5930 loss 0.710->0.680 train_acc 0.536 | dev addr 36/72 proofs 3/24 | transfer addr 66/120 proofs 3/24 | erased dev 36/72 | focal nat/tgt/sham dev (11, 13, 11) transfer (15, 8, 17)
+seed  43 dense        params  5930 loss 0.711->0.692 train_acc 0.536 | dev addr 37/72 proofs 2/24 | transfer addr 60/120 proofs 2/24
+seed  43 explicit_mlp params   746 loss 0.679->0.003 train_acc 1.000 | dev addr 72/72 proofs 24/24 | transfer addr 120/120 proofs 24/24
+
+means over seeds
+addressed {'train': 0.759, 'dev_addr': 0.755, 'dev_proof': 0.5, 'tr_addr': 0.75, 'tr_proof': 0.472} min/max dev_addr 0.5 1.0 min/max tr_addr 0.55 0.992
+dense {'train': 0.512, 'dev_addr': 0.505, 'dev_proof': 0.111, 'tr_addr': 0.519, 'tr_proof': 0.028} min/max dev_addr 0.5 0.514 min/max tr_addr 0.5 0.533
+explicit_mlp {'train': 1.0, 'dev_addr': 1.0, 'dev_proof': 1.0, 'tr_addr': 1.0, 'tr_proof': 1.0} min/max dev_addr 1.0 1.0 min/max tr_addr 1.0 1.0
+
+===== variants05.py (12 seeds; columns: train acc, seeds fitting train, dev/transfer address and proof accuracy) =====
+addressed    params  5930 steps   160 | train_acc 0.798 seeds_fit 1/12 | dev addr 0.747 proof 0.462 | transfer addr 0.735 proof 0.319 | transfer addr min 0.500
+addressed    params  5930 steps   640 | train_acc 1.000 seeds_fit 12/12 | dev addr 0.988 proof 0.969 | transfer addr 0.983 proof 0.934 | transfer addr min 0.825
+addressed    params  5930 steps  2000 | train_acc 1.000 seeds_fit 12/12 | dev addr 0.990 proof 0.972 | transfer addr 0.985 proof 0.941 | transfer addr min 0.833
+  (337s)
+kv           params  1538 steps   160 | train_acc 1.000 seeds_fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 | transfer addr min 1.000
+kv           params  1538 steps   640 | train_acc 1.000 seeds_fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 | transfer addr min 1.000
+kv           params  1538 steps  2000 | train_acc 1.000 seeds_fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 | transfer addr min 1.000
+  (62s)
+explicit_mlp params   746 steps   160 | train_acc 1.000 seeds_fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 | transfer addr min 1.000
+explicit_mlp params   746 steps   640 | train_acc 1.000 seeds_fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 | transfer addr min 1.000
+explicit_mlp params   746 steps  2000 | train_acc 1.000 seeds_fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 | transfer addr min 1.000
+  (21s)
+dense        params  5930 steps   160 | train_acc 0.537 seeds_fit 0/12 | dev addr 0.505 proof 0.122 | transfer addr 0.538 proof 0.056 | transfer addr min 0.500
+dense        params  5930 steps   640 | train_acc 0.952 seeds_fit 5/12 | dev addr 0.685 proof 0.365 | transfer addr 0.582 proof 0.063 | transfer addr min 0.442
+dense        params  5930 steps  2000 | train_acc 1.000 seeds_fit 12/12 | dev addr 0.693 proof 0.406 | transfer addr 0.598 proof 0.076 | transfer addr min 0.442
+  (343s)
+gated        params  6003 steps   160 | train_acc 0.511 seeds_fit 0/12 | dev addr 0.494 proof 0.097 | transfer addr 0.512 proof 0.049 | transfer addr min 0.500
+gated        params  6003 steps   640 | train_acc 0.784 seeds_fit 2/12 | dev addr 0.654 proof 0.323 | transfer addr 0.628 proof 0.097 | transfer addr min 0.500
+gated        params  6003 steps  2000 | train_acc 0.969 seeds_fit 9/12 | dev addr 0.741 proof 0.427 | transfer addr 0.653 proof 0.104 | transfer addr min 0.558
+  (370s)
+noattn       params  5930 steps   160 | train_acc 0.500 seeds_fit 0/12 | dev addr 0.500 proof 0.108 | transfer addr 0.500 proof 0.038 | transfer addr min 0.500
+noattn       params  5930 steps   640 | train_acc 0.500 seeds_fit 0/12 | dev addr 0.500 proof 0.139 | transfer addr 0.500 proof 0.035 | transfer addr min 0.500
+noattn       params  5930 steps  2000 | train_acc 0.500 seeds_fit 0/12 | dev addr 0.500 proof 0.128 | transfer addr 0.500 proof 0.042 | transfer addr min 0.500
+  (152s)
+(noattn removes the only path from the event token to a slot and is uninformative; see variants05b tokenonly)
+
+===== variants05b.py (cross-slot attention masked) =====
+tokenonly steps 160 | train 1.000 fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 min 1.000
+tokenonly steps 640 | train 1.000 fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 min 1.000
+tokenonly steps 2000 | train 1.000 fit 12/12 | dev addr 1.000 proof 1.000 | transfer addr 1.000 proof 1.000 min 1.000
+
+===== softmin_check.py =====
+depth  #trees(log2)  hard   soft(tau=.1)  undercut  bound=tau*ln(#trees)
+    1            1    1.0        0.931     0.069     0.069
+    2            3    3.0        2.861     0.139     0.208
+    3            7    8.0        7.770     0.230     0.485
+    4           15   15.0       14.562     0.438     1.040
+    5           31   31.0       30.122     0.878     2.149
+    6           63   64.0       62.299     1.701     4.367
+    7          127  130.0      126.292     3.708     8.803
+shared premise: tree cost (h_add) = 1+(1+1)+(1+1)=5, DAG cost = 4 rules, h_max = 1+max(2,2)=3
+
+===== ledger_pilot.py (OLR-06 pilot) =====
+dev: slots 13521 topdown 0.366 bottomup_only 0.145 unknown 0.488 max_hops 4 | ceilings: exact 1.000, top-down-only 0.927
+deep: slots 28579 topdown 0.518 bottomup_only 0.198 unknown 0.284 max_hops 9 | ceilings: exact 1.000, top-down-only 0.901
+none          seed 0 params 33123 loss 0.596 (13s)
+     dev@T8 {'all': 0.739, 'topdown': 0.685, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+     deep@T16 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+     deep@T32 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+none          seed 1 params 33123 loss 0.609 (12s)
+     dev@T8 {'all': 0.739, 'topdown': 0.685, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+     deep@T16 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+     deep@T32 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+none          seed 2 params 33123 loss 0.616 (12s)
+     dev@T8 {'all': 0.739, 'topdown': 0.685, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+     deep@T16 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+     deep@T32 {'all': 0.534, 'topdown': 0.482, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.0}
+td            seed 0 params 33123 loss 0.376 (60s)
+     dev@T8 {'all': 0.855, 'topdown': 1.0, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.798, 'topdown': 0.993, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.274}
+     deep@T16 {'all': 0.791, 'topdown': 0.979, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.363}
+     deep@T32 {'all': 0.704, 'topdown': 0.809, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.257}
+td            seed 1 params 33123 loss 0.434 (60s)
+     dev@T8 {'all': 0.855, 'topdown': 1.0, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.8, 'topdown': 0.995, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.319}
+     deep@T16 {'all': 0.8, 'topdown': 0.996, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.396}
+     deep@T32 {'all': 0.723, 'topdown': 0.846, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.303}
+td            seed 2 params 33123 loss 0.451 (58s)
+     dev@T8 {'all': 0.855, 'topdown': 1.0, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.801, 'topdown': 0.997, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.352}
+     deep@T16 {'all': 0.802, 'topdown': 1.0, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.401}
+     deep@T32 {'all': 0.802, 'topdown': 1.0, 'bottomup_only': 0.0, 'unknown': 1.0, 'hops>=5': 0.399}
+bu            seed 0 params 33123 loss 0.353 (58s)
+     dev@T8 {'all': 0.845, 'topdown': 0.708, 'bottomup_only': 0.668, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.789, 'topdown': 0.636, 'bottomup_only': 0.889, 'unknown': 1.0, 'hops>=5': 0.301}
+     deep@T16 {'all': 0.792, 'topdown': 0.637, 'bottomup_only': 0.9, 'unknown': 1.0, 'hops>=5': 0.402}
+     deep@T32 {'all': 0.781, 'topdown': 0.63, 'bottomup_only': 0.864, 'unknown': 0.999, 'hops>=5': 0.402}
+bu            seed 1 params 33123 loss 0.332 (60s)
+     dev@T8 {'all': 0.845, 'topdown': 0.708, 'bottomup_only': 0.668, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.787, 'topdown': 0.635, 'bottomup_only': 0.879, 'unknown': 1.0, 'hops>=5': 0.216}
+     deep@T16 {'all': 0.79, 'topdown': 0.635, 'bottomup_only': 0.891, 'unknown': 1.0, 'hops>=5': 0.336}
+     deep@T32 {'all': 0.782, 'topdown': 0.634, 'bottomup_only': 0.857, 'unknown': 1.0, 'hops>=5': 0.32}
+bu            seed 2 params 33123 loss 0.320 (61s)
+     dev@T8 {'all': 0.845, 'topdown': 0.708, 'bottomup_only': 0.668, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.79, 'topdown': 0.636, 'bottomup_only': 0.892, 'unknown': 1.0, 'hops>=5': 0.328}
+     deep@T16 {'all': 0.79, 'topdown': 0.635, 'bottomup_only': 0.895, 'unknown': 1.0, 'hops>=5': 0.402}
+     deep@T32 {'all': 0.785, 'topdown': 0.631, 'bottomup_only': 0.881, 'unknown': 0.999, 'hops>=5': 0.399}
+bi            seed 0 params 33123 loss 0.000 (69s)
+     dev@T8 {'all': 1.0, 'topdown': 1.0, 'bottomup_only': 1.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.999, 'topdown': 1.0, 'bottomup_only': 0.998, 'unknown': 0.999, 'hops>=5': 0.978}
+     deep@T16 {'all': 1.0, 'topdown': 1.0, 'bottomup_only': 1.0, 'unknown': 0.998, 'hops>=5': 1.0}
+     deep@T32 {'all': 0.999, 'topdown': 1.0, 'bottomup_only': 0.999, 'unknown': 0.998, 'hops>=5': 1.0}
+bi            seed 1 params 33123 loss 0.000 (69s)
+     dev@T8 {'all': 1.0, 'topdown': 1.0, 'bottomup_only': 1.0, 'unknown': 0.999, 'hops>=5': nan}
+     deep@T8 {'all': 0.99, 'topdown': 0.999, 'bottomup_only': 0.99, 'unknown': 0.974, 'hops>=5': 0.904}
+     deep@T16 {'all': 0.977, 'topdown': 1.0, 'bottomup_only': 0.994, 'unknown': 0.924, 'hops>=5': 0.984}
+     deep@T32 {'all': 0.974, 'topdown': 0.999, 'bottomup_only': 0.989, 'unknown': 0.917, 'hops>=5': 0.981}
+bi            seed 2 params 33123 loss 0.000 (70s)
+     dev@T8 {'all': 1.0, 'topdown': 1.0, 'bottomup_only': 1.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.998, 'topdown': 1.0, 'bottomup_only': 0.997, 'unknown': 0.995, 'hops>=5': 0.962}
+     deep@T16 {'all': 0.998, 'topdown': 1.0, 'bottomup_only': 1.0, 'unknown': 0.992, 'hops>=5': 1.0}
+     deep@T32 {'all': 0.997, 'topdown': 1.0, 'bottomup_only': 1.0, 'unknown': 0.988, 'hops>=5': 1.0}
+bi_ds         seed 0 params 33123 loss 0.000 (127s)
+     dev@T8 {'all': 1.0, 'topdown': 1.0, 'bottomup_only': 1.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.996, 'topdown': 1.0, 'bottomup_only': 0.995, 'unknown': 0.991, 'hops>=5': 0.948}
+     deep@T16 {'all': 0.987, 'topdown': 1.0, 'bottomup_only': 0.999, 'unknown': 0.956, 'hops>=5': 0.995}
+     deep@T32 {'all': 0.986, 'topdown': 1.0, 'bottomup_only': 0.999, 'unknown': 0.951, 'hops>=5': 0.995}
+bi_ds         seed 1 params 33123 loss 0.000 (128s)
+     dev@T8 {'all': 1.0, 'topdown': 1.0, 'bottomup_only': 1.0, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.998, 'topdown': 1.0, 'bottomup_only': 0.995, 'unknown': 0.998, 'hops>=5': 0.954}
+     deep@T16 {'all': 0.997, 'topdown': 1.0, 'bottomup_only': 0.999, 'unknown': 0.989, 'hops>=5': 1.0}
+     deep@T32 {'all': 0.996, 'topdown': 1.0, 'bottomup_only': 0.994, 'unknown': 0.989, 'hops>=5': 0.998}
+bi_ds         seed 2 params 33123 loss 0.001 (125s)
+     dev@T8 {'all': 0.999, 'topdown': 1.0, 'bottomup_only': 0.998, 'unknown': 1.0, 'hops>=5': nan}
+     deep@T8 {'all': 0.993, 'topdown': 0.999, 'bottomup_only': 0.976, 'unknown': 0.996, 'hops>=5': 0.822}
+     deep@T16 {'all': 0.986, 'topdown': 0.999, 'bottomup_only': 0.991, 'unknown': 0.959, 'hops>=5': 0.975}
+     deep@T32 {'all': 0.978, 'topdown': 0.999, 'bottomup_only': 0.989, 'unknown': 0.931, 'hops>=5': 0.975}
+dev: slots 13521 topdown 0.366 bottomup_only 0.145 unknown 0.488 max_hops 4 | ceilings: exact 1.000, top-down-only 0.927
+deep: slots 28579 topdown 0.518 bottomup_only 0.198 unknown 0.284 max_hops 9 | ceilings: exact 1.000, top-down-only 0.901
+dense_tied    seed 0 params 29763 loss 0.060 (119s)
+     dev@T8 {'all': 0.982, 'topdown': 0.983, 'bottomup_only': 0.925, 'unknown': 0.999, 'hops>=5': nan}
+     deep@T8 {'all': 0.838, 'topdown': 0.853, 'bottomup_only': 0.699, 'unknown': 0.908, 'hops>=5': 0.467}
+     deep@T16 {'all': 0.732, 'topdown': 0.749, 'bottomup_only': 0.534, 'unknown': 0.838, 'hops>=5': 0.464}
+     deep@T32 {'all': 0.644, 'topdown': 0.696, 'bottomup_only': 0.469, 'unknown': 0.67, 'hops>=5': 0.454}
+dense_tied    seed 1 params 29763 loss 0.022 (120s)
+     dev@T8 {'all': 0.996, 'topdown': 0.997, 'bottomup_only': 0.992, 'unknown': 0.997, 'hops>=5': nan}
+     deep@T8 {'all': 0.871, 'topdown': 0.913, 'bottomup_only': 0.804, 'unknown': 0.842, 'hops>=5': 0.476}
+     deep@T16 {'all': 0.792, 'topdown': 0.879, 'bottomup_only': 0.673, 'unknown': 0.718, 'hops>=5': 0.5}
+     deep@T32 {'all': 0.71, 'topdown': 0.843, 'bottomup_only': 0.543, 'unknown': 0.583, 'hops>=5': 0.498}
+dense_tied    seed 2 params 29763 loss 0.175 (121s)
+     dev@T8 {'all': 0.871, 'topdown': 0.849, 'bottomup_only': 0.501, 'unknown': 0.998, 'hops>=5': nan}
+     deep@T8 {'all': 0.708, 'topdown': 0.718, 'bottomup_only': 0.42, 'unknown': 0.889, 'hops>=5': 0.388}
+     deep@T16 {'all': 0.7, 'topdown': 0.711, 'bottomup_only': 0.376, 'unknown': 0.906, 'hops>=5': 0.344}
+     deep@T32 {'all': 0.69, 'topdown': 0.707, 'bottomup_only': 0.32, 'unknown': 0.917, 'hops>=5': 0.3}
+dense_untied  seed 0 params 194739 loss 0.047 (155s)
+     dev@T8 {'all': 0.992, 'topdown': 0.994, 'bottomup_only': 0.978, 'unknown': 0.995, 'hops>=5': nan}
+     deep@T8 {'all': 0.839, 'topdown': 0.889, 'bottomup_only': 0.738, 'unknown': 0.818, 'hops>=5': 0.475}
+     deep@T16 {'all': 0.839, 'topdown': 0.889, 'bottomup_only': 0.738, 'unknown': 0.818, 'hops>=5': 0.475}
+     deep@T32 {'all': 0.839, 'topdown': 0.889, 'bottomup_only': 0.738, 'unknown': 0.818, 'hops>=5': 0.475}
+dense_untied  seed 1 params 194739 loss 0.164 (156s)
+     dev@T8 {'all': 0.865, 'topdown': 0.838, 'bottomup_only': 0.488, 'unknown': 0.998, 'hops>=5': nan}
+     deep@T8 {'all': 0.713, 'topdown': 0.716, 'bottomup_only': 0.457, 'unknown': 0.887, 'hops>=5': 0.45}
+     deep@T16 {'all': 0.713, 'topdown': 0.716, 'bottomup_only': 0.457, 'unknown': 0.887, 'hops>=5': 0.45}
+     deep@T32 {'all': 0.713, 'topdown': 0.716, 'bottomup_only': 0.457, 'unknown': 0.887, 'hops>=5': 0.45}
+dense_untied  seed 2 params 194739 loss 0.181 (153s)
+     dev@T8 {'all': 0.867, 'topdown': 0.844, 'bottomup_only': 0.487, 'unknown': 0.998, 'hops>=5': nan}
+     deep@T8 {'all': 0.703, 'topdown': 0.722, 'bottomup_only': 0.425, 'unknown': 0.861, 'hops>=5': 0.407}
+     deep@T16 {'all': 0.703, 'topdown': 0.722, 'bottomup_only': 0.425, 'unknown': 0.861, 'hops>=5': 0.407}
+     deep@T32 {'all': 0.703, 'topdown': 0.722, 'bottomup_only': 0.425, 'unknown': 0.861, 'hops>=5': 0.407}

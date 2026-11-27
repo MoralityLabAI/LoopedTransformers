@@ -1,0 +1,77 @@
+name: OLR-06G calibrated native portfolio
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/olr06g_portfolio.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_olr06g.py"
+      - ".github/workflows/olr06g-portfolio.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: olr06g-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-portfolio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: olr06f-native-anytime
+          run-id: 45322490776
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: research/lean_cgrt_hrm400/runs/olr06g-old
+      - name: Restart budgets, frozen packet and selector tests
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m unittest discover -s ppt_gym/tests -p "test_olr06g.py" -v
+      - name: Freeze new equation systems
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m ppt_gym.olr06g_portfolio freeze --old-bank runs/olr06g-old/olr06f-bank --out runs/olr06g-bank
+      - name: Native source portfolio and calibrated fits
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m ppt_gym.olr06g_portfolio fit --bank runs/olr06g-bank --out runs/olr06g-fit
+      - name: Frozen selector and native search verification
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.olr06g_portfolio score --bank runs/olr06g-bank --fit runs/olr06g-fit --out runs/olr06g-eval
+          python - <<'PY'
+          import json
+          f=json.load(open("runs/olr06g-fit/manifest.json"))
+          m=json.load(open("runs/olr06g-eval/manifest.json"))
+          assert f["train_roots"]==64 and f["calibration_roots"]==16
+          assert f["source_policy_trials"]==960 and len(f["models"])==20
+          assert m["roots"]==48 and m["menu_trials"]==576
+          assert m["frozen_selector_trials"]==1008 and m["policy_trials"]==1632
+          assert m["certificate"]["native_leaf_replays"]==m["certificate"]["leaf_declarations"]
+          assert m["certificate"]["joint_declarations"]>=48
+          assert m["architecture_promotion_eligible"] is False
+          print("OLR06G verified selector scorecard",json.dumps(m["scorecard"],sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: olr06g-native-portfolio
+          path: |
+            research/lean_cgrt_hrm400/runs/olr06g-bank
+            research/lean_cgrt_hrm400/runs/olr06g-fit
+            research/lean_cgrt_hrm400/runs/olr06g-eval
+          if-no-files-found: ignore

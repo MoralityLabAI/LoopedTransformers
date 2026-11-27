@@ -1,0 +1,72 @@
+name: OLR-METTA-04D frozen carry audit
+
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/olr_metta04_carry.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_olr_metta04_carry.py"
+      - ".github/workflows/olr-metta-04d.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  frozen-carry-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "research/lean_cgrt_hrm400/lean"
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned CPU and Hyperon runtimes
+        run: |
+          python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "hyperon==0.2.10"
+      - name: Retrieve locked original 04 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: olr-metta-04-dependent-stage-policy
+          run-id: 45212958918
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: research/lean_cgrt_hrm400/runs/olr04-archive
+      - name: Frozen carry intervention on new paired roots
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          PYTHONHASHSEED: "0"
+        run: |
+          python -m unittest discover -s ppt_gym/tests -p test_olr_metta04_carry.py -v
+          python -m ppt_gym.olr_metta04_carry freeze --bank runs/olr04-archive/olr04-bank --fit runs/olr04-archive/olr04-fit --out runs/olr04d-bank
+          python -m ppt_gym.olr_metta04_carry score --bank runs/olr04-archive/olr04-bank --fit runs/olr04-archive/olr04-fit --registry runs/olr04d-bank --out runs/olr04d-eval
+          python - <<'PY'
+          import json
+          r=json.load(open("runs/olr04d-eval/manifest.json",encoding="utf-8"))
+          assert r["native_episodes"]==912 and r["native_replays"]==912,r
+          assert r["optimizer_updates"]==0 and r["root_worlds"]==48,r
+          assert r["standalone"]["axiom_free"]>=48,r
+          for split in ("dev","ood"):
+              assert r["scorecard"][f"{split}:0:exact"]["certified"]==24,r
+          assert r["architecture_promotion_eligible"] is False,r
+          print("04D native frozen carry audit passed",json.dumps(r["contrasts"],sort_keys=True))
+          PY
+      - name: Upload frozen carry native evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-metta-04d-frozen-carry
+          path: |
+            research/lean_cgrt_hrm400/runs/olr04d-bank
+            research/lean_cgrt_hrm400/runs/olr04d-eval
+          if-no-files-found: ignore

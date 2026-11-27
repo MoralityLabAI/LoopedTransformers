@@ -1,0 +1,82 @@
+name: OLR-METTA-04 dependent policy CPU / Lean
+
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/olr_dependent*.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/olr_metta04*.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_olr_metta04.py"
+      - "research/lean_cgrt_hrm400/OLR_METTA_04*.md"
+      - ".github/workflows/olr-metta-04.yml"
+  workflow_dispatch:
+
+jobs:
+  staged-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "research/lean_cgrt_hrm400/lean"
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned CPU model and native MeTTa runtime
+        run: |
+          python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "hyperon==0.2.10"
+      - name: Independent CPU protocol tests
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          PYTHONHASHSEED: "0"
+        run: |
+          python -m unittest discover -s ppt_gym/tests -p test_olr_metta04.py -v
+      - name: Native dependent source freeze, trained stage policy and fresh proof scoring
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          PYTHONHASHSEED: "0"
+        run: |
+          python -m ppt_gym.olr_metta04_campaign freeze --seed 20261130 --out runs/olr04-bank
+          python -m ppt_gym.olr_metta04_campaign fit --bank runs/olr04-bank --steps 48 --out runs/olr04-fit
+          python -m ppt_gym.olr_metta04_campaign score --bank runs/olr04-bank --fit runs/olr04-fit --out runs/olr04-eval --max-seconds 600
+          python - <<'PY'
+          import json
+          reg=json.load(open("runs/olr04-bank/manifest.json",encoding="utf-8"))
+          trained=json.load(open("runs/olr04-fit/manifest.json",encoding="utf-8"))
+          eval=json.load(open("runs/olr04-eval/manifest.json",encoding="utf-8"))
+          assert reg["root_worlds"]=={"train":48,"dev":16,"ood":16},reg
+          assert trained["source_worlds"]==48 and trained["training_traces"]==96,trained
+          assert trained["source_independent_certificates"]["axiom_free"]==48,trained
+          assert trained["same_worker_bit_exact_seed17_loop3"],trained
+          assert len(trained["model_metadata"])==9,trained
+          assert eval["model_root_predecisions"]==288,eval
+          assert eval["policy_native_episodes"]==480 and eval["independent_native_replays"]==480,eval
+          assert eval["independent_kernel_certificates"]["axiom_free"]>=32,eval
+          for split in ("dev","ood"):
+              oracle=eval["scorecard"][f"{split}:0:exact"]
+              assert oracle["kernel_certified"]==16 and oracle["tactic_calls"]==72,oracle
+          assert eval["architecture_promotion_eligible"] is False,eval
+          print("OLR-METTA-04 certified dependent stage policy scorecard",
+                json.dumps(eval["scorecard"],sort_keys=True))
+          PY
+      - name: Upload native dependent stage-policy receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-metta-04-dependent-stage-policy
+          path: |
+            research/lean_cgrt_hrm400/runs/olr04-bank
+            research/lean_cgrt_hrm400/runs/olr04-fit
+            research/lean_cgrt_hrm400/runs/olr04-eval
+          if-no-files-found: ignore

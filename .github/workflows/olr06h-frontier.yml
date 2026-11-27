@@ -1,0 +1,78 @@
+name: OLR-06H live frontier counterfactual teacher
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/olr06h_frontier.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_olr06h.py"
+      - ".github/workflows/olr06h-frontier.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: olr06h-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-frontier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: olr06g-native-portfolio
+          run-id: 45323569279
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: research/lean_cgrt_hrm400/runs/olr06h-old
+      - name: Continuation identity and counterfactual block contracts
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m unittest discover -s ppt_gym/tests -p "test_olr06h.py" -v
+      - name: Freeze source roles and new equation systems
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m ppt_gym.olr06h_frontier freeze --old-bank runs/olr06h-old/olr06g-bank --out runs/olr06h-bank
+      - name: Native source counterfactual utilities and source-fixed selection
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m ppt_gym.olr06h_frontier source --bank runs/olr06h-bank --out runs/olr06h-source
+      - name: Fresh block-action headroom with native conjunction certificates
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.olr06h_frontier score --bank runs/olr06h-bank --teacher runs/olr06h-source --out runs/olr06h-eval
+          python - <<'PY'
+          import json
+          f=json.load(open("runs/olr06h-source/manifest.json"))
+          m=json.load(open("runs/olr06h-eval/manifest.json"))
+          assert f["train_roots"]==64 and f["calibration_roots"]==16
+          assert m["evaluation_roots"]==32
+          assert f["counterfactual_trials"]>=80 and m["counterfactual_trials"]>=32
+          assert f["certificate"]["native_leaf_replays"]==f["certificate"]["leaf_declarations"]
+          assert m["certificate"]["native_leaf_replays"]==m["certificate"]["leaf_declarations"]
+          assert f["model_training_updates"]==m["model_training_updates"]==0
+          assert m["architecture_promotion_eligible"] is False
+          assert m["reader_fit_eligible"]==(m["source_gate"] and m["fresh_gate"])
+          print("OLR06H source/fresh gate",m["source_gate"],m["fresh_gate"],m["reader_fit_eligible"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: olr06h-native-frontier
+          path: |
+            research/lean_cgrt_hrm400/runs/olr06h-bank
+            research/lean_cgrt_hrm400/runs/olr06h-source
+            research/lean_cgrt_hrm400/runs/olr06h-eval
+          if-no-files-found: ignore

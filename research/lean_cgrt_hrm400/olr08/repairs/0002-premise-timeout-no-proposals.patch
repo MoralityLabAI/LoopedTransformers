@@ -1,0 +1,6 @@
+183a184,188
+>     if p.get('ok') is False and 'maximum number of heartbeats' in str(p.get('error','')) and 'rw' not in p and 'apply' not in p:
+>         # Infrastructure repair: the enumerator hit its own heartbeat cap at this state. As in Fable's
+>         # referee search, the state gets no premise proposals but keeps its fixed, local and definition
+>         # actions; the charged call stays in the meter journal with ok=False. Other failures still raise.
+>         p={'rw':[],'apply':[]}

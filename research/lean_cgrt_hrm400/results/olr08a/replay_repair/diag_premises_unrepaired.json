@@ -1,0 +1,29 @@
+{
+ "package": "C:\\olr08\\pkg2",
+ "roots": [
+  {
+   "id": "1c2a2a528694a367d382d3ab329f86e58d71076ad4a3fce6af774b81411eb92a",
+   "decl": "Array.finRange_succ",
+   "file": "src/Init/Data/Array/FinRange.lean",
+   "completed": false,
+   "error": "premise enumeration failed: {'request_ms': 1337, 'request_hb_raw': 5000210, 'ok': False, 'error': '(deterministic) timeout at `whnf`, maximum number of heartbeats (5000) has been reached\\nUse `set_option maxHeartbeats <num>` to set the limit.(invalid MessageData.lazy, missing context)'}"
+  },
+  {
+   "id": "867ccad8c0652f33ca020dc6d56202bc4ef5cffccff88df445b87b80f6fef13b",
+   "decl": "Fin.hIterate_elim",
+   "file": "src/Init/Data/Fin/Iterate.lean",
+   "completed": true,
+   "solved": false,
+   "steps": 300,
+   "premise_timeouts": 0
+  }
+ ],
+ "failures": [
+  {
+   "goals": [
+    "case h\u2082.h\nn i\u271d : Nat\nhi\u2081\u271d : i\u271d < (Array.finRange (n + 1)).size\nhi\u2082\u271d : i\u271d < (#[0] ++ map Fin.succ (Array.finRange n)).size\n\u22a2 i\u271d = \u2191(if h : i\u271d = 0 then 0 else \u27e8i\u271d - 1 + 1, \u22ef\u27e9)"
+   ],
+   "error": "premise enumeration failed: {'request_ms': 1337, 'request_hb_raw': 5000210, 'ok': False, 'error': '(deterministic) timeout at `whnf`, maximum number of heartbeats (5000) has been reached\\nUse `set_option maxHeartbeats <num>` to set the limit.(invalid MessageData.lazy, missing context)'}"
+  }
+ ]
+}
