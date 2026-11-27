@@ -1,24 +1,16 @@
 {
   "stages": {
     "A_api_smoke": {
-      "reasons": [
-        "available DRAM 4.73 GiB < 6 GiB startup minimum",
-        "TINKER_API_KEY not present in process environment",
-        "--allow-remote not given"
-      ],
-      "resumable": true,
-      "status": "blocked",
-      "utc": "2026-11-27T16:16:39Z"
+      "status": "done",
+      "utc": "2026-11-27T17:07:54Z"
     },
     "B_adapter_qualification": {
       "reasons": [
-        "available DRAM 4.73 GiB < 6 GiB startup minimum",
-        "TINKER_API_KEY not present in process environment",
-        "--allow-remote not given"
+        "B_adapter_qualification requires a passing Stage A and B receipt reviewed first"
       ],
       "resumable": true,
       "status": "blocked",
-      "utc": "2026-11-27T16:16:39Z"
+      "utc": "2026-11-27T17:07:54Z"
     },
     "C_curriculum_pilot": {
       "reasons": [
@@ -76,15 +68,15 @@
       "utc": "2026-11-27T16:11:21Z"
     },
     "preflight": {
-      "remote_allowed": false,
+      "remote_allowed": true,
       "status": "done",
-      "utc": "2026-11-27T16:16:30Z"
+      "utc": "2026-11-27T17:07:22Z"
     },
     "resources": {
-      "min_available": 4930281472,
-      "peak_rss": 229490688,
+      "min_available": 8045748224,
+      "peak_rss": 230187008,
       "status": "done",
-      "utc": "2026-11-27T16:16:39Z"
+      "utc": "2026-11-27T17:07:54Z"
     },
     "simulated_engine": {
       "arms": [

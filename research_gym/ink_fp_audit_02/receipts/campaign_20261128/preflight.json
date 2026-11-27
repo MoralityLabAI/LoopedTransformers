@@ -1,7 +1,7 @@
 {
   "api": {
     "context_ceiling": 16384,
-    "credential_present": false,
+    "credential_present": true,
     "default_context": 12288,
     "default_max_tokens": 512,
     "model": "thinkingmachines/Inkling-2-Mini:peft:65536:free",
@@ -43,16 +43,12 @@
     }
   },
   "gates": {
-    "blocked_reasons": [
-      "available DRAM 4.73 GiB < 6 GiB startup minimum",
-      "TINKER_API_KEY not present in process environment",
-      "--allow-remote not given"
-    ],
+    "blocked_reasons": [],
     "local_stages_allowed": true,
-    "remote_stages_allowed": false
+    "remote_stages_allowed": true
   },
   "resources": {
-    "available_bytes": 5080223744,
+    "available_bytes": 8755453952,
     "cuda_visible_devices": "-1",
     "gpu_allocation_bytes": 0,
     "job_object_error": null,
@@ -60,9 +56,9 @@
     "max_concurrency": 1,
     "max_threads": 4,
     "platform": "Windows-11-10.0.26200-SP0",
-    "process_tree_rss_bytes": 38514688,
+    "process_tree_rss_bytes": 38526976,
     "python": "3.12.10",
-    "startup_memory_ok": false,
+    "startup_memory_ok": true,
     "startup_min_available_bytes": 6442450944
   }
 }

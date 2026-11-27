@@ -108,6 +108,31 @@ class OAISampler:
 
 
 # ---- Native SDK ---------------------------------------------------------------------------
+def _resolve(x):
+    """SDK 0.40 constructors return futures; resolve them once."""
+    return x.result() if hasattr(x, "result") and not hasattr(x, "sample") and not hasattr(x, "forward_backward") else x
+
+
+class TokenizerUnavailable(RuntimeError):
+    pass
+
+
+def load_tml_tokenizer(sampler):
+    """Inkling chat rendering needs the real tml_renderers package (via tinker_cookbook)."""
+    try:
+        return sampler.get_tokenizer()
+    except RuntimeError:
+        pass
+    try:
+        from tinker_cookbook.tokenizer_utils import ensure_tml_renderers_importable
+        ensure_tml_renderers_importable()
+    except Exception as exc:
+        raise TokenizerUnavailable(
+            "Inkling tokenizer/renderer unavailable: install the real tml-renderers package or set "
+            "TML_RENDERERS_SOURCE_DIR; the native route (training, logprob sampling) is blocked until then"
+        ) from exc
+    from tinker_cookbook.tokenizer_utils import get_tokenizer
+    return get_tokenizer(MODEL)
 class NativeTinker:
     """Thin wrapper over the native SDK. Constructed lazily; one remote request at a time."""
 
@@ -129,12 +154,14 @@ class NativeTinker:
 
     def open_sampler(self, model_path: str | None = None):
         if model_path is None:
-            self.sampler = self.service.create_sampling_client(base_model=guard_model(MODEL))
+            self.sampler = _resolve(self.service.create_sampling_client(base_model=guard_model(MODEL)))
         else:
-            self.sampler = self.service.create_sampling_client(model_path=model_path)
+            self.sampler = _resolve(self.service.create_sampling_client(model_path=model_path))
             if self.sampler.get_base_model() != MODEL:
                 raise PaidModelBlocked("sampler base model is not the free model")
-        self.tokenizer = self.sampler.get_tokenizer()
+        # Live 2026-11-28: Thinking Machines models refuse get_tokenizer and point to the
+        # tml-renderers package; the installed tml-renderers 0.0.1 is an empty placeholder.
+        self.tokenizer = load_tml_tokenizer(self.sampler)
         return self.sampler
 
     def encode_chat(self, prompt: str) -> list[int]:
@@ -164,10 +191,10 @@ class NativeTinker:
     # training -------------------------------------------------------------------------
     def open_training(self, resume_state: str | None = None):
         if resume_state:
-            self.training = self.service.create_training_client_from_state_with_optimizer(resume_state)
+            self.training = _resolve(self.service.create_training_client_from_state_with_optimizer(resume_state))
         else:
-            self.training = self.service.create_lora_training_client(
-                base_model=guard_model(MODEL), rank=self.rank, seed=self.seed)
+            self.training = _resolve(self.service.create_lora_training_client(
+                base_model=guard_model(MODEL), rank=self.rank, seed=self.seed))
         info = self.training.get_info()
         if getattr(info, "model_name", MODEL) != MODEL:
             raise PaidModelBlocked("training client is not on the free model")

@@ -71,7 +71,9 @@ def sample(key, payload, timeout=120):
         raise ValueError("paid or unregistered model blocked")
     req = urllib.request.Request(
         URL, data=json.dumps(payload).encode(), method="POST",
-        headers={"Authorization": "Bearer "+key, "Content-Type": "application/json"},
+        # The endpoint answers 403 to Python's default urllib User-Agent; send a generic client UA.
+        headers={"Authorization": "Bearer "+key, "Content-Type": "application/json",
+                 "Accept": "application/json", "User-Agent": "ink-fp-audit/0.2 (python)"},
     )
     # Do not forward credentials across redirects. No automatic retries/fallback.
     with urllib.request.build_opener(NoRedirect()).open(req, timeout=timeout) as res:

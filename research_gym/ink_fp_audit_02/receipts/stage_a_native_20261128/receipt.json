@@ -1,0 +1,44 @@
+{
+  "model": "thinkingmachines/Inkling-2-Mini:peft:65536:free",
+  "route": "native_sdk",
+  "steps": [
+    {
+      "step": "service_client",
+      "ok": true,
+      "seconds": 0.0,
+      "sdk_version": "0.40.1"
+    },
+    {
+      "step": "capabilities",
+      "ok": true,
+      "seconds": 3.8289999999979045,
+      "n_models": 41,
+      "free_model_listed": true,
+      "inkling_ids": [
+        "thinkingmachines/Inkling",
+        "thinkingmachines/Inkling-2-Mini",
+        "thinkingmachines/Inkling-2-Mini:peft:262144",
+        "thinkingmachines/Inkling-2-Mini:peft:65536:free",
+        "thinkingmachines/Inkling-2-Small",
+        "thinkingmachines/Inkling-2-Small:peft:262144",
+        "thinkingmachines/Inkling-Small",
+        "thinkingmachines/Inkling-Small:peft:262144",
+        "thinkingmachines/Inkling-Small:peft:262144:sampling-nvfp4",
+        "thinkingmachines/Inkling:peft:262144",
+        "thinkingmachines/Inkling:peft:262144:sampling-nvfp4"
+      ]
+    },
+    {
+      "step": "sampling_client",
+      "ok": false,
+      "seconds": 8.905999999988126,
+      "error_type": "RuntimeError",
+      "error_message": "Thinking Machines models do not support get_tokenizer. Prefer to construct a renderer with tml-renderers instead: https://pypi.org/project/tml-renderers/",
+      "http_status": null
+    }
+  ],
+  "paid_fallback": false,
+  "automatic_retries": 0,
+  "utc": "2026-11-27T17:04:04Z",
+  "peak_rss_bytes": 275570688
+}
