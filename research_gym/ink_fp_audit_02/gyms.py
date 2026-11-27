@@ -367,6 +367,62 @@ def mcp_retrieval(root, partition):
                  certificate={"required_refs": oracle["required_refs"], "mcp_family": case["family"]})
 
 
+
+# ---- hill-climb research judgment (rule-verified) ----------------------------------------------
+JUDGE_LABELS = ("ACCEPT", "REJECT primary_gain", "REJECT family_regression", "REJECT repetition",
+                "REJECT completion")
+
+
+def judgment_label(decision: dict) -> str:
+    if decision["accepted"]:
+        return "ACCEPT"
+    for check, name in (("primary_gain_ok", "primary_gain"), ("family_regression_ok", "family_regression"),
+                        ("repetition_ok", "repetition"), ("completion_ok", "completion")):
+        if not decision["checks"][check]:
+            return "REJECT " + name
+
+
+@register("hillclimb_judgment")
+def hillclimb_judgment(root, partition):
+    """Decide a generation-acceptance step under the frozen INK-FP-AUDIT-02 criteria."""
+    from . import acceptance as acc
+    r = random.Random(root)
+    want = r.choice(JUDGE_LABELS[:1] * 2 + JUDGE_LABELS[1:])
+    crit = acc.Criteria()
+    names = r.sample(["dyck", "parity", "pointer", "storyworld", "mcp", "registers", "modular"], r.randint(2, 4))
+    for _ in range(400):
+        fams = {f: r.choice([6, 8, 10, 12]) for f in names}
+        pred, cand = [], []
+        for f, n in fams.items():
+            for i in range(n):
+                tid = f"{f}-{i}"
+                pc, cc = r.random() < 0.5, r.random() < 0.5 + r.uniform(-0.2, 0.3)
+                comp_p, comp_c = r.random() < 0.95, r.random() < 0.93
+                rep_p, rep_c = r.random() < 0.02, r.random() < 0.04
+                pred.append({"task_id": tid, "family": f, "correct": pc and comp_p, "completed": comp_p, "repetition": rep_p})
+                cand.append({"task_id": tid, "family": f, "correct": cc and comp_c, "completed": comp_c, "repetition": rep_c})
+        d = acc.decide(crit, pred, cand)
+        if judgment_label(d) == want:
+            break
+    label = judgment_label(d)
+    P, C = d["predecessor_summary"], d["candidate_summary"]
+    rows = "\n".join(f"  {f}: n={P['families'][f]['n']}, incumbent correct {P['families'][f]['correct']}, "
+                      f"candidate correct {C['families'][f]['correct']}" for f in fams)
+    prompt = (
+        "A recursive self-improvement run evaluates a candidate adapter against the incumbent on the same paired tasks.\n"
+        f"Per family:\n{rows}\n"
+        f"Totals: n={P['n']}; correct {P['correct']} -> {C['correct']}; repetition rate {P['repetition_rate']:.4f} -> "
+        f"{C['repetition_rate']:.4f}; completion rate {P['completion_rate']:.4f} -> {C['completion_rate']:.4f}.\n"
+        "Frozen rule, checked in this order: (1) primary_gain: candidate total correct must exceed the incumbent's by at "
+        "least 1. (2) family_regression: in each family the candidate may lose at most max(1, ceil(0.10 * n_family)) "
+        "correct answers relative to the incumbent. (3) repetition: repetition rate may rise by at most 0.02. "
+        "(4) completion: completion rate may drop by at most 0.02. Accept only if all four pass; otherwise report the "
+        "first failing check." + SUFFIX.format(fmt="ACCEPT | REJECT <primary_gain|family_regression|repetition|completion>"))
+    return _task("hillclimb_judgment", root, partition, prompt, label,
+                 [P["families"], C["families"], P["repetition_rate"], C["repetition_rate"], P["completion_rate"], C["completion_rate"]],
+                 generator="ink02.gyms.hillclimb_judgment", certificate={"checks": d["checks"], "family_losses": d["family_losses"],
+                 "family_limits": d["family_limits"], "primary_gain": d["primary_gain"]}, difficulty=0.6)
+
 FAMILIES = ("modular_arith", "boolean_parity", "dyck", "pointer_chase", "register_overwrite",
             "multislot_copy", "mcp_retrieval", "storyworld", "recurrent_stopping", "bpd_nullspace",
-            "experiment_design")
+            "experiment_design", "hillclimb_judgment")

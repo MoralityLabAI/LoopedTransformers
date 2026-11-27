@@ -21,6 +21,9 @@ BPD proxy for analytic adapter updates. Results and limitations are in [REPORT.m
 | `bpd_proxy.py` | numpy proxy: ordinary, ridge (soft preservation), truncated SVD, projected `P = I - X_keep^+ X_keep`, low-rank projected, matched random; adaptive rank allocation; update-strategy router |
 | `stats.py` | exact-McNemar power preflight; FSI-01 registration and bridge to `research_gym/scripts/evalmath_fsi_gate.py` |
 | `preflight.py`, `campaign.py` | stage gates and the resumable campaign driver |
+| `traces.py` | hill-climb research-logic traces (`ink02.hillclimb_trace.v1`) from acceptance ledgers, the upstream record, BPD and MeTTa climbs; Aleph `research` export |
+| `hillclimb.py` | traced hill climb over analytic update strategies on the synthetic BPD proxy |
+| `metta_driver.py` | adaptive proposer driver for DataGoblin `MeTTa/ram_hillclimb.py` (seeded-random, coordinate-sweep, file queue for Inky) |
 
 ## Task families
 
@@ -37,6 +40,7 @@ BPD proxy for analytic adapter updates. Results and limitations are in [REPORT.m
 | recurrent_stopping (halting of an iterated map; text proxy for TRM/LDT stopping) | new | exact_int |
 | bpd_nullspace (which update directions satisfy X_keep d = 0) | new | exact_set |
 | experiment_design (which arm breaks the matched budget) | new | exact_token |
+| hillclimb_judgment (accept, or the first failing check, under the frozen rule) | new, labels from `acceptance.decide` | exact_token |
 | lean_tactic | unavailable: DataGoblin `rlt_lean_rank` needs torch and a Lean-checked pool | - |
 
 ## Tinker capabilities (installed SDK 0.40.1, static inspection)
@@ -62,6 +66,9 @@ From the repository root, CPU only:
     python -m research_gym.ink_fp_audit_02.preflight --out runs/ink02/preflight.json
     python -m research_gym.ink_fp_audit_02.campaign --out runs/ink02
     python -m research_gym.ink_fp_audit_02.bpd_proxy --out runs/ink02/bpd.json --seeds 20
+    python -m research_gym.ink_fp_audit_02.hillclimb --out runs/ink02/hillclimb --climbs 6 --steps 24
+    (cd ../DataGoblin && PYTHONPATH=. python ../LoopedTransformers/research_gym/ink_fp_audit_02/metta_driver.py --out ../LoopedTransformers/runs/ink02/metta --verify-against-run-gym --proposer seeded_random --climbs 8 --steps 16)
+    python -m research_gym.ink_fp_audit_02.traces --out runs/ink02/traces --campaign runs/ink02 --hillclimb runs/ink02/hillclimb --metta runs/ink02/metta
 
 Remote stages need `TINKER_API_KEY` in the process environment and an explicit flag:
 
