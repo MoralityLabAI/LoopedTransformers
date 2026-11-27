@@ -5,12 +5,14 @@ import argparse
 from dataclasses import asdict
 import hashlib
 import json
+import resource
 from pathlib import Path
 
 import torch
 
 from research_gym.interp.aux_gym_v2 import digest_file, dump
-from research_gym.interp.aux_gym_v2_native_bpd import BPD_REVISION, import_bpd, weight_digest
+from research_gym.interp.aux_gym_v2_native_bpd import weight_digest
+from research_gym.interp.molt_bpd_source import BPD_REVISION, load_verified
 from research_gym.interp.molt_typed_clock import (
     SITE, TypedClockDecoder, bank_digest, competent, evaluate, make_worlds, primitive_exact,
 )
@@ -67,12 +69,13 @@ def fit(args):
     base = {"schema": "molt12-clock-native-bpd-v1", "arm": ARM, "seed": SEED,
             "checkpoint_sha256": row["checkpoint_sha256"], "bpd_revision": BPD_REVISION,
             "site": SITE, "competence_gate_passed": passed,
+            "bpd_source_receipt_sha256": digest_file(args.bpd_source_receipt),
             "promotion_authorized": False, "confirmation_ready": False}
     if not passed:
         dump(args.out / "receipt.json", {**base, "status": "competence_gate_failed"})
         print(json.dumps({**base, "status": "competence_gate_failed"}, sort_keys=True))
         return
-    bpd = import_bpd(args.bpd_checkout)
+    bpd = load_verified(args.bpd_checkout, args.bpd_source_receipt)
     torch.manual_seed(SEED + 9000)
     # Use prefixes of fixed TRAIN sequences. No new labels enter factor fitting.
     tokens = torch.tensor([w[:5] for w in train])
@@ -120,7 +123,8 @@ def fit(args):
            "relative_weight_residual": residual, "warmup_faith_loss": warm,
            "tolerances": tolerances, "history": history, "validation_teacher_reconstruction": evaluation,
            "bpd_config": asdict(cfg), "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-           "factor_quality_established": False}
+           "factor_quality_established": False,
+           "peak_rss_bytes": int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) * 1024}
     dump(args.out / "receipt.json", out)
     print(json.dumps({k: out[k] for k in ("status", "competence_gate_passed", "components", "steps",
                                          "clean_parity_max_abs", "post_fit_clean_parity_max_abs",
@@ -130,7 +134,7 @@ def fit(args):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    for name in ("clock", "bpd-checkout", "out"):
+    for name in ("clock", "bpd-checkout", "bpd-source-receipt", "out"):
         p.add_argument("--" + name, type=Path, required=True)
     args = p.parse_args()
     torch.set_num_threads(1)
