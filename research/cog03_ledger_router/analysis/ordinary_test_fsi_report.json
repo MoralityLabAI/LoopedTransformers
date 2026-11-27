@@ -1,0 +1,59 @@
+{
+  "accuracy_intervals": null,
+  "alpha": 0.05,
+  "baseline_accuracy": 1.0,
+  "baseline_correct": 128,
+  "baseline_only": 0,
+  "candidate_accuracy": 1.0,
+  "candidate_correct": 128,
+  "candidate_only": 0,
+  "case_effect_exact": "0",
+  "case_weighted_effect": 0.0,
+  "cluster_bootstrap_interval": [
+    0.0,
+    0.0
+  ],
+  "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+  "cluster_bootstrap_resamples": 4096,
+  "cluster_effect_exact": "0",
+  "cluster_macro_effect": 0.0,
+  "clusters_independent": true,
+  "discordant": 0,
+  "evaluation_mode": "sampled",
+  "exchangeable_pair_labels": true,
+  "experiment_id": "COG-03-ordinary_test",
+  "familywise_alpha": 0.0125,
+  "gate_reasons": [
+    "readout_used_in_selection_or_unsealed",
+    "adjusted_test_not_significant",
+    "cluster_interval_crosses_effect_floor",
+    "nonasymptotic_effect_floor_bound_not_met"
+  ],
+  "hoeffding_one_sided_effect_bounds": [
+    -0.37005179682519956,
+    0.37005179682519956
+  ],
+  "hypothesis_preregistered": true,
+  "input_filenames": [
+    "ordinary_test_paired.jsonl",
+    "ordinary_test_fsi_registration.json"
+  ],
+  "min_independent_clusters": 20,
+  "minimum_effect": 0.1,
+  "n_cases": 128,
+  "n_clusters": 64,
+  "outcomes_sha256": "c7b253a3b45689ed19db554a8626c083059e113af66b7679a50ad1e9d6576f72",
+  "p_bonferroni": 1.0,
+  "p_exact_fraction": null,
+  "p_unadjusted": 1.0,
+  "planned_comparisons": 4,
+  "registration_sha256": "3eb84d33d1bb0d2cb113fada3092282f1f10bf3b9f5affbb6f907b7b6b9b13af",
+  "resample_seed": 20261117,
+  "schema_version": 1,
+  "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+  "sealed_readout": false,
+  "target_population": "public development Horn proof roots, ordinary_test; paired training seeds within roots",
+  "test": "monte_carlo_cluster_sign_flip",
+  "ties": 128,
+  "verdict": "inconclusive"
+}
