@@ -1,0 +1,189 @@
+{
+  "evidence": "development; selected aggregate transcription; full roots and all 90 aggregates in downloadable bundle",
+  "worlds": 36,
+  "conditions": 72,
+  "runs": 360,
+  "audit": {
+    "status": "PASS",
+    "weight_bound_replays": 6120,
+    "exact_weight_enclosures": 4760,
+    "intervals": 2880,
+    "exact_interval_enclosures": 2240,
+    "conditions_with_exact_reference": 56,
+    "max_frontier_states": 2048,
+    "fixture_checks": 1080,
+    "exhaustive_states": 98304,
+    "exhaustive_partition_and_event_crosschecks": 216
+  },
+  "engineering_replay": {
+    "fork_measurement_confounded": true,
+    "all_360_nontiming_results_identical": true
+  },
+  "source_sha256": {
+    "pilot": "eb2de134f3cc6a9f252db7a218b742ccfb6ad3719940ad340763250c84343d4b",
+    "audit": "d544e0dfec048d26bf7b47ccd0d14a282a905ba74a286aa97e0a362d64d8fe02",
+    "exhaustive": "663f0765773b68eeb387780875207c52075ae8b3638fde8d9d0cce001f1326c7"
+  },
+  "receipt_sha256": "1e70606c527606654f9bf7dd00d3e90856b97b75ddc03f2003a74fb1b96ae529",
+  "structured_mb5": {
+    "exact_queries": 384,
+    "total_queries": 384,
+    "moderate_noise_covered": 170,
+    "moderate_noise_covered_correct": 170,
+    "high_noise_covered": 3,
+    "high_noise_covered_correct": 3,
+    "denominator_per_noise": 192
+  },
+  "d48_moderate_columns": [
+    "family",
+    "arm",
+    "mean_width_rounded",
+    "coverage",
+    "mean_seconds_rounded",
+    "mean_max_live_table_slots"
+  ],
+  "d48_moderate_rows": [
+    [
+      "block",
+      "independent",
+      1,
+      0,
+      0.007762,
+      0
+    ],
+    [
+      "block",
+      "component7",
+      0,
+      0.96875,
+      0.014346,
+      0
+    ],
+    [
+      "block",
+      "mb3",
+      1,
+      0,
+      0.099632,
+      944
+    ],
+    [
+      "block",
+      "mb5",
+      0,
+      0.96875,
+      0.089976,
+      938
+    ],
+    [
+      "block",
+      "mb7",
+      0,
+      0.96875,
+      0.094792,
+      938
+    ],
+    [
+      "chain",
+      "independent",
+      1,
+      0,
+      0.007613,
+      0
+    ],
+    [
+      "chain",
+      "component7",
+      1,
+      0,
+      0.014607,
+      0
+    ],
+    [
+      "chain",
+      "mb3",
+      0.237002,
+      0.65625,
+      0.094394,
+      899.5
+    ],
+    [
+      "chain",
+      "mb5",
+      0,
+      0.875,
+      0.107231,
+      899.5
+    ],
+    [
+      "chain",
+      "mb7",
+      0,
+      0.875,
+      0.108243,
+      899.5
+    ],
+    [
+      "dense",
+      "independent",
+      1,
+      0,
+      0.01144,
+      0
+    ],
+    [
+      "dense",
+      "component7",
+      1,
+      0,
+      0.023413,
+      0
+    ],
+    [
+      "dense",
+      "mb3",
+      1,
+      0,
+      0.321136,
+      2511
+    ],
+    [
+      "dense",
+      "mb5",
+      1,
+      0,
+      0.405259,
+      2551
+    ],
+    [
+      "dense",
+      "mb7",
+      1,
+      0,
+      0.762196,
+      4039
+    ]
+  ],
+  "d48_process_rss_kib": {
+    "independent": [
+      81676,
+      81932
+    ],
+    "component7": [
+      81676,
+      81676
+    ],
+    "mb3": [
+      82444,
+      83852
+    ],
+    "mb5": [
+      82444,
+      83980
+    ],
+    "mb7": [
+      82444,
+      84236
+    ]
+  }
+}
