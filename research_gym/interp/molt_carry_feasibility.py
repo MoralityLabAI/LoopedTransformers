@@ -182,7 +182,7 @@ def load_controllers(args, model, native, checkpoint, factors):
 
 
 @torch.no_grad()
-def evaluate(model, records, bases, controllers, mean, scale):
+def evaluate(model, records, bases, controllers, mean, scale, *, export_witnesses=False):
     h, raw, target, radius = tensors(records)
     x = (features(model, h, raw, target, radius) - mean) / scale
     learned = {name: net(x, raw, radius, bases[name]) for name, net in controllers.items()}
@@ -235,6 +235,16 @@ def evaluate(model, records, bases, controllers, mean, scale):
                          "necessary": nr, "sufficient": sr, "status": status,
                          "chosen": selected, "outcomes": outcomes, "warm_solver": work,
                          "candidate_seconds": candidate_seconds})
+            if export_witnesses:
+                # Retain the original binary64 inputs, not rounded summaries.
+                # Exact verification reconstructs Qc and the physical norm.
+                rows[-1]["witness_inputs"] = {
+                    "h": [float(a).hex() for a in h[i]],
+                    "radius": r.hex(), "raw": [float(a).hex() for a in raw[i]],
+                    "winner": winner,
+                    "dual": [float(a).hex() for a in nr["dual_lambda"]],
+                    "coeff": [float(a).hex() for a in q.T @ candidates[selected]],
+                }
     return rows
 
 
