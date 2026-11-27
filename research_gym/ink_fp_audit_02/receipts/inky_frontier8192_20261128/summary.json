@@ -1,0 +1,83 @@
+{
+  "run": {
+    "sent": 48,
+    "stopped": "complete",
+    "resources": {
+      "peak_process_tree_rss_bytes": 37040128,
+      "min_available_bytes": 11357450240,
+      "cpu_seconds": 3.015625,
+      "wall_seconds": 1961.5309999999881,
+      "gpu_allocation_bytes": 0,
+      "cuda_visible_devices": "-1",
+      "api_requests": 0,
+      "remote_sample_tokens": 0,
+      "remote_train_tokens": 0,
+      "governor_transitions": []
+    }
+  },
+  "by_family_effort": {
+    "dyck": {
+      "low": {
+        "n": 8,
+        "correct": 8,
+        "completed": 8,
+        "repetition": 0,
+        "completion_tokens": 4821
+      },
+      "medium": {
+        "n": 8,
+        "correct": 8,
+        "completed": 8,
+        "repetition": 0,
+        "completion_tokens": 11230
+      },
+      "high": {
+        "n": 8,
+        "correct": 7,
+        "completed": 7,
+        "repetition": 0,
+        "completion_tokens": 20325
+      }
+    },
+    "storyworld": {
+      "low": {
+        "n": 8,
+        "correct": 4,
+        "completed": 4,
+        "repetition": 0,
+        "completion_tokens": 42640
+      },
+      "medium": {
+        "n": 8,
+        "correct": 2,
+        "completed": 2,
+        "repetition": 0,
+        "completion_tokens": 57625
+      },
+      "high": {
+        "n": 8,
+        "correct": 1,
+        "completed": 1,
+        "repetition": 0,
+        "completion_tokens": 62214
+      }
+    }
+  },
+  "paired_tasks": 16,
+  "rescued_high_over_low": 0,
+  "lost_high_vs_low": 4,
+  "totals": {
+    "low": {
+      "correct": 12,
+      "n": 16
+    },
+    "medium": {
+      "correct": 10,
+      "n": 16
+    },
+    "high": {
+      "correct": 8,
+      "n": 16
+    }
+  }
+}

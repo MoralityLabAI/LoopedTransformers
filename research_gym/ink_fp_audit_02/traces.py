@@ -242,6 +242,44 @@ def from_curation_decisions(path: Path, source: str = "bpd_trm_curate02") -> Ite
                    f"root{root}-w{window}-update" if o["window_accepted"] else f"root{root}-w{window}-before",
                    {"experiment": rows[0]["provenance"]["experiment"], "arm": rows[0]["provenance"]["arm"]})
 
+# ---- Inky's own hill-climb judgments (inky_eval records on hillclimb_judgment tasks) ------------
+def from_inky_judgments(records: Path, tasks: Path, source: str = "inky_hillclimb_judgment") -> Iterator[dict]:
+    """Rule verdict (from the task certificate) vs Inky's verdict, with Inky's visible text kept
+    under `model_text` (model-generated, never merged into `logic`)."""
+    cert = {}
+    for t in iter_jsonl(tasks):
+        if t["family"] == "hillclimb_judgment":
+            cert[t["task_id"]] = t
+    i = 0
+    for r in iter_jsonl(records):
+        t = cert.get(r["task_id"])
+        if t is None:
+            continue
+        c = t["certificate"]
+        checks = dict(c["checks"])
+        failing = [k for k in CHECK_ORDER if not checks[k]]
+        logic = [f"primary gain {c['primary_gain']:+d} (needs >= 1): {'pass' if checks['primary_gain_ok'] else 'fail'}"]
+        for fam in sorted(c["family_losses"]):
+            if c["family_losses"][fam] > 0:
+                ok = c["family_losses"][fam] <= c["family_limits"][fam]
+                logic.append(f"family {fam}: lost {c['family_losses'][fam]} vs limit {c['family_limits'][fam]}: "
+                             f"{'pass' if ok else 'fail'}")
+        logic.append(f"repetition check: {'pass' if checks['repetition_ok'] else 'fail'}")
+        logic.append(f"completion check: {'pass' if checks['completion_ok'] else 'fail'}")
+        logic.append(f"rule answer: {t['answer']}")
+        inky = r.get("parsed_answer")
+        yield step(source, "native_remote_observation", r["effort"], i,
+                   {"id": "incumbent", "metrics": {}}, {"id": r["task_id"], "change": {"task": r["task_id"]}},
+                   {"metrics": {"inky_answer": inky, "inky_correct": r["correct"], "completed": r["completed"],
+                                "completion_tokens": (r.get("usage") or {}).get("completion_tokens")}},
+                   {"rule": "INK-FP-AUDIT-02 frozen acceptance v1"}, checks, logic,
+                   "accept" if not failing else "reject",
+                   None if inky is None else ("accept" if str(inky).strip().upper() == "ACCEPT" else "reject"),
+                   None, {"inky_label_correct": r["correct"], "rule_label": t["answer"], "effort": r["effort"],
+                          "model_text": r.get("final_text", "")[-1500:], "model_text_is_model_generated": True})
+        i += 1
+
+
 # ---- export ----------------------------------------------------------------------------------
 def to_research_row(s: dict) -> dict:
     """Aleph `research` presentation: predict and justify the verdict from the evidence."""
@@ -284,7 +322,8 @@ def export_research(trace_paths: list[Path], out: Path) -> dict:
 
 
 def collect(out: Path, campaign: Path | None = None, hillclimb: Path | None = None,
-            metta: list[Path] | None = None, curation: list[Path] | None = None, extra_ledgers: list[tuple[Path, str, str]] = ()) -> dict:
+            metta: list[Path] | None = None, curation: list[Path] | None = None,
+            inky_judgments: list[tuple[Path, Path]] | None = None, extra_ledgers: list[tuple[Path, str, str]] = ()) -> dict:
     """Write one trace file per source and the combined research export."""
     out.mkdir(parents=True, exist_ok=True)
     fixture = Path(__file__).with_name("fixtures") / "upstream_gspo_gate_765453d.json"
@@ -308,6 +347,10 @@ def collect(out: Path, campaign: Path | None = None, hillclimb: Path | None = No
             p = out / f"{tag}.jsonl"
             summary[tag] = write(from_metta_steps(mp, "datagoblin_metta_ram", tag), p)
             paths.append(p)
+    for rec_path, task_path in inky_judgments or []:
+        p = out / f"inky_judgments_{Path(rec_path).parent.name}.jsonl"
+        summary[p.stem] = write(from_inky_judgments(Path(rec_path), Path(task_path)), p)
+        paths.append(p)
     for cp in curation or []:
         p = out / f"curation_{Path(cp).parent.parent.parent.name}.jsonl"
         summary[p.stem] = write(from_curation_decisions(Path(cp)), p)
@@ -333,8 +376,11 @@ def main():
     ap.add_argument("--hillclimb", type=Path)
     ap.add_argument("--metta", type=Path, nargs="*")
     ap.add_argument("--curation", type=Path, nargs="*", help="datagoblin.trm_curation_decision.v1 JSONL files")
+    ap.add_argument("--inky-records", type=Path, help="inky_eval records.jsonl")
+    ap.add_argument("--inky-tasks", type=Path, help="task receipts with hillclimb_judgment certificates")
     a = ap.parse_args()
-    print(json.dumps(collect(a.out, a.campaign, a.hillclimb, a.metta, a.curation), indent=1))
+    inky = [(a.inky_records, a.inky_tasks)] if a.inky_records and a.inky_tasks else None
+    print(json.dumps(collect(a.out, a.campaign, a.hillclimb, a.metta, a.curation, inky), indent=1))
 
 
 if __name__ == "__main__":

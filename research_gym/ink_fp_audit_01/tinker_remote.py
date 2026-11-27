@@ -54,7 +54,9 @@ def plan(n_roots=2, max_tokens=512, efforts=EFFORTS):
 
 
 def request_payload(prompt, effort, max_tokens):
-    if effort not in EFFORTS or not 1 <= max_tokens <= 2048:
+    # 8192 keeps prompt + generation under the 16,384-token ceiling for every registered task;
+    # plan() still limits the smoke pilot to 2048.
+    if effort not in EFFORTS or not 1 <= max_tokens <= 8192:
         raise ValueError("unregistered effort or completion cap")
     return {"model": MODEL, "messages": [{"role": "user", "content": prompt}],
             "reasoning_effort": effort, "max_completion_tokens": max_tokens,

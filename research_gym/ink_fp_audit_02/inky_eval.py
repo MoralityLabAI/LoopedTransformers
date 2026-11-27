@@ -71,6 +71,9 @@ def run(tasks: list[Task], out: Path, efforts=EFFORTS, max_tokens: int = 512, de
 
 
 def summarize(recs: Path) -> dict:
+    if not Path(recs).exists():
+        return {"by_family_effort": {}, "paired_tasks": 0, "rescued_high_over_low": 0, "lost_high_vs_low": 0,
+                "totals": {e: {"correct": 0, "n": 0} for e in EFFORTS}}
     by: dict = {}
     for r in iter_jsonl(recs):
         k = (r["family"], r["effort"])

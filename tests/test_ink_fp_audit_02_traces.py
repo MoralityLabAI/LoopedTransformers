@@ -160,3 +160,23 @@ class CurationTraceTests(unittest.TestCase):
             self.assertAlmostEqual(steps[0]["evaluation"]["metrics"]["regret_per_slot"], 0.2)
             self.assertFalse(steps[0]["discrepancy"])
             self.assertTrue(steps[1]["discrepancy"])  # recorded accept, rule says reject
+
+
+class InkyJudgmentTraceTests(unittest.TestCase):
+    def test_rule_vs_inky_kept_separate(self):
+        ts = list(curriculum.generate("hillclimb_judgment", "dev", 3))
+        with tempfile.TemporaryDirectory() as tmp:
+            tp, rp = Path(tmp) / "t.jsonl", Path(tmp) / "r.jsonl"
+            tp.write_text("".join(json.dumps({**t.receipt(), "prompt": t.prompt}) + "\n" for t in ts), encoding="utf-8")
+            recs = [{"task_id": t.task_id, "effort": "low", "parsed_answer": "ACCEPT", "correct": t.answer == "ACCEPT",
+                     "completed": True, "usage": {"completion_tokens": 5}, "final_text": "MODEL WORDS\nANSWER: ACCEPT"}
+                    for t in ts]
+            rp.write_text("".join(json.dumps(r) + "\n" for r in recs), encoding="utf-8")
+            steps = list(traces.from_inky_judgments(rp, tp))
+            self.assertEqual(len(steps), 3)
+            for s, t in zip(steps, ts):
+                self.assertEqual(s["decision_by_rule"], "accept" if t.answer == "ACCEPT" else "reject")
+                self.assertEqual(s["decision_recorded"], "accept")
+                self.assertEqual(s["discrepancy"], t.answer != "ACCEPT")
+                self.assertFalse(any("MODEL WORDS" in ln for ln in s["logic"]))
+                self.assertTrue(s["model_text_is_model_generated"])

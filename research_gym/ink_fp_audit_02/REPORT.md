@@ -253,3 +253,41 @@ These are development records from one arm (`D_mech_grad`), not a controlled com
 **New gym family `hillclimb_judgment`** (12th family). The prompt is a paired incumbent/candidate table plus the frozen four-check rule. The answer is `ACCEPT` or `REJECT <first failing check>`, computed by `acceptance.decide` and stored as a certificate. 60 dev tasks cover all five labels (23 ACCEPT, 37 split across the four rejects).
 
 **For Inky.** Once the key is present, Inky can (a) answer `hillclimb_judgment` tasks and the 1,440 trace verdicts, and (b) act as the MeTTa proposer directly with `metta_driver.py --proposer inky` (`inky_proposer.py`: one free-tier request per turn, invalid replies recorded and never retried; tested with fake transports only). Seeded-random and coordinate-sweep climbs serve as the matched controls.
+
+## 10. Live Inky results (2026-11-28; native_remote_observation, development only)
+
+The key came from the user's local file and was loaded only into process environments; it is in no receipt (scanned). The free model id `thinkingmachines/Inkling-2-Mini:peft:65536:free` was used for every request. Paid spend: 0.
+
+**Route qualification**
+* OpenAI-compatible route: the first two Stage A attempts got HTTP 403 (`stage_a_smoke_attempt1_http403`, `attempt2`). A single diagnostic request with a generic client User-Agent returned 200 (`stage_a_oai_diagnosis_20261128.json`): the endpoint rejects Python's default urllib User-Agent. The audit-01 runner now sends `ink-fp-audit/0.2 (python)`.
+* **Stage A passed: 6/6 correct, completed and non-repeating at low, medium and high effort** (`campaign_20261128/stage_a_smoke/`).
+* Native SDK route: the credential is accepted; 41 models are listed, including the free id; the sampling client opens. But Thinking Machines models refuse `get_tokenizer`, and the installed `tml-renderers` 0.0.1 is an empty placeholder (`stage_a_native_20261128/receipt.json`). Native sampling with token ids and logprobs, LoRA training and checkpointing (Stage B) are therefore blocked until the real `tml-renderers` package is available. Installing it is a download that needs the user's approval.
+
+**Frozen-base dev evaluation** (`inky_base_dev_20261128/`): 96 dev tasks (12 families × 8) × 3 efforts = 288 requests, 2,048-token cap, temperature 0, 311k total tokens. Interrupted once by the DRAM emergency floor after 198 records (other workloads took memory); resumed after 6 GiB had been free for 60 s.
+
+| effort | correct | completed |
+|---|---:|---:|
+| low | 89/96 | 89/96 |
+| medium | 87/96 | 87/96 |
+| high | 84/96 | 84/96 |
+
+* 10 of 12 families are at 8/8 for every effort, including `hillclimb_judgment`, bpd_nullspace, experiment_design and recurrent_stopping. These families are saturated for this model and give no training signal.
+* **All 27 failures are truncations (`finish_reason: length`). There is no wrong final answer anywhere in the 288 records.** Reasoning tokens count toward the completion budget, and higher effort spends more (Dyck: 602 → 1,099 → 1,640 mean tokens), so it truncates more.
+* **High effort rescued 0 low-effort failures and lost 5.** On these tasks the +0.35 rescue reward of arm D would never fire.
+* A 512-token pilot (`inky_base_dev_pilot512_20261128/`) showed the same mechanism earlier.
+
+**Frontier at 8,192 tokens** (`inky_frontier8192_20261128/`; storyworld and Dyck, 16 tasks × 3 efforts):
+
+| family | low | medium | high | mean completion tokens (low/med/high) |
+|---|---|---|---|---|
+| storyworld | 4/8 | 2/8 | 1/8 | 5,330 / 7,203 / 7,776 |
+| dyck | 8/8 | 8/8 | 7/8 | 602 / 1,403 / 2,540 |
+
+The larger budget raises storyworld from 1/8 to 4/8 at low effort and recovers Dyck at medium. Every remaining failure is again a truncation. The unreachable storyworld starts (correct answer NONE, which needs exhaustive search) are never completed within 8,192 tokens at any effort. Rescues: 0; losses: 4.
+
+**Inky as a hill-climb judge.** On 24 `hillclimb_judgment` requests (8 tasks × 3 efforts), Inky's verdict matched the frozen rule 24/24, across ACCEPT, REJECT completion and REJECT family_regression cases. These are traces in `traces_20261128/inky_judgments_inky_base_dev_20261128.jsonl`; Inky's text is kept under `model_text`, flagged as model-generated, and separate from the rule-derived `logic`. The trace set is now 1,464 steps.
+
+**Implications for the RSI arms (development evidence, eight roots per family, no statistics)**
+* The useful frontier for Inky is long-horizon planning under a token budget (storyworld), not the procedural families.
+* The effort-rescue signal is absent in these data: effort trades accuracy for tokens under a fixed cap. A cost-sensitive objective (arm G) matches what was observed better than a rescue bonus (arm D).
+* Before any training arm, the curriculum needs harder families or larger instances.
