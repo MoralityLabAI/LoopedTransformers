@@ -252,4 +252,4 @@ These are development records from one arm (`D_mech_grad`), not a controlled com
 
 **New gym family `hillclimb_judgment`** (12th family). The prompt is a paired incumbent/candidate table plus the frozen four-check rule. The answer is `ACCEPT` or `REJECT <first failing check>`, computed by `acceptance.decide` and stored as a certificate. 60 dev tasks cover all five labels (23 ACCEPT, 37 split across the four rejects).
 
-**For Inky.** Once the key is present, Inky can (a) answer `hillclimb_judgment` tasks and the 352 trace verdicts, and (b) act as the MeTTa proposer through `metta_driver.py --proposer file --queue <inky proposals>`. Seeded-random and coordinate-sweep climbs serve as the matched controls.
+**For Inky.** Once the key is present, Inky can (a) answer `hillclimb_judgment` tasks and the 1,440 trace verdicts, and (b) act as the MeTTa proposer directly with `metta_driver.py --proposer inky` (`inky_proposer.py`: one free-tier request per turn, invalid replies recorded and never retried; tested with fake transports only). Seeded-random and coordinate-sweep climbs serve as the matched controls.

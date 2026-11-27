@@ -23,7 +23,8 @@ BPD proxy for analytic adapter updates. Results and limitations are in [REPORT.m
 | `preflight.py`, `campaign.py` | stage gates and the resumable campaign driver |
 | `traces.py` | hill-climb research-logic traces (`ink02.hillclimb_trace.v1`) from acceptance ledgers, the upstream record, BPD and MeTTa climbs; Aleph `research` export |
 | `hillclimb.py` | traced hill climb over analytic update strategies on the synthetic BPD proxy |
-| `metta_driver.py` | adaptive proposer driver for DataGoblin `MeTTa/ram_hillclimb.py` (seeded-random, coordinate-sweep, file queue for Inky) |
+| `metta_driver.py` | adaptive proposer driver for DataGoblin `MeTTa/ram_hillclimb.py` (seeded-random, coordinate-sweep, file queue, `inky`); `--wide-grammar` extends the grammar in memory within the student's bounds |
+| `inky_proposer.py` | Inky as the MeTTa edit proposer: prompt from grammar, configs and history; one free-tier request per turn via the audit-01 runner; invalid replies recorded, never retried |
 
 ## Task families
 
@@ -68,6 +69,7 @@ From the repository root, CPU only:
     python -m research_gym.ink_fp_audit_02.bpd_proxy --out runs/ink02/bpd.json --seeds 20
     python -m research_gym.ink_fp_audit_02.hillclimb --out runs/ink02/hillclimb --climbs 6 --steps 24
     (cd ../DataGoblin && PYTHONPATH=. python ../LoopedTransformers/research_gym/ink_fp_audit_02/metta_driver.py --out ../LoopedTransformers/runs/ink02/metta --verify-against-run-gym --proposer seeded_random --climbs 8 --steps 16)
+    (cd ../DataGoblin && PYTHONPATH=. python ../LoopedTransformers/research_gym/ink_fp_audit_02/metta_driver.py --out ../LoopedTransformers/runs/ink02/metta_inky --proposer inky --climbs 8 --steps 16)   # needs TINKER_API_KEY
     python -m research_gym.ink_fp_audit_02.traces --out runs/ink02/traces --campaign runs/ink02 --hillclimb runs/ink02/hillclimb --metta runs/ink02/metta
 
 Remote stages need `TINKER_API_KEY` in the process environment and an explicit flag:

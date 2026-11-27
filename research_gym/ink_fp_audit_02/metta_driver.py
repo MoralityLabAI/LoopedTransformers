@@ -106,6 +106,15 @@ class FileQueue:
         return {k: v for k, v in self.rows.pop(0).items() if k in ("arm", "field", "value")} if self.rows else None
 
 
+def load_inky():
+    """Make LoopedTransformers importable (appended after DataGoblin) and return InkyProposer."""
+    root = Path(__file__).resolve().parents[2]
+    if str(root) not in sys.path:
+        sys.path.append(str(root))
+    from research_gym.ink_fp_audit_02.inky_proposer import InkyProposer
+    return InkyProposer
+
+
 def climb(rh, proposer, steps: int, seed: int, train_roots: int, dev_roots: int, ram_limit_mib: int) -> list[dict]:
     bundle = rh.make_bundle(train_roots, dev_roots)
     current = {a: dict(rh.DEFAULTS[a]) for a in rh.ARMS}
@@ -118,7 +127,7 @@ def climb(rh, proposer, steps: int, seed: int, train_roots: int, dev_roots: int,
             break
         arm = p["arm"]
         tried.add((arm, (p["field"], p["value"]), json.dumps(current[arm], sort_keys=True)))
-        p = {**p, "source": proposer.name, "model_id": "none"}
+        p = {**p, "source": proposer.name, "model_id": "inkling-2-mini-free" if proposer.name == "inky" else "none"}
         updated = rh.validate_proposal(p, current)
         t0 = time.monotonic()
         _, cand = rh.fit_candidate(arm, updated, bundle["train"], bundle["dev"], seed=seed, ram_limit_mib=ram_limit_mib)
@@ -160,7 +169,7 @@ def FileQueue_from(rows):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--proposer", choices=["seeded_random", "coordinate_sweep", "file"], default="seeded_random")
+    ap.add_argument("--proposer", choices=["seeded_random", "coordinate_sweep", "file", "inky"], default="seeded_random")
     ap.add_argument("--queue", type=Path)
     ap.add_argument("--climbs", type=int, default=1)
     ap.add_argument("--steps", type=int, default=12)
@@ -183,7 +192,8 @@ def main():
         print(json.dumps(v))
     for c in range(a.climbs):
         prop = (SeededRandom(a.seed + c) if a.proposer == "seeded_random" else
-                CoordinateSweep(a.seed + c) if a.proposer == "coordinate_sweep" else FileQueue(a.queue))
+                CoordinateSweep(a.seed + c) if a.proposer == "coordinate_sweep" else
+                load_inky()() if a.proposer == "inky" else FileQueue(a.queue))
         hist = climb(rh, prop, a.steps, a.seed, a.train_roots, a.dev_roots, a.ram_limit_mib)
         path = a.out / f"metta_{a.proposer}_c{c}.jsonl"
         path.write_text("".join(json.dumps(h, sort_keys=True) + "\n" for h in hist), encoding="utf-8", newline="\n")
