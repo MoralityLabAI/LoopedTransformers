@@ -1,0 +1,49 @@
+{
+  "schema": "lean-setmm-port-v1",
+  "source_commit": "c25fe023b40eb4a802f4bb733f777d6d68067c88",
+  "setmm_commit": "806509385370b29fe8b1723804777ac21b1ce194",
+  "ports": [
+    {
+      "metamath_label": "ml-lt-af15-union",
+      "source": "experiments/activation_funnel_af15/RuleSoundness.lean",
+      "source_blob": "31981aeced0d38eb38e2185eaf939898b3cc1ed8",
+      "lean_declaration": "af15_sound_union",
+      "scope": "Boolean-to-proposition translation",
+      "mapping": "ph, ps, ch express old=true, fresh=true, reachable=true; Boolean OR is disjunction.",
+      "hypotheses": [
+        "|- ( ph -> ch )",
+        "|- ( ps -> ch )",
+        "|- ( ph \\/ ps )"
+      ],
+      "statement": "|- ch",
+      "proof_steps": 12
+    },
+    {
+      "metamath_label": "ml-lt-af15-persists",
+      "source": "experiments/activation_funnel_af15/RuleSoundness.lean",
+      "source_blob": "31981aeced0d38eb38e2185eaf939898b3cc1ed8",
+      "lean_declaration": "af15_fact_persists",
+      "scope": "Boolean-to-proposition translation",
+      "mapping": "ph and ps express old=true and fired=true.",
+      "hypotheses": [
+        "|- ph"
+      ],
+      "statement": "|- ( ph \\/ ps )",
+      "proof_steps": 4
+    },
+    {
+      "metamath_label": "ml-lt-af15-guard",
+      "source": "experiments/activation_funnel_af15/RuleSoundness.lean",
+      "source_blob": "31981aeced0d38eb38e2185eaf939898b3cc1ed8",
+      "lean_declaration": "af15_no_unsupported_fire",
+      "scope": "Boolean-to-proposition translation",
+      "mapping": "ph, ps, ch express known=true, enabled=true and closed=true.",
+      "hypotheses": [
+        "|- ( ph -> ch )",
+        "|- ( ps -> ch )"
+      ],
+      "statement": "|- ( ( ph \\/ ps ) -> ch )",
+      "proof_steps": 6
+    }
+  ]
+}
