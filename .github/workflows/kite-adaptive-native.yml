@@ -1,0 +1,89 @@
+name: KITE adaptive native multiplayer
+on:
+  pull_request:
+    paths:
+      - 'research_gym/benchmarks/kite01/cross_game/joint03*.mjs'
+      - 'research_gym/benchmarks/kite01/cross_game/native_adaptive*.mjs'
+      - 'research_gym/benchmarks/kite01/cross_game/oracle_diplomacy.py'
+      - 'research_gym/benchmarks/kite01/cross_game/test_native_adaptive.mjs'
+      - 'research_gym/benchmarks/kite01/cross_game/export_theysing.cjs'
+      - '.github/workflows/kite-adaptive-native.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: kite-adaptive-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Replay synthetic and mock native core
+        working-directory: research_gym/benchmarks/kite01/cross_game
+        run: |
+          node test_native_adaptive.mjs
+          node run_joint03.mjs /tmp/joint03-replay.json
+          node --input-type=module -e "import fs from 'node:fs'; import assert from 'node:assert/strict'; const r=JSON.parse(fs.readFileSync('/tmp/joint03-replay.json')); const s=JSON.parse(fs.readFileSync('joint03_summary.json')); delete r.rows; assert.deepEqual(r,s);"
+  diplomacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: looped
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/AI_Diplomacy
+          ref: 0bdf7428d1b273da30ea4b7b916efb3a08fc5ebc
+          path: diplomacy-native
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Native engine dependencies
+        run: python -m pip install coloredlogs bcrypt tornado pytz python-dateutil ujson tqdm
+      - name: Search and verify native adaptive profiles
+        run: node looped/research_gym/benchmarks/kite01/cross_game/native_adaptive.mjs dip diplomacy-native dip-adaptive.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kite-adaptive-diplomacy
+          path: dip-adaptive.json
+  theysing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: looped
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/TheySing
+          ref: 0879110e12d66a584f89a8696a7292d5fa0dfb1c
+          path: theysing-native
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile native harness
+        working-directory: theysing-native
+        run: |
+          npm ci --ignore-scripts
+          npm run build:harness
+      - name: Search and verify native adaptive profiles
+        run: node looped/research_gym/benchmarks/kite01/cross_game/native_adaptive.mjs sing theysing-native/dist-harness/engine/TheySingEngine.js sing-adaptive.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kite-adaptive-theysing
+          path: sing-adaptive.json
