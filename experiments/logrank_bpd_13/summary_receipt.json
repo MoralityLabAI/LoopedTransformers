@@ -1,0 +1,292 @@
+{
+  "evidence": "development only; full root-level rows and raw receipts retained in experiment bundle",
+  "training_worlds": 12,
+  "small_worlds": 24,
+  "scale_worlds": 8,
+  "training_candidates": 28215,
+  "audit": {
+    "status": "PASS",
+    "trajectories": 448,
+    "budget_steps": 5669,
+    "exact_probabilities": 12288,
+    "exact_final_probabilities": 3072,
+    "bp_final_probabilities": 11264,
+    "same_trace_bp_probabilities": 4608,
+    "random_choices": 702,
+    "max_bp_probability_difference": 9.43689570931383e-16,
+    "max_exact_probability_difference": 4.440892098500626e-16
+  },
+  "gauge": {
+    "status": "PASS",
+    "transformations": 128,
+    "coordinate_equalities": 131540,
+    "no_singleton_raw_trajectories": 48,
+    "uniform_raw_trajectories": 58,
+    "raw_trajectories": 64
+  },
+  "sha256": {
+    "pilot": "3a9d51aa1870eb77ddbb6c3e39565abe8c8faff6081d032dc2828b49e820d5fd",
+    "protocol": "67a8657dd9b80e52a817bd648eee5a25c0e5cc018b7cb84051e6537f40ea47e4",
+    "bp": "be79b951f69246657ab6067cc5bd271341a48d4c30f7bbd771b3bd55c119c08d",
+    "model": "95dc1216baf45a878508fe4711c25a4a9512da1032ad4eef4cb3798b433d882a",
+    "receipt": "09a5fbcbf016ea19f0c34069d204ee1217271b5393429f94ee43ec8596c7d9cd",
+    "scale": "a78e89911f1cb8e14b679d6255bb92e8a6ee4d464f73f0cbdcb61bc62560da0c",
+    "audit_source": "2e534eb5f1f0eb67c2f49374b6d51caf89e3eee84fb0fa7a9f5465c71f03927e",
+    "gauge_source": "83f5ae6dc435926fa4d7e435f0acb05aae5d673e80c020cc12f6763b64004cc8",
+    "audit_receipt": "5cb30752266cec160c4f3536b150bbebebe1dcf95e1dde70877b7c024a03e471",
+    "gauge_receipt": "f810418d6e364ad3e052c39a5b9d4e0b452d4168a13810757ac1f8d900b99a2a",
+    "full_root_summary": "67f23ad5507001a19749580340b4ab7a11bfd701ae25528e9c846a268aeaa68b"
+  },
+  "columns": [
+    "group",
+    "noise",
+    "arm",
+    "brier",
+    "accuracy",
+    "coverage",
+    "mean_cost",
+    "confidence_stops"
+  ],
+  "rounded_groups": [
+    [
+      "small",
+      0.15,
+      "exact_fixed",
+      0.0004574,
+      1,
+      0.98263889,
+      24,
+      0
+    ],
+    [
+      "small",
+      0.15,
+      "exact_stop",
+      0.02987554,
+      0.96614583,
+      0.92013889,
+      6.79166667,
+      24
+    ],
+    [
+      "small",
+      0.15,
+      "induced_bp",
+      0.01884859,
+      0.98611111,
+      0.93663194,
+      7.25,
+      24
+    ],
+    [
+      "small",
+      0.15,
+      "induced_fixed",
+      0.01748568,
+      0.96744792,
+      0.93402778,
+      24,
+      0
+    ],
+    [
+      "small",
+      0.15,
+      "learned_induced",
+      0.02151651,
+      0.97916667,
+      0.93836806,
+      7.5,
+      24
+    ],
+    [
+      "small",
+      0.15,
+      "planted_bp",
+      0.01858257,
+      0.97786458,
+      0.91666667,
+      7.58333333,
+      24
+    ],
+    [
+      "small",
+      0.15,
+      "random_induced",
+      0.07486335,
+      0.90494792,
+      0.80208333,
+      17.79166667,
+      15
+    ],
+    [
+      "small",
+      0.15,
+      "raw_bp",
+      0.2395398,
+      0.53515625,
+      0.04166667,
+      24,
+      0
+    ],
+    [
+      "small",
+      0.35,
+      "exact_fixed",
+      0.21438819,
+      0.60850694,
+      0.0234375,
+      23.95833333,
+      0
+    ],
+    [
+      "small",
+      0.35,
+      "exact_stop",
+      0.21438819,
+      0.60850694,
+      0.0234375,
+      23.95833333,
+      0
+    ],
+    [
+      "small",
+      0.35,
+      "induced_bp",
+      0.24115318,
+      0.53472222,
+      0.0859375,
+      24,
+      0
+    ],
+    [
+      "small",
+      0.35,
+      "induced_fixed",
+      0.24115318,
+      0.53472222,
+      0.0859375,
+      24,
+      0
+    ],
+    [
+      "small",
+      0.35,
+      "learned_induced",
+      0.23662833,
+      0.55425347,
+      0.01953125,
+      23.75,
+      0
+    ],
+    [
+      "small",
+      0.35,
+      "planted_bp",
+      0.23529175,
+      0.55729167,
+      0.05078125,
+      24,
+      0
+    ],
+    [
+      "small",
+      0.35,
+      "random_induced",
+      0.23936766,
+      0.53428819,
+      0,
+      24,
+      0
+    ],
+    [
+      "small",
+      0.35,
+      "raw_bp",
+      0.24989645,
+      0.51822917,
+      0,
+      24,
+      0
+    ],
+    [
+      "scale",
+      0.15,
+      "induced_bp",
+      0.18993375,
+      0.76171875,
+      0.82291667,
+      11,
+      7
+    ],
+    [
+      "scale",
+      0.15,
+      "planted_bp",
+      0.11916343,
+      0.83203125,
+      0.76041667,
+      12.125,
+      6
+    ],
+    [
+      "scale",
+      0.15,
+      "random_induced",
+      0.21615895,
+      0.68359375,
+      0.60546875,
+      18.875,
+      5
+    ],
+    [
+      "scale",
+      0.15,
+      "raw_bp",
+      0.25,
+      0.5390625,
+      0,
+      24,
+      0
+    ],
+    [
+      "scale",
+      0.35,
+      "induced_bp",
+      0.24999297,
+      0.47786458,
+      0,
+      24,
+      0
+    ],
+    [
+      "scale",
+      0.35,
+      "planted_bp",
+      0.24999976,
+      0.50130208,
+      0,
+      24,
+      0
+    ],
+    [
+      "scale",
+      0.35,
+      "random_induced",
+      0.25000647,
+      0.48828125,
+      0,
+      24,
+      0
+    ],
+    [
+      "scale",
+      0.35,
+      "raw_bp",
+      0.25,
+      0.5390625,
+      0,
+      24,
+      0
+    ]
+  ]
+}
