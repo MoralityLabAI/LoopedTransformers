@@ -59,8 +59,10 @@ def halfspaces(model, h, basis, radius, winner):
     z = h - h.mean()
     q = basis - basis.mean(dim=0, keepdim=True)
     u, s, _ = torch.linalg.svd(q, full_matrices=False)
-    active = u[:, s > 1e-12]
-    parallel = active @ (active.T @ z)
+    # Keep the complete thin left basis, even for rank-deficient charts.
+    # Its span contains range(CQ); dropping tiny singular directions could
+    # invalidate the lower envelope. A superset only loosens the bound.
+    parallel = u @ (u.T @ z)
     orthogonal = z - parallel
     # Any centered displacement has norm <= R*||C Q|| and lies in span C Q.
     reach = radius * float(s[0])
