@@ -44,6 +44,39 @@
       ],
       "statement": "|- ( ( ph \\/ ps ) -> ch )",
       "proof_steps": 6
+    },
+    {
+      "metamath_label": "ml-lt-successor-cost",
+      "source": "experiments/activation_funnel_af17/BellmanGap.lean",
+      "source_blob": "55019f2a9d828270043b5c02f25e8831ca09bca6",
+      "lean_declaration": "af17_exact_successor_cost",
+      "scope": "natural arithmetic translation",
+      "mapping": "A=d.",
+      "hypotheses": [
+        "|- A e. NN0"
+      ],
+      "statement": "|- ( 1 + A ) = ( A + 1 )",
+      "proof_steps": 16
+    },
+    {
+      "metamath_label": "ml-lt-bellman-gap",
+      "source": "experiments/activation_funnel_af17/BellmanGap.lean",
+      "source_blob": "55019f2a9d828270043b5c02f25e8831ca09bca6",
+      "lean_declaration": "af17_robust_bellman_gap",
+      "scope": "integer arithmetic translation",
+      "mapping": "A=qOptimal,B=qOther,C=trueOptimal,D=trueOther,E=eps. Integer memberships and all three inequalities retained.",
+      "hypotheses": [
+        "|- A e. ZZ",
+        "|- B e. ZZ",
+        "|- C e. ZZ",
+        "|- D e. ZZ",
+        "|- E e. ZZ",
+        "|- A <_ ( C + E )",
+        "|- ( D - E ) <_ B",
+        "|- ( C + ( 2 x. E ) ) < D"
+      ],
+      "statement": "|- A < B",
+      "proof_steps": 242
     }
   ]
 }
