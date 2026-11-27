@@ -45,7 +45,7 @@ def parse_edit(text: str) -> dict:
 class InkyProposer:
     name = "inky"
 
-    def __init__(self, effort: str = "medium", max_tokens: int = 512, transport=None, key: str | None = None):
+    def __init__(self, effort: str = "medium", max_tokens: int = 2048, transport=None, key: str | None = None):
         from research_gym.ink_fp_audit_01 import tinker_remote as r01
         self.r01, self.effort, self.max_tokens = r01, effort, max_tokens
         self.transport = transport or r01.sample

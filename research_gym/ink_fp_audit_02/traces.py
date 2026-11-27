@@ -343,7 +343,8 @@ def collect(out: Path, campaign: Path | None = None, hillclimb: Path | None = No
             paths.append(p)
     for mdir in metta or []:
         for mp in sorted(Path(mdir).rglob("metta_*_c*.jsonl")):
-            tag = mp.stem if mp.parent == Path(mdir) else f"{mp.parent.name}_{mp.stem}"
+            # Source directory always prefixes the tag: identical climb names recur across runs.
+            tag = Path(mdir).name + "__" + "_".join(mp.relative_to(mdir).with_suffix("").parts)
             p = out / f"{tag}.jsonl"
             summary[tag] = write(from_metta_steps(mp, "datagoblin_metta_ram", tag), p)
             paths.append(p)

@@ -285,9 +285,25 @@ The key came from the user's local file and was loaded only into process environ
 
 The larger budget raises storyworld from 1/8 to 4/8 at low effort and recovers Dyck at medium. Every remaining failure is again a truncation. The unreachable storyworld starts (correct answer NONE, which needs exhaustive search) are never completed within 8,192 tokens at any effort. Rescues: 0; losses: 4.
 
-**Inky as a hill-climb judge.** On 24 `hillclimb_judgment` requests (8 tasks × 3 efforts), Inky's verdict matched the frozen rule 24/24, across ACCEPT, REJECT completion and REJECT family_regression cases. These are traces in `traces_20261128/inky_judgments_inky_base_dev_20261128.jsonl`; Inky's text is kept under `model_text`, flagged as model-generated, and separate from the rule-derived `logic`. The trace set is now 1,464 steps.
+**Inky as a hill-climb judge.** On 24 `hillclimb_judgment` requests (8 tasks × 3 efforts), Inky's verdict matched the frozen rule 24/24, across ACCEPT, REJECT completion and REJECT family_regression cases. These are traces in `traces_20261128/inky_judgments_inky_base_dev_20261128.jsonl`; Inky's text is kept under `model_text`, flagged as model-generated, and separate from the rule-derived `logic`. The trace set is now 1,497 steps (including the Inky-proposed MeTTa climbs below).
 
 **Implications for the RSI arms (development evidence, eight roots per family, no statistics)**
 * The useful frontier for Inky is long-horizon planning under a token budget (storyworld), not the procedural families.
 * The effort-rescue signal is absent in these data: effort trades accuracy for tokens under a fixed cap. A cost-sensitive objective (arm G) matches what was observed better than a rescue bonus (arm D).
 * Before any training arm, the curriculum needs harder families or larger instances.
+
+**Inky as the MeTTa hill-climb proposer** (`metta_driver.py --proposer inky`, 8 train roots, one climb per effort since sampling is at temperature 0; `metta_inky_2048tok_20261128/`, `metta_inky_8192tok_20261128/`):
+
+| cap | effort | valid proposals | accepted | climb ended by | final LDT proxy exact-first-edit | final TRM |
+|---|---|---:|---:|---|---|---|
+| 2,048 | low | 11 | 3 | empty reply (budget spent on reasoning) at turn 11 | 6 | unchanged (0/0/15) |
+| 2,048 | medium | 1 | 0 | empty reply at turn 1 | - | unchanged |
+| 2,048 | high | 0 | 0 | empty reply at turn 0 | - | unchanged |
+| 8,192 | low | 16 | 4 | step budget | 6 | unchanged on primary components |
+| 8,192 | medium | 4 | 0 | empty reply at turn 4 | - | unchanged |
+| 8,192 | high | 1 | 0 | empty reply at turn 1 | - | unchanged |
+
+* At low effort Inky's proposals reach the same LDT-proxy optimum as the seeded-random control (exact-first-edit 6), in a comparable number of accepted edits. Like every proposer, it never moves `solved_and_stopped`.
+* At turn 13 Inky re-proposed the TRM `stop_policy` edit that the visible history showed had been rejected for a safety regression.
+* Medium and high effort spend the entire budget (up to 8,192 tokens) on reasoning for a one-line JSON answer and stop producing visible output within 1-5 turns.
+* For proposal tasks, low effort is the only usable setting at these caps. These are three single climbs: descriptive, not a comparison with any statistical standing.

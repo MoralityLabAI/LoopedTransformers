@@ -179,6 +179,9 @@ def main():
     ap.add_argument("--ram-limit-mib", type=int, default=1024)
     ap.add_argument("--verify-against-run-gym", action="store_true")
     ap.add_argument("--wide-grammar", action="store_true", help="extend OPTIONS in memory (see WIDE)")
+    ap.add_argument("--inky-efforts", nargs="+", default=["medium"], choices=["low", "medium", "high"],
+                    help="reasoning effort per climb, cycled (Inky samples at temperature 0)")
+    ap.add_argument("--inky-max-tokens", type=int, default=2048)
     a = ap.parse_args()
     rh = load()
     a.out.mkdir(parents=True, exist_ok=True)
@@ -191,12 +194,17 @@ def main():
         (a.out / "rule_equivalence.json").write_text(json.dumps(v, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(v))
     for c in range(a.climbs):
+        effort = a.inky_efforts[c % len(a.inky_efforts)]
         prop = (SeededRandom(a.seed + c) if a.proposer == "seeded_random" else
                 CoordinateSweep(a.seed + c) if a.proposer == "coordinate_sweep" else
-                load_inky()() if a.proposer == "inky" else FileQueue(a.queue))
+                load_inky()(effort=effort, max_tokens=a.inky_max_tokens) if a.proposer == "inky" else FileQueue(a.queue))
         hist = climb(rh, prop, a.steps, a.seed, a.train_roots, a.dev_roots, a.ram_limit_mib)
-        path = a.out / f"metta_{a.proposer}_c{c}.jsonl"
+        tag = f"{a.proposer}_{effort}" if a.proposer == "inky" else a.proposer
+        path = a.out / f"metta_{tag}_c{c}.jsonl"
         path.write_text("".join(json.dumps(h, sort_keys=True) + "\n" for h in hist), encoding="utf-8", newline="\n")
+        if a.proposer == "inky":
+            (a.out / f"metta_{tag}_c{c}_proposer.json").write_text(json.dumps(
+                {"effort": effort, "invalid": prop.invalid, "usage": prop.usage}, indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"climb": c, "proposer": a.proposer, "steps": len(hist),
                           "accepted": sum(h["accepted"] for h in hist)}))
 
