@@ -112,7 +112,26 @@ def render_budget_arms() -> str:
     return "\n".join(lines)
 
 
+def render_confirm() -> str:
+    from .budget_policies import score_registration
+    d = A03 / "receipts/budget01_confirm_20261128"
+    s = score_registration(d / "registration.json", d / "records.jsonl")
+    st, ab = s["static"], s["abstainer"]
+    r = lambda ok, tok: f"{1000 * ok / tok:.3f}" if tok else "—"
+    return "\n".join([
+        f"Registration sha256 `{s['registration_sha256']}`; {s['n']} fresh acceptance tasks at low effort, 8,192-token cap.",
+        "",
+        "| Policy | Success | Completion tokens | Success / 1k tokens | Abstained | Successes lost by abstaining |",
+        "|---|---:|---:|---:|---:|---:|",
+        f"| Static low@8192 | {st['success']}/{s['n']} | {st['tokens']:,} | {r(st['success'], st['tokens'])} | 0 | 0 |",
+        f"| Registered abstainer | {ab['success']}/{s['n']} | {ab['tokens']:,} | {r(ab['success'], ab['tokens'])} | "
+        f"{ab['abstained']} | {ab['lost_successes']} |",
+        "",
+        f"Token saving: {100 * s['token_saving_fraction']:.1f}%."])
+
+
 BLOCKS = {
+    "a03_budget_confirm": render_confirm,
     "a03_budget_effort": lambda: render_effort_table(effort_stats(records(BUDGET / "records.jsonl"))),
     "a03_budget_families": lambda: render_families(effort_stats(records(BUDGET / "records.jsonl"))),
     "a03_budget_arms": render_budget_arms,
@@ -144,7 +163,8 @@ def check(path: Path, blocks=BLOCKS, require: tuple[str, ...] = ()) -> list[str]
 
 
 REPORTS = (A02 / "REPORT.md", ROOT / "research_gym/ink_fp_audit_03/REPORT.md")
-REQUIRED = {A02 / "REPORT.md": ("a02_base_dev", "a02_frontier8192")}
+REQUIRED = {A02 / "REPORT.md": ("a02_base_dev", "a02_frontier8192"),
+            A03 / "REPORT.md": ("a03_budget_effort", "a03_budget_families", "a03_budget_arms", "a03_budget_confirm")}
 
 
 def main():
