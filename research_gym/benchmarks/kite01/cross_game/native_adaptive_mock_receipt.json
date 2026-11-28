@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "scope": "mock native adaptive core",
+  "summary": {
+    "status": "native_development_only",
+    "boards": 1,
+    "campaign_clusters": 1,
+    "summary": [
+      {
+        "mode": "br",
+        "n": 1,
+        "mean_start": 0.59,
+        "mean_final": 0.57,
+        "mean_shared_local": 0.6063829787234043,
+        "exact": 0,
+        "local_le_020": 0,
+        "mean_calls": 244,
+        "pruned": 0
+      },
+      {
+        "mode": "hybrid",
+        "n": 1,
+        "mean_start": 0.59,
+        "mean_final": 0.59,
+        "mean_shared_local": 0.6276595744680851,
+        "exact": 0,
+        "local_le_020": 0,
+        "mean_calls": 243,
+        "pruned": 0
+      },
+      {
+        "mode": "hybrid_prune",
+        "n": 1,
+        "mean_start": 0.59,
+        "mean_final": 0.59,
+        "mean_shared_local": 0.6276595744680851,
+        "exact": 0,
+        "local_le_020": 0,
+        "mean_calls": 241,
+        "pruned": 14
+      }
+    ],
+    "paired": [
+      {
+        "mode": "hybrid",
+        "base": "br",
+        "wins": 0,
+        "losses": 1,
+        "ties": 0,
+        "mean_gain": -0.020000000000000018
+      },
+      {
+        "mode": "hybrid_prune",
+        "base": "br",
+        "wins": 0,
+        "losses": 1,
+        "ties": 0,
+        "mean_gain": -0.020000000000000018
+      }
+    ],
+    "scope": "fixed integer tactical utility, declared legal action rosters, frozen engine and seed; observed local range shared across arms, not full action tensor"
+  },
+  "changed_cell_rejected": true
+}
