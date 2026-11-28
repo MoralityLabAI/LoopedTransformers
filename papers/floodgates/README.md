@@ -97,6 +97,25 @@ first/deep prefix memory on two fresh synthetic target checkpoints. This is
 BPD-inspired initialization, not a native BPD decomposition or evidence of
 published-model acceleration. See [HybridTRMLDT PR #49](https://github.com/MoralityLabAI/HybridTRMLDT/pull/49).
 
+
+### Elastic refinement study (FG-06)
+
+[FG-06 prospective protocol](https://github.com/MoralityLabAI/HybridTRMLDT/blob/gym/gsf10-floodgates-20261128/research_gym/benchmarks/floodgates_gym/FG06_PROTOCOL.md)
+tests additional frozen shared-block passes on one-pass-trained adapters.
+All policies begin with the same adapter-active masked-block computation.
+Subsequent visits use the pretrained block, either repeatedly reading one
+verified prefix depth or cycling the already verified per-loop cache bank.
+RLT-style coefficients 1/3, 1/2, 1 are paired with mean-matched constant
+damping 5/12, 5/12, 1. Reverse cache cycling preserves the forward cycle's
+depth multiset. These are inference-only forward controls, not RLT training
+or learned MoLT depth attention. The primary work endpoint counts actual
+serialized draft and target block calls, with token-block visits and logical
+prefix reads separate. Extra passes may increase the cost even when they
+improve acceptance. Exact greedy parity is mandatory.
+
+Two new synthetic target seeds, four adapter fits, 32 inference cells and
+768 planned dedicated trace episodes. Results pending CPU audit.
+
 ## Citation
 
 ```bibtex
