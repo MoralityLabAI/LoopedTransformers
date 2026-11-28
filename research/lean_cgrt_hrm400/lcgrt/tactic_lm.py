@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+from contextlib import nullcontext
 import gzip
 import hashlib
 import json
@@ -547,11 +548,51 @@ def train(a):
     cfg = apply_overrides(PRESETS[a.preset], a.cfg)
     if cfg.arch == "trm" and a.random_depth:
         raise GymError("bad_argument", "--random-depth does not apply to the trm encoder (fixed n, T)")
+    mms_options = None
+    exact_carry = bool(getattr(a,"exact_carry_resume",False))
+    cpu_limit = getattr(a,"max_cpu_seconds",0)
+    if not math.isfinite(cpu_limit) or cpu_limit < 0:
+        raise GymError("bad_argument","CPU limit must be nonnegative and finite")
+    if getattr(a,"mms_mib",0) or getattr(a,"mms_map_manifest",""):
+        from .tactic_mms import options_from_args
+        mms_options = options_from_args(a)
+        if (device != "cpu" or a.grad_ckpt or cfg.arch not in ("loop","hrm","trm")
+                or a.val_split != "val" or a.continue_from):
+            raise GymError("bad_argument","MMS requires CPU, recurrent encoder, val split, no activation checkpointing or continuation fork")
+        if not math.isfinite(mms_options['mib']) or mms_options['mib'] <= 0:
+            raise GymError("bad_argument","invalid MMS bank budget")
+        exact_carry = cfg.arch == "trm" or exact_carry
+    if exact_carry and cfg.arch != "trm":
+        raise GymError("bad_argument","exact carry resume is TRM-only")
+    pool_rows = int(getattr(a,'train_pool_rows',0))
+    pool_seed = int(getattr(a,'train_pool_seed',314159))
+    if pool_rows < 0 or pool_seed < 0 or (pool_rows and a.continue_from):
+        raise GymError("bad_argument","invalid training pool or continuation fork")
+    train_pool = None
+    packed_train = None
+    if pool_rows or mms_options is not None:
+        packed_train = pack(a.data,'train')
+        if pool_rows:
+            # Read only the packed train row count. Selection never reads labels.
+            with np.load(packed_train) as source:
+                n_train = len(source['enc_len'])
+            if pool_rows > n_train:
+                raise GymError("bad_argument","training pool exceeds train row count")
+            train_pool = np.sort(np.random.default_rng(pool_seed).choice(n_train,pool_rows,replace=False))
     ident = {k: getattr(a, k) for k in IDENTITY} | {"model": cfg_identity(cfg), "split_sha256": manifest["split_sha256"]}
     if a.val_items != 2048:
         ident["val_items"] = a.val_items
     if a.val_batch != 256:
         ident["val_batch"] = a.val_batch
+    if train_pool is not None:
+        ident['train_pool'] = {'rows':pool_rows,'seed':pool_seed,
+            'indices_sha256':hashlib.sha256(train_pool.astype('<i8').tobytes()).hexdigest(),
+            'packed_train_sha256':sha256(packed_train)}
+    if mms_options is not None:
+        ident['mms'] = mms_options | {'packed_train_sha256':sha256(packed_train),
+                                      'grad_ckpt':False,'device':'cpu'}
+    if exact_carry:
+        ident['exact_carry_resume'] = True
     parent = None
     if a.continue_from:
         parent, ident["continuation"] = continuation(a.continue_from, ident)
@@ -562,7 +603,9 @@ def train(a):
     model = TacticLM(cfg).to(device)
     model.grad_ckpt = a.grad_ckpt
     ema = copy.deepcopy(model).requires_grad_(False) if cfg.arch == "trm" else None
-    carry, fresh, halts, halt_steps = None, 0, 0, 0
+    carry, carried_ids, fresh, halts, halt_steps = None, None, 0, 0, 0
+    mms = None
+    prior_cpu = 0.
     opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=a.weight_decay, betas=(0.9, 0.95))
     first = 0
     which, ck = load_verified(out, device)
@@ -572,15 +615,26 @@ def train(a):
         model.load_state_dict(ck["model"]); opt.load_state_dict(ck["opt"]); first = ck["step"]
         if ema is not None:
             ema.load_state_dict(ck["ema"]); fresh = ck.get("fresh", 0)
+            if exact_carry:
+                carry = ck['act_carry']; carried_ids = ck['act_row_ids'].cpu()
+                halts = ck.get('pending_halts',0); halt_steps = ck.get('pending_halt_steps',0)
+        if mms_options is not None:
+            prior_cpu = ck.get('training_process_cpu_seconds',0.)
     elif parent is not None:
         model.load_state_dict(parent["model"]); opt.load_state_dict(parent["opt"])
         which = "parent"
-    del parent, ck
     tr = Store(pack(a.data, "train"))
+    if mms_options is not None:
+        from .tactic_mms import TacticMemory
+        mms = TacticMemory(model,mms_options,tr.n, max(a.random_depth) if a.random_depth else cfg.fast_steps)
+        if ck is not None:
+            mms.load_state_dict(ck['mms'])
+    del parent, ck
     va = Store(pack(a.data, a.val_split))            # file-level validation split: monitoring and best-checkpoint choice
     params = count_parameters(model)
     (out / "config.json").write_text(json.dumps({"identity": ident, "identity_hash": ident_hash, "parameters": params,
-                                                 "train_rows": tr.n, "device": device, "precision": "bf16" if amp else "fp32",
+                                                 "train_rows": tr.n, "active_train_pool_rows": len(train_pool) if train_pool is not None else tr.n,
+                                                 "device": device, "precision": "bf16" if amp else "fp32",
                                                  "gpu_duty": duty, "torch": torch.__version__,
                                                  "grad_ckpt": a.grad_ckpt,
                                                  **({"continue_from": str(Path(a.continue_from).resolve())} if a.continue_from else {})},
@@ -591,12 +645,18 @@ def train(a):
                       "data_step_offset": data_offset}), flush=True)
     log = (out / "metrics.jsonl").open("a", encoding="utf-8")
     t_start = t_win = t_guard = time.time(); n_win = 0; code = 0
+    cpu_started = time.process_time()
+    done = first
     duty_now = duty                       # lowered while the card is hot, back up to --gpu-duty as it cools
     best_p = out / "best.json"
     best_bpb = json.loads(best_p.read_text())["bits_per_byte"] if best_p.exists() else float("inf")
 
     def checkpoint(step):
         extra = {"ema": ema.state_dict(), "fresh": fresh} if ema is not None else {}
+        if exact_carry:
+            extra.update(act_carry=carry,act_row_ids=carried_ids,pending_halts=halts,pending_halt_steps=halt_steps)
+        if mms is not None:
+            extra.update(mms=mms.state_dict(),training_process_cpu_seconds=prior_cpu+time.process_time()-cpu_started)
         if data_offset:
             extra["data_step_offset"] = data_offset
         return save(out, {"model": model.state_dict(), "opt": opt.state_dict(), "step": step, "identity": ident,
@@ -606,20 +666,33 @@ def train(a):
     for step in range(first, end):
         t_step = time.perf_counter()
         r = np.random.default_rng([a.seed, step + data_offset])   # pure function of (seed, global step)
-        b = tr.batch(r.integers(0, tr.n, a.batch), device)
+        if train_pool is None:
+            draw = r.integers(0, tr.n, a.batch)
+        else:
+            draw = train_pool[r.integers(0,len(train_pool),a.batch)]
+        b = tr.batch(draw, device)
         T = None
         if a.random_depth and cfg.arch != "flat":
             T = int(np.random.default_rng([a.seed, step + data_offset, 7]).integers(a.random_depth[0], a.random_depth[1] + 1))
         for g in opt.param_groups:
             g["lr"] = lr_at(step, a)
-        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=amp):
-            if ema is not None:
-                loss, carry, info = model.act_step(carry, b, np.random.default_rng([a.seed, step, 11]))
-                fresh += info["fresh"]; halts += info["halts"]; halt_steps += info["halt_steps"]
-            else:
-                loss = nll(model, b, T)
-        opt.zero_grad(set_to_none=True)
-        loss.backward()
+        capture = nullcontext()
+        if ema is not None and exact_carry:
+            from .tactic_mms import active_rows
+            carried_ids, stage = active_rows(draw,carry,carried_ids)
+            if mms is not None:
+                capture = mms.capture(step,carried_ids,stage=stage)
+        elif mms is not None:
+            capture = mms.capture(step,draw,depth=T)
+        with capture:
+            with torch.autocast("cuda", dtype=torch.bfloat16, enabled=amp):
+                if ema is not None:
+                    loss, carry, info = model.act_step(carry, b, np.random.default_rng([a.seed, step, 11]))
+                    fresh += info["fresh"]; halts += info["halts"]; halt_steps += info["halt_steps"]
+                else:
+                    loss = nll(model, b, T)
+            opt.zero_grad(set_to_none=True)
+            loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
         if ema is not None:
@@ -637,6 +710,10 @@ def train(a):
             row = {"step": done, "loss": round(loss.item(), 4), "grad_norm": round(float(gn), 3), "lr": lr_at(step, a),
                    "steps_per_s": round(n_win / (time.time() - t_win), 3), "duty": round(duty_now, 3),
                    "unix": int(time.time())}
+            if mms is not None:
+                row['mms_bank_bytes'] = mms.memory.pool.used
+                row['mms_hits'] = sum(x.bank.hits for x in mms.memory.sites.values() if x.bank is not None)
+                row['mms_admitted'] = sum(x.admitted for x in mms.memory.sites.values())
             if ema is not None:          # samples started so far; train exact match; mean steps at halting
                 row |= {"fresh": fresh, "exact": round(info["exact"], 4),
                         "steps_at_halt": round(halt_steps / halts, 2) if halts else None}
@@ -655,6 +732,10 @@ def train(a):
             t_win = time.time(); n_win = 0
         if done % a.save_every == 0 or done == end:
             checkpoint(done)
+        if cpu_limit and time.process_time()-cpu_started >= cpu_limit and done<end:
+            if done % a.save_every != 0:
+                checkpoint(done)
+            code = EXIT_WINDOW; break
         # Guard every --guard-every steps, and at least every 15 s for a fast model on a hot card.
         if (done % a.guard_every == 0 or (cuda and time.time() - t_guard >= 15)) and done < a.steps:
             t_guard = time.time()
@@ -679,6 +760,16 @@ def train(a):
                  "wall_s": round(time.time() - t_start, 1)} | ({"fresh": fresh} if ema is not None else {})
         (out / "complete.json").write_text(json.dumps(final, indent=1) + "\n")
         print(json.dumps(final), flush=True)
+    if mms is not None or cpu_limit:
+        receipt = {'scope':'development_only', 'identity_hash':ident_hash,'segment_start':first,'step':done,
+                   'exit_code':code,'wall_seconds':time.time()-t_start,
+                   'process_cpu_seconds':time.process_time()-cpu_started,'cpu_budget_seconds':cpu_limit,
+                   'host':hw.host(out),'fresh_admissions':fresh if ema is not None else (done-first)*a.batch,
+                   'active_train_pool_rows':len(train_pool) if train_pool is not None else tr.n,
+                   'mms':mms.receipt() if mms is not None else None}
+        (out / 'mms_receipt.json').write_text(json.dumps(receipt,indent=2,allow_nan=False)+'\n')
+        with (out/'mms_segments.jsonl').open('a',encoding='utf-8') as fh:
+            fh.write(json.dumps(receipt,allow_nan=False)+'\n')
     log.close()
     return code
 
@@ -710,6 +801,8 @@ def parser():
     p.add_argument("--continue-from", default=None, help="fork a verified loop/hrm optimizer checkpoint into a new run")
     p.add_argument("--stop-at", type=int, default=None, help="checkpoint at this local step without changing recipe identity")
     p.add_argument("--batch", type=int, default=128)
+    p.add_argument("--train-pool-rows",type=int,default=0,help="fixed train-only subsample for repeated-visit pilot; 0 uses all rows")
+    p.add_argument("--train-pool-seed",type=int,default=314159)
     p.add_argument("--val-batch", type=int, default=256, help="validation microbatch; lower for bounded-memory pilots")
     p.add_argument("--val-items", type=int, default=2048, help="fixed validation sample size (part of run identity)")
     p.add_argument("--lr", type=float, default=5e-4)
@@ -719,6 +812,19 @@ def parser():
     p.add_argument("--random-depth", type=int, nargs=2, default=None, metavar=("LO", "HI"))
     p.add_argument("--val-split", default="val")
     p.add_argument("--grad-ckpt", action="store_true")
+    p.add_argument("--mms-mib",type=float,default=0)
+    p.add_argument("--mms-mode",choices=("observe","dense","bpd","sham"),default="bpd")
+    p.add_argument("--mms-sites",default="auto")
+    p.add_argument("--mms-schedule",choices=("round_robin","adaptive"),default="round_robin")
+    p.add_argument("--mms-rank",type=int,default=16)
+    p.add_argument("--mms-topk",type=int,default=4)
+    p.add_argument("--mms-ratio",type=float,default=.2)
+    p.add_argument("--mms-refresh",type=int,default=128)
+    p.add_argument("--mms-max-age",type=int,default=32768)
+    p.add_argument("--mms-visit",type=int,default=-1)
+    p.add_argument("--mms-map-manifest",default="")
+    p.add_argument("--exact-carry-resume",action="store_true",help="save TRM carry for matched zero-MMS resume")
+    p.add_argument("--max-cpu-seconds",type=float,default=0,help="soft process-CPU budget per training segment")
     p.add_argument("--cuda-memory-fraction", type=float, default=0.55, help="0 disables the cap")
     p.add_argument("--precision", default="bf16", choices=("bf16", "fp32"),
                    help="on CUDA: bf16 autocast, or full fp32 without TF32 (the CPU recipe); the CPU always runs fp32")

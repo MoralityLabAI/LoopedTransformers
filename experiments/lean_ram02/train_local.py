@@ -118,7 +118,7 @@ def tensors(rows):
     weights = (len(rows)/(4*counts.clamp_min(1))).sqrt()
     return x, y, weights/weights.mean()
 
-def update(model, opt, x, y, weights, generator, config, guard):
+def update(model, opt, x, y, weights, generator, config, guard, mms=None, step=0):
     device = next(model.parameters()).device
     batch = config['microbatch']*config['accumulation']
     ix = torch.randint(len(y), (batch,), generator=generator)
@@ -127,10 +127,14 @@ def update(model, opt, x, y, weights, generator, config, guard):
     total = 0.
     for ids in ix.split(config['microbatch']):
         guard.check()
-        logits = model({k:v[ids].to(device) for k,v in x.items()})
-        loss = F.cross_entropy(logits, y[ids].to(device), weight=weights.to(device), reduction='sum')/denominator
-        if not torch.isfinite(loss): raise FloatingPointError('nonfinite training loss')
-        loss.backward()
+        from contextlib import nullcontext
+        context = (mms.capture(ids, step, model.config.loops // 2, model.config.loops)
+                   if mms is not None else nullcontext())
+        with context:
+            logits = model({k:v[ids].to(device) for k,v in x.items()})
+            loss = F.cross_entropy(logits, y[ids].to(device), weight=weights.to(device), reduction='sum')/denominator
+            if not torch.isfinite(loss): raise FloatingPointError('nonfinite training loss')
+            loss.backward()
         total += float(loss.detach())
     norm = nn.utils.clip_grad_norm_(model.parameters(), config['gradient_clip'], error_if_nonfinite=True)
     opt.step()
@@ -230,6 +234,17 @@ def fit(train, dev, model_config, seed, config, device, root, guard, config_hash
     opt = torch.optim.AdamW(model.parameters(),lr=config['learning_rate'],weight_decay=config['weight_decay'])
     generator = torch.Generator().manual_seed(seed+1000)
     x,y,w = tensors(train)
+    mms = None
+    if config.get('mms_mib',0):
+        import sys
+        sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+        from research_gym.interp.mms import MechanisticMemory
+        if device != 'cpu' or not model_config.loops:
+            raise ValueError('MMS requires a CPU recurrent ranker')
+        mms = MechanisticMemory(model.cell[-1], mib=config['mms_mib'],
+                mode=config['mms_mode'], ratio=config['mms_ratio'], rank=config['mms_rank'],
+                topk=config['mms_topk'], refresh=config['mms_refresh'],
+                max_age=config['mms_max_age'], map_file=config['mms_map'], map_sha=config['mms_map_sha'])
     start = time.perf_counter()
     best_loss, best_step, stale, history = float('inf'),0,0,[]
     if device=='cuda': torch.cuda.reset_peak_memory_stats()
@@ -239,10 +254,11 @@ def fit(train, dev, model_config, seed, config, device, root, guard, config_hash
             optimizer=opt.state_dict(),sampler_rng=generator.get_state(),torch_rng=torch.get_rng_state(),
             cuda_rng=torch.cuda.get_rng_state_all() if device=='cuda' else [],
             state_sha256=m.STATE_SHA,effect_sha256=m.EFFECT_SHA,config_sha256=config_hash,
-            training_config=config, trained_states=39,development_states=12)
+            training_config=config, trained_states=39,development_states=12,
+            **({'mms': mms.state_dict()} if mms is not None else {}))
     for step in range(1,config['max_updates']+1):
         model.train()
-        loss,norm = update(model,opt,x,y,w,generator,config,guard)
+        loss,norm = update(model,opt,x,y,w,generator,config,guard,mms=mms,step=step)
         if step % config['validation_interval'] == 0:
             train_score, dev_score = metrics(model,train),metrics(model,dev)
             row = dict(step=step, sampled_weighted_loss=loss, gradient_norm=norm,
@@ -281,6 +297,7 @@ def fit(train, dev, model_config, seed, config, device, root, guard, config_hash
             score=metrics(best,dev)
             ablations.append(dict(passes=passes,seconds=time.perf_counter()-began,metrics=score))
     receipt['inference_pass_ablation']=ablations
+    if mms is not None: receipt['mms']=mms.receipt()
     write_json(out/'receipt.json',receipt)
     del model,opt,restored,best
     gc.collect()
@@ -294,11 +311,31 @@ def main():
     p.add_argument('--config',type=Path,default=Path(__file__).with_name('config_3050.yaml'))
     p.add_argument('--calibrate-only',action='store_true')
     p.add_argument('--include-flat',action='store_true')
+    p.add_argument('--mms-mib',type=float,default=0)
+    p.add_argument('--mms-mode',choices=('observe','dense','bpd','sham'),default='bpd')
+    p.add_argument('--mms-ratio',type=float,default=.2)
+    p.add_argument('--mms-rank',type=int,default=16)
+    p.add_argument('--mms-topk',type=int,default=4)
+    p.add_argument('--mms-refresh',type=int,default=128)
+    p.add_argument('--mms-max-age',type=int,default=32768)
+    p.add_argument('--mms-map',default='')
     args=p.parse_args()
     config=json.loads(args.config.read_text(encoding='utf-8-sig'))
+    config_hash=m.digest(args.config)
+    if args.mms_mib:
+        if args.include_flat or args.mms_mib < 0:
+            p.error('MMS requires positive budget and recurrent arms only')
+        import hashlib, sys
+        sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+        from research_gym.interp.mms import file_sha256
+        config.update({k:v for k,v in vars(args).items() if k.startswith('mms_')})
+        config['mms_map_sha']=file_sha256(args.mms_map) if args.mms_map else ''
+        config_hash=hashlib.sha256(json.dumps(config,sort_keys=True).encode()).hexdigest()
+    elif args.mms_map:
+        p.error('MMS map requires positive MMS budget')
     args.out.mkdir(parents=True,exist_ok=False)
     setup(config)
-    report=dict(experiment='RAM02_local_training',config=config,config_sha256=m.digest(args.config),
+    report=dict(experiment='RAM02_local_training',config=config,config_sha256=config_hash,
                 python=platform.python_version(),torch=str(torch.__version__),platform=platform.platform(),
                 cuda_available=torch.cuda.is_available(),models=[],kernel_certified_proofs=0)
     write_json(args.out/'frozen_config.json',report)
@@ -312,12 +349,13 @@ def main():
             write_json(args.out/'data_audit.json',audit)
             calibration=calibrate(train,config,args.out,guard)
             report['calibration']=calibration
+            report['training_device']='cpu' if config.get('mms_mib',0) else calibration['selected_device']
             write_json(args.out/'training_report.json',report)
             if not args.calibrate_only:
                 architectures=config['architectures']+([config['control']] if args.include_flat else [])
                 for c in architectures:
                     for seed in config['seeds']:
-                        receipt=fit_with_backoff(train,dev,m.Config(**c),seed,config,calibration['selected_device'],args.out,guard,report['config_sha256'])
+                        receipt=fit_with_backoff(train,dev,m.Config(**c),seed,config,report['training_device'],args.out,guard,report['config_sha256'])
                         report['models'].append(receipt)
                         write_json(args.out/'training_report.json',report)
                         print('RAM02_FIT_COMPLETE',c['name'],seed,receipt['optimizer_steps'],flush=True)

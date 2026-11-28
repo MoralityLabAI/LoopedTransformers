@@ -40,8 +40,29 @@ def main() -> None:
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     parser.add_argument("--vram-mb", type=float, default=2500.0)
     parser.add_argument("--max-seconds", type=float, default=1500.0)
+    parser.add_argument("--max-cpu-seconds", type=float, default=None, help="soft per-invocation process CPU budget")
     parser.add_argument("--threads", type=int, default=0)
+    parser.add_argument("--mms-mib", type=float, default=0)
+    parser.add_argument("--mms-mode", choices=("observe", "dense", "bpd", "sham"), default="bpd")
+    parser.add_argument("--mms-ratio", type=float, default=.2)
+    parser.add_argument("--mms-rank", type=int, default=16)
+    parser.add_argument("--mms-topk", type=int, default=4)
+    parser.add_argument("--mms-refresh", type=int, default=128)
+    parser.add_argument("--mms-max-age", type=int, default=32768)
+    parser.add_argument("--mms-visit", type=int, default=-1)
+    parser.add_argument("--mms-map", default="")
+    parser.add_argument("--mms-map-manifest", default="", help="JSON physical site to path/SHA-256 export")
+    parser.add_argument("--mms-checkpoint-every", type=int, default=2000)
+    parser.add_argument("--mms-sites", default="mlp", help="comma-separated mlp,mlp_in,attention,qkv")
+    parser.add_argument("--mms-schedule", choices=("round_robin","adaptive"), default="round_robin")
     args = parser.parse_args()
+    if args.mms_mib and (args.device != "cpu" or args.arm != "LOOP-T"):
+        parser.error("MMS v0 requires CPU LOOP-T")
+    if (args.mms_map or args.mms_map_manifest) and not args.mms_mib:
+        parser.error("MMS map requires positive MMS budget")
+    from research_gym.interp.mms import file_sha256
+    map_sha = file_sha256(args.mms_map) if args.mms_map else ""
+    manifest_sha = file_sha256(args.mms_map_manifest) if args.mms_map_manifest else ""
 
     if args.threads:
         torch.set_num_threads(args.threads)
@@ -78,6 +99,21 @@ def main() -> None:
         permute_targets=args.permute_targets,
         beta=args.beta,
         curriculum=args.curriculum,
+        mms_mib=args.mms_mib,
+        mms_mode=args.mms_mode,
+        mms_ratio=args.mms_ratio,
+        mms_rank=args.mms_rank,
+        mms_topk=args.mms_topk,
+        mms_refresh=args.mms_refresh,
+        mms_max_age=args.mms_max_age,
+        mms_visit=args.mms_visit,
+        mms_map=args.mms_map,
+        mms_map_sha=map_sha,
+        mms_checkpoint_every=args.mms_checkpoint_every,
+        mms_sites=args.mms_sites,
+        mms_schedule=args.mms_schedule,
+        mms_map_manifest=args.mms_map_manifest,
+        mms_map_manifest_sha=manifest_sha,
     )
     provenance = {
         "bundle_hash": manifest["bundle_hash"],
@@ -96,6 +132,7 @@ def main() -> None:
         provenance=provenance,
         device=device,
         max_seconds=args.max_seconds,
+        max_cpu_seconds=args.max_cpu_seconds,
         stop_at_gate=args.stop_at_gate,
     )
     summary = {key: result[key] for key in ("cell_id", "status", "optimizer_steps", "gate_passed", "events")}

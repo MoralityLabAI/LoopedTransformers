@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import nullcontext
 from dataclasses import asdict, dataclass, replace
 import hashlib
 import json
@@ -65,10 +66,29 @@ class CellConfig:
     # Control model: each family's training targets are shuffled across its pool, so only memorizing
     # input-label pairs can lower the loss. Validation still scores the true labels.
     permute_targets: bool = False
+    # Opt-in MMS; defaults retain historical cell identity.
+    mms_mib: float = 0.0
+    mms_mode: str = "bpd"
+    mms_ratio: float = 0.2
+    mms_rank: int = 16
+    mms_topk: int = 4
+    mms_refresh: int = 128
+    mms_max_age: int = 32768
+    mms_visit: int = -1
+    mms_map: str = ""
+    mms_map_sha: str = ""
+    mms_checkpoint_every: int = 2000
+    mms_sites: str = "mlp"
+    mms_schedule: str = "round_robin"
+    mms_map_manifest: str = ""
+    mms_map_manifest_sha: str = ""
 
     @property
     def cell_id(self) -> str:
-        return f"{self.arm}-{self.variant}-s{self.seed}"
+        base = f"{self.arm}-{self.variant}-s{self.seed}"
+        if self.mms_mib:
+            return base + "-mms-" + digest({k: v for k, v in asdict(self).items() if k.startswith("mms_") and not (k in ("mms_sites", "mms_schedule", "mms_map_manifest", "mms_map_manifest_sha") and v == LATE_FIELD_DEFAULTS[k])})[:12]
+        return base
 
 
 @dataclass(frozen=True)
@@ -127,7 +147,7 @@ def load_pool(path: Path, sha256: str | None = None) -> Pool:
 
 # Fields added after cells had already been hashed. Left at these defaults they are omitted from
 # a cell's identity, so existing cells keep their hash and can resume.
-LATE_FIELD_DEFAULTS: Mapping[str, Any] = {"init_from": "", "permute_targets": False}
+LATE_FIELD_DEFAULTS: Mapping[str, Any] = {"init_from": "", "permute_targets": False, "mms_mib": 0.0, "mms_mode": "bpd", "mms_ratio": 0.2, "mms_rank": 16, "mms_topk": 4, "mms_refresh": 128, "mms_max_age": 32768, "mms_visit": -1, "mms_map": "", "mms_map_sha": "", "mms_checkpoint_every": 2000, "mms_sites": "mlp", "mms_schedule": "round_robin", "mms_map_manifest": "", "mms_map_manifest_sha": ""}
 
 
 def cell_identity(config: CellConfig) -> dict[str, Any]:
@@ -277,6 +297,7 @@ def run_cell(
     device: torch.device,
     max_seconds: float | None = None,
     max_new_steps: int | None = None,
+    max_cpu_seconds: float | None = None,
     stop_at_gate: bool = False,
 ) -> dict[str, Any]:
     """Train one cell until it passes the gate and reaches C4, exhausts its budget, or is paused.
@@ -284,6 +305,10 @@ def run_cell(
     Small receipts go to ``result_dir``; checkpoints and predictions go to ``artifact_dir``.
     """
 
+    invocation_started = time.perf_counter()
+    invocation_cpu_started = time.process_time()
+    if max_cpu_seconds is not None and (not math.isfinite(max_cpu_seconds) or max_cpu_seconds <= 0):
+        raise ValueError("max_cpu_seconds must be positive and finite")
     cell_dir = result_dir / config.cell_id
     heavy_dir = artifact_dir / config.cell_id
     events = cell_dir / "events.jsonl"
@@ -308,6 +333,47 @@ def run_cell(
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay
     )
+    mms = None
+    if config.mms_mib:
+        if device.type != "cpu" or config.arm != "LOOP-T" or config.mms_mib < 0:
+            raise ValueError("MMS v0 requires CPU LOOP-T and a positive budget")
+        if config.mms_checkpoint_every < 1:
+            raise ValueError("MMS checkpoint cadence must be positive")
+        from .mms import MechanisticMemory, MultiSiteMemory, read_map_manifest
+        block = model.blocks[0]
+        modules = {"mlp": block.mlp[-1], "mlp_in": block.mlp[0],
+                   "attention": block.attention_out, "qkv": block.qkv}
+        names = config.mms_sites.split(",")
+        if len(set(names)) != len(names) or not set(names).issubset(modules):
+            raise ValueError("invalid or duplicate MMS sites")
+        options = dict(mib=config.mms_mib, mode=config.mms_mode, rank=config.mms_rank,
+                       topk=config.mms_topk, ratio=config.mms_ratio, refresh=config.mms_refresh,
+                       max_age=config.mms_max_age)
+        if config.mms_map and config.mms_map_manifest:
+            raise ValueError("use a single map or a multi-site manifest, not both")
+        maps = {}
+        if config.mms_map_manifest:
+            if not config.mms_map_manifest_sha:
+                raise ValueError("MMS map manifest digest required")
+            maps = read_map_manifest(config.mms_map_manifest,config.mms_map_manifest_sha)
+            if not set(maps).issubset(names):
+                raise ValueError("MMS map manifest names unselected sites")
+        if config.mms_sites == "mlp" and config.mms_schedule == "round_robin" and not maps:
+            mms = MechanisticMemory(block.mlp[-1], **options,
+                                     map_file=config.mms_map, map_sha=config.mms_map_sha)
+        else:
+            if config.mms_map:
+                raise ValueError("single-map export requires default single MLP site")
+            mms = MultiSiteMemory({name:modules[name] for name in names}, schedule=config.mms_schedule,
+                                  maps=maps, **options)
+        visit = config.visits // 2 if config.mms_visit == -1 else config.mms_visit
+        if not 0 <= visit < config.visits:
+            raise ValueError("MMS visit outside recurrent schedule")
+    offsets = {}
+    offset = 0
+    for family in config.families:
+        offsets[family] = offset
+        offset += pools[family].size
     sampler = torch.Generator().manual_seed(config.seed)
     state: dict[str, Any] = {
         "step": 0,
@@ -334,6 +400,8 @@ def run_cell(
         optimizer.load_state_dict(saved["optimizer"])
         sampler.set_state(saved["sampler"].cpu())  # the checkpoint may have been mapped to a GPU
         state = saved["state"]
+        if mms is not None:
+            mms.load_state_dict(saved["mms"])
         if state["status"] == GATE_HELD:
             state["status"] = PAUSED
         if state["status"] == EXHAUSTED and state["step"] < config.max_steps:
@@ -390,6 +458,7 @@ def run_cell(
                 "optimizer": optimizer.state_dict(),
                 "sampler": sampler.get_state(),
                 "state": state,
+                **({"mms": mms.state_dict()} if mms is not None else {}),
             },
             latest,
         )
@@ -461,6 +530,7 @@ def run_cell(
                 named_checkpoint("C3")
 
     started = time.perf_counter()
+    started_cpu = time.process_time()
     new_steps = 0
     model.train()
     if state["step"] == 0 and not state["checkpoints"]:
@@ -480,7 +550,7 @@ def run_cell(
             break
         if (max_seconds is not None and time.perf_counter() - started >= max_seconds) or (
             max_new_steps is not None and new_steps >= max_new_steps
-        ):
+        ) or (max_cpu_seconds is not None and time.process_time() - invocation_cpu_started >= max_cpu_seconds):
             break
         rate = config.learning_rate * min(1.0, (state["step"] + 1) / config.warmup_steps)
         for group in optimizer.param_groups:
@@ -499,9 +569,14 @@ def run_cell(
             total = 0.0
             for chunk in pick.split(config.microbatch or config.batch_per_family):
                 tokens, targets = device_pools[name][0][chunk].long(), device_pools[name][1][chunk].long()
-                loss = cell_loss(model, tokens, targets, config).sum()
-                if torch.isfinite(loss):
-                    (loss / (pick.numel() * len(config.families))).backward()
+                context = (mms.capture(chunk.cpu() + offsets[name], state["step"], visit, config.visits)
+                           if mms is not None else nullcontext())
+                with context:
+                    loss = cell_loss(model, tokens, targets, config).sum()
+                    if torch.isfinite(loss):
+                        (loss / (pick.numel() * len(config.families))).backward()
+                    elif mms is not None:
+                        raise FloatingPointError("nonfinite MMS task loss")
                 total += float(loss.detach())
             step_losses[name] = total / pick.numel()
         if not all(math.isfinite(value) for value in step_losses.values()):
@@ -518,8 +593,12 @@ def run_cell(
             named_checkpoint(f"step_{state['step']}")
         if state["step"] % config.eval_every == 0:
             note_events(evaluate_interim())
+        if (mms is None and state["step"] % config.eval_every == 0) or (
+            mms is not None and state["step"] % config.mms_checkpoint_every == 0
+        ):
             save_latest()
     state["seconds"] += time.perf_counter() - started
+    state["training_process_cpu_seconds"] = state.get("training_process_cpu_seconds", 0.0) + time.process_time() - started_cpu
     if state["status"] not in (PAUSED, GATE_HELD) and state["final"] is None:
         state["final"] = evaluate_full("final")
     save_latest()
@@ -547,6 +626,10 @@ def run_cell(
         "optimizer_steps": state["step"],
         "examples_seen": state["step"] * config.batch_per_family * len(config.families),
         "training_seconds": state["seconds"],
+        "training_process_cpu_seconds": state.get("training_process_cpu_seconds"),
+        "invocation_wall_seconds": time.perf_counter() - invocation_started,
+        "invocation_process_cpu_seconds": time.process_time() - invocation_cpu_started,
+        "invocation_cpu_budget_seconds": max_cpu_seconds,
         "unique_parameters": model.parameter_breakdown()["unique_parameters"],
         "events": state["events"],
         "deepest_unlocked": state["deepest"],
@@ -559,6 +642,8 @@ def run_cell(
         "gate": config.gate,
         "gate_passed": state["c3_step"] is not None,
     }
+    if mms is not None:
+        result["mms"] = mms.receipt()
     _write_json(cell_dir / "result.json", result)
     _event(events, {"event": "stop", "status": state["status"], "step": state["step"]})
     return result

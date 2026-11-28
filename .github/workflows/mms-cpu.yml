@@ -1,0 +1,28 @@
+name: MMS CPU unit checks
+on:
+  pull_request:
+    paths:
+      - 'research_gym/interp/mms.py'
+      - 'research_gym/interp/training.py'
+      - 'research_gym/scripts/run_rmp_training_cell.py'
+      - 'experiments/lean_ram02/train_local.py'
+      - 'tests/test_mms.py'
+      - 'tests/test_lbf_mms.py'
+      - 'research/lean_cgrt_hrm400/lcgrt/tactic_mms.py'
+      - 'research/lean_cgrt_hrm400/lcgrt/tactic_lm.py'
+      - 'research/lean_cgrt_hrm400/tests/test_tactic_mms.py'
+      - 'research/lite_braille_fresco/lbf_mms.py'
+      - 'research/lite_braille_fresco/lbf20m_ram.py'
+      - '.github/workflows/mms-cpu.yml'
+  workflow_dispatch:
+jobs:
+  mms:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pytest numpy psutil && pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m py_compile research_gym/interp/training.py research_gym/scripts/run_rmp_training_cell.py experiments/lean_ram02/train_local.py
+      - run: python -m pytest -q tests/test_mms.py tests/test_lbf_mms.py research/lean_cgrt_hrm400/tests/test_tactic_mms.py
