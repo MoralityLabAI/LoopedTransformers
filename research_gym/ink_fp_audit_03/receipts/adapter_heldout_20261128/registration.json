@@ -1,0 +1,35 @@
+{
+  "schema": "ink-fp-audit-03.adapter_heldout_registration.v1",
+  "tasks_file": "tasks_fresh.jsonl",
+  "tasks_sha256": "1753410a18ce6048d0968895d54e32ee1f1cd83f1a34158582ba4b2b650bcbf3",
+  "n_tasks": 24,
+  "fresh_rule": "dev root range offset >= 1000; excluded all train/accept/dev ids and the recomputed sealed ids",
+  "checkpoints": {
+    "base": null,
+    "B": {
+      "tag": "ink03-B-g1-1795850526",
+      "sampler_path": "tinker://0befb5af-6ee1-5c17-a15c-89d9b580f0e9:train:1/sampler_weights/ink03-B-g1-1795850526-s"
+    },
+    "E": {
+      "tag": "ink03-E-g2-1795857824",
+      "sampler_path": "tinker://0befb5af-6ee1-5c17-a15c-89d9b580f0e9:train:5/sampler_weights/ink03-E-g2-1795857824-s"
+    },
+    "F": {
+      "tag": "ink03-F-g2-1795863957",
+      "sampler_path": "tinker://0befb5af-6ee1-5c17-a15c-89d9b580f0e9:train:8/sampler_weights/ink03-F-g2-1795863957-s"
+    }
+  },
+  "decoding": {
+    "effort": 0.2,
+    "temperature": 0.0,
+    "seed": 0,
+    "cap": 4096
+  },
+  "primary_endpoint": "verified successes per 1,000 completion tokens, arm E head vs base",
+  "secondary": [
+    "verified successes",
+    "completion tokens",
+    "arms B and F vs base"
+  ],
+  "utc_registered": "2026-11-28T11:14:13Z"
+}
