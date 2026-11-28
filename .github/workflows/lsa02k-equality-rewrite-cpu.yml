@@ -1,0 +1,95 @@
+name: LSA-02K equality rewrite and dependent transport CPU pilot
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/rewrite_gym.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/rewrite_pilot.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_rewrite_gym.py'
+      - 'docs/lsa02k_equality_rewrite_cpu_protocol.md'
+      - '.github/workflows/lsa02k-equality-rewrite-cpu.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pilot:
+    name: Certified rewrite witnesses and matched CPU search
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only Torch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Check public rewrites, inverse moves, transport rendering and sealed source
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m unittest ppt_gym.tests.test_rewrite_gym -v
+          python - <<'PY'
+          from pathlib import Path
+          from ppt_gym.rewrite_gym import Case,Move,certify
+          c=Case('native_transport_fixture','fixture','train','dependent_transport','aabc','abcc',(('ab','bc'),)).validate()
+          d=Case('native_inverse_fixture','fixture','train','equality','abcc','aabc',(('ab','bc'),)).validate()
+          r=certify([(c,[Move(0,0,1,'abcc')],'dependent_fixture'),
+                     (d,[Move(0,1,1,'aabc')],'inverse_fixture')],
+                    Path('runs/lsa02k-native-fixtures'))
+          assert r['compiled_axiom_free']==2 and r['actual_lean_compiler']
+          print('LSA02K_NATIVE_FIXTURES',r['compiled_axiom_free'])
+          PY
+      - name: Freeze independent equality and transport roots
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.rewrite_gym freeze --out runs/lsa02k-suite
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02k-suite/manifest.json'))
+          assert m['counts']=={'train':64,'calibration':32,'ordinary':32,'ood':32}
+          assert m['unique_rule_system_lineages']==160
+          assert not m['generator_selects_by_policy_outcomes'] and not m['ordinary_ood_witness_files_written']
+          print('LSA02K_FROZEN_RULE_SYSTEMS',m['unique_rule_system_lineages'])
+          PY
+      - name: Train and duplicate CPU witness rankers, compare bounded search, compile all proofs
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.rewrite_pilot --suite runs/lsa02k-suite --out runs/lsa02k-pilot
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02k-pilot/manifest.json'))
+          assert x['schema']=='lsa02k.equality_rewrite_cpu_pilot.v1'
+          assert x['train_roots']==64 and x['calibration_roots']==32
+          assert x['native_reference_proofs']==32
+          assert x['all_proofs_axiom_free']
+          assert x['same_worker_duplicates'] and len(x['fits'])==4
+          assert all(r['duplicate_bitwise'] and r['steps']==720 and r['parameters']==57475 for r in x['fits'])
+          assert x['work_budget']==128 and x['depth_limit']==16
+          assert not x['ordinary_ood_outcomes_opened']
+          assert x['calibration_training_updates']==0
+          assert not x['architecture_promotion_eligible'] and not x['scientific_eligible']
+          print('LSA02K_FINAL',json.dumps(x['policy_rates'],sort_keys=True),
+                'headroom',x['symbolic_headroom_screen'],
+                'screen',x['registered_development_screen_passed'],
+                'competence',x['learned_competence_preflight'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02k-equality-transport-cpu-receipts
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02k-native-fixtures/
+            research/lean_cgrt_hrm400/runs/lsa02k-suite/
+            research/lean_cgrt_hrm400/runs/lsa02k-pilot/
+          retention-days: 14
+          if-no-files-found: warn

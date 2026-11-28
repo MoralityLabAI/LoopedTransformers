@@ -3,6 +3,7 @@
 ## v2 (`lcgrt/`): Lean-authoritative gym
 
 Start with these documents:
+- [LSA-02K equality rewrite and dependent transport pilot](../../docs/lsa02k_equality_rewrite_cpu_protocol.md): new reversible nested-term proof families, genuine indexed Type transport, bounded A*/bidirectional BFS controls, matched Plan B and axiom-free Lean certification.
 - [`LOCAL_GYM_AUDIT.md`](LOCAL_GYM_AUDIT.md): what v1 got wrong, with receipts;
 - [`LEAN_DATA_PIPELINE.md`](LEAN_DATA_PIPELINE.md): Lean decides every goal, tactic and proof;
 - [`HRM_CGRT_ARCHITECTURE.md`](HRM_CGRT_ARCHITECTURE.md);
