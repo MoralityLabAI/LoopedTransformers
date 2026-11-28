@@ -454,7 +454,7 @@ def render_proof(case,path,name):
         target=f"{src} = {dst}"
     lines=[f"theorem {name} {' '.join(binders)} : {target} := by",
            f"  have eqproof : {src} = {dst} := by",
-           "    calc" if steps else "    rfl"]
+           "    exact (calc" if steps else "    rfl"]
     current=case.source
     for i,move in enumerate(steps):
         left,right=case.rules[move.rule]
@@ -470,6 +470,8 @@ def render_proof(case,path,name):
         lhs=term(current) if i==0 else "_"
         lines.append(f"      {lhs} = {term(move.successor)} := {equality}")
         current=move.successor
+    if steps:
+        lines.append("    )")
     lines.append("  exact Eq.mp (congrArg P eqproof) witness" if case.family=="dependent_transport" else "  exact eqproof")
     return "\n".join(lines)
 
