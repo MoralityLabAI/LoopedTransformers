@@ -453,7 +453,8 @@ def render_proof(case,path,name):
     else:
         target=f"{src} = {dst}"
     lines=[f"theorem {name} {' '.join(binders)} : {target} := by",
-           f"  have eqproof : {src} = {dst} := by","    calc"]
+           f"  have eqproof : {src} = {dst} := by",
+           "    calc" if steps else "    rfl"]
     current=case.source
     for i,move in enumerate(steps):
         left,right=case.rules[move.rule]
