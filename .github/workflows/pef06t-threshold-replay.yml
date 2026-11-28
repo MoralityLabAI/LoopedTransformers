@@ -1,0 +1,119 @@
+name: PEF-06T frozen logit threshold versus mixed interaction audit
+
+on:
+  push:
+    branches: ['research/pef06-frozen-coalition-probes-20261115']
+    paths:
+      - 'research/pef06/threshold_surrogate.py'
+      - 'research/pef06/test_threshold_surrogate.py'
+      - 'research/pef06/PEF06T_THRESHOLD_REPORT.md'
+      - '.github/workflows/pef06t-threshold-replay.yml'
+  pull_request:
+    paths:
+      - 'research/pef06/threshold_surrogate.py'
+      - 'research/pef06/test_threshold_surrogate.py'
+      - 'research/pef06/PEF06T_THRESHOLD_REPORT.md'
+      - '.github/workflows/pef06t-threshold-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  threshold-vs-nonlinear-frozen-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin original CPU math and test stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Retrieve exact original PEF-05 negative-trial source
+        uses: actions/download-artifact@v4
+        with:
+          name: pef05-four-seed-gradient-rescue-sealed-receipts
+          run-id: 43687506414
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef06t_original
+      - name: Pin archived twelve full checkpoint SHA256s before running
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('/tmp/pef06t_original')
+          pins={
+             (101,'baseline'):'cfd4f8a266e80c3c41a54bcbb0c5a6922e9bca8e750ed73b50a80dc7c969709b',
+             (101,'protect'):'2849666cdebf298392ab3b504c4463feca41f61c4e8ed76f0e336d6cff4e0dd2',
+             (101,'sham'):'935c793ebf8258dafc14b9ceb18cc877c890a5aa3fe4fa1567283ee059f5fee3',
+             (109,'baseline'):'851fcb67bd5fa61b5182a1a0d4d5c33226e29580b5c9dafb093bcd05ca8d1769',
+             (109,'protect'):'0cd67d74e7e7ba1602c1adafbe4cf154feba3636dbcbe65e765c8b6717f32829',
+             (109,'sham'):'8a20470c6d17cbdad10c13372d76be3e51feaf59ec57ea79368686925012c27f',
+             (127,'baseline'):'b87e14e48a10dd9b66aaf2c8e1fa36711fcf33391e9da810ae40b0f9e1d4c921',
+             (127,'protect'):'6b55d1a6897e80a15db15fda4f165abb85624641edf430c617a46f28e920504b',
+             (127,'sham'):'5e19800ae6b7f1f1c6d3a7eb77c6de9e565d9b285f0abfc3c10530386d20afd9',
+             (157,'baseline'):'78c1b1087c87b0df1ff739152fbccb993c7a19806fd5c2f6f8fd00a8420f24b5',
+             (157,'protect'):'2841ebaf5285874176938b36e472cafa9038a3465f4efe8747ba65e78327bb35',
+             (157,'sham'):'0a67bdce680133a6c85f7db90c3571567deb1298797d7309aa846524897be3aa'
+          }
+          source=json.loads((root/'summary.json').read_text())
+          assert source['registered_decision']=='criterion_not_met'
+          assert source['registered_seed_order']==[101,109,127,157]
+          for (seed,arm),sha in pins.items():
+             ledger=json.loads((root/f'seed{seed}.sealed_ledger.json').read_text())
+             row=ledger['arms'][arm]['final']
+             assert row['checkpoint_sha256']==sha
+             assert hashlib.sha256((root/row['file']).read_bytes()).hexdigest()==sha
+          print('ALL_TWELVE_PEF05_CHECKPOINTS_PINNED')
+          PY
+      - name: Test additive threshold and true mixed-logit controls
+        run: |
+          python -m pytest research/pef06/test_threshold_surrogate.py -q
+      - name: Replay all twelve frozen models at h8 and h10 with independent class surrogate
+        run: |
+          python -m research.pef06.threshold_surrogate \
+            --archive /tmp/pef06t_original --out /tmp/pef06t_receipts
+      - name: Verify complete pair-only decomposition and negative trial lineage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/pef06t_receipts')
+          data=json.loads((p/'threshold_summary.json').read_text())
+          assert data['campaign']=='PEF-06T'
+          assert data['source_sha256_verified_all_twelve']
+          assert data['source_PE05_negative_unchanged']
+          assert data['h8_trained_head_separated_from_h10_extended_head']
+          assert len(data['all_models'])==12
+          for row in data['all_models']:
+             receipt=json.loads((p/f"seed{row['seed']}.{row['arm']}.threshold.json").read_text())
+             assert receipt['original_weights_unchanged']
+             for stage in ('h8_trained_task_head','h10_same_head_after_unsupervised_two_visit_extension'):
+                r=receipt[stage]
+                assert len(r['per_pair'])==15
+                assert r['pair_only_actual_class_change_events']==(
+                   r['pair_only_events_reproduced_by_additive_surrogate']+
+                   r['pair_only_events_not_reproduced_by_additive_surrogate']
+                )
+                assert r['pair_only_actual_class_change_events']==(
+                   r['pair_only_events_from_correct_baselines']+
+                   r['pair_only_events_from_incorrect_baselines']
+                )
+          print('PEF06T_COMPLETE_FROZEN_ADDITIVE_SURROGATE_AUDIT')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef06t-original-frozen-twelve-model-threshold-compatibility
+          path: /tmp/pef06t_receipts/
+          if-no-files-found: warn
