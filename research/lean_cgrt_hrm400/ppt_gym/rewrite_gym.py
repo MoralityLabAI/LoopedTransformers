@@ -452,7 +452,9 @@ def render_proof(case,path,name):
         target=f"P {dst}"
     else:
         target=f"{src} = {dst}"
-    lines=[f"theorem {name} {' '.join(binders)} : {target} := by",
+    # Type-valued transport is a definition, not a Prop-valued theorem.
+    declaration = "def" if case.family == "dependent_transport" else "theorem"
+    lines=[f"{declaration} {name} {' '.join(binders)} : {target} := by",
            f"  have eqproof : {src} = {dst} := by",
            "    exact (calc" if steps else "    rfl"]
     current=case.source
