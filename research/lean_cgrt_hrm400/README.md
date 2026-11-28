@@ -3,6 +3,7 @@
 ## v2 (`lcgrt/`): Lean-authoritative gym
 
 Start with these documents:
+- [LSA-02K equality rewrite and dependent transport pilot](../../docs/lsa02k_equality_rewrite_cpu_protocol.md): new reversible nested-term proof families, genuine indexed Type transport, bounded A*/bidirectional BFS controls, matched Plan B and axiom-free Lean certification.
 - [`LOCAL_GYM_AUDIT.md`](LOCAL_GYM_AUDIT.md): what v1 got wrong, with receipts;
 - [`LEAN_DATA_PIPELINE.md`](LEAN_DATA_PIPELINE.md): Lean decides every goal, tactic and proof;
 - [`HRM_CGRT_ARCHITECTURE.md`](HRM_CGRT_ARCHITECTURE.md);
@@ -21,7 +22,6 @@ Start with these documents:
 - [LSA-02H native recoverable off-reference CPU study](../../docs/lsa02h_offpath_native_cpu_protocol.md): Lean-verified alternate proof states, matched reference and same-root sham training, and separately certified calibration decision coverage.
 - [LSA-02I explicit-cost native proof backtracking](../../docs/lsa02i_native_backtrack_cpu_protocol.md): frozen Plan B greedy versus charged RECONSIDER search, independent random/auto DFS controls and post-scoring native dead-branch audit.
 - [LSA-02J CPU branch viability/recovery-cost probe](../../docs/lsa02j_branch_utility_cpu_protocol.md): native training-only viability labels, learned/shuffled-sham readouts, charged DFS and strong public Horn solver control.
-- [LSA-02K equality rewrite and dependent transport pilot](../../docs/lsa02k_equality_rewrite_cpu_protocol.md): new reversible nested-term proof families, genuine indexed Type transport, bounded A*/bidirectional BFS controls, matched Plan B and axiom-free Lean certification.
 - [PPT-G03 live Lean search and verifier-checked data accretion](PPT_G03_RUNBOOK.md): native Lean 4.19 stepper, frozen theorem suites, independent compiled certificates, train-support DRAM updates and replay-gated export.
 - [PPT-G03B bounded backtracking gym](PPT_G03B_BACKTRACKING.md): saved Lean-state rollback on unprovable branches, separate tactic and host-cost accounting, and exact independent replay.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
