@@ -1,0 +1,33 @@
+name: MOLT-06 visit observability
+on:
+  pull_request:
+    paths:
+      - 'lsa/observability.py'
+      - 'experiments/molt_goblin_v1/observability_gym.py'
+      - 'tests/test_molt_observability.py'
+      - '.github/workflows/molt-observability.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  observability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pytest
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pytest -q tests/test_molt_observability.py
+      - run: python -m experiments.molt_goblin_v1.observability_gym --out /tmp/molt06.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: molt06-development
+          path: /tmp/molt06.json
+          retention-days: 7
