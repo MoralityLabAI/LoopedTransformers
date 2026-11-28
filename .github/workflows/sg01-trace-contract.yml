@@ -1,0 +1,21 @@
+name: SG-01 development trace reader contract
+on:
+  pull_request:
+    paths:
+      - 'research_gym/sg01/**'
+      - '.github/workflows/sg01-trace-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-trace-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s research_gym/sg01 -v
