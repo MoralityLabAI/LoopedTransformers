@@ -63,11 +63,14 @@ def main():
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--max-tokens", type=int, default=8192)
     ap.add_argument("--prefix-check", action="store_true")
+    ap.add_argument("--efforts", nargs="+", default=list(inky_eval.EFFORTS), choices=inky_eval.EFFORTS)
     a = ap.parse_args()
     if a.prefix_check:
         print(json.dumps(prefix_check(a.tasks, a.out / "records.jsonl", a.out / "prefix_check.jsonl")))
         return
-    r = inky_eval.run(inky_eval.load_tasks([a.tasks]), a.out, max_tokens=a.max_tokens, delay=1.0)
+    # 8192-token generations can exceed the audit-02 default client timeout of 120 s.
+    r = inky_eval.run(inky_eval.load_tasks([a.tasks]), a.out, tuple(a.efforts), max_tokens=a.max_tokens, delay=1.0,
+                      timeout=600)
     s = inky_eval.summarize(a.out / "records.jsonl")
     (a.out / "summary.json").write_text(json.dumps({"run": r, **s}, indent=2, default=str) + "\n", encoding="utf-8")
     print(json.dumps({"run": {k: v for k, v in r.items() if k != "resources"}, "totals": s["totals"]}))

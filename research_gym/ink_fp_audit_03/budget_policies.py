@@ -165,6 +165,107 @@ def run_allocator(grid, prompts, quantile_margin=0.5, families=None):
     return rows
 
 
+def run_abstain(grid, prompts, mode="lofo", tau=0.3, cap=8192, effort="low"):
+    """Arm E-abstain: predict success of (effort, cap); abstain (0 tokens, counted as failure) below tau.
+
+    mode="lofo": leave-one-family-out, prompt features only (the evaluated family is novel).
+    mode="loto": leave-one-task-out with family one-hot features added (families seen before).
+    """
+    tids = sorted(grid)
+    fams = sorted({grid[t]["family"] for t in tids})
+
+    def feat(t):
+        x = features(prompts[t])
+        if mode == "loto":
+            x = np.r_[x, [1.0 if grid[t]["family"] == f else 0.0 for f in fams]]
+        return x
+
+    rows = {}
+    for t in tids:
+        tr = ([u for u in tids if grid[u]["family"] != grid[t]["family"]] if mode == "lofo"
+              else [u for u in tids if u != t])
+        X = np.stack([feat(u) for u in tr])
+        y = np.array([float(outcome(grid[u][effort], cap)[0]) for u in tr])
+        w = fit_logistic(X, y)
+        p = 1 / (1 + math.exp(-float(feat(t) @ w)))
+        if p < tau:
+            rows[t] = {"ok": False, "tokens": 0, "seconds": 0.0, "truncated": False, "attempts": 0, "abstained": True,
+                       "p": p}
+        else:
+            ok, spent, sec = outcome(grid[t][effort], cap)
+            rows[t] = {"ok": ok, "tokens": spent, "seconds": sec, "attempts": 1, "abstained": False, "p": p,
+                       "truncated": not (grid[t][effort]["fin"] and grid[t][effort]["ct"] <= cap)}
+    return rows
+
+
+def register_abstainer(dev_records: Path, dev_tasks: Path, target_tasks: Path, out: Path, tau: float = 0.2,
+                       cap: int = 8192, effort: str = "low") -> dict:
+    """Freeze the family-aware abstainer trained on all dev data and write its target predictions
+    before any target sample exists (registration hash recorded)."""
+    import hashlib
+    grid = load(dev_records)
+    prompts = {json.loads(x)["task_id"]: json.loads(x)["prompt"] for x in Path(dev_tasks).read_text(encoding="utf-8").splitlines() if x.strip()}
+    grid = {t: g for t, g in grid.items() if t in prompts}
+    fams = sorted({g["family"] for g in grid.values()})
+
+    def feat(prompt, family):
+        return np.r_[features(prompt), [1.0 if family == f else 0.0 for f in fams]]
+    tids = sorted(grid)
+    X = np.stack([feat(prompts[t], grid[t]["family"]) for t in tids])
+    y = np.array([float(outcome(grid[t][effort], cap)[0]) for t in tids])
+    w = fit_logistic(X, y)
+    preds = []
+    for line in Path(target_tasks).read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        p = 1 / (1 + math.exp(-float(feat(r["prompt"], r["family"]) @ w)))
+        preds.append({"task_id": r["task_id"], "family": r["family"], "p_success": p, "abstain": p < tau})
+    reg = {"schema": "ink-budget-01.abstainer_registration.v1", "mode": "family-aware logistic, trained on all dev",
+           "tau": tau, "effort": effort, "cap": cap, "families_seen": fams, "weights": w.tolist(),
+           "dev_records_sha256": hashlib.sha256(Path(dev_records).read_bytes()).hexdigest(),
+           "predictions": preds, "primary_endpoint": "success and total tokens vs static low@8192 on the target tasks",
+           "utc_registered": __import__("time").strftime("%Y-%m-%dT%H:%M:%SZ", __import__("time").gmtime())}
+    body = json.dumps(reg, sort_keys=True).encode()
+    reg["registration_sha256"] = hashlib.sha256(body).hexdigest()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(reg, indent=2) + "\n", encoding="utf-8", newline="\n")
+    return {"n": len(preds), "abstain": sum(p["abstain"] for p in preds), "sha256": reg["registration_sha256"]}
+
+
+def score_registration(reg_path: Path, target_records: Path) -> dict:
+    reg = json.loads(Path(reg_path).read_text(encoding="utf-8"))
+    cap, effort = reg["cap"], reg["effort"]
+    cells = {}
+    for line in Path(target_records).read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            r = json.loads(line)
+            if r["effort"] == effort:
+                cells[r["task_id"]] = {"ok": bool(r["correct"]), "fin": r["finish_reason"] == "stop",
+                                       "ct": int((r.get("usage") or {}).get("completion_tokens") or 0), "sec": 0.0}
+    static_ok = static_tok = pol_ok = pol_tok = lost = 0
+    per = []
+    for p in reg["predictions"]:
+        c = cells.get(p["task_id"])
+        if c is None:
+            continue
+        ok, spent, _ = outcome(c, cap)
+        static_ok += ok
+        static_tok += spent
+        if p["abstain"]:
+            lost += ok
+        else:
+            pol_ok += ok
+            pol_tok += spent
+        per.append({"task_id": p["task_id"], "family": p["family"], "abstain": p["abstain"], "static_ok": ok,
+                    "policy_ok": ok and not p["abstain"], "static_tokens": spent, "policy_tokens": 0 if p["abstain"] else spent})
+    return {"n": len(per), "static": {"success": static_ok, "tokens": static_tok},
+            "abstainer": {"success": pol_ok, "tokens": pol_tok, "abstained": sum(x["abstain"] for x in per),
+                          "lost_successes": lost},
+            "token_saving_fraction": 1 - pol_tok / static_tok if static_tok else None, "paired": per,
+            "registration_sha256": reg["registration_sha256"]}
+
+
 # ---- summaries ---------------------------------------------------------------------------------------
 def summarize(rows: dict) -> dict:
     n = len(rows)
@@ -205,6 +306,15 @@ def evaluate(records: Path, tasks: Path) -> dict:
     rows = run_allocator(grid, prompts)
     arms["F allocator"] = summarize(rows)
     paired["F allocator"] = rows
+    for mode in ("lofo", "loto"):
+        for tau in (0.2, 0.4):
+            rows = run_abstain(grid, prompts, mode=mode, tau=tau)
+            k = f"E abstain {mode} tau={tau}"
+            arms[k] = summarize(rows) | {"abstained": sum(r.get("abstained", False) for r in rows.values()),
+                                         "abstained_would_have_succeeded": sum(
+                                             r.get("abstained", False) and outcome(grid[t]["low"], 8192)[0]
+                                             for t, r in rows.items())}
+            paired[k] = rows
     rows = run_oracle(grid)
     arms["H oracle"] = summarize(rows)
     paired["H oracle"] = rows

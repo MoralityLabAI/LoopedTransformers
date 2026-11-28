@@ -32,7 +32,7 @@ def load_tasks(paths: list[Path]) -> list[Task]:
 
 
 def run(tasks: list[Task], out: Path, efforts=EFFORTS, max_tokens: int = 512, delay: float = 1.0,
-        max_requests: int | None = None, transport=None) -> dict:
+        max_requests: int | None = None, transport=None, timeout: float = 120) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     recs = out / "records.jsonl"
     done = {(r["task_id"], r["effort"]) for r in iter_jsonl(recs)} if recs.exists() else set()
@@ -40,7 +40,7 @@ def run(tasks: list[Task], out: Path, efforts=EFFORTS, max_tokens: int = 512, de
     if not key:
         raise RuntimeError("TINKER_API_KEY not present in environment")
     usage = Usage()
-    sampler = OAISampler(usage, transport=transport)
+    sampler = OAISampler(usage, transport=transport, timeout=timeout)
     monitor = res.ResourceMonitor()
     sent = 0
     for t in tasks:

@@ -76,7 +76,46 @@ def render_effort_table(stats: dict) -> str:
     return "\n".join(lines)
 
 
+A03 = ROOT / "research_gym/ink_fp_audit_03"
+BUDGET = A03 / "receipts/budget01_dev_20261128"
+FRONTIER = A03 / "receipts/frontier01_20261128"
+
+
+def render_families(stats: dict) -> str:
+    lines = ["| Family | Low | Medium | High |", "|---|---:|---:|---:|"]
+    for f, row in stats["families"].items():
+        lines.append(f"| {f} | {row['low']} | {row['medium']} | {row['high']} |")
+    return "\n".join(lines)
+
+
+def render_budget_arms() -> str:
+    from .budget_policies import evaluate
+    ev = evaluate(BUDGET / "records.jsonl", FRONTIER / "tasks_dev.jsonl")
+    keep = [k for k in ev["arms"] if k[:1] in "DEFH" or k.endswith(("@1024", "@2048", "@4096", "@8192"))]
+    lines = [f"Paired tasks with all three efforts: {ev['n_tasks']}.", "",
+             "| Arm | Success | Tokens | Success / 1k tokens | Truncation rate | Correct given complete | Escalated | Rescued by escalation |",
+             "|---|---:|---:|---:|---:|---:|---:|---:|"]
+    f3 = lambda v: "—" if v is None else f"{v:.3f}"
+    for k in keep:
+        v = ev["arms"][k]
+        if "success" not in v:
+            lines.append(f"| {k} | {v.get('status', '')} | | | | | | |")
+            continue
+        lines.append(f"| {k} | {v['success']}/{v['n']} | {v['tokens']:,} | {f3(v['success_per_1k_tokens'])} | "
+                     f"{f3(v['truncation_rate'])} | {f3(v['correct_given_complete'])} | {v['escalated']} | {v['escalation_rescues']} |")
+    lines += ["", "| Adaptive arm | Success | Tokens | Best static arm within that token budget | Static success | Static tokens |",
+              "|---|---:|---:|---|---:|---:|"]
+    for k, m in ev["matched_budget"].items():
+        lines.append(f"| {k} | {m['adaptive_success']} | {m['adaptive_tokens']:,} | {m['best_static_within_budget'] or '—'} | "
+                     f"{'—' if m['static_success'] is None else m['static_success']} | "
+                     f"{'—' if m['static_tokens'] is None else format(m['static_tokens'], ',')} |")
+    return "\n".join(lines)
+
+
 BLOCKS = {
+    "a03_budget_effort": lambda: render_effort_table(effort_stats(records(BUDGET / "records.jsonl"))),
+    "a03_budget_families": lambda: render_families(effort_stats(records(BUDGET / "records.jsonl"))),
+    "a03_budget_arms": render_budget_arms,
     "a02_base_dev": lambda: render_effort_table(effort_stats(records(
         A02 / "receipts/inky_base_dev_20261128/records.jsonl"))),
     "a02_frontier8192": lambda: render_effort_table(effort_stats(records(
