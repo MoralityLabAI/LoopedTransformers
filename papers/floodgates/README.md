@@ -75,6 +75,28 @@ reported separately. Follow with rank/transport comparisons, BPD-guided
 adapters and calibrated draft-length control; then register a bounded
 researcher task for GoblinBench. No GPU allocation is implied.
 
+## First companion results (GSF-10)
+
+[CPU pilot](https://github.com/MoralityLabAI/HybridTRMLDT/actions/runs/46096326247):
+two synthetic targets, eight trained adapters, 192 audited traces, zero greedy
+mismatches. At matched rank 4, first/deep/null cache emitted 3.470/3.097/1.636
+tokens per verification for the final-only target and 3.429/2.462/1.540 for
+the all-depth target. First-loop conditioning won this small fixture. The
+best arm still used 1.632 times ordinary serialized block-token work; actual
+latency acceleration remains unestablished. The targets differ in truth
+accuracy (95.49% vs 85.42% on development), so their draft acceptance is not
+an isolated supervision effect at equal target quality.
+
+[FG-05 prospective protocol](https://github.com/MoralityLabAI/HybridTRMLDT/blob/gym/gsf10-floodgates-20261128/research_gym/benchmarks/floodgates_gym/FG05_PROTOCOL.md)
+adapts NC-03-style gradient covariance to frozen Q/V/O output perturbations
+on masked future-token log probabilities. Compare guided, Haar and shuffled
+orthonormal LoRA B initialization with zero A, plus ordinary LoRA. Both factors
+remain trainable, every physical update starts at zero, and discovery roots
+are distinct from fit and evaluation. Run the same rank-four comparison for
+first/deep prefix memory on two fresh synthetic target checkpoints. This is
+BPD-inspired initialization, not a native BPD decomposition or evidence of
+published-model acceleration. See [HybridTRMLDT PR #49](https://github.com/MoralityLabAI/HybridTRMLDT/pull/49).
+
 ## Citation
 
 ```bibtex
