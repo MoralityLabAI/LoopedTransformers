@@ -177,8 +177,35 @@ class MechanisticMemory:
         if not bool(torch.isfinite(cosine)) or not bool(torch.isfinite(v).all() and torch.isfinite(u).all()):
             raise ValueError('nonfinite MMS factors')
         self.map_cosine = float(cosine)
-        self.v = v.clone()
-        self.u = torch.nn.functional.normalize(u, dim=1).clone()
+        # Canonicalize W_hat = (V @ U)^T: n_j = ||U_j||_2, U'_j = U_j / n_j, V'[:,j] = V[:,j] * n_j,
+        # explicit zero-component exclusion, sign canonicalization, and stable physical column order.
+        u_norms = u.norm(dim=1)
+        v_norms = v.norm(dim=0)
+        active = (u_norms > 1e-12) & (v_norms > 1e-12)
+        v_c = torch.zeros_like(v)
+        u_c = torch.zeros_like(u)
+        comp_ids = []
+        for j in range(u.shape[0]):
+            if not bool(active[j]):
+                comp_ids.append(f'zero_{j:04d}')
+                continue
+            nj = u_norms[j]
+            uj = u[j] / nj
+            vj = v[:, j] * nj
+            pivot = int(uj.abs().argmax().item())
+            if float(uj[pivot]) < 0.0:
+                uj = -uj
+                vj = -vj
+            u_c[j] = uj
+            v_c[:, j] = vj
+            q_u = torch.round(uj.double() * 1e4).to(torch.int64).numpy().tobytes()
+            q_v = torch.round(vj.double() * 1e4).to(torch.int64).numpy().tobytes()
+            comp_ids.append(hashlib.sha256(q_u + q_v).hexdigest()[:16])
+        order = sorted(range(u.shape[0]), key=lambda j: (0 if bool(active[j]) else 1, comp_ids[j], j))
+        idx_t = torch.tensor(order, dtype=torch.long)
+        self.v = v_c[:, idx_t].clone()
+        self.u = u_c[idx_t, :].clone()
+        self.active = active[idx_t].clone()
         self.map_step = step
         self.map_refreshes += 1
 
@@ -213,7 +240,17 @@ class MechanisticMemory:
         reads = (inputs @ self.v).abs().mean(dim=1)
         coeff = h @ self.u.T
         scores = reads * coeff.abs().mean(dim=1)
-        indices = scores.topk(min(self.topk, scores.shape[-1]), dim=1).indices
+        if getattr(self, 'active', None) is not None:
+            scores = scores.masked_fill(~self.active[None, :], float('-inf'))
+            n_active = int(self.active.sum().item())
+        else:
+            n_active = scores.shape[-1]
+        k_sel = min(self.topk, n_active)
+        if k_sel == 0:
+            self.cpu_seconds += time.process_time() - started
+            return gradient
+        rounded = torch.where(torch.isfinite(scores), -torch.round(scores * 1e6), torch.tensor(float('inf')))
+        indices = torch.argsort(rounded, dim=1, stable=True)[:, :k_sel]
         selected = self.u[indices]
         # Sum normalized component outer products; U need not be orthogonal.
         projected = (h @ selected.transpose(1, 2)) @ selected
