@@ -1,0 +1,79 @@
+{
+  "teacher_capacity_per_physical_layer": 12,
+  "student_capacity_per_physical_layer": 8,
+  "interpretation": "Held-out routing-mass diagnostic within the scoped real-weight teacher.",
+  "root_balanced_mass": {
+    "global": {
+      "prefill": 0.8960482627153397,
+      "decode": 0.9199258685112
+    },
+    "hindsight": {
+      "prefill": 0.9006325602531433,
+      "decode": 0.9409557282924652
+    },
+    "ldt": {
+      "prefill": 0.6970385611057281,
+      "decode": 0.6887231171131134
+    },
+    "trm": {
+      "prefill": 0.7421813905239105,
+      "decode": 0.7494926601648331
+    }
+  },
+  "mass_by_root": {
+    "global": {
+      "arc-agi-2-training/2de01db2": {
+        "prefill": 0.9026260375976562,
+        "decode": 0.9288023412227631
+      },
+      "sudoku/1700012": {
+        "prefill": 0.8894704878330231,
+        "decode": 0.9110493957996368
+      }
+    },
+    "hindsight": {
+      "arc-agi-2-training/2de01db2": {
+        "prefill": 0.9043185710906982,
+        "decode": 0.9464070200920105
+      },
+      "sudoku/1700012": {
+        "prefill": 0.8969465494155884,
+        "decode": 0.9355044364929199
+      }
+    },
+    "ldt": {
+      "arc-agi-2-training/2de01db2": {
+        "prefill": 0.6995372772216797,
+        "decode": 0.707278698682785
+      },
+      "sudoku/1700012": {
+        "prefill": 0.6945398449897766,
+        "decode": 0.6701675355434418
+      }
+    },
+    "trm": {
+      "arc-agi-2-training/2de01db2": {
+        "prefill": 0.7446003556251526,
+        "decode": 0.7572580575942993
+      },
+      "sudoku/1700012": {
+        "prefill": 0.7397624254226685,
+        "decode": 0.7417272627353668
+      }
+    }
+  },
+  "oracle_headroom": {
+    "global": {
+      "prefill": 0.00458429753780365,
+      "decode": 0.02102985978126526
+    },
+    "ldt": {
+      "prefill": 0.20359399914741516,
+      "decode": 0.2522326111793518
+    },
+    "trm": {
+      "prefill": 0.1584511697292328,
+      "decode": 0.19146306812763214
+    }
+  }
+}

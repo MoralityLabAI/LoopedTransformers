@@ -1,0 +1,118 @@
+{
+  "scope": "One development root each for Sudoku and ARC-AGI-2 public training. Infill and outfill, four policies, 24-token timing probes.",
+  "all_pairs": {
+    "n": 16,
+    "same_output": 13,
+    "gpu_faster_prefill": 16,
+    "gpu_faster_decode": 1,
+    "gpu_faster_end_to_end": 10,
+    "cpu_median_prefill_tps": 3.7102572932170617,
+    "gpu_median_prefill_tps": 19.84170357188364,
+    "cpu_median_decode_tps": 1.6824242820053317,
+    "gpu_median_decode_tps": 0.884994591658336,
+    "cpu_median_wall_seconds": 126.31786344999819,
+    "gpu_median_wall_seconds": 118.05314685000121,
+    "gpu_max_peak_rss_bytes": 3146264576,
+    "gpu_max_sampled_device_free_delta_bytes": 2074083328
+  },
+  "tasks": {
+    "sudoku": {
+      "n": 8,
+      "same_output": 6,
+      "gpu_faster_prefill": 8,
+      "gpu_faster_decode": 0,
+      "gpu_faster_end_to_end": 4,
+      "cpu_median_prefill_tps": 3.7049679888839933,
+      "gpu_median_prefill_tps": 15.174698166233622,
+      "cpu_median_decode_tps": 1.7450773933776076,
+      "gpu_median_decode_tps": 0.8130908681784117,
+      "cpu_median_wall_seconds": 117.12602425000114,
+      "gpu_median_wall_seconds": 118.05314685000121,
+      "gpu_max_peak_rss_bytes": 3074949120,
+      "gpu_max_sampled_device_free_delta_bytes": 2074083328
+    },
+    "arc-agi-2": {
+      "n": 8,
+      "same_output": 7,
+      "gpu_faster_prefill": 8,
+      "gpu_faster_decode": 1,
+      "gpu_faster_end_to_end": 6,
+      "cpu_median_prefill_tps": 4.127127895208488,
+      "gpu_median_prefill_tps": 22.72849867390393,
+      "cpu_median_decode_tps": 1.5852018642971042,
+      "gpu_median_decode_tps": 1.078986274287787,
+      "cpu_median_wall_seconds": 143.0854220500023,
+      "gpu_median_wall_seconds": 127.43158589999985,
+      "gpu_max_peak_rss_bytes": 3146264576,
+      "gpu_max_sampled_device_free_delta_bytes": 2074083328
+    }
+  },
+  "policies": {
+    "teacher_subset": {
+      "n": 4,
+      "same_output": 3,
+      "gpu_faster_prefill": 4,
+      "gpu_faster_decode": 1,
+      "gpu_faster_end_to_end": 3,
+      "cpu_median_prefill_tps": 3.4620320624507595,
+      "gpu_median_prefill_tps": 22.836361086860332,
+      "cpu_median_decode_tps": 1.589330224684026,
+      "gpu_median_decode_tps": 0.9074296068497758,
+      "cpu_median_wall_seconds": 98.54319924999982,
+      "gpu_median_wall_seconds": 80.92164804999993,
+      "gpu_max_peak_rss_bytes": 3146264576,
+      "gpu_max_sampled_device_free_delta_bytes": 2074083328
+    },
+    "global": {
+      "n": 4,
+      "same_output": 4,
+      "gpu_faster_prefill": 4,
+      "gpu_faster_decode": 0,
+      "gpu_faster_end_to_end": 2,
+      "cpu_median_prefill_tps": 3.85204516832843,
+      "gpu_median_prefill_tps": 19.412041452723173,
+      "cpu_median_decode_tps": 1.4737839257564564,
+      "gpu_median_decode_tps": 0.92036819141744,
+      "cpu_median_wall_seconds": 134.44560394999917,
+      "gpu_median_wall_seconds": 127.13795825000307,
+      "gpu_max_peak_rss_bytes": 2666639360,
+      "gpu_max_sampled_device_free_delta_bytes": 1755316224
+    },
+    "ldt": {
+      "n": 4,
+      "same_output": 3,
+      "gpu_faster_prefill": 4,
+      "gpu_faster_decode": 0,
+      "gpu_faster_end_to_end": 2,
+      "cpu_median_prefill_tps": 4.216703055585036,
+      "gpu_median_prefill_tps": 19.2124177762962,
+      "cpu_median_decode_tps": 1.6478549756693803,
+      "gpu_median_decode_tps": 0.9863030420603961,
+      "cpu_median_wall_seconds": 130.5854261000004,
+      "gpu_median_wall_seconds": 118.48893550000139,
+      "gpu_max_peak_rss_bytes": 2666512384,
+      "gpu_max_sampled_device_free_delta_bytes": 1755316224
+    },
+    "trm": {
+      "n": 4,
+      "same_output": 3,
+      "gpu_faster_prefill": 4,
+      "gpu_faster_decode": 0,
+      "gpu_faster_end_to_end": 3,
+      "cpu_median_prefill_tps": 3.7102572932170617,
+      "gpu_median_prefill_tps": 18.864528249650917,
+      "cpu_median_decode_tps": 1.822737520646292,
+      "gpu_median_decode_tps": 0.8035936361221963,
+      "cpu_median_wall_seconds": 134.95768155000133,
+      "gpu_median_wall_seconds": 130.25903605000167,
+      "gpu_max_peak_rss_bytes": 2666373120,
+      "gpu_max_sampled_device_free_delta_bytes": 1755316224
+    }
+  },
+  "timing_identity": {
+    "cpu_binary": "eca02a08e898b86099bb5e42cc69b9198c521ea341e0f8fd01a7540718d87c44",
+    "cuda_binary": "07b8f5ca04d8a6b4d82ddf3ee27b87bd33b5b5113be5cf3e440d45f6ea76c844",
+    "cuda_libraries": "10d945a6bee286f51d5c8317d053ec39e7971077ddb2131092d5f9d9970c5813",
+    "plans": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac"
+  }
+}

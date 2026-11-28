@@ -1,0 +1,46 @@
+{
+  "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+  "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+  "seed": 17,
+  "epochs": 35,
+  "batch": 4,
+  "global_prior": true,
+  "device": "cuda",
+  "cuda_device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+  "published_composition_sha256": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923",
+  "train_roots": [
+    "arc-agi-2-training/6fa7a44f",
+    "storyworld-hilbert/enc_16",
+    "sudoku/1700000"
+  ],
+  "dev_roots": [
+    "arc-agi-2-training/2de01db2",
+    "storyworld-hilbert/enc_03",
+    "sudoku/1700012"
+  ],
+  "models": {
+    "ldt": {
+      "training_seconds": 4.5922576120001395,
+      "parameters": 20544
+    },
+    "trm": {
+      "training_seconds": 1.6402073090000613,
+      "parameters": 20544
+    }
+  },
+  "memory": {
+    "pid": 27732,
+    "baseline_rss_bytes": 381825024,
+    "process_peak_rss_bytes": 870162432,
+    "incremental_peak_rss_bytes": 488337408,
+    "system_available_start_bytes": 15182327808,
+    "system_available_min_sampled_bytes": 14705414144,
+    "cuda_free_start_bytes": 3459986228,
+    "cuda_allocator_limit_bytes": 1610612736,
+    "peak_cuda_allocated_bytes": 19226112,
+    "peak_cuda_reserved_bytes": 25165824,
+    "run_peak_cuda_allocated_bytes": 19226112,
+    "run_peak_cuda_reserved_bytes": 25165824
+  }
+}

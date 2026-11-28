@@ -1,0 +1,301 @@
+{
+  "scope": "One development root per task, two prompt modes and four cold policies per root.",
+  "grid_requests": 16,
+  "storyworld_requests": 8,
+  "max_grid_process_rss_bytes": 3130540032,
+  "max_grid_sampled_post_init_device_free_delta_bytes": 2134900736,
+  "tasks": {
+    "arc-agi-2": {
+      "requests": 8,
+      "development_roots": [
+        "arc-agi-2-training/2de01db2"
+      ],
+      "parsed": 0,
+      "correct_or_valid": 0,
+      "reached_output_cap": 8,
+      "median_prefill_tps": 19.849900806314025,
+      "median_decode_tps": 0.9687173657526045,
+      "mode_results": {
+        "outfill": {
+          "teacher_subset": {
+            "input_tokens": 199,
+            "output_tokens": 384,
+            "prefill_tps": 14.705225189554792,
+            "decode_tps": 0.9743657098136397,
+            "cold_request_seconds": 505.9869209999997,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 0
+          },
+          "global": {
+            "input_tokens": 199,
+            "output_tokens": 384,
+            "prefill_tps": 16.388476474456866,
+            "decode_tps": 1.0215776982956497,
+            "cold_request_seconds": 521.5740884999977,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          },
+          "ldt": {
+            "input_tokens": 199,
+            "output_tokens": 384,
+            "prefill_tps": 27.257033488438825,
+            "decode_tps": 0.9756336454618855,
+            "cold_request_seconds": 479.8601437999969,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          },
+          "trm": {
+            "input_tokens": 199,
+            "output_tokens": 384,
+            "prefill_tps": 16.939321588296156,
+            "decode_tps": 0.9988369482513947,
+            "cold_request_seconds": 526.0953910999997,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          }
+        },
+        "infill": {
+          "teacher_subset": {
+            "input_tokens": 238,
+            "output_tokens": 384,
+            "prefill_tps": 29.777258239912634,
+            "decode_tps": 0.9630690216915694,
+            "cold_request_seconds": 450.21590579999975,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 77
+          },
+          "global": {
+            "input_tokens": 238,
+            "output_tokens": 384,
+            "prefill_tps": 25.2850469449374,
+            "decode_tps": 0.8641577984755452,
+            "cold_request_seconds": 542.1604993999972,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 77
+          },
+          "ldt": {
+            "input_tokens": 238,
+            "output_tokens": 384,
+            "prefill_tps": 19.879754367181704,
+            "decode_tps": 0.8056536498054795,
+            "cold_request_seconds": 574.4465720000007,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 77
+          },
+          "trm": {
+            "input_tokens": 238,
+            "output_tokens": 384,
+            "prefill_tps": 19.82004724544635,
+            "decode_tps": 0.8679608259829572,
+            "cold_request_seconds": 561.9812469000026,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 77
+          }
+        }
+      }
+    },
+    "storyworld": {
+      "requests": 8,
+      "development_roots": [
+        "storyworld-hilbert/enc_03"
+      ],
+      "parsed": 0,
+      "correct_or_valid": 0,
+      "reached_output_cap": 8,
+      "median_prefill_tps": 28.30579446086348,
+      "median_decode_tps": 0.9490259788203093,
+      "mode_results": {
+        "outfill": {
+          "teacher_subset": {
+            "input_tokens": 445,
+            "output_tokens": 512,
+            "prefill_tps": 23.30340107925074,
+            "decode_tps": 0.9487803087614523,
+            "cold_request_seconds": 604.1612820000009,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 0
+          },
+          "global": {
+            "input_tokens": 445,
+            "output_tokens": 512,
+            "prefill_tps": 31.69966324933412,
+            "decode_tps": 1.1454294361897612,
+            "cold_request_seconds": 540.4089573000019,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          },
+          "ldt": {
+            "input_tokens": 445,
+            "output_tokens": 512,
+            "prefill_tps": 21.657857002947004,
+            "decode_tps": 1.0914793147671653,
+            "cold_request_seconds": 577.0797154000029,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          },
+          "trm": {
+            "input_tokens": 445,
+            "output_tokens": 512,
+            "prefill_tps": 27.504130001464397,
+            "decode_tps": 0.7622124045313079,
+            "cold_request_seconds": 795.4122399000007,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          }
+        },
+        "infill": {
+          "teacher_subset": {
+            "input_tokens": 484,
+            "output_tokens": 512,
+            "prefill_tps": 41.23872062998819,
+            "decode_tps": 0.9384296220290328,
+            "cold_request_seconds": 607.2803391000016,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 0
+          },
+          "global": {
+            "input_tokens": 484,
+            "output_tokens": 512,
+            "prefill_tps": 27.52689011807631,
+            "decode_tps": 0.9492716488791664,
+            "cold_request_seconds": 703.1635367999988,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 0
+          },
+          "ldt": {
+            "input_tokens": 484,
+            "output_tokens": 512,
+            "prefill_tps": 41.658062347380984,
+            "decode_tps": 0.8636397504882216,
+            "cold_request_seconds": 702.5282328999965,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 102
+          },
+          "trm": {
+            "input_tokens": 484,
+            "output_tokens": 512,
+            "prefill_tps": 29.08469880365065,
+            "decode_tps": 0.9761182402013459,
+            "cold_request_seconds": 648.113823300002,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 102
+          }
+        }
+      }
+    },
+    "sudoku": {
+      "requests": 8,
+      "development_roots": [
+        "sudoku/1700012"
+      ],
+      "parsed": 0,
+      "correct_or_valid": 0,
+      "reached_output_cap": 8,
+      "median_prefill_tps": 10.467509833783703,
+      "median_decode_tps": 0.8187271898310693,
+      "mode_results": {
+        "outfill": {
+          "teacher_subset": {
+            "input_tokens": 95,
+            "output_tokens": 256,
+            "prefill_tps": 10.015331520094742,
+            "decode_tps": 0.8587641092593549,
+            "cold_request_seconds": 358.187926700004,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 0
+          },
+          "global": {
+            "input_tokens": 95,
+            "output_tokens": 256,
+            "prefill_tps": 6.506134381361987,
+            "decode_tps": 0.7868379045494284,
+            "cold_request_seconds": 466.16896540000016,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          },
+          "ldt": {
+            "input_tokens": 95,
+            "output_tokens": 256,
+            "prefill_tps": 10.056314434594242,
+            "decode_tps": 0.8045593781849142,
+            "cold_request_seconds": 406.0745568999919,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          },
+          "trm": {
+            "input_tokens": 95,
+            "output_tokens": 256,
+            "prefill_tps": 10.447552147621181,
+            "decode_tps": 0.8597160614149721,
+            "cold_request_seconds": 384.2706410000101,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": false,
+            "after_close_tag_count": 0
+          }
+        },
+        "infill": {
+          "teacher_subset": {
+            "input_tokens": 134,
+            "output_tokens": 256,
+            "prefill_tps": 18.261956289558977,
+            "decode_tps": 0.8181306705886815,
+            "cold_request_seconds": 367.3423613999985,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 51
+          },
+          "global": {
+            "input_tokens": 134,
+            "output_tokens": 256,
+            "prefill_tps": 14.121750721054589,
+            "decode_tps": 0.7338010663180038,
+            "cold_request_seconds": 438.16715559999284,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 51
+          },
+          "ldt": {
+            "input_tokens": 134,
+            "output_tokens": 256,
+            "prefill_tps": 10.487467519946225,
+            "decode_tps": 0.8193237090734571,
+            "cold_request_seconds": 450.0390869999974,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 51
+          },
+          "trm": {
+            "input_tokens": 134,
+            "output_tokens": 256,
+            "prefill_tps": 11.006687846131333,
+            "decode_tps": 0.8526614262753819,
+            "cold_request_seconds": 430.68383950000134,
+            "correct_or_valid": false,
+            "matches_scoped_teacher_completion": true,
+            "after_close_tag_count": 51
+          }
+        }
+      }
+    }
+  },
+  "storyworld_historical_comparison": "../../mixed-storyworld/quality-k8-cuda28-persistent/verified-overview.json"
+}

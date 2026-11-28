@@ -1,0 +1,254 @@
+{
+  "groups": [
+    {
+      "task": "arc-agi-2",
+      "mode": "outfill",
+      "policy": "teacher_subset",
+      "capacity": 12,
+      "requests": 1,
+      "roots": 1,
+      "median_prefill_tps": 27.380270924239245,
+      "median_decode_tps": 0.8816136984399281,
+      "median_selection_seconds": 0.0,
+      "median_load_seconds": 33.188612563,
+      "median_end_to_end_seconds": 77.40749540000252,
+      "median_peak_rss_bytes": 3076722688,
+      "median_planned_vram_bytes": 1801860864,
+      "max_sampled_vram_delta_bytes": 2074083328
+    }
+  ],
+  "paired": [],
+  "paired_groups": [],
+  "same_prompt_goose": [],
+  "unmatched": [],
+  "matched_cpu_cuda": {
+    "cpu_spec": {
+      "command": "benchmark",
+      "case_file_sha256": "f13a865f19324c0552d211719f961e15ddfb288d930a53cfe5c14f6d3932c575",
+      "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+      "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "runtime_binary_sha256": "eca02a08e898b86099bb5e42cc69b9198c521ea341e0f8fd01a7540718d87c44",
+      "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+      "context": 512,
+      "threads": 4,
+      "batch_tokens": 32,
+      "sampler": "greedy",
+      "n_gpu_layers": 0,
+      "max_new_override": 24,
+      "parse_special": false,
+      "rss_limit_bytes": 3221225472,
+      "capacity": 8,
+      "teacher_in_ram": true,
+      "plans_sha256": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac",
+      "controller_checkpoint_sha256": {
+        "ldt": "e259f96d648630d8d88647e9316de287756092e244b474c12e3e424669efdf45",
+        "trm": "074427e9a51ae46c3cbfff142f70d9c2ee0d39ac8f61a4424cd9e1d40a20688e"
+      },
+      "published_composition_sha256": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923"
+    },
+    "cuda_spec": {
+      "command": "benchmark",
+      "case_file_sha256": "f13a865f19324c0552d211719f961e15ddfb288d930a53cfe5c14f6d3932c575",
+      "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+      "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+      "runtime_binary_sha256": "7b906b878a2a652e9afafca65b621d3ca0776203bccb74bfc0bef64923abd1f5",
+      "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+      "context": 512,
+      "threads": 4,
+      "batch_tokens": 32,
+      "sampler": "greedy",
+      "n_gpu_layers": 28,
+      "max_new_override": 24,
+      "parse_special": false,
+      "rss_limit_bytes": 3221225472,
+      "capacity": 8,
+      "teacher_in_ram": true,
+      "plans_sha256": "f168445f9032e6056694dde77256b3d6172a4ef2f185c2b589eb5b1d40d027ac",
+      "controller_checkpoint_sha256": {
+        "ldt": "e259f96d648630d8d88647e9316de287756092e244b474c12e3e424669efdf45",
+        "trm": "074427e9a51ae46c3cbfff142f70d9c2ee0d39ac8f61a4424cd9e1d40a20688e"
+      },
+      "published_composition_sha256": "32325c9536594415d9475361a9d9892eada08cbe97163478e50339b99cb90923",
+      "vram_limit_bytes": 2147483648,
+      "wsl_run_lock": "/tmp/codex-inky-cuda.AREptmC1/inky-model-run.lock"
+    },
+    "paired": [
+      {
+        "case_id": "arc-agi-2-training/2de01db2/outfill",
+        "policy": "teacher_subset",
+        "root": "arc-agi-2-training/2de01db2",
+        "task": "arc-agi-2",
+        "mode": "outfill",
+        "capacity": 12,
+        "prompt_sha256": "aafbc9e0b5d3c0c0e3d91cdf5575721c36ad676ccacb18abc4dc624538a8cce6",
+        "quality_evaluated": false,
+        "cpu": {
+          "input_tokens": 199,
+          "output_tokens": 24,
+          "prefill_tps": 2.6484509543613606,
+          "decode_tps": 0.9964461123375381,
+          "end_to_end_seconds": 136.2047606999986,
+          "peak_rss_bytes": 2938077184,
+          "stop": "limit",
+          "quality": {}
+        },
+        "cuda": {
+          "input_tokens": 199,
+          "output_tokens": 24,
+          "prefill_tps": 27.380270924239245,
+          "decode_tps": 0.8816136984399281,
+          "end_to_end_seconds": 77.40749540000252,
+          "peak_rss_bytes": 3076722688,
+          "stop": "limit",
+          "quality": {}
+        },
+        "cuda_offload": {
+          "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+          "gpu_layers_requested": 28,
+          "planned_vram_bytes": 1801860864,
+          "preflight_seconds": 9.113183582,
+          "sampled_peak_device_free_delta_bytes": 2074083328,
+          "vram_cap_bytes": 2147483648
+        },
+        "same_token_counts": true,
+        "same_output": true,
+        "cpu_to_cuda_wall_time_ratio": 1.759581032769007
+      }
+    ],
+    "cpu_only": [
+      [
+        "arc-agi-2-training/2de01db2/infill",
+        "global"
+      ],
+      [
+        "arc-agi-2-training/2de01db2/infill",
+        "ldt"
+      ],
+      [
+        "arc-agi-2-training/2de01db2/infill",
+        "teacher_subset"
+      ],
+      [
+        "arc-agi-2-training/2de01db2/infill",
+        "trm"
+      ],
+      [
+        "arc-agi-2-training/2de01db2/outfill",
+        "global"
+      ],
+      [
+        "arc-agi-2-training/2de01db2/outfill",
+        "ldt"
+      ],
+      [
+        "arc-agi-2-training/2de01db2/outfill",
+        "trm"
+      ],
+      [
+        "sudoku/1700012/infill",
+        "global"
+      ],
+      [
+        "sudoku/1700012/infill",
+        "ldt"
+      ],
+      [
+        "sudoku/1700012/infill",
+        "teacher_subset"
+      ],
+      [
+        "sudoku/1700012/infill",
+        "trm"
+      ],
+      [
+        "sudoku/1700012/outfill",
+        "global"
+      ],
+      [
+        "sudoku/1700012/outfill",
+        "ldt"
+      ],
+      [
+        "sudoku/1700012/outfill",
+        "teacher_subset"
+      ],
+      [
+        "sudoku/1700012/outfill",
+        "trm"
+      ]
+    ],
+    "cuda_only": []
+  },
+  "historical_goose": {
+    "benchmark": "hilbert-storyworld-canvas-v1",
+    "storyworld": "The City That Lost Its Night Bell",
+    "run_id": "inky-storyworld-hilbert-20261124",
+    "runtime": {
+      "model": "inky-mini-varloop",
+      "model_label": "Inky Mini (IQ4_NL, 2 loops)",
+      "checkpoint": "TML-d24-varloop-research-IQ4_NL.gguf",
+      "context_tokens": 34816,
+      "loop_count": 2,
+      "cpu_moe_layers": 10,
+      "backend": "CUDA0 (RTX 5080 Laptop GPU)",
+      "logit_bias": "200008-inf",
+      "reasoning_budget": 0,
+      "seed": 523,
+      "temperature": 0.0
+    },
+    "conveyor_16k": {
+      "total_recorded_turns": 145,
+      "http_200_timed_turns": 89,
+      "preflight_parity_turns": 89,
+      "total_prompt_tokens_in": 234586,
+      "total_cached_prompt_tokens": 110899,
+      "total_uncached_prompt_tokens": 123687,
+      "total_completion_tokens_out": 149847,
+      "aggregate_prefill_tps": 36.006,
+      "aggregate_decode_tps": 9.478,
+      "total_provider_wall_seconds": 19351.52,
+      "cached_prompt_token_fraction": 0.47274347147741125
+    },
+    "planning": [
+      {
+        "target_prompt_tokens": 16384,
+        "prompt_tokens": 16384,
+        "completion_tokens": 1024,
+        "prefill_tps": 16.528,
+        "decode_tps": 8.003,
+        "wall_seconds": 1119.203,
+        "finish_reason": "length",
+        "accepted_long_context_plan": false
+      },
+      {
+        "target_prompt_tokens": 24576,
+        "prompt_tokens": 24577,
+        "completion_tokens": 1024,
+        "prefill_tps": 54.082,
+        "decode_tps": 17.344,
+        "wall_seconds": 513.578,
+        "finish_reason": "length",
+        "accepted_long_context_plan": false
+      },
+      {
+        "target_prompt_tokens": 32768,
+        "prompt_tokens": 32768,
+        "completion_tokens": 1024,
+        "prefill_tps": 47.715,
+        "decode_tps": 17.588,
+        "wall_seconds": 745.157,
+        "finish_reason": "length",
+        "accepted_long_context_plan": false
+      }
+    ],
+    "verified_canvas": {
+      "status": "verified",
+      "visited_scenes": 32,
+      "verified_secret_endings": [
+        "end_bell_as_question",
+        "end_bell_as_answer"
+      ]
+    },
+    "comparison_scope": "Historical authoring workflow with its original model, device and prompt cache"
+  }
+}

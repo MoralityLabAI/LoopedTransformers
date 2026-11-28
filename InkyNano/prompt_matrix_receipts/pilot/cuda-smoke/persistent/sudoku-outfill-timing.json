@@ -1,0 +1,170 @@
+{
+  "scope": "One Sudoku development root, outfill, four policies, 24-token timing cap",
+  "runtime_library_manifest_sha256": "10d945a6bee286f51d5c8317d053ec39e7971077ddb2131092d5f9d9970c5813",
+  "paired": [
+    {
+      "case_id": "sudoku/1700012/outfill",
+      "policy": "global",
+      "root": "sudoku/1700012",
+      "task": "sudoku",
+      "mode": "outfill",
+      "capacity": 8,
+      "prompt_sha256": "c00a8d88d3c6dc6ef4afe9a1bbcb8a8db46cde0f0ddaf22f328cb4353306f6f8",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 95,
+        "output_tokens": 24,
+        "prefill_tps": 3.345540160876346,
+        "decode_tps": 1.2507057043041787,
+        "end_to_end_seconds": 124.5279939999964,
+        "peak_rss_bytes": 2438045696,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 95,
+        "output_tokens": 24,
+        "prefill_tps": 9.478143178147015,
+        "decode_tps": 0.7575329155462454,
+        "end_to_end_seconds": 128.5165287000018,
+        "peak_rss_bytes": 2659414016,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 9.650547039,
+        "sampled_peak_device_free_delta_bytes": 1749024768,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 0.9689648114499272
+    },
+    {
+      "case_id": "sudoku/1700012/outfill",
+      "policy": "ldt",
+      "root": "sudoku/1700012",
+      "task": "sudoku",
+      "mode": "outfill",
+      "capacity": 8,
+      "prompt_sha256": "c00a8d88d3c6dc6ef4afe9a1bbcb8a8db46cde0f0ddaf22f328cb4353306f6f8",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 95,
+        "output_tokens": 24,
+        "prefill_tps": 3.819516352312183,
+        "decode_tps": 1.401187975244436,
+        "end_to_end_seconds": 120.85876189999908,
+        "peak_rss_bytes": 2438217728,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 95,
+        "output_tokens": 24,
+        "prefill_tps": 11.988743287358611,
+        "decode_tps": 0.8978370028338529,
+        "end_to_end_seconds": 116.49793320000026,
+        "peak_rss_bytes": 2659676160,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 8.721296457,
+        "sampled_peak_device_free_delta_bytes": 1749024768,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": true,
+      "cpu_to_cuda_wall_time_ratio": 1.037432670093059
+    },
+    {
+      "case_id": "sudoku/1700012/outfill",
+      "policy": "teacher_subset",
+      "root": "sudoku/1700012",
+      "task": "sudoku",
+      "mode": "outfill",
+      "capacity": 12,
+      "prompt_sha256": "c00a8d88d3c6dc6ef4afe9a1bbcb8a8db46cde0f0ddaf22f328cb4353306f6f8",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 95,
+        "output_tokens": 24,
+        "prefill_tps": 3.319569538897174,
+        "decode_tps": 1.6679864168019292,
+        "end_to_end_seconds": 85.59754249999969,
+        "peak_rss_bytes": 2938253312,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 95,
+        "output_tokens": 24,
+        "prefill_tps": 10.090758605900316,
+        "decode_tps": 0.8303522671266221,
+        "end_to_end_seconds": 88.17244850000134,
+        "peak_rss_bytes": 3072897024,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1801860864,
+        "preflight_seconds": 9.130824694,
+        "sampled_peak_device_free_delta_bytes": 2065694720,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": false,
+      "cpu_to_cuda_wall_time_ratio": 0.9707969321051393
+    },
+    {
+      "case_id": "sudoku/1700012/outfill",
+      "policy": "trm",
+      "root": "sudoku/1700012",
+      "task": "sudoku",
+      "mode": "outfill",
+      "capacity": 8,
+      "prompt_sha256": "c00a8d88d3c6dc6ef4afe9a1bbcb8a8db46cde0f0ddaf22f328cb4353306f6f8",
+      "quality_evaluated": false,
+      "cpu": {
+        "input_tokens": 95,
+        "output_tokens": 24,
+        "prefill_tps": 3.744949022131165,
+        "decode_tps": 1.890248614254529,
+        "end_to_end_seconds": 112.87776689999737,
+        "peak_rss_bytes": 2438037504,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda": {
+        "input_tokens": 95,
+        "output_tokens": 24,
+        "prefill_tps": 11.53364120161112,
+        "decode_tps": 1.2193006316574888,
+        "end_to_end_seconds": 106.02488329999323,
+        "peak_rss_bytes": 2660089856,
+        "stop": "limit",
+        "quality": {}
+      },
+      "cuda_offload": {
+        "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+        "gpu_layers_requested": 28,
+        "planned_vram_bytes": 1484424960,
+        "preflight_seconds": 8.163499192,
+        "sampled_peak_device_free_delta_bytes": 1749024768,
+        "vram_cap_bytes": 2147483648
+      },
+      "same_token_counts": true,
+      "same_output": false,
+      "cpu_to_cuda_wall_time_ratio": 1.0646346724156646
+    }
+  ]
+}

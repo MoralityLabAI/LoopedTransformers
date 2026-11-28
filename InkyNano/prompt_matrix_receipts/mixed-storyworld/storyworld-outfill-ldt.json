@@ -1,0 +1,99 @@
+{
+  "scope": "One full-budget Storyworld outfill prompt, prior-based LDT and global frequency",
+  "local_storyworld": {
+    "case_id": "storyworld-hilbert/enc_03/outfill",
+    "root": "storyworld-hilbert/enc_03",
+    "task": "storyworld",
+    "mode": "outfill",
+    "prompt_sha256": "a4b2a9b8d07ff8eea7d4ada889fdfa2ae1a200b54b26d896c17b94b2275c6b97",
+    "model_sha256": "21ac57db7d28475fdbb4419bc78ac10c346aebb63ceca48f98c2ff6056df722a",
+    "runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+    "policy": "ldt",
+    "capacity": 8,
+    "expert_manifest_sha256": "0601e90943abc2320e9ea8dc9ac205fc62fe4b60df26dbe66a8708472433004e",
+    "storage_mode": "ram",
+    "quality_evaluated": true,
+    "quality": {
+      "parse_ok": false,
+      "schema_keys_present": false,
+      "storyworld_structure_ok": false,
+      "storyworld_paragraph_target_ok": false
+    },
+    "teacher_runtime_revision": "a6ac41c757c066941766164439f6876f2deaab04+demand-paging",
+    "offline_mass": {
+      "prefill": 0.8497163653373718,
+      "decode": 0.8591089248657227
+    },
+    "selection_seconds": 0.11043179999978747,
+    "end_to_end_seconds": 577.0797154000029,
+    "expert_weight_bytes": 999309312,
+    "compact_gguf_bytes": 2221144160,
+    "pack_seconds": 45.22577110000202,
+    "content": "[\"The Bell Tower\",\"The city holds its breath; the bell does not ring\",\"The bell is found cracked, not broken\"],\"id\":\"enc_03\",\"title\":\"The Bell's Chamber\",\"allowed_operators\":[\"op_name_1\",\"op_name_2\",\"op_name_3\",\"op_name_4\",\"op_name_5\",\"op_name_6\",\"op_name_7\",\"op_name_8\"],\"allowed_clues\":[\"c0\",\"c1\",\"c2\",\"c3\",\"c4\",\"c5\"],\"required_advances\":[1,2]}\nEncounter:\n[\"The Bell Tower\",\"The city holds its breath; the bell does not ring\",\"The bell is found cracked, not broken\"],\"id\":\"enc_03\",\"title\":\"The Bell's Chamber\",\"allowed_operators\":[\"op_name_1\",\"op_name_2\",\"op_name_3\",\"op_name_4\",\"op_name_5\",\"op_name_6\",\"op_name_7\",\"op_name_8\"],\"allowed_clues\":[\"c0\",\"c1\",\"c2\",\"c3\",\"c4\",\"c5\"],\"required_advances\":[1,2]}\nEncounter:\n[\"The Bell Tower\",\"The city holds its breath; the bell does not ring\",\"The bell is found cracked, not broken\"],\"id\":\"enc_03\",\"title\":\"The Bell's Chamber\",\"allowed_operators\":[\"op_name_1\",\"op_name_2\",\"op_name_3\",\"op_name_4\",\"op_name_5\",\"op_name_6\",\"op_name_7\",\"op_name_8\"],\"allowed_clues\":[\"c0\",\"",
+    "cuda": {
+      "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+      "gpu_layers_requested": 28,
+      "planned_vram_bytes": 1543977088,
+      "preflight_seconds": 9.607011621,
+      "sampled_peak_device_free_delta_bytes": 1814036480,
+      "vram_cap_bytes": 2147483648
+    },
+    "decode_seconds": 468.171950752,
+    "decode_tps": 1.0914793147671653,
+    "decoded_tokens": 511,
+    "embedding_length": 2304,
+    "input_tokens": 445,
+    "load_seconds": 31.912802547,
+    "output_tokens": 512,
+    "peak_rss_bytes": 2715074560,
+    "prefill_seconds": 20.546815871,
+    "prefill_tps": 21.657857002947004,
+    "stop": "limit",
+    "tokenize_seconds": 0.007981388,
+    "subprocess_seconds": 531.7435125000011
+  },
+  "controls_case_id": "storyworld-hilbert/enc_03/outfill",
+  "changes_vs_global": {
+    "new_expert_slots": 10,
+    "layers_changed": 10
+  },
+  "global_comparison": {
+    "same_output": false,
+    "prefill_tps": {
+      "ldt": 21.657857002947004,
+      "global": 31.69966324933412
+    },
+    "decode_tps": {
+      "ldt": 1.0914793147671653,
+      "global": 1.1454294361897612
+    },
+    "end_to_end_seconds": {
+      "ldt": 577.0797154000029,
+      "global": 540.4089573000019
+    },
+    "quality": {
+      "ldt": {
+        "parse_ok": false,
+        "schema_keys_present": false,
+        "storyworld_structure_ok": false,
+        "storyworld_paragraph_target_ok": false
+      },
+      "global": {
+        "parse_ok": false,
+        "schema_keys_present": false,
+        "storyworld_structure_ok": false,
+        "storyworld_paragraph_target_ok": false
+      }
+    },
+    "offline_mass": {
+      "ldt": {
+        "prefill": 0.8497163653373718,
+        "decode": 0.8591089248657227
+      },
+      "global": {
+        "prefill": 0.8504507541656494,
+        "decode": 0.8557631373405457
+      }
+    }
+  }
+}

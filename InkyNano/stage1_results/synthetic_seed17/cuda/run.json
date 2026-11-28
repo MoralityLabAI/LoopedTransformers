@@ -1,0 +1,105 @@
+{
+  "status": "complete",
+  "reason": null,
+  "spec": {
+    "data_kind": "synthetic_schema_fixture",
+    "input_manifests": [
+      {
+        "manifest_sha256": "7f817fea5def530b47874ae03018524a613e5577e740d467f8ffa5666aa134aa",
+        "files": 4
+      }
+    ],
+    "arms": [
+      "generated",
+      "reference_forced"
+    ],
+    "horizons": [
+      0,
+      32,
+      64,
+      128
+    ],
+    "capacities": [
+      8,
+      16,
+      32
+    ],
+    "replacement_budgets": [
+      0,
+      2,
+      4,
+      8
+    ],
+    "training": {
+      "seed": 17,
+      "width": 32,
+      "epochs": 20,
+      "batch": 4
+    },
+    "expert_bytes_by_physical_layer": [
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312,
+      3981312
+    ],
+    "transfer_model": "one estimated H2D copy per admission; continuation cache only",
+    "adaptive": {
+      "drift_threshold": 0.002,
+      "mass_cost_per_64_mib": 0.025
+    },
+    "runtime": {
+      "device": "cuda",
+      "torch": "2.10.0+cu126",
+      "torch_cuda_build": "12.6",
+      "numpy": "2.4.3",
+      "python": "3.12.5",
+      "system": "Windows",
+      "threads": 1
+    }
+  },
+  "completed": [
+    "generated/H0",
+    "generated/H32",
+    "generated/H64",
+    "generated/H128",
+    "reference_forced/H0",
+    "reference_forced/H32",
+    "reference_forced/H64",
+    "reference_forced/H128"
+  ],
+  "process_memory": {
+    "pid": 75084,
+    "baseline_rss_bytes": 17899520,
+    "process_peak_rss_bytes": 1135869952,
+    "incremental_peak_rss_bytes": 1117970432,
+    "system_available_start_bytes": 10507845632,
+    "system_available_min_sampled_bytes": 8882298880,
+    "cuda_free_start_bytes": 3466277684,
+    "cuda_allocator_limit_bytes": 1610612736,
+    "peak_cuda_allocated_bytes": 19593216,
+    "peak_cuda_reserved_bytes": 25165824,
+    "run_peak_cuda_allocated_bytes": 19593216,
+    "run_peak_cuda_reserved_bytes": 25165824
+  },
+  "attempt_wall_seconds": 44.026974199921824
+}

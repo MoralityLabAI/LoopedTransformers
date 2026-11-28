@@ -1,0 +1,180 @@
+{
+  "routing_sha256": "3d1fd1f791abd5f5d99578d22a721a425e56f485d5eba57c678dd001902d609f",
+  "cases_sha256": "a4fdc327bbf62b79d61dfb6c2c27fae033f727091edf65252c85fc5dc1ee0285",
+  "design": "one development root per task in both modes",
+  "cuda_device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "torch_version_wsl": "2.5.1+cu121",
+  "learned_plans_identical_on_cpu_replay": 12,
+  "decisions_identical_to_cpu_fit": {
+    "global": 6,
+    "hindsight": 6,
+    "ldt": 6,
+    "trm": 6
+  },
+  "development_mass_by_task": {
+    "arc-agi-2": {
+      "global": {
+        "prefill": 0.8986486196517944,
+        "decode": 0.9194880723953247
+      },
+      "hindsight": {
+        "prefill": 0.9043185710906982,
+        "decode": 0.9464070200920105
+      },
+      "ldt": {
+        "prefill": 0.8981517255306244,
+        "decode": 0.913342297077179
+      },
+      "trm": {
+        "prefill": 0.8992243409156799,
+        "decode": 0.9213536083698273
+      }
+    },
+    "storyworld": {
+      "global": {
+        "prefill": 0.8575904667377472,
+        "decode": 0.8849679231643677
+      },
+      "hindsight": {
+        "prefill": 0.8674443364143372,
+        "decode": 0.9183335900306702
+      },
+      "ldt": {
+        "prefill": 0.8569315075874329,
+        "decode": 0.8884431421756744
+      },
+      "trm": {
+        "prefill": 0.857666015625,
+        "decode": 0.8840436935424805
+      }
+    },
+    "sudoku": {
+      "global": {
+        "prefill": 0.8853272199630737,
+        "decode": 0.8992323875427246
+      },
+      "hindsight": {
+        "prefill": 0.8969465494155884,
+        "decode": 0.9355044364929199
+      },
+      "ldt": {
+        "prefill": 0.8842824399471283,
+        "decode": 0.8964196145534515
+      },
+      "trm": {
+        "prefill": 0.8852696120738983,
+        "decode": 0.9009422361850739
+      }
+    }
+  },
+  "files": {
+    "ldt.pt": "3b4572666df6acadb9277cc1627bc919a0c16f877c26715cbcfe603f0481d8ce",
+    "plans.json": "66b14f1bbca60f0ef32110f9d9f81749a5acfbf0459f1ac400513ecfe03b2d6a",
+    "training.json": "35dc0ff1fcbf52950461e90fc7f406a47b8e0a6a8ccae5c1e0daba1221b7293e",
+    "trm.pt": "e94de5a9dc524fdce5a646b8944b5e2014134d4411037ea0f2ed24fc1cceb3bd"
+  },
+  "root_level_joint_mass": {
+    "method": "Equal-weight prefill and decode mass within each prompt, then equal weight for infill and outfill. Hindsight sees the held-out routing labels.",
+    "roots": {
+      "arc-agi-2-training/2de01db2": {
+        "task": "arc-agi-2",
+        "joint_mass_by_mode": {
+          "infill": {
+            "global": 0.9096442759037018,
+            "hindsight": 0.9189144968986511,
+            "ldt": 0.9049445390701294,
+            "trm": 0.9081904292106628
+          },
+          "outfill": {
+            "global": 0.9084924161434174,
+            "hindsight": 0.9318110942840576,
+            "ldt": 0.906549483537674,
+            "trm": 0.9123875200748444
+          }
+        },
+        "joint_mass_equal_mode_mean": {
+          "global": 0.9090683460235596,
+          "ldt": 0.9057470113039017,
+          "trm": 0.9102889746427536,
+          "hindsight": 0.9253627955913544
+        },
+        "delta_from_global_percentage_points": {
+          "global": 0.0,
+          "ldt": -0.3321334719657898,
+          "trm": 0.12206286191940308
+        },
+        "oracle_headroom_percentage_points": {
+          "global": 1.62944495677948,
+          "ldt": 1.9615784287452698,
+          "trm": 1.507382094860077
+        }
+      },
+      "storyworld-hilbert/enc_03": {
+        "task": "storyworld",
+        "joint_mass_by_mode": {
+          "infill": {
+            "global": 0.8894514441490173,
+            "hindsight": 0.8995165228843689,
+            "ldt": 0.8909620046615601,
+            "trm": 0.8882515132427216
+          },
+          "outfill": {
+            "global": 0.8531069457530975,
+            "hindsight": 0.8862614035606384,
+            "ldt": 0.8544126451015472,
+            "trm": 0.8534581959247589
+          }
+        },
+        "joint_mass_equal_mode_mean": {
+          "global": 0.8712791949510574,
+          "ldt": 0.8726873248815536,
+          "trm": 0.8708548545837402,
+          "hindsight": 0.8928889632225037
+        },
+        "delta_from_global_percentage_points": {
+          "global": 0.0,
+          "ldt": 0.14081299304962158,
+          "trm": -0.04243403673171997
+        },
+        "oracle_headroom_percentage_points": {
+          "global": 2.160976827144623,
+          "ldt": 2.020163834095001,
+          "trm": 2.2034108638763428
+        }
+      },
+      "sudoku/1700012": {
+        "task": "sudoku",
+        "joint_mass_by_mode": {
+          "infill": {
+            "global": 0.9031350612640381,
+            "hindsight": 0.916016548871994,
+            "ldt": 0.9048257768154144,
+            "trm": 0.9057731628417969
+          },
+          "outfill": {
+            "global": 0.8814245462417603,
+            "hindsight": 0.9164344370365143,
+            "ldt": 0.8758762776851654,
+            "trm": 0.8804386854171753
+          }
+        },
+        "joint_mass_equal_mode_mean": {
+          "global": 0.8922798037528992,
+          "ldt": 0.8903510272502899,
+          "trm": 0.8931059241294861,
+          "hindsight": 0.9162254929542542
+        },
+        "delta_from_global_percentage_points": {
+          "global": 0.0,
+          "ldt": -0.1928776502609253,
+          "trm": 0.0826120376586914
+        },
+        "oracle_headroom_percentage_points": {
+          "global": 2.394568920135498,
+          "ldt": 2.5874465703964233,
+          "trm": 2.3119568824768066
+        }
+      }
+    }
+  }
+}

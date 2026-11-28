@@ -1,0 +1,34 @@
+name: InkyNano preflight
+on:
+  pull_request:
+    paths:
+      - 'InkyNano/**'
+      - '.github/workflows/inky-nano-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install numpy safetensors
+      - run: python -m unittest discover -s InkyNano -p 'test_*.py' -v
+  source-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python InkyNano/inventory.py --remote --output inventory.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: inky-nano-pinned-inventory
+          path: inventory.json
