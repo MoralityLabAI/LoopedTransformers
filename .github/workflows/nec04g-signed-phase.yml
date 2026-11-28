@@ -1,0 +1,168 @@
+name: NEC-04G signed XOR phase archive audit CPU only
+
+on:
+  push:
+    branches: ["research/nec04g-signed-phase-archive-20261122"]
+    paths:
+      - "mechinterp/neuron_communities/nec04g_*.py"
+      - "mechinterp/neuron_communities/test_nec04g_signed_phase.py"
+      - ".github/workflows/nec04g-signed-phase.yml"
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/nec04g_*.py"
+      - "mechinterp/neuron_communities/test_nec04g_signed_phase.py"
+      - ".github/workflows/nec04g-signed-phase.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  stdlib-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Verify zero neural dependency, synthetic signs and independent Walsh transform
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root=Path("mechinterp/neuron_communities")
+          for filename in ("nec04g_signed_phase.py","nec04g_independent.py","test_nec04g_signed_phase.py"):
+              data=(root/filename).read_text()
+              compile(data,filename,"exec")
+              assert "import torch" not in data and "import transformers" not in data
+          print("NEC04G_PURE_CPU_STDLIB_ZERO_NEURAL_IMPORTS")
+          PY
+          python -m unittest mechinterp.neuron_communities.test_nec04g_signed_phase -v
+
+  archival-original-six-root-phase:
+    needs: stdlib-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore original 6-root source and validation label ledger
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45015714628
+          name: nec04f-original-six-root-pretraining-and-independent-aux-oracle-seal
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04g
+      - name: Restore audited root 12 original logits
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45015714628
+          name: nec04f-native-root-12
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04g/roots/nec04f-native-root-12
+      - name: Restore audited root 13 original logits
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45015714628
+          name: nec04f-native-root-13
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04g/roots/nec04f-native-root-13
+      - name: Restore audited root 14 original logits
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45015714628
+          name: nec04f-native-root-14
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04g/roots/nec04f-native-root-14
+      - name: Restore audited root 15 original logits
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45015714628
+          name: nec04f-native-root-15
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04g/roots/nec04f-native-root-15
+      - name: Restore audited root 16 original logits
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45015714628
+          name: nec04f-native-root-16
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04g/roots/nec04f-native-root-16
+      - name: Restore audited root 17 original logits
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45015714628
+          name: nec04f-native-root-17
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04g/roots/nec04f-native-root-17
+      - name: Analyze six archived original source-trained model final logits
+        run: |
+          python -m mechinterp.neuron_communities.nec04g_signed_phase \
+            --pretraining /tmp/nec04g/pretraining \
+            --roots /tmp/nec04g/roots \
+            --out /tmp/nec04g/nec04g-original-signed-phase.json
+      - name: Independently check every signed Fourier coefficient via Walsh-Hadamard
+        run: |
+          python -m mechinterp.neuron_communities.nec04g_independent \
+            --pretraining /tmp/nec04g/pretraining \
+            --roots /tmp/nec04g/roots \
+            --report /tmp/nec04g/nec04g-original-signed-phase.json \
+            --out /tmp/nec04g/nec04g-independent-FWHT-audit.json
+      - name: Require original source custody and report per-root 900-step signed parity
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base=Path("/tmp/nec04g")
+          result=json.loads((base/"nec04g-original-signed-phase.json").read_text())
+          verified=json.loads((base/"nec04g-independent-FWHT-audit.json").read_text())
+          assert result["original_calibration_root_indices"]==list(range(12,18))
+          assert result["model_arms"]==["aux_shuffled","aux_prefix","vanilla"]
+          assert result["new_model_forwards"]==result["new_optimizer_updates"]==0
+          assert result["new_development_worlds"]==result["new_confirmation_worlds"]==result["new_reserved_contexts"]==0
+          assert result["old_NEC03P_recruited_root_reads"]==0
+          assert result["phase_oracle_uses_validation_truth_posthoc"] is True
+          assert result["phase_oracle_is_not_trained_or_deployable"] is True
+          assert result["original_NEC04F_primary_negative_preserved"] is True
+          assert verified["read_only_fifth_Walsh_FHWT_and_teacher_phase_replay_passed"]
+          assert verified["new_model_forwards"]==verified["new_optimizer_steps"]==0
+          assert verified["reserved_development_confirmation_or_recruited_roots_scored"]==0
+          assert result["scientific_gate"]==verified["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC04G_SIX_ORIGINAL_CALIBRATION_SIGNED_PHASE_INDEPENDENT_PASS")
+          for arm in result["model_arms"]:
+              point=result["comparison"]["900"][arm]
+              print("NEC04G_ARCHIVAL_900",arm,
+                    "native",point["original_parity_accuracy"],
+                    "oracle",point["posthoc_teacher_phase_oracle_accuracy"],
+                    "signed",point["mean_teacher_signed_normalized_fifth_coefficient"],
+                    "unsigned",point["mean_unsigned_fifth_order_power_share"],
+                    "phase_inverted",point["phase_inverted_contexts_total"],
+                    "of",point["parity_contexts_total"])
+          for point in result["comparison"]["900"]["aux_prefix"]["by_original_root"]:
+              print("NEC04G_AUX_ROOT_900",json.dumps(point,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec04g-original-six-root-signed-phase-and-independent-FWHT
+          path: |
+            /tmp/nec04g/nec04g-original-signed-phase.json
+            /tmp/nec04g/nec04g-independent-FWHT-audit.json
+          if-no-files-found: error
+          retention-days: 60
