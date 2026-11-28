@@ -1,0 +1,284 @@
+{
+  "evidence": "development only; compact selected aggregate transcription; full 90 aggregates and 270 root-level rows in local bundle",
+  "worlds": 27,
+  "conditions": 54,
+  "runs": 270,
+  "source_and_receipt_sha256": {
+    "PROTOCOL.md": "42f4a1969b64324c839ec6411fd9698face95be2caabbddaf78f9184fa453334",
+    "pilot18.py": "cd8bb56eb725ecb8eacdc51d09da897eb34a0226831959f351d29641d9525504",
+    "pilot16.py": "eb2de134f3cc6a9f252db7a218b742ccfb6ad3719940ad340763250c84343d4b",
+    "audit16.py": "d544e0dfec048d26bf7b47ccd0d14a282a905ba74a286aa97e0a362d64d8fe02",
+    "audit18.py": "c5885d45c756802f3a1f467d4215d4a11d6a99b37eb41a8ad3d3efd2e3b98794",
+    "diagnostic18.py": "cf43145a6c01fd5682c0593999ad2bbdb2679c19d2e57252faac9df253da17a2",
+    "receipt.json": "c0632af89e85c5cd7ad2ea3d5599e708e60db68e9528e87c8533cc1eeac2808f",
+    "audit.json": "9471b2f892e0c2bbb8330f61da60e8d0d32f7eabc487ce5067684525cd5245df",
+    "diagnostic.json": "bfbe7dc8b6efa41779640817026d9b93a3112188de4458203c30c88180c08089"
+  },
+  "audit": {
+    "status": "PASS",
+    "exhaustive_cell_enclosures": 2278,
+    "weight_bound_replays": 6244,
+    "budget_replays": 6244,
+    "structural_action_checks": 821,
+    "monotone_actions": 821,
+    "disjoint_frontier_checks": 1080,
+    "exact_interval_enclosures": 840,
+    "intervals": 1080,
+    "runs": 270,
+    "disjoint_splits": 437,
+    "worlds": 27,
+    "conditions_with_exact_reference": 42
+  },
+  "diagnostic": {
+    "total": 72,
+    "slot_reject": 72,
+    "work_reject": 12,
+    "both": 12,
+    "feasible": 0
+  },
+  "total_columns": [
+    "arm",
+    "exact_all",
+    "certified",
+    "covered_correct",
+    "mean_entries",
+    "mean_calls",
+    "mean_ms",
+    "mean_planning_ms"
+  ],
+  "total_rows": [
+    [
+      "scope3",
+      25,
+      14,
+      14,
+      3924.44,
+      13.48,
+      30,
+      9.27
+    ],
+    [
+      "scope5",
+      134,
+      63,
+      63,
+      6879.85,
+      13.33,
+      29.95,
+      8.31
+    ],
+    [
+      "degree2",
+      134,
+      66,
+      66,
+      13222.52,
+      33.78,
+      73.69,
+      7.7
+    ],
+    [
+      "random2",
+      57,
+      28,
+      28,
+      15159.7,
+      32.59,
+      85.01,
+      8.47
+    ],
+    [
+      "adaptive",
+      140,
+      67,
+      67,
+      9794.81,
+      22.44,
+      89.22,
+      43.43
+    ]
+  ],
+  "d48_moderate_columns": [
+    "family",
+    "arm",
+    "width",
+    "exact",
+    "certified",
+    "mean_entries",
+    "peak_slots",
+    "mean_ms"
+  ],
+  "d48_moderate_rows": [
+    [
+      "chain",
+      "scope3",
+      0.815514,
+      2,
+      2,
+      8816,
+      932,
+      63.64
+    ],
+    [
+      "chain",
+      "scope5",
+      0,
+      12,
+      11,
+      11029,
+      932,
+      70.98
+    ],
+    [
+      "chain",
+      "degree2",
+      0,
+      12,
+      11,
+      31989,
+      870,
+      195.03
+    ],
+    [
+      "chain",
+      "random2",
+      0.65172,
+      3,
+      4,
+      33035,
+      894,
+      251.61
+    ],
+    [
+      "chain",
+      "adaptive",
+      0,
+      12,
+      11,
+      11029,
+      932,
+      133.91
+    ],
+    [
+      "hub",
+      "scope3",
+      0.711937,
+      1,
+      2,
+      12044,
+      1788,
+      98
+    ],
+    [
+      "hub",
+      "scope5",
+      0.195829,
+      8,
+      8,
+      24808,
+      1788,
+      85.89
+    ],
+    [
+      "hub",
+      "degree2",
+      0.073791,
+      8,
+      10,
+      27051,
+      1078,
+      243.11
+    ],
+    [
+      "hub",
+      "random2",
+      0.556555,
+      2,
+      3,
+      34885,
+      1702,
+      249.11
+    ],
+    [
+      "hub",
+      "adaptive",
+      0.166667,
+      10,
+      9,
+      25703,
+      1788,
+      248.17
+    ],
+    [
+      "dense",
+      "scope3",
+      1,
+      0,
+      0,
+      0,
+      0,
+      39.85
+    ],
+    [
+      "dense",
+      "scope5",
+      1,
+      0,
+      0,
+      0,
+      0,
+      35.67
+    ],
+    [
+      "dense",
+      "degree2",
+      1,
+      0,
+      0,
+      0,
+      0,
+      38.15
+    ],
+    [
+      "dense",
+      "random2",
+      1,
+      0,
+      0,
+      0,
+      0,
+      38.9
+    ],
+    [
+      "dense",
+      "adaptive",
+      1,
+      0,
+      0,
+      0,
+      0,
+      165.44
+    ]
+  ],
+  "paired_world_noise_width_comparisons": {
+    "tolerance": 1e-12,
+    "scope5": [
+      10,
+      44,
+      0
+    ],
+    "degree2": [
+      9,
+      44,
+      1
+    ]
+  },
+  "adaptive_actions": {
+    "total": 189,
+    "cut": 97,
+    "scope3_no_cut": 24,
+    "scope5_no_cut": 57,
+    "scope7_no_cut": 11
+  },
+  "adaptive_max_counted_payload_bytes": 307536
+}

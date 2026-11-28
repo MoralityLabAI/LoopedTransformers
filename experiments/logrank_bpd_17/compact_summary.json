@@ -1,0 +1,136 @@
+{
+  "evidence": "development; registered protocol; recovered completed local run; independent numeric and selector replay",
+  "worlds": 18,
+  "conditions": 36,
+  "runs": 216,
+  "structured": {
+    "exact_per_arm": 72,
+    "exact_arms": [
+      "none5",
+      "degree2",
+      "scope2"
+    ],
+    "moderate_certified_per_arm": 28,
+    "moderate_correct_per_arm": 28,
+    "moderate_total": 36,
+    "high_certified_per_arm": 0,
+    "hub_recovery_degree2": 9,
+    "hub_recovery_scope2": 9
+  },
+  "dense": {
+    "certified_all_arms": 0
+  },
+  "audit": {
+    "status": "PASS",
+    "kernel_weight_replays": 5832,
+    "partition_cells": 648,
+    "exact_root_enclosures": 144,
+    "intervals": 864,
+    "exact_interval_enclosures": 576,
+    "runs": 216,
+    "worlds": 18,
+    "conditions_with_exact_reference": 24
+  },
+  "selector_audit": {
+    "status": "PASS",
+    "unique_world_arm_choices": 108,
+    "selector_replays": 216,
+    "scope_score_replays": 216,
+    "source_sha256": "b8112ff46aa5992a55bdf6b9f33932445ff6e13ed1d383b32b8658188991d124"
+  },
+  "sha256": {
+    "PROTOCOL.md": "9461c99d3d8d111535ac6fcbdb9ef4ab71f207fe02345e8938725634edbff745",
+    "pilot17.py": "dd2187445701dfd69eba4b222e1667ab6fa64008b8f006aa5c3bc39b0a971188",
+    "pilot16.py": "eb2de134f3cc6a9f252db7a218b742ccfb6ad3719940ad340763250c84343d4b",
+    "audit17.py": "74f2853df2cfa7089c0666cfe763c10898bada16c67dd254a854a0fc030b827f",
+    "audit16.py": "d544e0dfec048d26bf7b47ccd0d14a282a905ba74a286aa97e0a362d64d8fe02",
+    "receipt.json": "201e72093081f3fbba6fa9298bc285407b8a29942b264cbb2f25f8a25e23e291",
+    "audit.json": "d39dbd7f62d9dc2ce383d62e90709a779a7e26d00f68a40188a3680b2fd0d3ee"
+  },
+  "d48_hub_moderate_columns": [
+    "arm",
+    "mean_width_rounded",
+    "exact",
+    "certified",
+    "mean_seconds",
+    "mean_selection_seconds",
+    "peak_counted_slots",
+    "mean_entries",
+    "mean_kernel_calls",
+    "peak_rss_kib"
+  ],
+  "d48_hub_moderate_rows": [
+    [
+      "none3",
+      1,
+      0,
+      0,
+      0.07249,
+      0.0000405,
+      1488,
+      14150,
+      9,
+      82036
+    ],
+    [
+      "none5",
+      0,
+      12,
+      10,
+      0.083569,
+      0.0000462,
+      1488,
+      29033.3333333,
+      9,
+      82036
+    ],
+    [
+      "prefix2",
+      1,
+      0,
+      0,
+      0.3240034,
+      0.0000401,
+      1418,
+      53893.3333333,
+      36,
+      82804
+    ],
+    [
+      "random2",
+      1,
+      0,
+      0,
+      0.3394531,
+      0.0001211,
+      1426,
+      54269.3333333,
+      36,
+      82804
+    ],
+    [
+      "degree2",
+      0,
+      12,
+      10,
+      0.1676539,
+      0.0007431,
+      550,
+      23240,
+      36,
+      82164
+    ],
+    [
+      "scope2",
+      0,
+      12,
+      10,
+      0.3827375,
+      0.2147415,
+      550,
+      23240,
+      36,
+      82164
+    ]
+  ]
+}

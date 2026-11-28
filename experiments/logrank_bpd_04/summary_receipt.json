@@ -1,0 +1,80 @@
+{
+  "evidence": "adaptive follow-up on selection-exposed seeds; not prospective replication",
+  "source_sha256": "5fec1f5d27c162e4b5683693ebf2661faf9eb5d1313e7dfa5a6b7c553782e715",
+  "source_git_blob": "e9feb997ebf64f60205cc90864f04381a9804bd8",
+  "raw_receipt_sha256": "9ce6a3e47a5044b713f00ac9ec73c2de8fba7d2f85adc0187f84f34a32147d02",
+  "audit": {
+    "status": "PASS",
+    "models": 8,
+    "scored_transcript_rows": 32768,
+    "distinct_full_cases": 16384
+  },
+  "steps": 500,
+  "lambda": 0.5,
+  "rows": [
+    {
+      "root": 503,
+      "arm": "assignment",
+      "heldout_correct": 1020,
+      "full_correct": 2044,
+      "codes": 8,
+      "joint_bits_rounded": 2.997
+    },
+    {
+      "root": 503,
+      "arm": "assignment_quadratic",
+      "heldout_correct": 1005,
+      "full_correct": 2028,
+      "codes": 8,
+      "joint_bits_rounded": 2.999
+    },
+    {
+      "root": 607,
+      "arm": "assignment",
+      "heldout_correct": 1004,
+      "full_correct": 2024,
+      "codes": 8,
+      "joint_bits_rounded": 2.995
+    },
+    {
+      "root": 607,
+      "arm": "assignment_quadratic",
+      "heldout_correct": 753,
+      "full_correct": 1507,
+      "codes": 8,
+      "joint_bits_rounded": 2.997
+    },
+    {
+      "root": 709,
+      "arm": "assignment",
+      "heldout_correct": 1008,
+      "full_correct": 2022,
+      "codes": 8,
+      "joint_bits_rounded": 2.997
+    },
+    {
+      "root": 709,
+      "arm": "assignment_quadratic",
+      "heldout_correct": 1020,
+      "full_correct": 2041,
+      "codes": 8,
+      "joint_bits_rounded": 2.997
+    },
+    {
+      "root": 811,
+      "arm": "assignment",
+      "heldout_correct": 1010,
+      "full_correct": 2026,
+      "codes": 8,
+      "joint_bits_rounded": 2.996
+    },
+    {
+      "root": 811,
+      "arm": "assignment_quadratic",
+      "heldout_correct": 1010,
+      "full_correct": 2028,
+      "codes": 8,
+      "joint_bits_rounded": 3
+    }
+  ]
+}

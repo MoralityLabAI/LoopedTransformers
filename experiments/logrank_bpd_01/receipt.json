@@ -1,0 +1,387 @@
+{
+  "evidence": "exact finite fixture and development-only feature fit",
+  "output_convention": "Bob alone outputs; communication excludes local computation and final local output",
+  "exhaustive_3x3_cases": 512,
+  "fixtures": [
+    {
+      "name": "equality4",
+      "rank": 4,
+      "one_way": {
+        "distinct_rows": 4,
+        "bits": 2,
+        "errors": 0
+      },
+      "exact_interactive": {
+        "bits": 2,
+        "mean_bits": 2,
+        "errors": 0,
+        "states": 219,
+        "tree": {
+          "cost": 2,
+          "party": "A",
+          "mask": 9,
+          "left": {
+            "cost": 1,
+            "party": "A",
+            "mask": 1,
+            "left": {
+              "cost": 0,
+              "row": 0
+            },
+            "right": {
+              "cost": 0,
+              "row": 3
+            }
+          },
+          "right": {
+            "cost": 1,
+            "party": "A",
+            "mask": 2,
+            "left": {
+              "cost": 0,
+              "row": 1
+            },
+            "right": {
+              "cost": 0,
+              "row": 2
+            }
+          }
+        }
+      },
+      "rectangle": {
+        "area": 4,
+        "value": 0,
+        "rows": [
+          0,
+          1
+        ],
+        "cols": [
+          2,
+          3
+        ],
+        "density": 0.25
+      }
+    },
+    {
+      "name": "strict_greater4",
+      "rank": 3,
+      "one_way": {
+        "distinct_rows": 4,
+        "bits": 2,
+        "errors": 0
+      },
+      "exact_interactive": {
+        "bits": 2,
+        "mean_bits": 2,
+        "errors": 0,
+        "states": 213,
+        "tree": {
+          "cost": 2,
+          "party": "A",
+          "mask": 9,
+          "left": {
+            "cost": 1,
+            "party": "A",
+            "mask": 1,
+            "left": {
+              "cost": 0,
+              "row": 0
+            },
+            "right": {
+              "cost": 0,
+              "row": 3
+            }
+          },
+          "right": {
+            "cost": 1,
+            "party": "A",
+            "mask": 2,
+            "left": {
+              "cost": 0,
+              "row": 1
+            },
+            "right": {
+              "cost": 0,
+              "row": 2
+            }
+          }
+        }
+      },
+      "rectangle": {
+        "area": 6,
+        "value": 0,
+        "rows": [
+          0,
+          1
+        ],
+        "cols": [
+          1,
+          2,
+          3
+        ],
+        "density": 0.375
+      }
+    },
+    {
+      "name": "inner_product2",
+      "rank": 3,
+      "one_way": {
+        "distinct_rows": 4,
+        "bits": 2,
+        "errors": 0
+      },
+      "exact_interactive": {
+        "bits": 2,
+        "mean_bits": 2,
+        "errors": 0,
+        "states": 211,
+        "tree": {
+          "cost": 2,
+          "party": "A",
+          "mask": 9,
+          "left": {
+            "cost": 1,
+            "party": "A",
+            "mask": 1,
+            "left": {
+              "cost": 0,
+              "row": 0
+            },
+            "right": {
+              "cost": 0,
+              "row": 3
+            }
+          },
+          "right": {
+            "cost": 1,
+            "party": "A",
+            "mask": 2,
+            "left": {
+              "cost": 0,
+              "row": 1
+            },
+            "right": {
+              "cost": 0,
+              "row": 2
+            }
+          }
+        }
+      },
+      "rectangle": {
+        "area": 4,
+        "value": 0,
+        "rows": [
+          0
+        ],
+        "cols": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "density": 0.25
+      }
+    },
+    {
+      "name": "index3",
+      "rank": 3,
+      "one_way": {
+        "distinct_rows": 8,
+        "bits": 3,
+        "errors": 0
+      },
+      "exact_interactive": {
+        "bits": 3,
+        "mean_bits": 3,
+        "errors": 0,
+        "states": 1784,
+        "tree": {
+          "cost": 3,
+          "party": "A",
+          "mask": 225,
+          "left": {
+            "cost": 2,
+            "party": "A",
+            "mask": 129,
+            "left": {
+              "cost": 1,
+              "party": "A",
+              "mask": 1,
+              "left": {
+                "cost": 0,
+                "row": 0
+              },
+              "right": {
+                "cost": 0,
+                "row": 7
+              }
+            },
+            "right": {
+              "cost": 1,
+              "party": "A",
+              "mask": 32,
+              "left": {
+                "cost": 0,
+                "row": 5
+              },
+              "right": {
+                "cost": 0,
+                "row": 6
+              }
+            }
+          },
+          "right": {
+            "cost": 2,
+            "party": "A",
+            "mask": 18,
+            "left": {
+              "cost": 1,
+              "party": "A",
+              "mask": 2,
+              "left": {
+                "cost": 0,
+                "row": 1
+              },
+              "right": {
+                "cost": 0,
+                "row": 4
+              }
+            },
+            "right": {
+              "cost": 1,
+              "party": "A",
+              "mask": 4,
+              "left": {
+                "cost": 0,
+                "row": 2
+              },
+              "right": {
+                "cost": 0,
+                "row": 3
+              }
+            }
+          }
+        }
+      },
+      "rectangle": {
+        "area": 4,
+        "value": 0,
+        "rows": [
+          0,
+          1
+        ],
+        "cols": [
+          1,
+          2
+        ],
+        "density": 0.16666666666666666
+      }
+    }
+  ],
+  "index4": {
+    "rank": 4,
+    "one_way_bits": 4,
+    "verified_interactive_upper_bound_bits": 3,
+    "replayed_pairs": 64,
+    "errors": 0
+  },
+  "parity": {
+    "rank": 2,
+    "one_way": {
+      "distinct_rows": 2,
+      "bits": 1,
+      "errors": 0
+    },
+    "rectangle": {
+      "area": 64,
+      "value": 0,
+      "rows": [
+        1,
+        2,
+        5,
+        6,
+        9,
+        10,
+        13,
+        14
+      ],
+      "cols": [
+        0,
+        1,
+        4,
+        5,
+        10,
+        11,
+        14,
+        15
+      ],
+      "density": 0.25
+    },
+    "arms": [
+      {
+        "name": "degree1",
+        "a": {
+          "ix": [
+            0
+          ],
+          "sign": 1,
+          "mistakes": 4
+        },
+        "b": {
+          "ix": [
+            0
+          ],
+          "sign": 1,
+          "mistakes": 4
+        },
+        "correct": 32,
+        "total": 64,
+        "bits": 1
+      },
+      {
+        "name": "degree2",
+        "a": {
+          "ix": [
+            0,
+            1
+          ],
+          "sign": 1,
+          "mistakes": 0
+        },
+        "b": {
+          "ix": [
+            1,
+            3
+          ],
+          "sign": 1,
+          "mistakes": 0
+        },
+        "correct": 64,
+        "total": 64,
+        "bits": 1
+      },
+      {
+        "name": "fixed_wrong_pair",
+        "a": {
+          "ix": [
+            0,
+            2
+          ],
+          "sign": 1,
+          "mistakes": 4
+        },
+        "b": {
+          "ix": [
+            0,
+            1
+          ],
+          "sign": 1,
+          "mistakes": 4
+        },
+        "correct": 32,
+        "total": 64,
+        "bits": 1
+      }
+    ]
+  }
+}
