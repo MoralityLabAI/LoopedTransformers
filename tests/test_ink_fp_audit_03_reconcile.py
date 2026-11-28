@@ -7,7 +7,7 @@ class ReconcileTests(unittest.TestCase):
     def test_reports_match_receipts(self):
         for path in rc.REPORTS:
             if path.exists():
-                self.assertEqual(rc.check(path), [], path.name)
+                self.assertEqual(rc.check(path, require=rc.REQUIRED.get(path, ())), [], path.name)
 
     def test_audit02_verified_numbers(self):
         s = rc.effort_stats(rc.records(rc.A02 / "receipts/inky_base_dev_20261128/records.jsonl"))
@@ -25,6 +25,9 @@ class ReconcileTests(unittest.TestCase):
             p.write_text("<!-- reconcile:a02_base_dev:start -->\n| Low | 90/96 |\n<!-- reconcile:a02_base_dev:end -->\n",
                          encoding="utf-8")
             self.assertEqual(rc.check(p), ["a02_base_dev"])
+            p.write_bytes(p.read_bytes().replace(b"\n", b"\r\n"))  # CRLF copy still detected
+            self.assertEqual(rc.check(p), ["a02_base_dev"])
+            self.assertEqual(rc.check(p, require=("a02_frontier8192",)), ["missing:a02_frontier8192", "a02_base_dev"])
 
 
 if __name__ == "__main__":

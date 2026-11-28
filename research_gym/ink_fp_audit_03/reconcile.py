@@ -90,9 +90,14 @@ def refresh(text: str, blocks=BLOCKS) -> str:
                               f"<!-- reconcile:{m['name']}:end -->", text)
 
 
-def check(path: Path, blocks=BLOCKS) -> list[str]:
-    text = path.read_text(encoding="utf-8")
-    drift = []
+def read(path: Path) -> str:
+    return path.read_text(encoding="utf-8").replace("\r\n", "\n")  # CRLF checkouts must not hide drift
+
+
+def check(path: Path, blocks=BLOCKS, require: tuple[str, ...] = ()) -> list[str]:
+    text = read(path)
+    found = {m["name"] for m in MARK.finditer(text)}
+    drift = [f"missing:{b}" for b in require if b not in found]
     for m in MARK.finditer(text):
         if m["body"] != blocks[m["name"]]():
             drift.append(m["name"])
@@ -100,6 +105,7 @@ def check(path: Path, blocks=BLOCKS) -> list[str]:
 
 
 REPORTS = (A02 / "REPORT.md", ROOT / "research_gym/ink_fp_audit_03/REPORT.md")
+REQUIRED = {A02 / "REPORT.md": ("a02_base_dev", "a02_frontier8192")}
 
 
 def main():
@@ -111,8 +117,8 @@ def main():
         if not rp.exists():
             continue
         if a.write:
-            rp.write_text(refresh(rp.read_text(encoding="utf-8")), encoding="utf-8", newline="\n")
-        bad += [f"{rp.name}:{b}" for b in check(rp)]
+            rp.write_text(refresh(read(rp)), encoding="utf-8", newline="\n")
+        bad += [f"{rp.name}:{b}" for b in check(rp, require=REQUIRED.get(rp, ()))]
     print(json.dumps({"drift": bad}))
     sys.exit(1 if bad else 0)
 
