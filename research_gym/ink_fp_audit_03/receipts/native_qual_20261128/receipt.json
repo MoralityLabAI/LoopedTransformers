@@ -1,0 +1,230 @@
+{
+  "schema": "ink-fp-audit-03.native_qual.v1",
+  "model": "thinkingmachines/Inkling-2-Mini:peft:65536:free",
+  "steps": [
+    {
+      "step": "renderer_tokenizer",
+      "ok": true,
+      "seconds": 8.71,
+      "renderer": "tml_v0",
+      "prompt_tokens_by_effort": {
+        "low": 98,
+        "medium": 98,
+        "high": 98
+      },
+      "stop_sequences": "[200006]"
+    },
+    {
+      "step": "sampling_client",
+      "ok": true,
+      "seconds": 6.611,
+      "base_model": "thinkingmachines/Inkling-2-Mini:peft:65536:free"
+    },
+    {
+      "step": "sample_with_logprobs",
+      "ok": true,
+      "seconds": 15.805,
+      "by_effort": {
+        "low": [
+          {
+            "completion_tokens": 188,
+            "logprobs_len": 188,
+            "logprobs_match_tokens": true,
+            "parse_ok": true,
+            "stop_reason": "stop",
+            "answer": 3,
+            "correct": true,
+            "final_text_tail": "ANSWER: 3"
+          },
+          {
+            "completion_tokens": 188,
+            "logprobs_len": 188,
+            "logprobs_match_tokens": true,
+            "parse_ok": true,
+            "stop_reason": "stop",
+            "answer": 3,
+            "correct": true,
+            "final_text_tail": "ANSWER: 3"
+          }
+        ],
+        "medium": [
+          {
+            "completion_tokens": 171,
+            "logprobs_len": 171,
+            "logprobs_match_tokens": true,
+            "parse_ok": true,
+            "stop_reason": "stop",
+            "answer": 3,
+            "correct": true,
+            "final_text_tail": "ANSWER: 3"
+          },
+          {
+            "completion_tokens": 171,
+            "logprobs_len": 171,
+            "logprobs_match_tokens": true,
+            "parse_ok": true,
+            "stop_reason": "stop",
+            "answer": 3,
+            "correct": true,
+            "final_text_tail": "ANSWER: 3"
+          }
+        ],
+        "high": [
+          {
+            "completion_tokens": 174,
+            "logprobs_len": 174,
+            "logprobs_match_tokens": true,
+            "parse_ok": true,
+            "stop_reason": "stop",
+            "answer": 3,
+            "correct": true,
+            "final_text_tail": "ANSWER: 3"
+          },
+          {
+            "completion_tokens": 174,
+            "logprobs_len": 174,
+            "logprobs_match_tokens": true,
+            "parse_ok": true,
+            "stop_reason": "stop",
+            "answer": 3,
+            "correct": true,
+            "final_text_tail": "ANSWER: 3"
+          }
+        ]
+      }
+    },
+    {
+      "step": "native_vs_oai_consistency",
+      "ok": true,
+      "seconds": 4.236,
+      "native_low_temp0_prompt_tokens": 98,
+      "oai_low_prompt_tokens_audit02": 98,
+      "prompt_token_match": true,
+      "native_final_tail": "ANSWER: 3",
+      "oai_final_tail_audit02": "ANSWER: 3",
+      "final_answer_match": true
+    },
+    {
+      "step": "lora_training_client",
+      "ok": true,
+      "seconds": 3.065,
+      "info": "GetInfoResponse(type='get_info', model_data=ModelData(arch=None, model_name='thinkingmachines/Inkling-2-Mini:peft:65536:free', tokenizer_id='thinkingmachines/Inkling-2-Mini'), model_id='18664b86-6922-5a54-afe5-7953f4ada9fd:train:0', optimizer_config=AdamOptimizerConfig(type='adamw'), is_lora=True, l"
+    },
+    {
+      "step": "cross_entropy_step",
+      "ok": true,
+      "seconds": 40.723,
+      "tokens": 106,
+      "trained_tokens": 8,
+      "metrics": {
+        "e_min_violation:mean": -1.0,
+        "clock_cycle:unique": 3831576.0,
+        "e_max_violation:max": 15.000000953674316,
+        "e_frac_oversubscribed:mean": 0.2639974057674408,
+        "e_frac_with_tokens:mean": 0.6346029043197632,
+        "e_max_violation:mean": 10.504762649536133,
+        "loss:sum": 28.03411865234375
+      }
+    },
+    {
+      "step": "importance_sampling_step",
+      "ok": true,
+      "seconds": 19.046,
+      "datums": 2,
+      "advantages": [
+        1.0,
+        1.0
+      ],
+      "behavior_policy": "native sampler, effort 0.2, temperature 1.0",
+      "metrics": {
+        "e_min_violation:mean": -1.0,
+        "clock_cycle:unique": 3831580.0,
+        "e_max_violation:mean": 9.504093170166016,
+        "e_frac_oversubscribed:mean": 0.27197265625,
+        "e_frac_with_tokens:mean": 0.7913411855697632,
+        "e_max_violation:max": 15.0,
+        "loss:sum": -374.6728515625
+      }
+    },
+    {
+      "step": "gspo_step",
+      "ok": true,
+      "seconds": 16.962,
+      "datums": 2,
+      "advantages": [
+        1.0,
+        1.0
+      ],
+      "behavior_policy": "native sampler, effort 0.2, temperature 1.0",
+      "metrics": {
+        "clock_cycle:unique": 3831584.0,
+        "e_frac_oversubscribed:mean": 0.2726237177848816,
+        "e_frac_with_tokens:mean": 0.7928060293197632,
+        "e_max_violation:mean": 9.498246192932129,
+        "gspo_sequence_log_ratio:mean": -0.008610936813056469,
+        "gspo_clipped_fraction:mean": 1.0,
+        "e_min_violation:mean": -1.0,
+        "e_max_violation:max": 15.0,
+        "loss:sum": -372.77618408203125
+      }
+    },
+    {
+      "step": "save_checkpoint",
+      "ok": true,
+      "seconds": 20.654,
+      "state_path": "tinker://18664b86-6922-5a54-afe5-7953f4ada9fd:train:0/weights/ink03-qual",
+      "sampler_path": "tinker://18664b86-6922-5a54-afe5-7953f4ada9fd:train:0/sampler_weights/ink03-qual-sampler"
+    },
+    {
+      "step": "sample_from_adapter",
+      "ok": true,
+      "seconds": 7.519,
+      "base_model": "thinkingmachines/Inkling-2-Mini:peft:65536:free",
+      "free_base": true,
+      "answer": null
+    },
+    {
+      "step": "restore_with_optimizer",
+      "ok": true,
+      "seconds": 126.014,
+      "restored_from": "tinker://18664b86-6922-5a54-afe5-7953f4ada9fd:train:0/weights/ink03-qual",
+      "post_restore_step_ok": true,
+      "metrics": {
+        "e_min_violation:mean": -1.0,
+        "clock_cycle:unique": 3004426.0,
+        "e_max_violation:mean": 9.526315689086914,
+        "e_frac_with_tokens:mean": 0.7882487177848816,
+        "e_frac_oversubscribed:mean": 0.2716471552848816,
+        "e_max_violation:max": 15.0,
+        "loss:sum": -186.68661499023438
+      }
+    },
+    {
+      "step": "billing_probe",
+      "ok": true,
+      "seconds": 7.118,
+      "rest_methods_matching": [
+        "get_billing_usage",
+        "get_current_checkpoint_storage_usage"
+      ],
+      "checkpoint_storage_rate_usd_per_gb_month": 0.0,
+      "checkpoint_count": 31,
+      "note": "account identifiers removed before commit; get_billing_usage needs arguments and was not called"
+    }
+  ],
+  "utc": "2026-11-28T03:10:46Z",
+  "automatic_retries": 0,
+  "paid_fallback": false,
+  "effort_presets": {
+    "low": 0.2,
+    "medium": 0.7,
+    "high": 0.9
+  },
+  "versions": {
+    "tinker": "0.40.1",
+    "tinker-cookbook": "0.7.1",
+    "tml-renderers": "0.5.0",
+    "torch": "2.15.0+cpu"
+  },
+  "peak_rss_bytes": 418807808
+}
