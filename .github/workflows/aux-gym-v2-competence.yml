@@ -1,0 +1,43 @@
+name: AUX-GYM V2 development competence screen
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/aux-gym-v2-competence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  development:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        family: [masked_pointer_chase, modular_recurrence]
+        seed: [1, 2]
+    env:
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install numpy
+      - name: Build fixed development data
+        run: python -m research_gym.interp.aux_gym_v2 build --out /tmp/aux-screen/data --train-quota 64 --eval-quota 8
+      - name: Fixed-budget paired LOOP-T development
+        run: |
+          for mode in final repeated_final symbolic_trace; do
+            python -m research_gym.interp.aux_gym_v2 pilot --data /tmp/aux-screen/data --out /tmp/aux-screen/results/$mode --family ${{ matrix.family }} --arm LOOP-T --mode "$mode" --seed ${{ matrix.seed }} --steps 256 --batch 16 --threads 2
+          done
+      - name: Call-count-matched attention TRM
+        run: python -m research_gym.interp.aux_gym_v2_trm --data /tmp/aux-screen/data --out /tmp/aux-screen/results/trm --family ${{ matrix.family }} --mode symbolic_trace --seed ${{ matrix.seed }} --steps 256 --batch 16 --threads 2 --commits 4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aux-screen-${{ matrix.family }}-s${{ matrix.seed }}
+          path: /tmp/aux-screen/results
+          if-no-files-found: warn

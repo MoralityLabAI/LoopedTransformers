@@ -24,6 +24,7 @@ jobs:
           python-version: '3.12'
       - name: Install CPU dependencies
         run: python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install numpy
       - name: Independent oracle and generator tests
         run: python -m unittest discover -s experiments/recurrence_monitorability_v0/aux_gym_v2_20261126 -p 'test_*.py'
       - name: Audit original data
