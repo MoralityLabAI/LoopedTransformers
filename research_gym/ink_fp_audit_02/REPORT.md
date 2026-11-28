@@ -256,6 +256,8 @@ These are development records from one arm (`D_mech_grad`), not a controlled com
 
 ## 10. Live Inky results (2026-11-28; native_remote_observation, development only)
 
+Tables between `reconcile:` markers are generated from the receipts by `research_gym/ink_fp_audit_03/reconcile.py`; `tests/test_ink_fp_audit_03_reconcile.py` fails if they drift.
+
 The key came from the user's local file and was loaded only into process environments; it is in no receipt (scanned). The free model id `thinkingmachines/Inkling-2-Mini:peft:65536:free` was used for every request. Paid spend: 0.
 
 **Route qualification**
@@ -265,14 +267,18 @@ The key came from the user's local file and was loaded only into process environ
 
 **Frozen-base dev evaluation** (`inky_base_dev_20261128/`): 96 dev tasks (12 families × 8) × 3 efforts = 288 requests, 2,048-token cap, temperature 0, 311k total tokens. Interrupted once by the DRAM emergency floor after 198 records (other workloads took memory); resumed after 6 GiB had been free for 60 s.
 
-| effort | correct | completed |
-|---|---:|---:|
-| low | 89/96 | 89/96 |
-| medium | 87/96 | 87/96 |
-| high | 84/96 | 84/96 |
+<!-- reconcile:a02_base_dev:start -->
+| Effort | Correct | Completion tokens | Truncated | Rescues vs. low | Losses vs. low |
+|---|---:|---:|---:|---:|---:|
+| Low | 89/96 | 45,831 | 7 | — | — |
+| Medium | 87/96 | 58,330 | 9 | 0 | 2 |
+| High | 84/96 | 70,048 | 12 | 0 | 5 |
 
-* 10 of 12 families are at 8/8 for every effort, including `hillclimb_judgment`, bpd_nullspace, experiment_design and recurrent_stopping. These families are saturated for this model and give no training signal.
-* **All 27 failures are truncations (`finish_reason: length`). There is no wrong final answer anywhere in the 288 records.** Reasoning tokens count toward the completion budget, and higher effort spends more (Dyck: 602 → 1,099 → 1,640 mean tokens), so it truncates more.
+Records: 288. Truncations (finish_reason=length): 28; failures: 28, of which truncated: 28; correct-but-truncated: 0. Families correct on every task at all three efforts (9): boolean_parity, bpd_nullspace, experiment_design, hillclimb_judgment, modular_arith, multislot_copy, pointer_chase, recurrent_stopping, register_overwrite.
+<!-- reconcile:a02_base_dev:end -->
+
+* 9 of 12 families are at 8/8 for every effort (listed in the reconciled block above). These families are saturated for this model and give no training signal. (Corrected 2026-11-28: an earlier version said 10; mcp_retrieval is 7/8 at high effort.)
+* **All 28 failures are truncations (`finish_reason: length`). There is no wrong final answer anywhere in the 288 records.** (Corrected 2026-11-28: an earlier version said 27.) Reasoning tokens count toward the completion budget, and higher effort spends more (Dyck: 602 → 1,099 → 1,640 mean tokens), so it truncates more.
 * **High effort rescued 0 low-effort failures and lost 5.** On these tasks the +0.35 rescue reward of arm D would never fire.
 * A 512-token pilot (`inky_base_dev_pilot512_20261128/`) showed the same mechanism earlier.
 
@@ -282,6 +288,16 @@ The key came from the user's local file and was loaded only into process environ
 |---|---|---|---|---|
 | storyworld | 4/8 | 2/8 | 1/8 | 5,330 / 7,203 / 7,776 |
 | dyck | 8/8 | 8/8 | 7/8 | 602 / 1,403 / 2,540 |
+
+<!-- reconcile:a02_frontier8192:start -->
+| Effort | Correct | Completion tokens | Truncated | Rescues vs. low | Losses vs. low |
+|---|---:|---:|---:|---:|---:|
+| Low | 12/16 | 47,461 | 4 | — | — |
+| Medium | 10/16 | 68,855 | 6 | 0 | 2 |
+| High | 8/16 | 82,539 | 8 | 0 | 4 |
+
+Records: 48. Truncations (finish_reason=length): 18; failures: 18, of which truncated: 18; correct-but-truncated: 0. Families correct on every task at all three efforts (0): .
+<!-- reconcile:a02_frontier8192:end -->
 
 The larger budget raises storyworld from 1/8 to 4/8 at low effort and recovers Dyck at medium. Every remaining failure is again a truncation. The unreachable storyworld starts (correct answer NONE, which needs exhaustive search) are never completed within 8,192 tokens at any effort. Rescues: 0; losses: 4.
 
