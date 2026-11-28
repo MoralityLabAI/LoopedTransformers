@@ -1,0 +1,22 @@
+name: LCD-01 source checks
+on:
+  pull_request:
+    paths:
+      - 'research_gym/scripts/lcd*.py'
+      - 'experiments/lcd*/**'
+      - '.github/workflows/lcd01-source.yml'
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install numpy==2.2.6
+      - run: python -m compileall -q research_gym/scripts/lcd*.py
+      - run: python -m research_gym.scripts.lcd_campaign --max-hours 0.15
+      - run: python -m research_gym.scripts.lcd_campaign --plan --native-huginn --sudoku --lean-ckpt /tmp/checkpoint
