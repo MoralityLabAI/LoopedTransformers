@@ -1,0 +1,1 @@
+﻿This run is invalid as designed: group samples used a fixed seed, so all four samples per problem were identical (see ../sampling_diversity_20261128.json). Arms E and F therefore had zero advantages and never trained; arm B trained on duplicated samples. Kept as a receipt; superseded by adapter_pilot_20261128.

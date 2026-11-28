@@ -210,7 +210,9 @@ def run_arm(nat, arm, train, accept, out: Path, gens: int, monitor) -> dict:
         batch = pick(train, arm, g, frontier_rate)
         items, fam = [], defaultdict(lambda: [0, 0])
         for i, t in enumerate(batch):
-            p, samples = nat.sample(sc, t, 4, 1.0, 1000 * g + i)
+            # Unseeded on purpose: a fixed seed makes all num_samples identical (receipts/sampling_diversity_20261128.json),
+            # which zeroes group-relative advantages.
+            p, samples = nat.sample(sc, t, 4, 1.0, None)
             for s in samples:
                 append_jsonl(d / f"rollouts_g{g}.jsonl", {"generation": g, "task_id": t.task_id, "family": t.family,
                              "correct": s["correct"], "completed": s["completed"], "repetition": s["repetition"],

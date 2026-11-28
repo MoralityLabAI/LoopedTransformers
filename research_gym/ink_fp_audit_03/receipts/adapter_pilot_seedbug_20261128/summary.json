@@ -1,0 +1,35 @@
+{
+  "model": "thinkingmachines/Inkling-2-Mini:peft:65536:free",
+  "effort": 0.2,
+  "cap": 4096,
+  "lr": 5e-05,
+  "rank": 8,
+  "n_train": 96,
+  "n_accept": 24,
+  "arms": {
+    "B": {
+      "arm": "B",
+      "head": "ink03-B-g0-1795843562",
+      "replay_mismatches": 0
+    },
+    "E": {
+      "arm": "E",
+      "head": "base",
+      "replay_mismatches": 0
+    },
+    "F": {
+      "arm": "F",
+      "head": "base",
+      "replay_mismatches": 0
+    }
+  },
+  "usage": {
+    "requests": 168,
+    "sample_tokens": 715507,
+    "train_tokens": 57588
+  },
+  "governor": {
+    "min_host_free_bytes": 11112038400,
+    "transitions": []
+  }
+}
