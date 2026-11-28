@@ -1,0 +1,4308 @@
+[
+  {
+    "backend": "bf16",
+    "contrast": "native1",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/native1",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/native1",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 3,
+      "baseline_correct": 3,
+      "candidate_accuracy": 0.375,
+      "baseline_accuracy": 0.375,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 2,
+      "baseline_only": 2,
+      "discordant": 4,
+      "ties": 4,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -1.0,
+        0.5
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "calibrated",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/calibrated",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/calibrated",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 5,
+      "baseline_correct": 3,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.375,
+      "case_weighted_effect": 0.25,
+      "cluster_macro_effect": 0.25,
+      "case_effect_exact": "1/4",
+      "cluster_effect_exact": "1/4",
+      "candidate_only": 2,
+      "baseline_only": 0,
+      "discordant": 2,
+      "ties": 6,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.5
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1/2",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "open_loop",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/open_loop",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/open_loop",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 3,
+      "baseline_correct": 3,
+      "candidate_accuracy": 0.375,
+      "baseline_accuracy": 0.375,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 2,
+      "baseline_only": 2,
+      "discordant": 4,
+      "ties": 4,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -1.0,
+        0.5
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "equal_compute",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/equal_compute",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/equal_compute",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 3,
+      "baseline_correct": 3,
+      "candidate_accuracy": 0.375,
+      "baseline_accuracy": 0.375,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 2,
+      "baseline_only": 2,
+      "discordant": 4,
+      "ties": 4,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -1.0,
+        0.5
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "bare_native2",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/bare_native2",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/bare_native2",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 0,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": -0.5,
+      "cluster_macro_effect": -0.5,
+      "case_effect_exact": "-1/2",
+      "cluster_effect_exact": "-1/2",
+      "candidate_only": 0,
+      "baseline_only": 1,
+      "discordant": 1,
+      "ties": 1,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -1.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.0,
+          0.9766883850097656
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "frequency",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/frequency",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/frequency",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 3,
+      "baseline_correct": 3,
+      "candidate_accuracy": 0.375,
+      "baseline_accuracy": 0.375,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 1,
+      "baseline_only": 1,
+      "discordant": 2,
+      "ties": 6,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.5,
+        0.5
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "channel1531_global",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/channel1531_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/channel1531_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "channel173_global",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/channel173_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/channel173_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "channel2278_global",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/channel2278_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/channel2278_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "channel2280_global",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/channel2280_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/channel2280_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "full_donor_state",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/full_donor_state",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/full_donor_state",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "phase_context_replace",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/phase_context_replace",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/phase_context_replace",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "phase_context_suppress",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/phase_context_suppress",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/phase_context_suppress",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "phase_global_suppress",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/phase_global_suppress",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/phase_global_suppress",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "random_dark_1531",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/random_dark_1531",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/random_dark_1531",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "random_dark_173",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/random_dark_173",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/random_dark_173",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "random_dense_dark_741",
+    "status": "invalid_shared_prefix_control; original grades retained as row-conditioned diagnostics",
+    "holm_placeholder": "1",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "random_dense_dark_947",
+    "status": "invalid_shared_prefix_control; original grades retained as row-conditioned diagnostics",
+    "holm_placeholder": "1",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "random_shared_dark_741",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/random_shared_dark_741",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": false,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/random_shared_dark_741",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "hypothesis_not_preregistered",
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": false,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "random_shared_dark_947",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/random_shared_dark_947",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": false,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/random_shared_dark_947",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "hypothesis_not_preregistered",
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": false,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "source_input",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/source_input",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/source_input",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "zero_write",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/zero_write",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/bf16/zero_write",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "bf16",
+    "contrast": "phase_identity_activation",
+    "status": "continuous diagnostic; no binary test",
+    "holm_placeholder": "1",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "native1",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/native1",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/native1",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 2,
+      "baseline_correct": 4,
+      "candidate_accuracy": 0.25,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": -0.25,
+      "cluster_macro_effect": -0.25,
+      "case_effect_exact": "-1/4",
+      "cluster_effect_exact": "-1/4",
+      "candidate_only": 0,
+      "baseline_only": 2,
+      "discordant": 2,
+      "ties": 6,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.5,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1/2",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "calibrated",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/calibrated",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/calibrated",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 3,
+      "baseline_correct": 4,
+      "candidate_accuracy": 0.375,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": -0.125,
+      "cluster_macro_effect": -0.125,
+      "case_effect_exact": "-1/8",
+      "cluster_effect_exact": "-1/8",
+      "candidate_only": 0,
+      "baseline_only": 1,
+      "discordant": 1,
+      "ties": 7,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.5,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "open_loop",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/open_loop",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/open_loop",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 2,
+      "baseline_correct": 4,
+      "candidate_accuracy": 0.25,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": -0.25,
+      "cluster_macro_effect": -0.25,
+      "case_effect_exact": "-1/4",
+      "cluster_effect_exact": "-1/4",
+      "candidate_only": 0,
+      "baseline_only": 2,
+      "discordant": 2,
+      "ties": 6,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.5,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1/2",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "equal_compute",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/equal_compute",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/equal_compute",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 2,
+      "baseline_correct": 4,
+      "candidate_accuracy": 0.25,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": -0.25,
+      "cluster_macro_effect": -0.25,
+      "case_effect_exact": "-1/4",
+      "cluster_effect_exact": "-1/4",
+      "candidate_only": 0,
+      "baseline_only": 2,
+      "discordant": 2,
+      "ties": 6,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.5,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1/2",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "bare_native2",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/bare_native2",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/bare_native2",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "frequency",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/frequency",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18211:donor",
+          "cluster_id": "18211",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18223:donor",
+          "cluster_id": "18223",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:recipient",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18229:donor",
+          "cluster_id": "18229",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:recipient",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-bpd01:18233:donor",
+          "cluster_id": "18233",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/frequency",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 4,
+      "candidate_correct": 3,
+      "baseline_correct": 4,
+      "candidate_accuracy": 0.375,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": -0.125,
+      "cluster_macro_effect": -0.125,
+      "case_effect_exact": "-1/8",
+      "cluster_effect_exact": "-1/8",
+      "candidate_only": 1,
+      "baseline_only": 2,
+      "discordant": 3,
+      "ties": 5,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.5,
+        0.5
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "channel1531_global",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/channel1531_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/channel1531_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "channel173_global",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/channel173_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/channel173_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "channel2278_global",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/channel2278_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/channel2278_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "channel2280_global",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/channel2280_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/channel2280_global",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "full_donor_state",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/full_donor_state",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/full_donor_state",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "phase_context_replace",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/phase_context_replace",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/phase_context_replace",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "phase_context_suppress",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/phase_context_suppress",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/phase_context_suppress",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "phase_global_suppress",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/phase_global_suppress",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/phase_global_suppress",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "random_dark_1531",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/random_dark_1531",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/random_dark_1531",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "random_dark_173",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/random_dark_173",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/random_dark_173",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "random_dense_dark_741",
+    "status": "invalid_shared_prefix_control; original grades retained as row-conditioned diagnostics",
+    "holm_placeholder": "1",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "random_dense_dark_947",
+    "status": "invalid_shared_prefix_control; original grades retained as row-conditioned diagnostics",
+    "holm_placeholder": "1",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "random_shared_dark_741",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/random_shared_dark_741",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": false,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/random_shared_dark_741",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "hypothesis_not_preregistered",
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": false,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "random_shared_dark_947",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/random_shared_dark_947",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": false,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/random_shared_dark_947",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "hypothesis_not_preregistered",
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": false,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "source_input",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/source_input",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/source_input",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "zero_write",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/zero_write",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.15",
+      "planned_comparisons": 46,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-bpd01:18211:recipient",
+          "cluster_id": "18211",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-bpd01:18223:recipient",
+          "cluster_id": "18223",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-BPD-01/nf4/zero_write",
+      "target_population": "fresh development source worlds; one pinned checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 2,
+      "n_clusters": 2,
+      "candidate_correct": 1,
+      "baseline_correct": 1,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.5,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 2,
+      "minimum_effect": 0.15,
+      "alpha": 0.05,
+      "planned_comparisons": 46,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": true,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0010869565217391304,
+      "hoeffding_one_sided_effect_bounds": [
+        -1.0,
+        1.0
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": {
+        "candidate": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "baseline": [
+          0.000270843505859375,
+          0.9997291564941406
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_signflip_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_assumption": "requires rootwise symmetric sign null, unestablished here; sensitivity calculation only",
+    "conditional_holm_p_exact": "1"
+  },
+  {
+    "backend": "nf4",
+    "contrast": "phase_identity_activation",
+    "status": "continuous diagnostic; no binary test",
+    "holm_placeholder": "1",
+    "conditional_holm_p_exact": "1"
+  }
+]

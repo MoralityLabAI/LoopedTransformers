@@ -1,0 +1,590 @@
+{
+  "backend": {
+    "bf16": {
+      "memory": {
+        "cuda_allocated_bytes": 2140612608,
+        "cuda_reserved_bytes": 2332033024,
+        "sampled_process_dedicated_bytes": 2425044992,
+        "sampled_process_shared_bytes": 81788928,
+        "windows_nonempty_samples": 137,
+        "sampled_device_global_bytes": 2425356288,
+        "elapsed_seconds": 1786.998,
+        "shared_is_allocation_not_measured_paging": true,
+        "head_remained_cpu": true,
+        "cohort_elapsed_seconds": 1491.752,
+        "prefix_repair_elapsed_seconds": 295.246
+      },
+      "prefix_repair_memory": {
+        "cuda_allocated_bytes": 1199802880,
+        "cuda_reserved_bytes": 1375731712,
+        "sampled_process_dedicated_bytes": 1468735488,
+        "sampled_process_shared_bytes": 81788928,
+        "windows_nonempty_samples": 18,
+        "sampled_device_global_bytes": 1469054976,
+        "elapsed_seconds": 295.246,
+        "shared_is_allocation_not_measured_paging": true,
+        "head_remained_cpu": true
+      },
+      "phase_calibration": {
+        "decoder_output_pre_final_norm": {
+          "loop1_means": [
+            -2435.0,
+            0.1234130859375,
+            7.748046875,
+            -1.1859130859375,
+            1.84423828125
+          ],
+          "loop2_means": [
+            -177.46875,
+            -4.88519287109375,
+            2.670635223388672,
+            -9.435546875,
+            -3.54833984375
+          ],
+          "thresholds": [
+            -1306.234375,
+            -2.380889892578125,
+            5.209341049194336,
+            -5.31072998046875,
+            -0.85205078125
+          ],
+          "calibration_only": true
+        },
+        "loop_boundary_post_norm": {
+          "loop1_means": [
+            -9.5654296875,
+            0.0001239776611328125,
+            0.435516357421875,
+            -0.06906569004058838,
+            0.10133838653564453
+          ],
+          "loop2_means": [
+            -2.14404296875,
+            -0.8589105606079102,
+            0.46432971954345703,
+            -1.6895751953125,
+            -0.6103739738464355
+          ],
+          "thresholds": [
+            -5.854736328125,
+            -0.42939329147338867,
+            0.449923038482666,
+            -0.8793204426765442,
+            -0.2545177936553955
+          ],
+          "calibration_only": true
+        }
+      },
+      "phase": {
+        "decoder_output_pre_final_norm": {
+          "channels": [
+            2279,
+            2278,
+            2280,
+            173,
+            1531
+          ],
+          "dev_last_token_loop_classification_correct": [
+            16.0,
+            16.0,
+            14.0,
+            16.0,
+            14.0
+          ],
+          "dev_loop_observations": 16,
+          "independent_roots": 4,
+          "loop1_mean": [
+            -2452.875,
+            -0.647735595703125,
+            7.5980224609375,
+            -0.9040946960449219,
+            1.65802001953125
+          ],
+          "loop2_mean": [
+            -158.21875,
+            -3.888916015625,
+            4.2633209228515625,
+            -9.108154296875,
+            -3.324676513671875
+          ],
+          "channel2279_mean_phase_gap": 2294.65625,
+          "channel2279_mean_donor_recipient_absolute_gap_by_loop": [
+            3.25,
+            8.5
+          ]
+        },
+        "loop_boundary_post_norm": {
+          "channels": [
+            2279,
+            2278,
+            2280,
+            173,
+            1531
+          ],
+          "dev_last_token_loop_classification_correct": [
+            16.0,
+            16.0,
+            16.0,
+            16.0,
+            14.0
+          ],
+          "dev_loop_observations": 16,
+          "independent_roots": 4,
+          "loop1_mean": [
+            -9.56884765625,
+            -0.044256389141082764,
+            0.42487478256225586,
+            -0.05191206932067871,
+            0.08872675895690918
+          ],
+          "loop2_mean": [
+            -1.91693115234375,
+            -0.6931838989257812,
+            0.7444791793823242,
+            -1.645538330078125,
+            -0.592829704284668
+          ],
+          "channel2279_mean_phase_gap": 7.65191650390625,
+          "channel2279_mean_donor_recipient_absolute_gap_by_loop": [
+            0.0009765625,
+            0.0723876953125
+          ]
+        }
+      },
+      "physical_dose": {
+        "edits_measured": 26,
+        "ineligible": 2,
+        "zero_dose": 0,
+        "maximum_relative_error": 0.009267944960346568,
+        "current_dark_edits": 16,
+        "current_dark_max_full_vocab_error": 0.0,
+        "canonical_current_dark_edits": 12,
+        "invalid_candidate_indexed_dense_edits": 4,
+        "whole_state_norm_ratio_range": [
+          0.994783341884613,
+          1.0003254413604736
+        ]
+      }
+    },
+    "nf4": {
+      "memory": {
+        "cuda_allocated_bytes": 2386340864,
+        "cuda_reserved_bytes": 2732589056,
+        "sampled_process_dedicated_bytes": 2827702272,
+        "sampled_process_shared_bytes": 81788928,
+        "windows_nonempty_samples": 141,
+        "sampled_device_global_bytes": 2828009472,
+        "elapsed_seconds": 2728.5060000000003,
+        "shared_is_allocation_not_measured_paging": true,
+        "head_remained_cpu": true,
+        "cohort_elapsed_seconds": 2403.059,
+        "prefix_repair_elapsed_seconds": 325.447
+      },
+      "prefix_repair_memory": {
+        "cuda_allocated_bytes": 2263813632,
+        "cuda_reserved_bytes": 2545942528,
+        "sampled_process_dedicated_bytes": 2638954496,
+        "sampled_process_shared_bytes": 81788928,
+        "windows_nonempty_samples": 19,
+        "sampled_device_global_bytes": 2639265792,
+        "elapsed_seconds": 325.447,
+        "shared_is_allocation_not_measured_paging": true,
+        "head_remained_cpu": true
+      },
+      "phase_calibration": {
+        "decoder_output_pre_final_norm": {
+          "loop1_means": [
+            -2454.0,
+            -1.3153076171875,
+            10.2431640625,
+            -0.8732223510742188,
+            1.7510986328125
+          ],
+          "loop2_means": [
+            -114.53125,
+            -5.2452392578125,
+            1.33978271484375,
+            -8.8330078125,
+            -4.563232421875
+          ],
+          "thresholds": [
+            -1284.265625,
+            -3.2802734375,
+            5.791473388671875,
+            -4.853115081787109,
+            -1.40606689453125
+          ],
+          "calibration_only": true
+        },
+        "loop_boundary_post_norm": {
+          "loop1_means": [
+            -9.5703125,
+            -0.08271312713623047,
+            0.57330322265625,
+            -0.051827430725097656,
+            0.09638291597366333
+          ],
+          "loop2_means": [
+            -1.18170166015625,
+            -0.79852294921875,
+            0.21806001663208008,
+            -1.3681640625,
+            -0.6750047206878662
+          ],
+          "thresholds": [
+            -5.376007080078125,
+            -0.44061803817749023,
+            0.39568161964416504,
+            -0.7099957466125488,
+            -0.28931090235710144
+          ],
+          "calibration_only": true
+        }
+      },
+      "phase": {
+        "decoder_output_pre_final_norm": {
+          "channels": [
+            2279,
+            2278,
+            2280,
+            173,
+            1531
+          ],
+          "dev_last_token_loop_classification_correct": [
+            16.0,
+            16.0,
+            16.0,
+            16.0,
+            14.0
+          ],
+          "dev_loop_observations": 16,
+          "independent_roots": 4,
+          "loop1_mean": [
+            -2476.875,
+            -1.727996826171875,
+            9.9027099609375,
+            -0.7501754760742188,
+            1.48651123046875
+          ],
+          "loop2_mean": [
+            -99.375,
+            -4.78759765625,
+            4.8433685302734375,
+            -6.8348388671875,
+            -3.090576171875
+          ],
+          "channel2279_mean_phase_gap": 2377.5,
+          "channel2279_mean_donor_recipient_absolute_gap_by_loop": [
+            4.25,
+            7.125
+          ]
+        },
+        "loop_boundary_post_norm": {
+          "channels": [
+            2279,
+            2278,
+            2280,
+            173,
+            1531
+          ],
+          "dev_last_token_loop_classification_correct": [
+            16.0,
+            16.0,
+            8.0,
+            16.0,
+            14.0
+          ],
+          "dev_loop_observations": 16,
+          "independent_roots": 4,
+          "loop1_mean": [
+            -9.57177734375,
+            -0.10731002688407898,
+            0.54901123046875,
+            -0.04387831687927246,
+            0.07973980903625488
+          ],
+          "loop2_mean": [
+            -1.150848388671875,
+            -0.8176193237304688,
+            0.8290696144104004,
+            -1.177520751953125,
+            -0.5367422103881836
+          ],
+          "channel2279_mean_phase_gap": 8.420928955078125,
+          "channel2279_mean_donor_recipient_absolute_gap_by_loop": [
+            0.0009765625,
+            0.06622314453125
+          ]
+        }
+      },
+      "physical_dose": {
+        "edits_measured": 26,
+        "ineligible": 1,
+        "zero_dose": 0,
+        "maximum_relative_error": 0.010251876723769544,
+        "current_dark_edits": 16,
+        "current_dark_max_full_vocab_error": 0.0,
+        "canonical_current_dark_edits": 12,
+        "invalid_candidate_indexed_dense_edits": 4,
+        "whole_state_norm_ratio_range": [
+          0.9947459697723389,
+          1.0003979206085205
+        ]
+      }
+    }
+  },
+  "cross_backend_rank_alignment": [
+    {
+      "case_id": "nan-bpd01:18211:recipient",
+      "root": 18211,
+      "arm": "native1",
+      "spearman64": 0.8515762723505574
+    },
+    {
+      "case_id": "nan-bpd01:18211:recipient",
+      "root": 18211,
+      "arm": "native2",
+      "spearman64": 0.7560674062327511
+    },
+    {
+      "case_id": "nan-bpd01:18211:recipient",
+      "root": 18211,
+      "arm": "open_loop",
+      "spearman64": 0.8191485708935359
+    },
+    {
+      "case_id": "nan-bpd01:18211:recipient",
+      "root": 18211,
+      "arm": "equal_compute",
+      "spearman64": 0.847985347985348
+    },
+    {
+      "case_id": "nan-bpd01:18211:donor",
+      "root": 18211,
+      "arm": "native1",
+      "spearman64": 0.8421245421245419
+    },
+    {
+      "case_id": "nan-bpd01:18211:donor",
+      "root": 18211,
+      "arm": "native2",
+      "spearman64": 0.7087187471380162
+    },
+    {
+      "case_id": "nan-bpd01:18211:donor",
+      "root": 18211,
+      "arm": "open_loop",
+      "spearman64": 0.8198083725939795
+    },
+    {
+      "case_id": "nan-bpd01:18211:donor",
+      "root": 18211,
+      "arm": "equal_compute",
+      "spearman64": 0.8534798534798534
+    },
+    {
+      "case_id": "nan-bpd01:18223:recipient",
+      "root": 18223,
+      "arm": "native1",
+      "spearman64": 0.796657509157509
+    },
+    {
+      "case_id": "nan-bpd01:18223:recipient",
+      "root": 18223,
+      "arm": "native2",
+      "spearman64": 0.7044507532396171
+    },
+    {
+      "case_id": "nan-bpd01:18223:recipient",
+      "root": 18223,
+      "arm": "open_loop",
+      "spearman64": 0.7661630036630035
+    },
+    {
+      "case_id": "nan-bpd01:18223:recipient",
+      "root": 18223,
+      "arm": "equal_compute",
+      "spearman64": 0.7916528349057455
+    },
+    {
+      "case_id": "nan-bpd01:18223:donor",
+      "root": 18223,
+      "arm": "native1",
+      "spearman64": 0.8036493092251478
+    },
+    {
+      "case_id": "nan-bpd01:18223:donor",
+      "root": 18223,
+      "arm": "native2",
+      "spearman64": 0.7214762412185567
+    },
+    {
+      "case_id": "nan-bpd01:18223:donor",
+      "root": 18223,
+      "arm": "open_loop",
+      "spearman64": 0.7719410708045903
+    },
+    {
+      "case_id": "nan-bpd01:18223:donor",
+      "root": 18223,
+      "arm": "equal_compute",
+      "spearman64": 0.7904761904761903
+    },
+    {
+      "case_id": "nan-bpd01:18229:recipient",
+      "root": 18229,
+      "arm": "native1",
+      "spearman64": 0.8100274725274724
+    },
+    {
+      "case_id": "nan-bpd01:18229:recipient",
+      "root": 18229,
+      "arm": "native2",
+      "spearman64": 0.8137277347863912
+    },
+    {
+      "case_id": "nan-bpd01:18229:recipient",
+      "root": 18229,
+      "arm": "open_loop",
+      "spearman64": 0.7851190476190474
+    },
+    {
+      "case_id": "nan-bpd01:18229:recipient",
+      "root": 18229,
+      "arm": "equal_compute",
+      "spearman64": 0.8150005151809788
+    },
+    {
+      "case_id": "nan-bpd01:18229:donor",
+      "root": 18229,
+      "arm": "native1",
+      "spearman64": 0.8064102564102563
+    },
+    {
+      "case_id": "nan-bpd01:18229:donor",
+      "root": 18229,
+      "arm": "native2",
+      "spearman64": 0.7973738742925462
+    },
+    {
+      "case_id": "nan-bpd01:18229:donor",
+      "root": 18229,
+      "arm": "open_loop",
+      "spearman64": 0.7797161172161171
+    },
+    {
+      "case_id": "nan-bpd01:18229:donor",
+      "root": 18229,
+      "arm": "equal_compute",
+      "spearman64": 0.8023351648351646
+    },
+    {
+      "case_id": "nan-bpd01:18233:recipient",
+      "root": 18233,
+      "arm": "native1",
+      "spearman64": 0.8393868977987871
+    },
+    {
+      "case_id": "nan-bpd01:18233:recipient",
+      "root": 18233,
+      "arm": "native2",
+      "spearman64": 0.8871209606918286
+    },
+    {
+      "case_id": "nan-bpd01:18233:recipient",
+      "root": 18233,
+      "arm": "open_loop",
+      "spearman64": 0.8402339770923326
+    },
+    {
+      "case_id": "nan-bpd01:18233:recipient",
+      "root": 18233,
+      "arm": "equal_compute",
+      "spearman64": 0.8384482423653985
+    },
+    {
+      "case_id": "nan-bpd01:18233:donor",
+      "root": 18233,
+      "arm": "native1",
+      "spearman64": 0.8514194139194138
+    },
+    {
+      "case_id": "nan-bpd01:18233:donor",
+      "root": 18233,
+      "arm": "native2",
+      "spearman64": 0.7101205402724483
+    },
+    {
+      "case_id": "nan-bpd01:18233:donor",
+      "root": 18233,
+      "arm": "open_loop",
+      "spearman64": 0.8568681318681317
+    },
+    {
+      "case_id": "nan-bpd01:18233:donor",
+      "root": 18233,
+      "arm": "equal_compute",
+      "spearman64": 0.8517399267399266
+    }
+  ],
+  "cross_backend_native2_correctness": {
+    "both_correct": 3,
+    "bf16_only": 0,
+    "nf4_only": 1,
+    "neither": 4,
+    "n_independent_roots": 4,
+    "cases": [
+      {
+        "case_id": "nan-bpd01:18211:recipient",
+        "root": 18211,
+        "bf16_future12": 0,
+        "nf4_future12": 0
+      },
+      {
+        "case_id": "nan-bpd01:18211:donor",
+        "root": 18211,
+        "bf16_future12": 0,
+        "nf4_future12": 0
+      },
+      {
+        "case_id": "nan-bpd01:18223:recipient",
+        "root": 18223,
+        "bf16_future12": 1,
+        "nf4_future12": 1
+      },
+      {
+        "case_id": "nan-bpd01:18223:donor",
+        "root": 18223,
+        "bf16_future12": 0,
+        "nf4_future12": 0
+      },
+      {
+        "case_id": "nan-bpd01:18229:recipient",
+        "root": 18229,
+        "bf16_future12": 0,
+        "nf4_future12": 0
+      },
+      {
+        "case_id": "nan-bpd01:18229:donor",
+        "root": 18229,
+        "bf16_future12": 0,
+        "nf4_future12": 1
+      },
+      {
+        "case_id": "nan-bpd01:18233:recipient",
+        "root": 18233,
+        "bf16_future12": 1,
+        "nf4_future12": 1
+      },
+      {
+        "case_id": "nan-bpd01:18233:donor",
+        "root": 18233,
+        "bf16_future12": 1,
+        "nf4_future12": 1
+      }
+    ],
+    "scope": "descriptive paired accuracy; no registered cross-backend superiority or equivalence test"
+  },
+  "scope": "rank alignment and phase diagnostics; learned BPD subspace alignment is gated and unrun",
+  "sealed_test_accessed": false
+}

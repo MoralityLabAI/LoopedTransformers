@@ -1,0 +1,10 @@
+{
+  "decision": "REDESIGN_OR_PILOT_ONLY",
+  "source": "wrapper fail-closed after planner refusal, not a successful empirical planner estimate",
+  "planner_returncode": 1,
+  "planner_stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\patri\\Documents\\Codex\\2026-11-17\\yes-nanbeige4-2-3b-at-4\\work\\nan-bpd01\\EvalMath\\skills\\evalmath-mechinterp-power\\scripts\\preflight.py\", line 103, in <module>\n    if __name__=='__main__':raise SystemExit(main())\n                                             ^^^^^^\n  File \"C:\\Users\\patri\\Documents\\Codex\\2026-11-17\\yes-nanbeige4-2-3b-at-4\\work\\nan-bpd01\\EvalMath\\skills\\evalmath-mechinterp-power\\scripts\\preflight.py\", line 97, in main\n    a=p.parse_args();result=preflight(json.loads(a.pilot.read_text()))\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\patri\\Documents\\Codex\\2026-11-17\\yes-nanbeige4-2-3b-at-4\\work\\nan-bpd01\\EvalMath\\skills\\evalmath-mechinterp-power\\scripts\\preflight.py\", line 49, in preflight\n    if not isinstance(rows,list) or not rows:raise ValueError('pilot worlds required')\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: pilot worlds required\n",
+  "input_sha256": "d2fe9a1c4cdeb1cc160f5f608dfc16f093c3ac36c47130844e07b2c0bf5726d8",
+  "planner_sha256": "38cfcfd2757749cedf9838949c03aac7171c28e7a41d6ec5f11f57715d7778a9",
+  "reason": "No independent empirical NAN-BPD donor-transfer/matched-sham calibration exists before the development pilot. No synthetic or fabricated calibration substituted.",
+  "confirmation_enabled": false
+}
